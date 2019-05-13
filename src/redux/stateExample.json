@@ -7,15 +7,91 @@
     "token": "asdffdsfsdfsdfsdfs",
     "serverTimeOffset": 60
   },
-  "current": {
-    "bookId": 66,
-    "spineIdRef": "chapter5",
-    "startTime": 1506091622203
+  "passage": {
+    "ref": {
+      "bookId": 1,
+      "chapter": 1,
+      "scrollY": 0
+    },
+    "versionId": "kjv",
+    "parallelVersionId": "wlc"
   },
+  "history": [
+    {
+      "type": "passage",
+      "ref": {
+        "bookId": 1,
+        "chapter": 1,
+        "scrollY": 0
+      },
+      "lastViewTime": 123123122,
+      "versionId": "kjv",
+      "parallelVersionId": "wlc"
+    },
+    {
+      "type": "search",
+      "searchString": "love",
+      "numberResults": 189,
+      "lastViewTime": 123140422
+    },
+    {
+      "type": "passage",
+      "ref": {
+        "bookId": 4,
+        "chapter": 3,
+        "scrollY": 0
+      },
+      "lastViewTime": 123140422,
+      "versionId": "kjv",
+      "parallelVersionId": "wlc"
+    },
+    {
+      "type": "passage",
+      "ref": {
+        "bookId": 4,
+        "chapter": 3,
+        "scrollY": 0
+      },
+      "lastViewTime": 123143122,
+      "versionId": "kjv"
+    },
+    {
+      "type": "search",
+      "searchString": "#H01600#plural",
+      "numberResults": 28,
+      "lastViewTime": 123119422
+    },
+    {
+      "type": "passage",
+      "ref": {
+        "bookId": 2,
+        "chapter": 1,
+        "scrollY": 0
+      },
+      "lastViewTime": 123129983,
+      "versionId": "kjv"
+    }
+  ],
+  // navigation!
   "displaySettings": {
     "mode": "parallel",
     "textSize": 1,
     "textSpacing": 1.3,
     "theme": "default"
-  }
+  },
+  "rateUs": {
+    "numberOfOpens": 5,
+    "dismissed": true
+  },
+  "analyticsQueue": [
+    {
+      "action": "opened",
+    },
+    {
+      "action": "exited",
+      "data": {
+        "duration": 38232
+      }
+    }
+  ]
 }

@@ -3,9 +3,6 @@ import reduceReducers from "reduce-reducers"
 
 import displaySettings from "./reducers/displaySettings.js"
 
-import setSort from "./reducers/setSort.js"
-import endRecordReading from "./reducers/endRecordReading.js"
-
 const slicedReducers = combineReducers({
   displaySettings,
 })

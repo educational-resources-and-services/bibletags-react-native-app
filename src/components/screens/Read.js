@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text, AppState } from "react-native"
+import { StyleSheet, View, Text, Dimensions, AppState } from "react-native"
 import { Constants, KeepAwake } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -81,12 +81,13 @@ class Read extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  // readerStatus: state.readerStatus,
-})
+export default Read
+// const mapStateToProps = (state) => ({
+//   // readerStatus: state.readerStatus,
+// })
 
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  // setXapiConsentShown,
-}, dispatch)
+// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+//   // setXapiConsentShown,
+// }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(Read)
+// export default connect(mapStateToProps, matchDispatchToProps)(Read)

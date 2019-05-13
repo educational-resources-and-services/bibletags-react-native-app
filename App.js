@@ -4,14 +4,15 @@ import { Root } from "native-base"
 
 import { AsyncStorage } from "react-native"
 import { createStore, compose, applyMiddleware } from "redux"
-import { persistStore, autoRehydrate } from "redux-persist"
+import { persistStore, persistReducer } from "redux-persist"
+import { PersistGate } from 'redux-persist/integration/react'
 import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
 
 import GlobalNavigator from "./src/navigators/Global.js"
 
 import updateDataStructure from "./src/utils/updateDataStructure.js"
-import { patch, reportReadings } from "./src/utils/syncUserData.js"
+// import { reportReadings } from "./src/utils/syncUserData.js"
 
 const patchMiddleware = store => next => action => {
   const result = next(action)
@@ -30,7 +31,16 @@ const patchMiddleware = store => next => action => {
   return result
 }
 
-const store = compose(autoRehydrate())(createStore)(reducers, applyMiddleware(patchMiddleware))
+// const store = compose(autoRehydrate())(createStore)(reducers, applyMiddleware(patchMiddleware))
+
+const persistConfig = {
+  key: "root",    
+  storage: AsyncStorage,
+}
+
+const persistedReducer = persistReducer(persistConfig, reducers)
+const store = createStore(persistedReducer, applyMiddleware(patchMiddleware))
+const persistor = persistStore(store)
 
 export default class App extends React.Component {
   state = {
@@ -39,7 +49,6 @@ export default class App extends React.Component {
 
   async componentWillMount() {
     await Promise.all([
-      new Promise(resolve => persistStore(store, {storage: AsyncStorage}, resolve)),
       Font.loadAsync({
         Roboto: require('native-base/Fonts/Roboto.ttf'),
         Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
@@ -66,7 +75,12 @@ export default class App extends React.Component {
     return (
       <Root>
         <Provider store={store}>
-          <GlobalNavigator />
+          <PersistGate 
+            persistor={persistor} 
+            loading={<AppLoading />}
+          >
+            <GlobalNavigator />
+          </PersistGate>
         </Provider>
       </Root>
     )

@@ -208,14 +208,15 @@ class DisplaySettings extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state) => ({
-  displaySettings: state.displaySettings,
-})
+export default DisplaySettings
+// const mapStateToProps = (state) => ({
+//   displaySettings: state.displaySettings,
+// })
 
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  setTextSize,
-  setTextSpacing,
-  setTheme,
-}, dispatch)
+// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+//   setTextSize,
+//   setTextSpacing,
+//   setTheme,
+// }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(DisplaySettings)
+// export default connect(mapStateToProps, matchDispatchToProps)(DisplaySettings)

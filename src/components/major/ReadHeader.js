@@ -1,7 +1,6 @@
 import React from "react"
 import { StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
 import { Title, Left, Icon, Right, Button, Body } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
@@ -52,9 +51,7 @@ class ReadHeader extends React.PureComponent {
     width -= (leftIconsWidth + rightIconsWidth)
             
     return (
-      <AppHeader
-        hide={mode === 'page'}
-      >
+      <AppHeader>
         <Left>
           <Button
             transparent

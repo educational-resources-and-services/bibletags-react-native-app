@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text } from "react-native"
+import { StyleSheet, View, Text, Dimensions } from "react-native"
 import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -64,12 +64,13 @@ class SearchResults extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
-  // readerStatus: state.readerStatus,
-})
+export default SearchResults
+// const mapStateToProps = (state) => ({
+//   // readerStatus: state.readerStatus,
+// })
 
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  // setXapiConsentShown,
-}, dispatch)
+// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+//   // setXapiConsentShown,
+// }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(SearchResults)
+// export default connect(mapStateToProps, matchDispatchToProps)(SearchResults)
