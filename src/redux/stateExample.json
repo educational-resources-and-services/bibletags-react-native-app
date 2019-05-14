@@ -72,7 +72,6 @@
       "versionId": "kjv"
     }
   ],
-  // navigation!
   "displaySettings": {
     "mode": "parallel",
     "textSize": 1,
@@ -85,7 +84,7 @@
   },
   "analyticsQueue": [
     {
-      "action": "opened",
+      "action": "opened"
     },
     {
       "action": "exited",

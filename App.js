@@ -79,7 +79,7 @@ export default class App extends React.Component {
             persistor={persistor} 
             loading={<AppLoading />}
           >
-            <GlobalNavigator />
+            <GlobalNavigator persistenceKey={"NavigationState"} />
           </PersistGate>
         </Provider>
       </Root>

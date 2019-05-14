@@ -55,6 +55,7 @@ class Read extends React.Component {
 
   render() {
 
+    const { navigation } = this.props
     const { showOptions, currentAppState } = this.state
 
     const { width } = Dimensions.get('window')
@@ -62,6 +63,7 @@ class Read extends React.Component {
     return (
       <Container>
         <ReadHeader
+          navigation={navigation}
           toggleShowOptions={this.toggleShowOptions}
           width={width}  // By sending this as a prop, I force a rerender
         />

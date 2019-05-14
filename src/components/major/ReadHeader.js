@@ -46,7 +46,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { toggleShowOptions, width } = this.props
+    let { toggleShowOptions, width, navigation } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
