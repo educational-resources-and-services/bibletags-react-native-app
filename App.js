@@ -1,5 +1,5 @@
 import React from "react"
-import { Font, AppLoading } from "expo"
+import { Constants, Font, AppLoading } from "expo"
 import { Root } from "native-base"
 
 import { AsyncStorage } from "react-native"
@@ -79,7 +79,10 @@ export default class App extends React.Component {
             persistor={persistor} 
             loading={<AppLoading />}
           >
-            <GlobalNavigator persistenceKey={"NavigationState"} />
+            <GlobalNavigator
+              persistenceKey={`NavigationState-${Constants.manifest.version}`}
+              renderLoadingExperimental={() => <AppLoading />}
+            />
           </PersistGate>
         </Provider>
       </Root>
