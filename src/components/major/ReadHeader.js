@@ -45,8 +45,16 @@ class ReadHeader extends React.PureComponent {
     navigation.goBack(navigation.state.params.pageKey)
   }
 
-  render() {
+  search = () => {
     let { toggleShowOptions, width, navigation } = this.props
+
+    navigation.navigate("SearchResults", {
+      searchString: "love",
+    })
+  }
+
+  render() {
+    let { toggleShowOptions, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
@@ -57,7 +65,7 @@ class ReadHeader extends React.PureComponent {
             transparent
             onPress={this.openDrawer}
           >
-            <Icon name="home" />
+            <Icon name="menu" />
           </Button>
         </Left>
         <Body style={[
@@ -77,7 +85,7 @@ class ReadHeader extends React.PureComponent {
         <Right>
           <Button
             transparent
-            onPress={() => {}}
+            onPress={this.search}
           >
             <Icon name="search" />
           </Button>

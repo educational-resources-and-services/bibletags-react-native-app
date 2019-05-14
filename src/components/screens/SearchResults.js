@@ -9,6 +9,7 @@ import i18n from "../../utils/i18n.js"
 import Options from "../major/Options"
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
+import AppHeader from '../basic/AppHeader'
 
 import { unmountTimeouts } from "../../utils/toolbox.js"
 
@@ -28,24 +29,24 @@ class SearchResults extends React.Component {
     }
   }
 
-  componentDidMount() {
-    AppState.addEventListener('change', this.handleAppStateChange)
-  }
+  // componentDidMount() {
+  //   AppState.addEventListener('change', this.handleAppStateChange)
+  // }
 
-  componentWillUnmount = () => {
-    AppState.removeEventListener('change', this.handleAppStateChange)
-    unmountTimeouts.bind(this)()
-  }
+  // componentWillUnmount = () => {
+  //   AppState.removeEventListener('change', this.handleAppStateChange)
+  //   unmountTimeouts.bind(this)()
+  // }
 
-  handleAppStateChange = currentAppState => {
-    this.setState({
-      currentAppState,
-    })
-  }
+  // handleAppStateChange = currentAppState => {
+  //   this.setState({
+  //     currentAppState,
+  //   })
+  // }
 
   render() {
 
-    const { currentAppState } = this.state
+    // const { currentAppState } = this.state
 
     const { width } = Dimensions.get('window')
 
