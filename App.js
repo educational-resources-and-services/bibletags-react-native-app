@@ -8,6 +8,7 @@ import { persistStore, persistReducer } from "redux-persist"
 import { PersistGate } from 'redux-persist/integration/react'
 import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
+import { Ionicons } from '@expo/vector-icons'
 
 import GlobalNavigator from "./src/navigators/Global.js"
 
@@ -52,7 +53,7 @@ export default class App extends React.Component {
       Font.loadAsync({
         Roboto: require('native-base/Fonts/Roboto.ttf'),
         Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
-        Ionicons: require("native-base/Fonts/Ionicons.ttf"),
+        ...Ionicons.font,
       }),
     ])
     
