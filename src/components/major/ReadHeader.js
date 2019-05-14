@@ -4,7 +4,7 @@ import { bindActionCreators } from "redux"
 import { Title, Left, Icon, Right, Button, Body } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
-import { isPhoneSize } from '../../utils/toolbox.js'
+import { isPhoneSize, debounce } from '../../utils/toolbox.js'
 
 const leftIconsWidth = 50
 const rightIconsWidth = 135
@@ -36,7 +36,9 @@ class ReadHeader extends React.PureComponent {
     const { navigation, hideOptions } = this.props
 
     hideOptions()
-    debounce(navigation.navigate, "DrawerOpen")
+    debounce(navigation.openDrawer)
+    // navigation.openDrawer()
+
   }
 
   onBackPress = () => {

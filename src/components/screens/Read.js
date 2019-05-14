@@ -65,6 +65,7 @@ class Read extends React.Component {
         <ReadHeader
           navigation={navigation}
           toggleShowOptions={this.toggleShowOptions}
+          hideOptions={this.hideOptions}
           width={width}  // By sending this as a prop, I force a rerender
         />
         <KeepAwake />
