@@ -4,8 +4,7 @@ import { StyleSheet } from "react-native"
 import { Constants } from "expo"
 
 const {
-  VERSION_CHOOSER_BACKGROUND_COLOR="#dfdff1",
-
+  VERSION_CHOOSER_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({

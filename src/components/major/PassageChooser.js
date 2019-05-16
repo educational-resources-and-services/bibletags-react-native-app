@@ -4,13 +4,12 @@ import { StyleSheet, ScrollView, FlatList } from "react-native"
 import { Constants } from "expo"
 
 import VersionChooser from "./VersionChooser"
-import { getBibleBookName } from "bibletags-ui-helper"
+import ChooserBook from "../basic/ChooserBook"
+import ChooserChapter from "../basic/ChooserChapter"
 
 const {
-  BOOK_CHOOSER_BACKGROUND_COLOR="#e9e9ef",
-  CHAPTER_CHOOSER_BACKGROUND_COLOR="#f4f4f8",
-  CHOOSER_SELECTED_BACKGROUND_COLOR="#3a3937",
-  CHOOSER_SELECTED_TEXT_COLOR="white",
+  BOOK_CHOOSER_BACKGROUND_COLOR,
+  CHAPTER_CHOOSER_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -19,46 +18,19 @@ const styles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     flex: 1,
+    backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
   },
   bookList: {
     // borderRightWidth: 1,
     // borderRightColor: DIVIDER_COLOR,
     backgroundColor: BOOK_CHOOSER_BACKGROUND_COLOR,
   },
-  book: {
-    paddingRight: 15,
-    paddingLeft: 15,
-  },
-  bookText: {
-    lineHeight: 40,
-  },
-  bookSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
-  },
-  bookTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
-  },
   chapterList: {
     flex: 1,
-    backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
     display: 'flex',
     flexWrap: 'wrap',
     flexDirection: 'row',
     padding: 5,
-  },
-  chapter: {
-    width: 50,
-    borderRadius: 25,
-  },
-  chapterText: {
-    lineHeight: 50,
-    textAlign: 'center',
-  },
-  chapterSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
-  },
-  chapterTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
   },
 })
 
@@ -69,23 +41,23 @@ class PassageChooser extends React.PureComponent {
 
   state = {}
 
+  updateChapter = (...params) => {
+console.log('updateChapter params', params)
+  }
+
+  updateBook = (...params) => {
+console.log('params', params)
+  }
+
   keyExtractor = bookId => bookId.toString()
 
   renderItem = ({ item: bookId, index }) => {
     return (
-      <View
-        style={[
-          styles.book,
-          (bookId === 2 ? styles.bookSelected : null),
-        ]}
-      >
-        <Text
-          style={[
-            styles.bookText,
-            (bookId === 2 ? styles.bookTextSelected : null),
-          ]}
-        >{getBibleBookName(bookId)}</Text>
-      </View>
+      <ChooserBook
+        bookId={bookId}
+        selected={bookId === 2}
+        onPress={this.updateBook}
+      />
     )
   }
 
@@ -107,21 +79,13 @@ class PassageChooser extends React.PureComponent {
 
             {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
 
-            {Array(50).fill(0).map((x, idx) => (
-              <View
+            {Array(150).fill(0).map((x, idx) => (
+              <ChooserChapter
                 key={idx}
-                style={[
-                  styles.chapter,
-                  (idx+1 === 3 ? styles.chapterSelected : null),
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.chapterText,
-                    (idx+1 === 3 ? styles.chapterTextSelected : null),
-                  ]}
-                >{idx+1}</Text>
-              </View>
+                chapter={idx+1}
+                selected={idx === 2}
+                onPress={this.updateChapter}
+              />
             ))}
           </View>
         </ScrollView>

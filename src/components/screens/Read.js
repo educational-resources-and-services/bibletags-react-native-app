@@ -16,7 +16,7 @@ import { unmountTimeouts } from "../../utils/toolbox.js"
 
 const {
   APP_BACKGROUND_COLOR,
-  PASSAGE_CHOOSER_HEIGHT=400,
+  PASSAGE_CHOOSER_HEIGHT,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
