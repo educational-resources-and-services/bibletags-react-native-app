@@ -9,7 +9,7 @@ import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
 
-import { setRef } from "../../redux/actions.js"
+import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions.js"
 
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
@@ -58,32 +58,35 @@ class PassageChooser extends React.PureComponent {
     }
   }
 
-  update = newInfo => {
-    const { setRef, passage, hideShowPassageChooser } = this.props
+  updateVersion = versionId => {
+    const { setVersionId, hideShowPassageChooser } = this.props
 
-    setRef({
-      ...passage,
-      ...newInfo,
-    })
-
+    setVersionId({ versionId })
     hideShowPassageChooser()
   }
 
-  updateVersion = versionId => this.update({ versionId })
-  updateParallelVersion = parallelVersionId => this.update({ parallelVersionId })
+  updateParallelVersion = parallelVersionId => {
+    const { setParallelVersionId, hideShowPassageChooser } = this.props
+
+    setParallelVersionId({ parallelVersionId })
+    hideShowPassageChooser()
+  }
 
   updateChapter = chapter => {
+    const { setRef, hideShowPassageChooser } = this.props
     const { bookId } = this.state
 
-    this.update({
+    setRef({
       ref: {
         bookId,
         chapter,
         scrollY: 0,
-      }
+      },
     })
-  }
 
+    hideShowPassageChooser()
+  }
+  
   updateBook = bookId => this.setState({ bookId })
 
   keyExtractor = bookId => bookId.toString()
@@ -164,6 +167,8 @@ const mapStateToProps = ({ passage }) => ({
 
 const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
+  setVersionId,
+  setParallelVersionId,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(PassageChooser)
