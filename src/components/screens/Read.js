@@ -79,7 +79,9 @@ class Read extends React.Component {
         <View
           style={styles.passageChooserContainer}
         >
-          <PassageChooser />
+          <PassageChooser
+            toggleShowPassageChooser={this.toggleShowPassageChooser}
+          />
         </View>
         <RevealContainer
           revealAmount={(showingPassageChooser ? PASSAGE_CHOOSER_HEIGHT : 0)}

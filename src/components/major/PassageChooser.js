@@ -43,43 +43,43 @@ const books = Array(39).fill(0).map((x, idx) => idx+1)
 
 class PassageChooser extends React.PureComponent {
 
-  state = {}
+  constructor(props) {
+    super(props)
 
-  updateChapter = chapter => {
-    const { setRef, passage } = this.props
+    const { passage: { ref: { bookId }} } = this.props
 
-    setRef({
-      ...passage,
-      ref: {
-        bookId: passage.ref.bookId,
-        chapter,
-        scrollY: 0,
-      }
-    })
+    this.state = {
+      bookId,
+    }
   }
 
-  updateBook = bookId => {
-    const { setRef, passage } = this.props
+  updateChapter = chapter => {
+    const { setRef, passage, toggleShowPassageChooser } = this.props
+    const { bookId } = this.state
 
     setRef({
       ...passage,
       ref: {
         bookId,
-        chapter: 1,
+        chapter,
         scrollY: 0,
       }
     })
+
+    toggleShowPassageChooser()
   }
+
+  updateBook = bookId => this.setState({ bookId })
 
   keyExtractor = bookId => bookId.toString()
 
-  renderItem = ({ item: bookId, index }) => {
-    const { passage } = this.props
+  renderItem = ({ item, index }) => {
+    const { bookId } = this.state
 
     return (
       <ChooserBook
-        bookId={bookId}
-        selected={bookId === passage.ref.bookId}
+        bookId={item}
+        selected={item === bookId}
         onPress={this.updateBook}
       />
     )
@@ -93,7 +93,7 @@ class PassageChooser extends React.PureComponent {
         <View style={styles.bookList}>
           <FlatList
             data={books}
-            extraData={this.props}
+            extraData={this.state}
             keyExtractor={this.keyExtractor}
             renderItem={this.renderItem}
           />
