@@ -23,8 +23,8 @@ const {
 class Read extends React.Component {
 
   state = {
-    showOptions: false,
-    showPassageChooser: false,
+    showingOptions: false,
+    showingPassageChooser: false,
     translateYAnimation: 0,
     currentAppState: 'active',
   }
@@ -45,39 +45,40 @@ class Read extends React.Component {
   }
 
   toggleShowOptions = () => {
-    const { showOptions } = this.state
+    const { showingOptions } = this.state
 
-    this.setState({ showOptions: !showOptions })
+    this.setState({ showingOptions: !showingOptions })
   }
 
   toggleShowPassageChooser = () => {
-    const { showPassageChooser } = this.state
+    const { showingPassageChooser } = this.state
 
-    this.setState({ showPassageChooser: !showPassageChooser })
+    this.setState({ showingPassageChooser: !showingPassageChooser })
   }
   
-  hideOptions = () => this.setState({ showOptions: false })
+  hideOptions = () => this.setState({ showingOptions: false })
 
   render() {
 
     const { navigation } = this.props
-    const { showOptions, showPassageChooser, currentAppState } = this.state
+    const { showingOptions, showingPassageChooser, currentAppState } = this.state
 
     const { width } = Dimensions.get('window')
 
     return (
       <RevealContainer
-        revealAmount={(showPassageChooser ? 400 : 0)}
+        revealAmount={(showingPassageChooser ? 400 : 0)}
       >
         <ReadHeader
           navigation={navigation}
           toggleShowOptions={this.toggleShowOptions}
           toggleShowPassageChooser={this.toggleShowPassageChooser}
           hideOptions={this.hideOptions}
+          showingPassageChooser={showingPassageChooser}
           width={width}  // By sending this as a prop, I force a rerender
         />
         <KeepAwake />
-        {showOptions &&
+        {showingOptions &&
           <Options
             requestHide={this.hideOptions}
           />
