@@ -8,6 +8,7 @@ import i18n from "../../utils/i18n.js"
 
 import ReadHeader from "../major/ReadHeader"
 import Options from "../major/Options"
+import PassageChooser from "../major/PassageChooser"
 import FullScreenSpin from '../basic/FullScreenSpin'
 import RevealContainer from '../basic/RevealContainer'
 
@@ -15,10 +16,18 @@ import { unmountTimeouts } from "../../utils/toolbox.js"
 
 const {
   APP_BACKGROUND_COLOR,
+  PASSAGE_CHOOSER_HEIGHT=400,
 } = Constants.manifest.extra
 
-// const styles = StyleSheet.create({
-// })
+const styles = StyleSheet.create({
+  passageChooserContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: PASSAGE_CHOOSER_HEIGHT,
+  },
+})
 
 class Read extends React.Component {
 
@@ -66,29 +75,36 @@ class Read extends React.Component {
     const { width } = Dimensions.get('window')
 
     return (
-      <RevealContainer
-        revealAmount={(showingPassageChooser ? 400 : 0)}
-      >
-        <ReadHeader
-          navigation={navigation}
-          toggleShowOptions={this.toggleShowOptions}
-          toggleShowPassageChooser={this.toggleShowPassageChooser}
-          hideOptions={this.hideOptions}
-          showingPassageChooser={showingPassageChooser}
-          width={width}  // By sending this as a prop, I force a rerender
-        />
-        <KeepAwake />
-        {showingOptions &&
-          <Options
-            requestHide={this.hideOptions}
+      <React.Fragment>
+        <View
+          style={styles.passageChooserContainer}
+        >
+          <PassageChooser />
+        </View>
+        <RevealContainer
+          revealAmount={(showingPassageChooser ? PASSAGE_CHOOSER_HEIGHT : 0)}
+        >
+          <ReadHeader
+            navigation={navigation}
+            toggleShowOptions={this.toggleShowOptions}
+            toggleShowPassageChooser={this.toggleShowPassageChooser}
+            hideOptions={this.hideOptions}
+            showingPassageChooser={showingPassageChooser}
+            width={width}  // By sending this as a prop, I force a rerender
           />
-        }
-        <Content>
-          <View>
-            <Text>verses</Text>
-          </View>
-        </Content>
-      </RevealContainer>
+          <KeepAwake />
+          {showingOptions &&
+            <Options
+              requestHide={this.hideOptions}
+            />
+          }
+          <Content>
+            <View>
+              <Text>verses</Text>
+            </View>
+          </Content>
+        </RevealContainer>
+      </React.Fragment>
     )
   }
 }

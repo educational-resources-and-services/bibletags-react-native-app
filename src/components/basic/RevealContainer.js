@@ -1,6 +1,12 @@
 import React from 'react'
-import { Animated } from 'react-native'
+import { StyleSheet, Animated } from 'react-native'
 import { Container } from "native-base"
+
+const styles = StyleSheet.create({
+  animatedContainer: {
+    zIndex: 10,
+  },
+})
 
 const AnimatedContainer = Animated.createAnimatedComponent(Container)
 
@@ -26,7 +32,7 @@ class RevealContainer extends React.Component {
         state.translateYAnimation,
         {
           toValue: revealAmount,
-          duration: 180,
+          duration: 200,
         }
       ).start()
   
@@ -39,16 +45,20 @@ class RevealContainer extends React.Component {
   }
 
   render() {
+    let { style, children } = this.props
     let { translateYAnimation } = this.state
 
     return (
       <AnimatedContainer
-        style={{
-          ...this.props.style,
-          translateY: translateYAnimation,
-        }}
+        style={[
+          styles.animatedContainer,
+          style,
+          {
+            translateY: translateYAnimation,
+          },
+        ]}
       >
-        {this.props.children}
+        {children}
       </AnimatedContainer>
     );
   }
