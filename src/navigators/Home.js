@@ -6,8 +6,8 @@ import Drawer from "../components/major/Drawer"
 
 const HomeNavigator = createDrawerNavigator(
   {
-    // Read: { screen: Read },
-    Read,
+    Read: { screen: Read },
+    // Read,
   },
   {
     contentComponent: props => <Drawer {...props} />

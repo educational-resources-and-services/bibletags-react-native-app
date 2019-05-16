@@ -9,7 +9,7 @@ import i18n from "../../utils/i18n.js"
 import Options from "../major/Options"
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
-import AppHeader from '../basic/AppHeader'
+import SearchResultsHeader from '../major/SearchResultsHeader'
 
 import { unmountTimeouts } from "../../utils/toolbox.js"
 
@@ -46,13 +46,15 @@ class SearchResults extends React.Component {
 
   render() {
 
+    const { navigation } = this.props
     // const { currentAppState } = this.state
 
     const { width } = Dimensions.get('window')
 
     return (
       <Container>
-        <AppHeader
+        <SearchResultsHeader
+          navigation={navigation}
           width={width}  // By sending this as a prop, I force a rerender
         />
         <Content>

@@ -1,6 +1,5 @@
 import React from "react"
 import { StyleSheet, Platform } from "react-native"
-import { bindActionCreators } from "redux"
 import { Title, Left, Icon, Right, Button, Body } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
@@ -41,13 +40,7 @@ class ReadHeader extends React.PureComponent {
 
   }
 
-  onBackPress = () => {
-    const { navigation } = this.props
-    
-    navigation.goBack(navigation.state.params.pageKey)
-  }
-
-  search = () => {
+  goSearch = () => {
     let { toggleShowOptions, width, navigation } = this.props
 
     navigation.navigate("SearchResults", {
@@ -87,7 +80,7 @@ class ReadHeader extends React.PureComponent {
         <Right>
           <Button
             transparent
-            onPress={this.search}
+            onPress={this.goSearch}
           >
             <Icon name="search" />
           </Button>
