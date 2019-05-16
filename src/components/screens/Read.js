@@ -1,5 +1,6 @@
 import React from "react"
-import { StyleSheet, View, Text, Dimensions, AppState, StatusBar, Platform } from "react-native"
+import { StyleSheet, View, Text, Dimensions, AppState, StatusBar,
+         TouchableWithoutFeedback, Platform } from "react-native"
 import { Constants, KeepAwake } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
@@ -21,11 +22,11 @@ const {
 
 const styles = StyleSheet.create({
   passageChooserContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFill,
+  },
+  invisibleCover: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 20,
   },
 })
 
@@ -69,6 +70,18 @@ class Read extends React.Component {
     }
   }
   
+  hideShowPassageChooser = () => {
+    const { showingPassageChooser } = this.state
+
+    if(showingPassageChooser) this.toggleShowPassageChooser()
+  }
+  
+  showPassageChooser = () => {
+    const { showingPassageChooser } = this.state
+
+    if(!showingPassageChooser) this.toggleShowPassageChooser()
+  }
+  
   hideOptions = () => this.setState({ showingOptions: false })
 
   render() {
@@ -88,7 +101,7 @@ class Read extends React.Component {
           style={styles.passageChooserContainer}
         >
           <PassageChooser
-            toggleShowPassageChooser={this.toggleShowPassageChooser}
+            hideShowPassageChooser={this.hideShowPassageChooser}
             paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
           />
         </View>
@@ -99,9 +112,8 @@ class Read extends React.Component {
           <ReadHeader
             navigation={navigation}
             toggleShowOptions={this.toggleShowOptions}
-            toggleShowPassageChooser={this.toggleShowPassageChooser}
+            showPassageChooser={this.showPassageChooser}
             hideOptions={this.hideOptions}
-            showingPassageChooser={showingPassageChooser}
             hideStatusBar={hideStatusBar}
             width={width}  // By sending this as a prop, I force a rerender
           />
@@ -116,6 +128,16 @@ class Read extends React.Component {
               <Text>verses</Text>
             </View>
           </Content>
+          {!!showingPassageChooser &&
+            <TouchableWithoutFeedback
+              style={styles.invisibleCover}
+              onPressIn={this.hideShowPassageChooser}
+            >
+              <View
+                style={styles.invisibleCover}
+              />
+            </TouchableWithoutFeedback>
+          }
         </RevealContainer>
       </React.Fragment>
     )

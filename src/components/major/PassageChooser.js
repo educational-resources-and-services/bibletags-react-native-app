@@ -55,7 +55,7 @@ class PassageChooser extends React.PureComponent {
   }
 
   updateChapter = chapter => {
-    const { setRef, passage, toggleShowPassageChooser } = this.props
+    const { setRef, passage, hideShowPassageChooser } = this.props
     const { bookId } = this.state
 
     setRef({
@@ -67,7 +67,7 @@ class PassageChooser extends React.PureComponent {
       }
     })
 
-    toggleShowPassageChooser()
+    hideShowPassageChooser()
   }
 
   updateBook = bookId => this.setState({ bookId })

@@ -55,7 +55,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { passage, showingPassageChooser, toggleShowOptions, toggleShowPassageChooser,
+    let { passage, toggleShowOptions, showPassageChooser,
           hideStatusBar, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
@@ -67,7 +67,6 @@ class ReadHeader extends React.PureComponent {
         <Left>
           <Button
             transparent
-            disabled={!!showingPassageChooser}
             onPress={this.openDrawer}
           >
             <Icon name="menu" />
@@ -86,7 +85,7 @@ class ReadHeader extends React.PureComponent {
           ),
         ]}>
           <TouchableOpacity
-            onPressIn={toggleShowPassageChooser}
+            onPressIn={showPassageChooser}
           >
             <View>
               <Title>
@@ -105,14 +104,12 @@ class ReadHeader extends React.PureComponent {
         <Right>
           <Button
             transparent
-            disabled={!!showingPassageChooser}
             onPress={this.goSearch}
           >
             <Icon name="search" />
           </Button>
           <Button
             transparent
-            disabled={!!showingPassageChooser}
             onPress={toggleShowOptions}
           >
             <Icon name="more" />
