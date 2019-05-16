@@ -49,7 +49,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { toggleShowOptions, toggleShowPassageChooser, width } = this.props
+    let { showingPassageChooser, toggleShowOptions, toggleShowPassageChooser, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
@@ -58,6 +58,7 @@ class ReadHeader extends React.PureComponent {
         <Left>
           <Button
             transparent
+            disabled={!!showingPassageChooser}
             onPress={this.openDrawer}
           >
             <Icon name="menu" />
@@ -87,12 +88,14 @@ class ReadHeader extends React.PureComponent {
         <Right>
           <Button
             transparent
+            disabled={!!showingPassageChooser}
             onPress={this.goSearch}
           >
             <Icon name="search" />
           </Button>
           <Button
             transparent
+            disabled={!!showingPassageChooser}
             onPress={toggleShowOptions}
           >
             <Icon name="more" />
