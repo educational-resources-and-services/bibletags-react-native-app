@@ -1,6 +1,6 @@
 import React from "react"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+// import { bindActionCreators } from "redux"
+// import { connect } from "react-redux"
 import { Card, CardItem, Button, Icon, Text, View, Radio } from "native-base"
 import { StyleSheet, TouchableHighlight, TouchableNativeFeedback, Platform } from "react-native"
 

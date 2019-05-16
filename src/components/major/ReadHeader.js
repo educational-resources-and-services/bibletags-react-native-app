@@ -1,8 +1,11 @@
 import React from "react"
 import { StyleSheet, Platform } from "react-native"
 import { Title, Left, Icon, Right, Button, Body } from "native-base"
-import AppHeader from "../basic/AppHeader"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
+import AppHeader from "../basic/AppHeader"
+import { getPassageStr } from "bibletags-ui-helper"
 import { isPhoneSize, debounce } from '../../utils/toolbox.js'
 
 const leftIconsWidth = 50
@@ -49,7 +52,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { showingPassageChooser, toggleShowOptions, toggleShowPassageChooser, width } = this.props
+    let { passage, showingPassageChooser, toggleShowOptions, toggleShowPassageChooser, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
@@ -81,7 +84,11 @@ class ReadHeader extends React.PureComponent {
             onPress={toggleShowPassageChooser}
           >
             <Title>
-              Genesis 1:1
+              {getPassageStr({
+                refs: [
+                  passage.ref,
+                ],
+              })}
             </Title>
           </Button>
         </Body>
@@ -106,4 +113,12 @@ class ReadHeader extends React.PureComponent {
   }
 }
 
-export default ReadHeader
+const mapStateToProps = ({ passage }) => ({
+  passage,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(ReadHeader)

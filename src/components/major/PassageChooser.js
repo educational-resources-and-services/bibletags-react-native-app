@@ -2,10 +2,14 @@ import React from "react"
 import { Button, Text, View } from "native-base"
 import { StyleSheet, ScrollView, FlatList } from "react-native"
 import { Constants } from "expo"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
+
+import { setRef } from "../../redux/actions.js"
 
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
@@ -41,35 +45,55 @@ class PassageChooser extends React.PureComponent {
 
   state = {}
 
-  updateChapter = (...params) => {
-console.log('updateChapter params', params)
+  updateChapter = chapter => {
+    const { setRef, passage } = this.props
+
+    setRef({
+      ...passage,
+      ref: {
+        bookId: passage.ref.bookId,
+        chapter,
+        scrollY: 0,
+      }
+    })
   }
 
-  updateBook = (...params) => {
-console.log('params', params)
+  updateBook = bookId => {
+    const { setRef, passage } = this.props
+
+    setRef({
+      ...passage,
+      ref: {
+        bookId,
+        chapter: 1,
+        scrollY: 0,
+      }
+    })
   }
 
   keyExtractor = bookId => bookId.toString()
 
   renderItem = ({ item: bookId, index }) => {
+    const { passage } = this.props
+
     return (
       <ChooserBook
         bookId={bookId}
-        selected={bookId === 2}
+        selected={bookId === passage.ref.bookId}
         onPress={this.updateBook}
       />
     )
   }
 
   render() {
-    const { something } = this.props
+    const { passage } = this.props
 
     return (
       <View style={styles.container}>
         <View style={styles.bookList}>
           <FlatList
             data={books}
-            extraData={this.state}
+            extraData={this.props}
             keyExtractor={this.keyExtractor}
             renderItem={this.renderItem}
           />
@@ -81,9 +105,9 @@ console.log('params', params)
 
             {Array(150).fill(0).map((x, idx) => (
               <ChooserChapter
-                key={idx}
+                key={idx+1}
                 chapter={idx+1}
-                selected={idx === 2}
+                selected={idx+1 === passage.ref.chapter}
                 onPress={this.updateChapter}
               />
             ))}
@@ -94,4 +118,12 @@ console.log('params', params)
   }
 }
 
-export default PassageChooser
+const mapStateToProps = ({ passage }) => ({
+  passage,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(PassageChooser)

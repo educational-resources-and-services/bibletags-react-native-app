@@ -1,9 +1,11 @@
 import { combineReducers } from "redux"
 import reduceReducers from "reduce-reducers"
 
+import passage from "./reducers/passage.js"
 import displaySettings from "./reducers/displaySettings.js"
 
 const slicedReducers = combineReducers({
+  passage,
   displaySettings,
 })
 

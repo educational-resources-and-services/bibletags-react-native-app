@@ -1,8 +1,8 @@
 import React from "react"
 import { StyleSheet, View, Text, Dimensions } from "react-native"
 import { Constants } from "expo"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+// import { bindActionCreators } from "redux"
+// import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 import i18n from "../../utils/i18n.js"
 

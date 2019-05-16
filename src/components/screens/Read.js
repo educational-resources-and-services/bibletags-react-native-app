@@ -1,8 +1,8 @@
 import React from "react"
 import { StyleSheet, View, Text, Dimensions, AppState } from "react-native"
 import { Constants, KeepAwake } from "expo"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+// import { bindActionCreators } from "redux"
+// import { connect } from "react-redux"
 import { Content } from "native-base"
 import i18n from "../../utils/i18n.js"
 
@@ -110,12 +110,3 @@ class Read extends React.Component {
 }
 
 export default Read
-// const mapStateToProps = (state) => ({
-//   // readerStatus: state.readerStatus,
-// })
-
-// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-//   // setXapiConsentShown,
-// }, dispatch)
-
-// export default connect(mapStateToProps, matchDispatchToProps)(Read)
