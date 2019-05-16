@@ -1,6 +1,6 @@
 import React from "react"
-import { StyleSheet, Platform } from "react-native"
-import { Title, Left, Icon, Right, Button, Body } from "native-base"
+import { StyleSheet, Platform, TouchableOpacity } from "react-native"
+import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -29,6 +29,9 @@ const styles = StyleSheet.create({
         }
         : {}
     ),
+  },
+  subtitle: {
+    textAlign: 'left',
   },
 })
 
@@ -79,8 +82,7 @@ class ReadHeader extends React.PureComponent {
               : {}
           ),
         ]}>
-          <Button
-            transparent
+          <TouchableOpacity
             onPress={toggleShowPassageChooser}
           >
             <Title>
@@ -90,7 +92,10 @@ class ReadHeader extends React.PureComponent {
                 ],
               })}
             </Title>
-          </Button>
+            <Subtitle style={styles.subtitle}>
+              ESV
+            </Subtitle>
+          </TouchableOpacity>
         </Body>
         <Right>
           <Button
