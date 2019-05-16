@@ -49,7 +49,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { toggleShowOptions, width } = this.props
+    let { toggleShowOptions, toggleShowPassageChooser, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
@@ -75,7 +75,14 @@ class ReadHeader extends React.PureComponent {
               : {}
           ),
         ]}>
-          <Title>Genesis 1:1</Title>
+          <Button
+            transparent
+            onPress={toggleShowPassageChooser}
+          >
+            <Title>
+              Genesis 1:1
+            </Title>
+          </Button>
         </Body>
         <Right>
           <Button

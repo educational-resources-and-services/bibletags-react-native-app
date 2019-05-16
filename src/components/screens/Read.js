@@ -3,12 +3,13 @@ import { StyleSheet, View, Text, Dimensions, AppState } from "react-native"
 import { Constants, KeepAwake } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Container, Content } from "native-base"
+import { Content } from "native-base"
 import i18n from "../../utils/i18n.js"
 
 import ReadHeader from "../major/ReadHeader"
 import Options from "../major/Options"
 import FullScreenSpin from '../basic/FullScreenSpin'
+import RevealContainer from '../basic/RevealContainer'
 
 import { unmountTimeouts } from "../../utils/toolbox.js"
 
@@ -16,18 +17,16 @@ const {
   APP_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
-const contentsStyles = {
-}
+// const styles = StyleSheet.create({
+// })
 
 class Read extends React.Component {
 
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      showOptions: false,
-      currentAppState: 'active',
-    }
+  state = {
+    showOptions: false,
+    showPassageChooser: false,
+    translateYAnimation: 0,
+    currentAppState: 'active',
   }
 
   componentDidMount() {
@@ -50,21 +49,30 @@ class Read extends React.Component {
 
     this.setState({ showOptions: !showOptions })
   }
+
+  toggleShowPassageChooser = () => {
+    const { showPassageChooser } = this.state
+
+    this.setState({ showPassageChooser: !showPassageChooser })
+  }
   
   hideOptions = () => this.setState({ showOptions: false })
 
   render() {
 
     const { navigation } = this.props
-    const { showOptions, currentAppState } = this.state
+    const { showOptions, showPassageChooser, currentAppState } = this.state
 
     const { width } = Dimensions.get('window')
 
     return (
-      <Container>
+      <RevealContainer
+        revealAmount={(showPassageChooser ? 400 : 0)}
+      >
         <ReadHeader
           navigation={navigation}
           toggleShowOptions={this.toggleShowOptions}
+          toggleShowPassageChooser={this.toggleShowPassageChooser}
           hideOptions={this.hideOptions}
           width={width}  // By sending this as a prop, I force a rerender
         />
@@ -76,10 +84,10 @@ class Read extends React.Component {
         }
         <Content>
           <View>
-            <Text>read</Text>
+            <Text>verses</Text>
           </View>
         </Content>
-      </Container>
+      </RevealContainer>
     )
   }
 }
