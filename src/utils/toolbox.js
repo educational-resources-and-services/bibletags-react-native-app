@@ -2,6 +2,7 @@ import { Dimensions, NetInfo } from "react-native"
 // import { Constants } from "expo"
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 // import { Toast } from "native-base"
+
 // import i18n from "./i18n.js"
 
 // const {

@@ -5,15 +5,15 @@ import { Constants, KeepAwake } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
 import { Content } from "native-base"
+
 import i18n from "../../utils/i18n.js"
+import { unmountTimeouts } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"
 import Options from "../major/Options"
 import PassageChooser from "../major/PassageChooser"
 import FullScreenSpin from '../basic/FullScreenSpin'
 import RevealContainer from '../basic/RevealContainer'
-
-import { unmountTimeouts } from "../../utils/toolbox.js"
 
 const {
   APP_BACKGROUND_COLOR,

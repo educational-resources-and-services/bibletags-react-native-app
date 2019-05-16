@@ -4,9 +4,11 @@ import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import i18n from "../../utils/i18n.js"
+import { isPhoneSize, debounce } from '../../utils/toolbox.js'
+
 import AppHeader from "../basic/AppHeader"
 import { getPassageStr } from "bibletags-ui-helper"
-import { isPhoneSize, debounce } from '../../utils/toolbox.js'
 
 const leftIconsWidth = 50
 const rightIconsWidth = 135
@@ -59,7 +61,15 @@ class ReadHeader extends React.PureComponent {
           hideStatusBar, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
-            
+
+    const versionsText = [
+      passage.versionId,
+      passage.parallelVersionId || null,
+    ]
+      .filter(val => val)
+      .join(i18n(", ", {}, "list separator"))
+      .toUpperCase()
+
     return (
       <AppHeader
         hideStatusBar={hideStatusBar}
@@ -96,7 +106,7 @@ class ReadHeader extends React.PureComponent {
                 })}
               </Title>
               <Subtitle style={styles.subtitle}>
-                ESV
+                {versionsText}
               </Subtitle>
             </View>
           </TouchableOpacity>

@@ -1,10 +1,11 @@
 import React from "react"
 import { StyleSheet, Platform } from "react-native"
 import { Title, Left, Right, Icon, Button, Body } from "native-base"
-import AppHeader from "../basic/AppHeader"
-import i18n from "../../utils/i18n.js"
 
+import i18n from "../../utils/i18n.js"
 import { isPhoneSize, isStatusBarHidden, setStatusBarHidden, setUpTimeout, unmountTimeouts } from '../../utils/toolbox.js'
+
+import AppHeader from "../basic/AppHeader"
 
 const styles = StyleSheet.create({
   title: {

@@ -2,9 +2,9 @@ import React from "react"
 import { Card, CardItem, Icon, Text, View } from "native-base"
 import { StyleSheet, TouchableWithoutFeedback, Platform } from "react-native"
 
-import BackFunction from '../basic/BackFunction'
-
 import { getToolbarHeight } from '../../utils/toolbox.js'
+
+import BackFunction from '../basic/BackFunction'
 
 const styles = StyleSheet.create({
   container: {

@@ -4,8 +4,8 @@ import { Constants } from "expo"
 // import { connect } from "react-redux"
 import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
 import { Container, Content, Text, List, ListItem, Left, Icon, Body, Separator, View } from "native-base"
-import i18n from "../../utils/i18n.js"
 
+import i18n from "../../utils/i18n.js"
 import { debounce, isConnected } from "../../utils/toolbox.js"
 
 const {
