@@ -42,18 +42,20 @@ class ReadHeader extends React.PureComponent {
   openDrawer = () => {
     const { navigation, hideOptions } = this.props
 
-    hideOptions()
     debounce(navigation.openDrawer)
-    // navigation.openDrawer()
-
+    hideOptions()
   }
 
   goSearch = () => {
-    let { toggleShowOptions, width, navigation } = this.props
+    const { navigation } = this.props
 
-    navigation.navigate("SearchResults", {
-      searchString: "love",
-    })
+    debounce(
+      navigation.navigate,
+      "SearchResults",
+      {
+        searchString: "love",
+      }
+    )
   }
 
   render() {
@@ -77,7 +79,7 @@ class ReadHeader extends React.PureComponent {
         <Left>
           <Button
             transparent
-            onPress={this.openDrawer}
+            onPressIn={this.openDrawer}
           >
             <Icon name="menu" />
           </Button>
@@ -114,13 +116,13 @@ class ReadHeader extends React.PureComponent {
         <Right>
           <Button
             transparent
-            onPress={this.goSearch}
+            onPressIn={this.goSearch}
           >
             <Icon name="search" />
           </Button>
           <Button
             transparent
-            onPress={toggleShowOptions}
+            onPressIn={toggleShowOptions}
           >
             <Icon name="more" />
           </Button>
