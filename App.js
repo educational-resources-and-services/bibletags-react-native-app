@@ -15,6 +15,11 @@ import GlobalNavigator from "./src/navigators/Global.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
 
+import { passOverI18n } from "bibletags-ui-helper/src/i18n.js"
+import i18n from "./src/utils/i18n.js"
+
+passOverI18n(i18n)
+
 const patchMiddleware = store => next => action => {
   const result = next(action)
   // if(action.patchInfo) {

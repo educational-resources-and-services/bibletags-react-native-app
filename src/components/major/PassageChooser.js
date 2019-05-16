@@ -4,6 +4,7 @@ import { StyleSheet, ScrollView, FlatList } from "react-native"
 import { Constants } from "expo"
 
 import VersionChooser from "./VersionChooser"
+import { getBibleBookName } from "bibletags-ui-helper"
 
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR="#e9e9ef",
@@ -61,56 +62,29 @@ const styles = StyleSheet.create({
   },
 })
 
-const books = [
-  {
-    bookId: 1,
-    numChapters: 50,
-    label: "Genesis",
-  },
-  {
-    bookId: 2,
-    numChapters: 38,
-    label: "Exodus",
-  },
-  {
-    bookId: 3,
-    numChapters: 50,
-    label: "Leviticus",
-  },
-  {
-    bookId: 4,
-    numChapters: 50,
-    label: "Numbers",
-  },
-  {
-    bookId: 5,
-    numChapters: 50,
-    label: "Deuteronomy",
-  },
-]
+// TODO: I need to get the book ordering per the head version (from bibletags-versification)
+const books = Array(39).fill(0).map((x, idx) => idx+1)
 
 class PassageChooser extends React.PureComponent {
 
   state = {}
 
-  keyExtractor = ({ bookId }) => bookId.toString()
+  keyExtractor = bookId => bookId.toString()
 
-  renderItem = ({ item, index }) => {
-    const { bookId, label } = item
-
+  renderItem = ({ item: bookId, index }) => {
     return (
       <View
         style={[
           styles.book,
-          (label === 'Exodus' ? styles.bookSelected : null),
+          (bookId === 2 ? styles.bookSelected : null),
         ]}
       >
         <Text
           style={[
             styles.bookText,
-            (label === 'Exodus' ? styles.bookTextSelected : null),
+            (bookId === 2 ? styles.bookTextSelected : null),
           ]}
-        >{label}</Text>
+        >{getBibleBookName(bookId)}</Text>
       </View>
     )
   }
@@ -130,6 +104,9 @@ class PassageChooser extends React.PureComponent {
         </View>
         <ScrollView>
           <View style={styles.chapterList}>
+
+            {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
+
             {Array(50).fill(0).map((x, idx) => (
               <View
                 key={idx}
