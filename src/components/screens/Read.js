@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text, Dimensions, AppState, StatusBar } from "react-native"
+import { StyleSheet, View, Text, Dimensions, AppState, StatusBar, Platform } from "react-native"
 import { Constants, KeepAwake } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
@@ -63,6 +63,10 @@ class Read extends React.Component {
     const { showingPassageChooser } = this.state
 
     this.setState({ showingPassageChooser: !showingPassageChooser })
+
+    if(Platform.OS === 'ios') {
+      StatusBar.setHidden(!showingPassageChooser, 'fade')
+    }
   }
   
   hideOptions = () => this.setState({ showingOptions: false })
@@ -76,6 +80,7 @@ class Read extends React.Component {
 
     const statusBarHeight = StatusBar.currentHeight || 0
     const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
+    const hideStatusBar = showingPassageChooser && Platform.OS === 'ios'
 
     return (
       <React.Fragment>
@@ -89,6 +94,7 @@ class Read extends React.Component {
         </View>
         <RevealContainer
           revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
+          immediateAdjustment={hideStatusBar ? 20 : 0}
         >
           <ReadHeader
             navigation={navigation}
@@ -96,6 +102,7 @@ class Read extends React.Component {
             toggleShowPassageChooser={this.toggleShowPassageChooser}
             hideOptions={this.hideOptions}
             showingPassageChooser={showingPassageChooser}
+            hideStatusBar={hideStatusBar}
             width={width}  // By sending this as a prop, I force a rerender
           />
           <KeepAwake />

@@ -5,6 +5,9 @@ import { Container } from "native-base"
 const styles = StyleSheet.create({
   animatedContainer: {
     zIndex: 10,
+    shadowColor: '#999999',
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
     elevation: 50,
   },
 })
@@ -56,7 +59,7 @@ class RevealContainer extends React.Component {
   }
 
   render() {
-    let { style, children } = this.props
+    let { immediateAdjustment, style, children } = this.props
     let { translateYAnimation, scaleAnimation } = this.state
 
     return (
@@ -65,7 +68,8 @@ class RevealContainer extends React.Component {
           styles.animatedContainer,
           style,
           {
-            translateY: translateYAnimation,
+            marginTop: immediateAdjustment,
+            top: translateYAnimation,
             scaleX: scaleAnimation,
             scaleY: scaleAnimation,
           },

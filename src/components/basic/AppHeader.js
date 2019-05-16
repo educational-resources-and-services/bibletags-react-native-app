@@ -17,6 +17,12 @@ const styles = StyleSheet.create({
   header: {
     ...(Platform.OS === 'android' ? { backgroundColor: ANDROID_TOOLBAR_COLOR } : {}),
   },
+  noStatusBarSpace: {
+    paddingTop: 0,
+    height: 46,
+    //borderTopWidth: 1,
+    //borderTopColor: '#cccccc',
+  },
 })
 
 class AppHeader extends React.Component {
@@ -25,7 +31,7 @@ class AppHeader extends React.Component {
   // Thus, this component is a hack to force it to render properly.
 
   render() {
-    const { hide } = this.props
+    const { hide, hideStatusBar } = this.props
 
     const style = {}
 
@@ -39,6 +45,7 @@ class AppHeader extends React.Component {
           androidStatusBarColor={ANDROID_STATUS_BAR_COLOR}
           style={[
             styles.header,
+            (hideStatusBar ? styles.noStatusBarSpace : null),
             style,
           ]}
         >

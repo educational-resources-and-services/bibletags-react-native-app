@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, Platform, TouchableOpacity } from "react-native"
+import { StyleSheet, View, Platform, TouchableOpacity } from "react-native"
 import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -55,12 +55,15 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { passage, showingPassageChooser, toggleShowOptions, toggleShowPassageChooser, width } = this.props
+    let { passage, showingPassageChooser, toggleShowOptions, toggleShowPassageChooser,
+          hideStatusBar, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
             
     return (
-      <AppHeader>
+      <AppHeader
+        hideStatusBar={hideStatusBar}
+      >
         <Left>
           <Button
             transparent
@@ -83,18 +86,20 @@ class ReadHeader extends React.PureComponent {
           ),
         ]}>
           <TouchableOpacity
-            onPress={toggleShowPassageChooser}
+            onPressIn={toggleShowPassageChooser}
           >
-            <Title>
-              {getPassageStr({
-                refs: [
-                  passage.ref,
-                ],
-              })}
-            </Title>
-            <Subtitle style={styles.subtitle}>
-              ESV
-            </Subtitle>
+            <View>
+              <Title>
+                {getPassageStr({
+                  refs: [
+                    passage.ref,
+                  ],
+                })}
+              </Title>
+              <Subtitle style={styles.subtitle}>
+                ESV
+              </Subtitle>
+            </View>
           </TouchableOpacity>
         </Body>
         <Right>
