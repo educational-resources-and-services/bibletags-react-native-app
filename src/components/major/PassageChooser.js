@@ -14,10 +14,14 @@ import { setRef } from "../../redux/actions.js"
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
   CHAPTER_CHOOSER_BACKGROUND_COLOR,
+  PRIMARY_VERSIONS,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  refChooser: {
     zIndex: 1,
     display: 'flex',
     flexDirection: 'row',
@@ -54,20 +58,30 @@ class PassageChooser extends React.PureComponent {
     }
   }
 
-  updateChapter = chapter => {
+  update = newInfo => {
     const { setRef, passage, hideShowPassageChooser } = this.props
-    const { bookId } = this.state
 
     setRef({
       ...passage,
+      ...newInfo,
+    })
+
+    hideShowPassageChooser()
+  }
+
+  updateVersion = versionId => this.update({ versionId })
+  updateParallelVersion = parallelVersionId => this.update({ parallelVersionId })
+
+  updateChapter = chapter => {
+    const { bookId } = this.state
+
+    this.update({
       ref: {
         bookId,
         chapter,
         scrollY: 0,
       }
     })
-
-    hideShowPassageChooser()
   }
 
   updateBook = bookId => this.setState({ bookId })
@@ -102,36 +116,43 @@ class PassageChooser extends React.PureComponent {
 
     return (
       <View style={styles.container}>
-        <View style={styles.bookList}>
-          <FlatList
-            data={books}
-            extraData={this.state}
-            keyExtractor={this.keyExtractor}
-            renderItem={this.renderItem}
-          />
-        </View>
-        <ScrollView>
-          <View
-            style={[
-              styles.chapterList,
-              {
-                paddingBottom,
-              },
-            ]}
-          >
-
-            {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
-
-            {Array(150).fill(0).map((x, idx) => (
-              <ChooserChapter
-                key={idx+1}
-                chapter={idx+1}
-                selected={idx+1 === passage.ref.chapter}
-                onPress={this.updateChapter}
-              />
-            ))}
+        <VersionChooser
+          versionIds={PRIMARY_VERSIONS}
+          update={this.updateVersion}
+          selectedVersionId={passage.versionId}
+        />
+        <View style={styles.refChooser}>
+          <View style={styles.bookList}>
+            <FlatList
+              data={books}
+              extraData={this.state}
+              keyExtractor={this.keyExtractor}
+              renderItem={this.renderItem}
+            />
           </View>
-        </ScrollView>
+          <ScrollView>
+            <View
+              style={[
+                styles.chapterList,
+                {
+                  paddingBottom,
+                },
+              ]}
+            >
+
+              {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
+
+              {Array(150).fill(0).map((x, idx) => (
+                <ChooserChapter
+                  key={idx+1}
+                  chapter={idx+1}
+                  selected={idx+1 === passage.ref.chapter}
+                  onPress={this.updateChapter}
+                />
+              ))}
+            </View>
+          </ScrollView>
+        </View>
       </View>
     )
   }
