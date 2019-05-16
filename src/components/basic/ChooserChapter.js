@@ -10,11 +10,11 @@ const {
 
 const styles = StyleSheet.create({
   chapter: {
-    width: 50,
-    borderRadius: 25,
+    width: 42,
+    borderRadius: 21,
   },
   chapterText: {
-    lineHeight: 50,
+    lineHeight: 42,
     textAlign: 'center',
   },
   chapterSelected: {

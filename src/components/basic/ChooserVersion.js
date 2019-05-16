@@ -10,13 +10,12 @@ const {
 
 const styles = StyleSheet.create({
   version: {
-    borderRadius: 5,
-    paddingLeft: 15,
-    paddingRight: 15,
+    borderRadius: 20,
+    paddingLeft: 18,
+    paddingRight: 18,
   },
   versionText: {
     lineHeight: 40,
-    fontWeight: '500',
   },
   versionSelected: {
     backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,

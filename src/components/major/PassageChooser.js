@@ -28,6 +28,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
   },
+  spacerBeforeFirstBook: {
+    height: 5,
+  },
   bookList: {
     // borderRightWidth: 1,
     // borderRightColor: DIVIDER_COLOR,
@@ -44,7 +47,6 @@ const styles = StyleSheet.create({
 
 // TODO: I need to get the book ordering per the head version (from bibletags-versification)
 const books = Array(39).fill(0).map((x, idx) => idx+1)
-books.push('spacer')
 
 class PassageChooser extends React.PureComponent {
 
@@ -95,22 +97,24 @@ class PassageChooser extends React.PureComponent {
     const { paddingBottom } = this.props
     const { bookId } = this.state
 
-    if(item === 'spacer') {
-      return (
-        <View
-          style={{
-            paddingBottom,
-          }}
-        />
-      )
-    }
-
     return (
-      <ChooserBook
-        bookId={item}
-        selected={item === bookId}
-        onPress={this.updateBook}
-      />
+      <React.Fragment>
+        {index === 0 &&
+          <View style={styles.spacerBeforeFirstBook} />
+        }
+        <ChooserBook
+          bookId={item}
+          selected={item === bookId}
+          onPress={this.updateBook}
+        />
+        {index === books.length - 1 &&
+          <View
+            style={{
+              paddingBottom,
+            }}
+          />
+        }
+      </React.Fragment>
     )
   }
 

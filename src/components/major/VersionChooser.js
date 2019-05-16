@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   container: {
     zIndex: 1,
     backgroundColor: VERSION_CHOOSER_BACKGROUND_COLOR,
-    padding: 10,
+    padding: 5,
   },
 })
 
