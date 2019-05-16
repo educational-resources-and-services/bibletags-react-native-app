@@ -5,6 +5,7 @@ import { Container } from "native-base"
 const styles = StyleSheet.create({
   animatedContainer: {
     zIndex: 10,
+    elevation: 50,
   },
 })
 
@@ -19,6 +20,7 @@ class RevealContainer extends React.Component {
 
     this.state = {
       translateYAnimation: new Animated.Value(revealAmount),
+      scaleAnimation: new Animated.Value(revealAmount ? .95 : 1),
       revealAmount,
     }
   }
@@ -28,13 +30,22 @@ class RevealContainer extends React.Component {
 
     if(state.revealAmount !== revealAmount) {
 
-      Animated.timing(
-        state.translateYAnimation,
-        {
-          toValue: revealAmount,
-          duration: 200,
-        }
-      ).start()
+      Animated.parallel([
+        Animated.timing(
+          state.translateYAnimation,
+          {
+            toValue: revealAmount,
+            duration: 200,
+          }
+        ),
+        Animated.timing(
+          state.scaleAnimation,
+          {
+            toValue: revealAmount ? .95 : 1,
+            duration: 200,
+          }
+        ),
+      ]).start()
   
       return {
         revealAmount,
@@ -46,7 +57,7 @@ class RevealContainer extends React.Component {
 
   render() {
     let { style, children } = this.props
-    let { translateYAnimation } = this.state
+    let { translateYAnimation, scaleAnimation } = this.state
 
     return (
       <AnimatedContainer
@@ -55,6 +66,8 @@ class RevealContainer extends React.Component {
           style,
           {
             translateY: translateYAnimation,
+            scaleX: scaleAnimation,
+            scaleY: scaleAnimation,
           },
         ]}
       >

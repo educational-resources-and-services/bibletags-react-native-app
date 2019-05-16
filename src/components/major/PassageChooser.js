@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
 
 // TODO: I need to get the book ordering per the head version (from bibletags-versification)
 const books = Array(39).fill(0).map((x, idx) => idx+1)
+books.push('spacer')
 
 class PassageChooser extends React.PureComponent {
 
@@ -74,7 +75,18 @@ class PassageChooser extends React.PureComponent {
   keyExtractor = bookId => bookId.toString()
 
   renderItem = ({ item, index }) => {
+    const { paddingBottom } = this.props
     const { bookId } = this.state
+
+    if(item === 'spacer') {
+      return (
+        <View
+          style={{
+            paddingBottom,
+          }}
+        />
+      )
+    }
 
     return (
       <ChooserBook
@@ -86,7 +98,7 @@ class PassageChooser extends React.PureComponent {
   }
 
   render() {
-    const { passage } = this.props
+    const { passage, paddingBottom } = this.props
 
     return (
       <View style={styles.container}>
@@ -99,7 +111,14 @@ class PassageChooser extends React.PureComponent {
           />
         </View>
         <ScrollView>
-          <View style={styles.chapterList}>
+          <View
+            style={[
+              styles.chapterList,
+              {
+                paddingBottom,
+              },
+            ]}
+          >
 
             {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
 

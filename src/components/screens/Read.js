@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text, Dimensions, AppState } from "react-native"
+import { StyleSheet, View, Text, Dimensions, AppState, StatusBar } from "react-native"
 import { Constants, KeepAwake } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: PASSAGE_CHOOSER_HEIGHT,
+    bottom: 0,
   },
 })
 
@@ -72,7 +72,10 @@ class Read extends React.Component {
     const { navigation } = this.props
     const { showingOptions, showingPassageChooser, currentAppState } = this.state
 
-    const { width } = Dimensions.get('window')
+    const { width, height } = Dimensions.get('window')
+
+    const statusBarHeight = StatusBar.currentHeight || 0
+    const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
 
     return (
       <React.Fragment>
@@ -81,10 +84,11 @@ class Read extends React.Component {
         >
           <PassageChooser
             toggleShowPassageChooser={this.toggleShowPassageChooser}
+            paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
           />
         </View>
         <RevealContainer
-          revealAmount={(showingPassageChooser ? PASSAGE_CHOOSER_HEIGHT : 0)}
+          revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
         >
           <ReadHeader
             navigation={navigation}
