@@ -113,7 +113,6 @@ class Read extends React.Component {
             navigation={navigation}
             toggleShowOptions={this.toggleShowOptions}
             showPassageChooser={this.showPassageChooser}
-            hideDisplaySettings={this.hideDisplaySettings}
             hideStatusBar={hideStatusBar}
             width={width}  // By sending this as a prop, I force a rerender
           />

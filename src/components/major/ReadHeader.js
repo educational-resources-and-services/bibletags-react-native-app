@@ -40,10 +40,9 @@ const styles = StyleSheet.create({
 class ReadHeader extends React.PureComponent {
 
   openDrawer = () => {
-    const { navigation, hideDisplaySettings } = this.props
+    const { navigation } = this.props
 
     debounce(navigation.openDrawer)
-    hideDisplaySettings()
   }
 
   goSearch = () => {

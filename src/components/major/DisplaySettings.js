@@ -21,10 +21,11 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
     top: getToolbarHeight(),
-    zIndex: 5,
+    zIndex: 16,
   },
   cover: {
     ...StyleSheet.absoluteFill,
+    zIndex: 15,
   },
   options: {
     position: 'absolute',
@@ -124,87 +125,89 @@ class DisplaySettings extends React.PureComponent {
     })
 
     return (
-      <View style={styles.container}>
+      <React.Fragment>
         <BackFunction func={hideDisplaySettings} />
         <TouchableWithoutFeedback
+          style={styles.cover}
           onPress={hideDisplaySettings}
         >
-          <View style={styles.cover}>
-          </View>
+          <View style={styles.cover} />
         </TouchableWithoutFeedback>
-        <Card style={styles.options}>
-          <CardItem header>
-            <Text style={styles.header}>
-              {i18n("Display options")}
-            </Text>
-          </CardItem>
-          <TouchableWithoutFeedback
-            onPress={this.toggleParallelMode}
-          >
-            <CardItem>
-              <Switch
-                onValueChange={this.toggleParallelMode}
-                style={styles.switch}
-                trackColor={{
-                  true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
-                }}
-                ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                value={mode === 'parallel'}
-              />
-              <Text>{i18n("Parallel mode")}</Text>
+        <View style={styles.container}>
+          <Card style={styles.options}>
+            <CardItem header>
+              <Text style={styles.header}>
+                {i18n("Display options")}
+              </Text>
             </CardItem>
-          </TouchableWithoutFeedback>
-          <CardItem>
-            <Body>
-              <Text>{i18n("Text size")}</Text>
-              <Slider
-                minimumValue={.3}
-                maximumValue={4}
-                value={textSize}
-                onSlidingComplete={this.setTextSize}
-                style={styles.slider}
-                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+            <TouchableWithoutFeedback
+              onPress={this.toggleParallelMode}
+            >
+              <CardItem>
+                <Switch
+                  onValueChange={this.toggleParallelMode}
+                  style={styles.switch}
+                  trackColor={{
+                    true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+                  }}
+                  ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                  thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                  value={mode === 'parallel'}
+                />
+                <Text>{i18n("Parallel mode")}</Text>
+              </CardItem>
+            </TouchableWithoutFeedback>
+            <CardItem>
+              <Body>
+                <Text>{i18n("Text size")}</Text>
+                <Slider
+                  minimumValue={.3}
+                  maximumValue={4}
+                  value={textSize}
+                  onSlidingComplete={this.setTextSize}
+                  style={styles.slider}
+                  minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                  maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                  thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                />
+              </Body>
+            </CardItem>
+            <CardItem>
+              <Body>
+                <Text>{i18n("Line spacing")}</Text>
+                <Slider
+                  minimumValue={1}
+                  maximumValue={4}
+                  value={lineSpacing}
+                  onSlidingComplete={this.setLineSpacing}
+                  style={styles.slider}
+                  minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                  maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                  thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                />
+              </Body>
+            </CardItem>
+            <CardItem button
+              onPress={() => {
+                ActionSheet.show(
+                  {
+                    options: themeOptions.map(({ label }) => label),
+                  },
+                  this.setTheme,
+                )
+              }}
+            >
+              <Text>
+                {currentThemeLabel}
+              </Text>
+              <Icon
+                name="arrow-dropdown"
+                style={styles.dropdownIcon}
               />
-            </Body>
-          </CardItem>
-          <CardItem>
-            <Body>
-              <Text>{i18n("Line spacing")}</Text>
-              <Slider
-                minimumValue={1}
-                maximumValue={4}
-                value={lineSpacing}
-                onSlidingComplete={this.setLineSpacing}
-                style={styles.slider}
-                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-              />
-            </Body>
-          </CardItem>
-          <CardItem button
-            onPress={() => {
-              ActionSheet.show(
-                {
-                  options: themeOptions.map(({ label }) => label),
-                },
-                this.setTheme,
-              )
-            }}
-          >
-            <Text>
-              {currentThemeLabel}
-            </Text>
-            <Icon
-              name="arrow-dropdown"
-              style={styles.dropdownIcon}
-            />
-          </CardItem>
-        </Card>
-      </View>
+            </CardItem>
+          </Card>
+        </View>
+      </React.Fragment>
     )
   }
 }
