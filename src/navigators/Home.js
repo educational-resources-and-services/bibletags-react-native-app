@@ -10,6 +10,7 @@ const HomeNavigator = createDrawerNavigator(
     // Read,
   },
   {
+    drawerPosition: 'left',
     contentComponent: props => <Drawer {...props} />
   },
 )
