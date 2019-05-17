@@ -112,7 +112,9 @@ class DisplaySettings extends React.PureComponent {
   setFont = idx => {
     const { setFont } = this.props
 
-    setFont({ font: bibleFontList[idx] })
+    if(idx != null) {
+      setFont({ font: bibleFontList[idx] })
+    }
   }
 
   selectTheme = () => {
@@ -127,7 +129,9 @@ class DisplaySettings extends React.PureComponent {
   setTheme = idx => {
     const { setTheme } = this.props
 
-    setTheme({ theme: themeOptions[idx].id })
+    if(idx != null) {
+      setTheme({ theme: themeOptions[idx].id })
+    }
   }
 
   render() {
