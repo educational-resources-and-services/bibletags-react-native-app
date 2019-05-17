@@ -13,14 +13,19 @@ export const setParallelVersionId = ({ parallelVersionId }) => ({
   parallelVersionId,
 })
 
+export const setMode = ({ mode }) => ({
+  type: "SET_MODE",
+  mode,
+})
+
 export const setTextSize = ({ textSize }) => ({
   type: "SET_TEXT_SIZE",
   textSize,
 })
 
-export const setTextSpacing = ({ textSpacing }) => ({
-  type: "SET_TEXT_SPACING",
-  textSpacing,
+export const setLineSpacing = ({ lineSpacing }) => ({
+  type: "SET_LINE_SPACING",
+  lineSpacing,
 })
 
 export const setTheme = ({ theme }) => ({

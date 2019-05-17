@@ -1,218 +1,169 @@
 import React from "react"
-// import { bindActionCreators } from "redux"
-// import { connect } from "react-redux"
-import { Card, CardItem, Button, Icon, Text, View, Radio } from "native-base"
-import { StyleSheet, TouchableHighlight, TouchableNativeFeedback, Platform } from "react-native"
+import { Card, CardItem, Icon, Text, View, Switch, Body, ActionSheet } from "native-base"
+import { StyleSheet, TouchableWithoutFeedback, Platform, Slider } from "react-native"
+import { Constants } from "expo"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
+import { getToolbarHeight } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
 
 import BackFunction from '../basic/BackFunction'
 
-import { setTextSize, setTextSpacing, setTheme } from "../../redux/actions.js"
+import { setMode, setTextSize, setLineSpacing, setTheme } from "../../redux/actions.js"
 
-const themeOptions = [
-  {
-    id: "default",
-    label: i18n("Standard"),
-  },
-  {
-    id: "low-light",
-    label: i18n("Low light"),
-  },
-  {
-    id: "high-contrast",
-    label: i18n("High contrast"),
-  },
-]
+const {
+  CHOOSER_SELECTED_BACKGROUND_COLOR,
+  CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
-    zIndex: 6,
-    justifyContent: 'center',
+    top: getToolbarHeight(),
+    zIndex: 5,
   },
-  settings: {
+  cover: {
+    ...StyleSheet.absoluteFill,
+  },
+  options: {
     position: 'absolute',
-    top: 5,
-    left: 7,
-    right: 7,
-  },
-  headerContainer: {
-    flexDirection: 'row',
-  },
-  headerCont: {
-    flex: 1,
+    top: -2,
+    right: 1,
+    minWidth: 230,
+    paddingBottom: 15,
   },
   header: {
     fontWeight: 'bold',
   },
-  settingContainer: {
-    paddingTop: 5,
-    paddingBottom: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
-    flexDirection: 'row',
-  },
-  setting: {
-    flex: 1,
-  },
-  heading: {
-    marginBottom: 5,
-    fontSize: 15,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-  },
-  addRemoveButton: {
-    marginRight: 7,
-  },
-  radioLine: {
-    flexDirection: 'row',
-    paddingTop: 10,
-    paddingBottom: 10,
-    marginLeft: -15,
-    marginRight: -15,
-    paddingLeft: 15,
-    paddingRight: 15,
-  },
-  radio: {
+  switch: {
+    ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
     marginRight: 10,
-    marginTop: -2,
+  },
+  dropdownIcon: {
+    marginLeft: 10,
+    fontSize: 20,
+    ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
+  },
+  slider: {
+    width: 200,
+    height: 30,
+    ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
+    ...(Platform.OS === 'android' ? { marginRight: -10 } : {}),
   },
 })
 
+const themeOptions = [
+  {
+    id: 'default',
+    label: i18n("Default theme"),
+  },
+  {
+    id: 'low-light',
+    label: i18n("Low light theme"),
+  },
+  {
+    id: 'high-contrast',
+    label: i18n("High contrast theme"),
+  },
+]
+
 class DisplaySettings extends React.PureComponent {
 
-  increaseTextSize = () => {
-    const { displaySettings, setTextSize } = this.props
-    const { textSize } = displaySettings
-
-    setTextSize({ textSize: textSize + 10 })
-  }
-
-  decreaseTextSize = () => {
-    const { displaySettings, setTextSize } = this.props
-    const { textSize } = displaySettings
-
-    setTextSize({ textSize: textSize - 10 })
-  }
-
-  // increaseTextSpacing = () => {
-  //   const { displaySettings, setTextSpacing } = this.props
-  //   const { textSpacing } = displaySettings
-
-  //   setTextSpacing({ textSpacing: textSpacing + 10 })
-  // }
-
-  // decreaseTextSpacing = () => {
-  //   const { displaySettings, setTextSpacing } = this.props
-  //   const { textSpacing } = displaySettings
-
-  //   setTextSpacing({ textSpacing: textSpacing - 10 })
-  // }
-
   render() {
-    const { requestHide, displaySettings, setTextSize, setTextSpacing, setTheme } = this.props
-    const { textSize, textSpacing, theme } = displaySettings
+    const { hideDisplaySettings, displaySettings } = this.props
 
-    const TouchableComponent = Platform.OS === 'android' ? TouchableNativeFeedback : TouchableHighlight
-    
     return (
       <View style={styles.container}>
-        <BackFunction func={requestHide} />
-        <Card style={styles.settings}>
-
-          <View style={styles.headerContainer}>
-
-            <CardItem header style={styles.headerCont}>
-              <Text style={styles.header}>{i18n("Display settings")}</Text>
-            </CardItem>
-
-            <Button transparent dark
-              onPress={requestHide}
-            >
-              <Icon name='close' />
-            </Button>
-            
+        <BackFunction func={hideDisplaySettings} />
+        <TouchableWithoutFeedback
+          onPress={hideDisplaySettings}
+        >
+          <View style={styles.cover}>
           </View>
-
-          <View style={styles.settingContainer}>
-            <View style={styles.setting}>
-              <Text style={styles.heading}>{i18n("Text size")}</Text>
-              <View style={styles.buttonRow}>
-                <Button light
-                  style={styles.addRemoveButton}
-                  onPress={this.decreaseTextSize}
-                >
-                  <Icon name='remove' />
-                </Button>
-                <Button light
-                  style={styles.addRemoveButton}
-                  onPress={this.increaseTextSize}
-                >
-                  <Icon name='add' />
-                </Button>
-              </View>
-            </View>
-
-            {/* <View style={styles.setting}>
-              <Text style={styles.heading}>{i18n("Spacing")}</Text>
-              <View style={styles.buttonRow}>
-                <Button light
-                  style={styles.addRemoveButton}
-                  onPress={this.decreaseTextSpacing}
-                >
-                  <Icon name='remove' />
-                </Button>
-                <Button light
-                  style={styles.addRemoveButton}
-                  onPress={this.increaseTextSpacing}
-                >
-                  <Icon name='add' />
-                </Button>
-              </View>
-            </View> */}
-          </View>
-
-          <View style={styles.settingContainer}>
-            <View style={styles.setting}>
-              <Text style={styles.heading}>{i18n("Theme")}</Text>
-              <View>
-                {themeOptions.map(themeOption => (
-                  <TouchableComponent
-                    key={themeOption.id}
-                    onPress={() => setTheme({ theme: themeOption.id })}
-                  >
-                    <View
-                      style={styles.radioLine}
-                    >
-                      <Radio
-                        style={styles.radio}
-                        selected={theme === themeOption.id}
-                      />
-                      <Text>{themeOption.label}</Text>
-                    </View>
-                  </TouchableComponent>
-                ))}
-              </View>
-            </View>
-          </View>
-
+        </TouchableWithoutFeedback>
+        <Card style={styles.options}>
+          <CardItem header>
+            <Text style={styles.header}>
+              {i18n("Display options")}
+            </Text>
+          </CardItem>
+          <CardItem button
+            onPress={() => {
+              //hideDisplaySettings()
+            }}
+          >
+            <Switch
+              style={styles.switch}
+              trackColor={{
+                true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+              }}
+              ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+              thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+              value={true}
+            />
+            <Text>{i18n("Parallel mode")}</Text>
+          </CardItem>
+          <CardItem>
+            <Body>
+              <Text>{i18n("Text size")}</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={1}
+                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+              />
+            </Body>
+          </CardItem>
+          <CardItem>
+            <Body>
+              <Text>{i18n("Line spacing")}</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={1}
+                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+              />
+            </Body>
+          </CardItem>
+          <CardItem button
+            onPress={() => {
+              ActionSheet.show(
+                {
+                  options: themeOptions.map(({ label }) => label),
+                },
+                buttonIndex => {
+                  
+                }
+              )
+              //hideDisplaySettings()
+            }}
+          >
+            <Text>Default theme</Text>
+            <Icon
+              name="arrow-dropdown"
+              style={styles.dropdownIcon}
+            />
+          </CardItem>
         </Card>
       </View>
     )
   }
 }
 
-export default DisplaySettings
-// const mapStateToProps = (state) => ({
-//   displaySettings: state.displaySettings,
-// })
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
 
-// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-//   setTextSize,
-//   setTextSpacing,
-//   setTheme,
-// }, dispatch)
+const matchDispatchToProps = dispatch => bindActionCreators({
+  setMode,
+  setTextSize,
+  setLineSpacing,
+  setTheme,
+}, dispatch)
 
-// export default connect(mapStateToProps, matchDispatchToProps)(DisplaySettings)
+export default connect(mapStateToProps, matchDispatchToProps)(DisplaySettings)

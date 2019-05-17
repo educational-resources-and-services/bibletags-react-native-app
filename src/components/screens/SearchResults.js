@@ -8,7 +8,6 @@ import { Container, Content } from "native-base"
 import i18n from "../../utils/i18n.js"
 import { unmountTimeouts } from "../../utils/toolbox.js"
 
-import Options from "../major/Options"
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
 import SearchResultsHeader from '../major/SearchResultsHeader'

@@ -61,21 +61,21 @@ class PassageChooser extends React.PureComponent {
   }
 
   updateVersion = versionId => {
-    const { setVersionId, hideShowPassageChooser } = this.props
+    const { setVersionId, hidePassageChooser } = this.props
 
     setVersionId({ versionId })
-    hideShowPassageChooser()
+    hidePassageChooser()
   }
 
   updateParallelVersion = parallelVersionId => {
-    const { setParallelVersionId, hideShowPassageChooser } = this.props
+    const { setParallelVersionId, hidePassageChooser } = this.props
 
     setParallelVersionId({ parallelVersionId })
-    hideShowPassageChooser()
+    hidePassageChooser()
   }
 
   updateChapter = chapter => {
-    const { setRef, hideShowPassageChooser } = this.props
+    const { setRef, hidePassageChooser } = this.props
     const { bookId } = this.state
 
     setRef({
@@ -86,7 +86,7 @@ class PassageChooser extends React.PureComponent {
       },
     })
 
-    hideShowPassageChooser()
+    hidePassageChooser()
   }
   
   updateBook = bookId => this.setState({ bookId })
