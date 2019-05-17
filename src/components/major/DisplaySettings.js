@@ -48,10 +48,9 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
   },
   slider: {
-    width: 200,
+    ...(Platform.OS === 'android' ? { width: 220 } : { width: 200 }),
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
-    ...(Platform.OS === 'android' ? { marginRight: -10 } : {}),
   },
 })
 
