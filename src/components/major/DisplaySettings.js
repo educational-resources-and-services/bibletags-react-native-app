@@ -187,10 +187,10 @@ class DisplaySettings extends React.PureComponent {
               <Body>
                 <Text>{i18n("Text size")}</Text>
                 <Slider
-                  minimumValue={.3}
+                  minimumValue={.5}
                   maximumValue={4}
                   value={textSize}
-                  onSlidingComplete={this.setTextSize}
+                  onValueChange={this.setTextSize}
                   style={styles.slider}
                   minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
                   maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
@@ -205,7 +205,7 @@ class DisplaySettings extends React.PureComponent {
                   minimumValue={1}
                   maximumValue={4}
                   value={lineSpacing}
-                  onSlidingComplete={this.setLineSpacing}
+                  onValueChange={this.setLineSpacing}
                   style={styles.slider}
                   minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
                   maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}

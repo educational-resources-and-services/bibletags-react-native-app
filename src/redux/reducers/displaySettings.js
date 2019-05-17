@@ -21,7 +21,7 @@ export default function(state = initialState, action) {
     case "SET_TEXT_SIZE": {
       return {
         ...state,
-        textSize: parseInt(action.textSize) || state.textSize,
+        textSize: parseFloat(action.textSize) || state.textSize,
       }
     }
 

@@ -19,6 +19,7 @@ import RevealContainer from '../basic/RevealContainer'
 const {
   APP_BACKGROUND_COLOR,
   PASSAGE_CHOOSER_HEIGHT,
+  DEFAULT_FONT_SIZE,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -91,7 +92,8 @@ class Read extends React.Component {
     const { showingDisplaySettings, showingPassageChooser, currentAppState } = this.state
 
     const { width, height } = Dimensions.get('window')
-    const { font } = displaySettings
+    const { font, textSize } = displaySettings
+    const fontSize = DEFAULT_FONT_SIZE * textSize
 
     const statusBarHeight = StatusBar.currentHeight || 0
     const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
@@ -126,7 +128,7 @@ class Read extends React.Component {
           }
           <Content>
             <View>
-              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font }) }}>
+              <Text style={{ fontSize, fontFamily: getValidFontName({ font }) }}>
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
@@ -136,8 +138,8 @@ class Read extends React.Component {
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
               </Text>
-              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'italic' }) }}>italics text2</Text>
-              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
+              <Text style={{ fontSize, fontFamily: getValidFontName({ font, variant: 'italic' }) }}>italics text2</Text>
+              <Text style={{ fontSize, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
             </View>
           </Content>
           {!!showingPassageChooser &&
