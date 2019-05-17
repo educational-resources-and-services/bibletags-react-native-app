@@ -70,6 +70,18 @@ const themeOptions = [
 
 class DisplaySettings extends React.PureComponent {
 
+  constructor(props) {
+    super(props)
+
+    const { displaySettings } = props
+    const { textSize, lineSpacing } = displaySettings
+
+    this.state = {
+      textSize,
+      lineSpacing,
+    }
+  }
+
   toggleParallelMode = () => {
     const { setMode, displaySettings } = this.props
     const { mode } = displaySettings
@@ -99,7 +111,9 @@ class DisplaySettings extends React.PureComponent {
 
   render() {
     const { hideDisplaySettings, displaySettings } = this.props
-    const { mode, textSize, lineSpacing, theme } = displaySettings
+    const { textSize, lineSpacing } = this.state
+
+    const { mode, theme } = displaySettings
 
     let currentThemeLabel = themeOptions[0].label
     themeOptions.some(({ id, label }) => {
