@@ -8,11 +8,6 @@ const initialState = {
   theme: "default"
 }
 
-const modeOptions = [
-  "basic",
-  "parallel",
-]
-
 const themeOptions = [
   "default",
   "low-light",
@@ -22,13 +17,6 @@ const themeOptions = [
 export default function(state = initialState, action) {
   
   switch (action.type) {
-
-    case "SET_MODE": {
-      return {
-        ...state,
-        mode: modeOptions.includes(action.mode) ? action.mode : state.mode,
-      }
-    }
 
     case "SET_TEXT_SIZE": {
       return {
