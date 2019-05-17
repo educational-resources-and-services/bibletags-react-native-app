@@ -7,10 +7,11 @@ import { connect } from "react-redux"
 
 import { getToolbarHeight } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
+import { bibleFontList } from "../../utils/bibleFonts.js"
 
 import BackFunction from '../basic/BackFunction'
 
-import { setMode, setTextSize, setLineSpacing, setTheme } from "../../redux/actions.js"
+import { setMode, setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
 
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
@@ -104,6 +105,30 @@ class DisplaySettings extends React.PureComponent {
     setLineSpacing({ lineSpacing })
   }
 
+  selectFont = () => {
+    ActionSheet.show(
+      {
+        options: bibleFontList,
+      },
+      this.setFont,
+    )
+  }
+
+  setFont = idx => {
+    const { setFont } = this.props
+
+    setFont({ font: bibleFontList[idx] })
+  }
+
+  selectTheme = () => {
+    ActionSheet.show(
+      {
+        options: themeOptions.map(({ label }) => label),
+      },
+      this.setTheme,
+    )
+  }
+
   setTheme = idx => {
     const { setTheme } = this.props
 
@@ -114,7 +139,7 @@ class DisplaySettings extends React.PureComponent {
     const { hideDisplaySettings, displaySettings } = this.props
     const { textSize, lineSpacing } = this.state
 
-    const { mode, theme } = displaySettings
+    const { mode, font, theme } = displaySettings
 
     let currentThemeLabel = themeOptions[0].label
     themeOptions.some(({ id, label }) => {
@@ -123,6 +148,8 @@ class DisplaySettings extends React.PureComponent {
         return true
       }
     })
+
+    let currentFontLabel = bibleFontList.includes(font) ? font : bibleFontList[0]
 
     return (
       <React.Fragment>
@@ -172,7 +199,7 @@ class DisplaySettings extends React.PureComponent {
                 />
               </Body>
             </CardItem>
-            <CardItem>
+            {/* <CardItem>
               <Body>
                 <Text>{i18n("Line spacing")}</Text>
                 <Slider
@@ -186,19 +213,23 @@ class DisplaySettings extends React.PureComponent {
                   thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
                 />
               </Body>
-            </CardItem>
+            </CardItem> */}
             <CardItem button
-              onPress={() => {
-                ActionSheet.show(
-                  {
-                    options: themeOptions.map(({ label }) => label),
-                  },
-                  this.setTheme,
-                )
-              }}
+              onPress={this.selectTheme}
             >
               <Text>
                 {currentThemeLabel}
+              </Text>
+              <Icon
+                name="arrow-dropdown"
+                style={styles.dropdownIcon}
+              />
+            </CardItem>
+            <CardItem button
+              onPress={this.selectFont}
+            >
+              <Text>
+                {currentFontLabel}
               </Text>
               <Icon
                 name="arrow-dropdown"
@@ -220,6 +251,7 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setMode,
   setTextSize,
   setLineSpacing,
+  setFont,
   setTheme,
 }, dispatch)
 

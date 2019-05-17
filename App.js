@@ -9,13 +9,13 @@ import { PersistGate } from 'redux-persist/integration/react'
 import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
 import { Ionicons } from '@expo/vector-icons'
+import { passOverI18n } from "bibletags-ui-helper/src/i18n.js"
 
 import GlobalNavigator from "./src/navigators/Global.js"
 
+import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
-
-import { passOverI18n } from "bibletags-ui-helper/src/i18n.js"
 import i18n from "./src/utils/i18n.js"
 
 passOverI18n(i18n)
@@ -58,6 +58,7 @@ export default class App extends React.Component {
       Font.loadAsync({
         Roboto: require('native-base/Fonts/Roboto.ttf'),
         Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+        ...bibleFontLoads,
         ...Ionicons.font,
       }),
     ])

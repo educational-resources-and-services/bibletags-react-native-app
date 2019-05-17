@@ -2,12 +2,13 @@ import React from "react"
 import { StyleSheet, View, Text, Dimensions, AppState, StatusBar,
          TouchableWithoutFeedback, Platform } from "react-native"
 import { Constants, KeepAwake } from "expo"
-// import { bindActionCreators } from "redux"
-// import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
 import { unmountTimeouts } from "../../utils/toolbox.js"
+import { getValidFontName } from "../../utils/bibleFonts.js"
 
 import ReadHeader from "../major/ReadHeader"
 import DisplaySettings from "../major/DisplaySettings"
@@ -86,10 +87,11 @@ class Read extends React.Component {
 
   render() {
 
-    const { navigation } = this.props
+    const { navigation, displaySettings } = this.props
     const { showingDisplaySettings, showingPassageChooser, currentAppState } = this.state
 
     const { width, height } = Dimensions.get('window')
+    const { font } = displaySettings
 
     const statusBarHeight = StatusBar.currentHeight || 0
     const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
@@ -124,7 +126,9 @@ class Read extends React.Component {
           }
           <Content>
             <View>
-              <Text>verses</Text>
+              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font }) }}>normal text</Text>
+              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'italic' }) }}>italics text2</Text>
+              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
             </View>
           </Content>
           {!!showingPassageChooser &&
@@ -143,4 +147,12 @@ class Read extends React.Component {
   }
 }
 
-export default Read
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setTheme,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(Read)

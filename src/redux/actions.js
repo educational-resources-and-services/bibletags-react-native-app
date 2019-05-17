@@ -28,6 +28,11 @@ export const setLineSpacing = ({ lineSpacing }) => ({
   lineSpacing,
 })
 
+export const setFont = ({ font }) => ({
+  type: "SET_FONT",
+  font,
+})
+
 export const setTheme = ({ theme }) => ({
   type: "SET_THEME",
   theme,
