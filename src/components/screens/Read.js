@@ -126,7 +126,16 @@ class Read extends React.Component {
           }
           <Content>
             <View>
-              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font }) }}>normal text</Text>
+              <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font }) }}>
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
+              </Text>
               <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'italic' }) }}>italics text2</Text>
               <Text style={{ fontSize: 56, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
             </View>

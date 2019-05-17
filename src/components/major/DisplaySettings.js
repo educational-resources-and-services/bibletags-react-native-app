@@ -5,7 +5,6 @@ import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { getToolbarHeight } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
 import { bibleFontList } from "../../utils/bibleFonts.js"
 
@@ -19,11 +18,6 @@ const {
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFill,
-    top: getToolbarHeight(),
-    zIndex: 16,
-  },
   cover: {
     ...StyleSheet.absoluteFill,
     zIndex: 15,
@@ -34,6 +28,7 @@ const styles = StyleSheet.create({
     right: 1,
     minWidth: 230,
     paddingBottom: 15,
+    zIndex: 16,
   },
   header: {
     fontWeight: 'bold',
@@ -107,6 +102,7 @@ class DisplaySettings extends React.PureComponent {
   selectFont = () => {
     ActionSheet.show(
       {
+        title: i18n("Font"),
         options: bibleFontList,
       },
       this.setFont,
