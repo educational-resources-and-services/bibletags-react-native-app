@@ -75,7 +75,7 @@
   "displaySettings": {
     "mode": "parallel",
     "textSize": 1,
-    "textSpacing": 1.3,
+    "lineSpacing": 1.3,
     "theme": "default"
   },
   "rateUs": {

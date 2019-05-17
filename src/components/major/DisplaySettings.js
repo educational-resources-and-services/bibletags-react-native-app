@@ -70,8 +70,44 @@ const themeOptions = [
 
 class DisplaySettings extends React.PureComponent {
 
+  toggleParallelMode = () => {
+    const { setMode, displaySettings } = this.props
+    const { mode } = displaySettings
+
+    setMode({
+      mode: mode === 'parallel' ? 'basic' : 'parallel',
+    })
+  }
+
+  setTextSize = textSize => {
+    const { setTextSize } = this.props
+
+    setTextSize({ textSize })
+  }
+
+  setLineSpacing = lineSpacing => {
+    const { setLineSpacing } = this.props
+
+    setLineSpacing({ lineSpacing })
+  }
+
+  setTheme = idx => {
+    const { setTheme } = this.props
+
+    setTheme({ theme: themeOptions[idx].id })
+  }
+
   render() {
     const { hideDisplaySettings, displaySettings } = this.props
+    const { mode, textSize, lineSpacing, theme } = displaySettings
+
+    let currentThemeLabel = themeOptions[0].label
+    themeOptions.some(({ id, label }) => {
+      if(id === theme) {
+        currentThemeLabel = label
+        return true
+      }
+    })
 
     return (
       <View style={styles.container}>
@@ -88,29 +124,32 @@ class DisplaySettings extends React.PureComponent {
               {i18n("Display options")}
             </Text>
           </CardItem>
-          <CardItem button
-            onPress={() => {
-              //hideDisplaySettings()
-            }}
+          <TouchableWithoutFeedback
+            onPress={this.toggleParallelMode}
           >
-            <Switch
-              style={styles.switch}
-              trackColor={{
-                true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
-              }}
-              ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-              thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-              value={true}
-            />
-            <Text>{i18n("Parallel mode")}</Text>
-          </CardItem>
+            <CardItem>
+              <Switch
+                onValueChange={this.toggleParallelMode}
+                style={styles.switch}
+                trackColor={{
+                  true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+                }}
+                ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                value={mode === 'parallel'}
+              />
+              <Text>{i18n("Parallel mode")}</Text>
+            </CardItem>
+          </TouchableWithoutFeedback>
           <CardItem>
             <Body>
               <Text>{i18n("Text size")}</Text>
               <Slider
+                minimumValue={.3}
+                maximumValue={4}
+                value={textSize}
+                onSlidingComplete={this.setTextSize}
                 style={styles.slider}
-                minimumValue={0}
-                maximumValue={1}
                 minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
                 maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
                 thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
@@ -121,9 +160,11 @@ class DisplaySettings extends React.PureComponent {
             <Body>
               <Text>{i18n("Line spacing")}</Text>
               <Slider
+                minimumValue={1}
+                maximumValue={4}
+                value={lineSpacing}
+                onSlidingComplete={this.setLineSpacing}
                 style={styles.slider}
-                minimumValue={0}
-                maximumValue={1}
                 minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
                 maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
                 thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
@@ -136,14 +177,13 @@ class DisplaySettings extends React.PureComponent {
                 {
                   options: themeOptions.map(({ label }) => label),
                 },
-                buttonIndex => {
-                  
-                }
+                this.setTheme,
               )
-              //hideDisplaySettings()
             }}
           >
-            <Text>Default theme</Text>
+            <Text>
+              {currentThemeLabel}
+            </Text>
             <Icon
               name="arrow-dropdown"
               style={styles.dropdownIcon}

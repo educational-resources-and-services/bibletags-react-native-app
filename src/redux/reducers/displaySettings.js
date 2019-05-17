@@ -1,7 +1,7 @@
 const initialState = {
   mode: 'basic',
   textSize: 16,
-  textSpacing: 1.3,
+  lineSpacing: 1.3,
   theme: "default"
 }
 
@@ -35,7 +35,7 @@ export default function(state = initialState, action) {
     case "SET_LINE_SPACING":
       return {
         ...state,
-        textSpacing: parseFloat(action.textSpacing) || state.textSpacing,
+        lineSpacing: parseFloat(action.lineSpacing) || state.lineSpacing,
       }
 
     case "SET_THEME":
