@@ -4,4 +4,5 @@ npm-debug.*
 assets/*
 tenants/*
 /app.json
+/fonts.js
 /src/utils/translations/current.json

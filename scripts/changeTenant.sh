@@ -2,7 +2,7 @@
 
 echo ""
 
-TENANT_ITEMS=("app.json" "assets")
+TENANT_ITEMS=("app.json" "fonts.js" "assets")
 THIS_SCRIPT=$0
 TENANT_TO_SWITCH_TO=$1
 
