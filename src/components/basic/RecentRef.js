@@ -16,10 +16,10 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderBottomWidth: 0,
     width: 26,
-    height: 70,
-    bottom: -10,
+    height: 74,
+    bottom: -12,
     backgroundColor: 'white',
-    marginRight: 14,
+    marginRight: 10,
   },
   bookmarkSelected: {
     bottom: 0,
@@ -51,9 +51,6 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     fontSize: 12,
   },
-  bookmarkTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
-  },
 })
 
 class RecentRef extends React.PureComponent {
@@ -84,10 +81,7 @@ class RecentRef extends React.PureComponent {
           <View style={styles.bookmarkTextContainer}>
             <Text
               numberOfLines={1}
-              style={[
-                styles.bookmarkText,
-                (selected ? styles.bookmarkTextSelected : null),
-              ]}
+              style={styles.bookmarkText}
             >
               Mt 22
             </Text>
