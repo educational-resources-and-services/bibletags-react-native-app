@@ -15,6 +15,7 @@ import DisplaySettings from "../major/DisplaySettings"
 import PassageChooser from "../major/PassageChooser"
 import FullScreenSpin from '../basic/FullScreenSpin'
 import RevealContainer from '../basic/RevealContainer'
+import RecentSection from '../major/RecentSection'
 
 const {
   APP_BACKGROUND_COLOR,
@@ -127,7 +128,9 @@ class Read extends React.Component {
             />
           }
           <Content>
-            <View>
+            <View
+              style={{ padding: 20, paddingBottom: 110 }}
+            >
               <Text style={{ fontSize, fontFamily: getValidFontName({ font }) }}>
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
                 normal text normal text normal text normal text normal text normal text normal text normal text normal text 
@@ -142,6 +145,7 @@ class Read extends React.Component {
               <Text style={{ fontSize, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
             </View>
           </Content>
+          <RecentSection />
           {!!showingPassageChooser &&
             <TouchableWithoutFeedback
               style={styles.invisibleCover}
