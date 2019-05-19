@@ -13,6 +13,11 @@ export const setParallelVersionId = ({ parallelVersionId }) => ({
   parallelVersionId,
 })
 
+export const removeRecentPassage = ({ ref }) => ({
+  type: "REMOVE_RECENT_PASSAGE",
+  ref,
+})
+
 export const setMode = ({ mode }) => ({
   type: "SET_MODE",
   mode,

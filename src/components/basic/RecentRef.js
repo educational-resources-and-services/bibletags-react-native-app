@@ -1,8 +1,12 @@
 import React from "react"
 import { Text, View, StyleSheet, PanResponder } from "react-native"
 import { Constants } from "expo"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import { getPassageStr } from "bibletags-ui-helper"
+
+import { setRef, removeRecentPassage } from "../../redux/actions.js"
 
 const {
   RECENT_REF_BACKGROUND_COLOR,
@@ -92,23 +96,23 @@ class RecentRef extends React.PureComponent {
     },
     onPanResponderTerminationRequest: (evt, gestureState) => true,
     onPanResponderRelease: (evt, gestureState) => {
+      const { setRef, removeRecentPassage, passageRef: ref } = this.props
 
       if(isCancelled(gestureState)) {
-        console.log('passage change cancel1')
+        console.log('passage change cancelled (1)')
 
       } else if(gestureState.dy >= MINIMUM_SWIPE_DOWN_AMOUNT) {
-        console.log('passage remove')
+        removeRecentPassage({ ref })
 
       } else {
-        console.log('passage change')
-
+        setRef({ ref })
       }
 
       this.cancelTouchVisual()
 
     },
     onPanResponderTerminate: (evt, gestureState) => {
-      console.log('passage change cancel2')
+      console.log('passage change cancelled (2)')
       this.cancelTouchVisual()
     },
   })
@@ -148,4 +152,13 @@ class RecentRef extends React.PureComponent {
   }
 }
 
-export default RecentRef
+const mapStateToProps = ({ passage }) => ({
+  // passage,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  setRef,
+  removeRecentPassage,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(RecentRef)

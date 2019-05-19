@@ -43,7 +43,7 @@ export default function(state = initialState, action) {
           if(
             type === 'passage'
             && state.recentPassages.includes(index)
-            && !refsMatch(newState.passage.ref, ref)
+            && !refsMatch(action.ref, ref)
           ) {
             newRecentPassages.push(index + 1)
           }
@@ -116,6 +116,17 @@ export default function(state = initialState, action) {
         return newState
       }
       return state
+    }
+
+    case "REMOVE_RECENT_PASSAGE": {
+
+      newState.recentPassages = newState.recentPassages.filter(historyIndex => (
+        !refsMatch(action.ref, (state.history[historyIndex] || {}).ref)
+      ))
+
+      if(newState.recentPassages.length !== state.recentPassages.length) {
+        return newState
+      }
     }
 
   }
