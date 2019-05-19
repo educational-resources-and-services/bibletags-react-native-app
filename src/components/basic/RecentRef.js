@@ -17,17 +17,18 @@ const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
 const X_TO_Y_CANCEL_PROPORTION = .4
 const MINIMUM_CANCEL_AMOUNT = 25
+const EXTRA_SELECTED_BOOKMARK_HEIGHT = 12
 
 const styles = StyleSheet.create({
   bookmark: {
     width: 25,
     height: 75 + MAXIMUM_SWIPE_UP_AMOUNT,
-    bottom: -12,
+    bottom: EXTRA_SELECTED_BOOKMARK_HEIGHT * -1,
     marginRight: 10,
     backgroundColor: RECENT_REF_BACKGROUND_COLOR,
   },
   bookmarkBeingTouched: {
-    opacity: .6,
+    opacity: .7,
   },
   bookmarkSelected: {
     bottom: 0,
@@ -81,40 +82,63 @@ class RecentRef extends React.PureComponent {
     onMoveShouldSetPanResponder: (evt, gestureState) => true,
     onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
 
-    onPanResponderGrant: (evt, gestureState) => {
-      this.setState({ beingTouched: true })
-    },
+    onPanResponderGrant: (evt, gestureState) => this.setState({ beingTouched: true }),
     onPanResponderMove: (evt, gestureState) => {
+      const { selected } = this.props
+
       if(isCancelled(gestureState)) {
         this.cancelTouchVisual()
       } else {
         this.setState({
           beingTouched: true,
-          dragY: Math.max(gestureState.dy, MAXIMUM_SWIPE_UP_AMOUNT * -1),
+          dragY: Math.max(
+            gestureState.dy - (selected ? EXTRA_SELECTED_BOOKMARK_HEIGHT : 0),
+            selected ? EXTRA_SELECTED_BOOKMARK_HEIGHT * -1 : MAXIMUM_SWIPE_UP_AMOUNT * -1,
+          ),
         })
       }
     },
+
     onPanResponderTerminationRequest: (evt, gestureState) => true,
     onPanResponderRelease: (evt, gestureState) => {
-      const { setRef, removeRecentPassage, passageRef: ref } = this.props
+      const { passageRef: ref, selected, history, recentPassages,
+              setRef, removeRecentPassage } = this.props
 
       if(isCancelled(gestureState)) {
-        console.log('passage change cancelled (1)')
+        console.log('passage change cancelled')
 
       } else if(gestureState.dy >= MINIMUM_SWIPE_DOWN_AMOUNT) {
+
+        if(selected) {
+
+          let ref = {
+            bookId: 1,
+            chapter: 1,
+            scrollY: 0,
+          }
+
+          if(recentPassages.length > 1) {
+            history.some((passage, index) => {
+              if(recentPassages.includes(index)) {
+                ref = passage.ref
+                return true
+              }
+            })
+          }
+
+          setRef({ ref })
+        }
+
         removeRecentPassage({ ref })
 
-      } else {
+      } else if(!selected) {
         setRef({ ref })
       }
 
       this.cancelTouchVisual()
 
     },
-    onPanResponderTerminate: (evt, gestureState) => {
-      console.log('passage change cancelled (2)')
-      this.cancelTouchVisual()
-    },
+    onPanResponderTerminate: this.cancelTouchVisual
   })
 
   render() {
@@ -123,7 +147,7 @@ class RecentRef extends React.PureComponent {
 
     return (
       <View
-        {...(selected ? {} : this.panResponder.panHandlers)}
+        {...this.panResponder.panHandlers}
         style={[
           styles.bookmark,
           (selected ? styles.bookmarkSelected : null),
@@ -152,8 +176,9 @@ class RecentRef extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage }) => ({
-  // passage,
+const mapStateToProps = ({ history, recentPassages }) => ({
+  history,
+  recentPassages,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
