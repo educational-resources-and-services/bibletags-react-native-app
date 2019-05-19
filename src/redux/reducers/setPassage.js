@@ -109,7 +109,7 @@ export default function(state = initialState, action) {
     case "SET_PARALLEL_VERSION_ID": {
       if(
         newState.passage.parallelVersionId !== action.parallelVersionId
-        && SECONDARY_VERSIONS.includes(action.versionId)
+        && SECONDARY_VERSIONS.includes(action.parallelVersionId)
       ) {
         newState.passage = { ...newState.passage }
         newState.passage.parallelVersionId = action.parallelVersionId

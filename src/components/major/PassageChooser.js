@@ -16,6 +16,9 @@ const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
   CHAPTER_CHOOSER_BACKGROUND_COLOR,
   PRIMARY_VERSIONS,
+  SECONDARY_VERSIONS,
+  VERSION_CHOOSER_BACKGROUND_COLOR,
+  PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -65,16 +68,46 @@ class PassageChooser extends React.PureComponent {
   }
 
   updateVersion = versionId => {
-    const { setVersionId, hidePassageChooser } = this.props
+    const { setVersionId, setParallelVersionId, hidePassageChooser, passage } = this.props
 
     setVersionId({ versionId })
+
+    if(versionId === passage.parallelVersionId && SECONDARY_VERSIONS.length > 1) {
+      setParallelVersionId({
+        parallelVersionId: (
+          SECONDARY_VERSIONS.includes(passage.versionId)
+            ? passage.versionId
+            : SECONDARY_VERSIONS[
+              SECONDARY_VERSIONS[0] !== versionId
+                ? 0
+                : 1
+            ]
+        ),
+      })
+    }
+
     hidePassageChooser()
   }
 
   updateParallelVersion = parallelVersionId => {
-    const { setParallelVersionId, hidePassageChooser } = this.props
+    const { setVersionId, setParallelVersionId, hidePassageChooser, passage } = this.props
 
     setParallelVersionId({ parallelVersionId })
+
+    if(parallelVersionId === passage.versionId && PRIMARY_VERSIONS.length > 1) {
+      setVersionId({
+        versionId: (
+          PRIMARY_VERSIONS.includes(passage.parallelVersionId)
+            ? passage.parallelVersionId
+            : PRIMARY_VERSIONS[
+              PRIMARY_VERSIONS[0] !== parallelVersionId
+                ? 0
+                : 1
+            ]
+        ),
+      })
+    }
+
     hidePassageChooser()
   }
 
@@ -123,16 +156,30 @@ class PassageChooser extends React.PureComponent {
   }
 
   render() {
-    const { showing, passage, paddingBottom, hidePassageChooser } = this.props
+    const { showing, paddingBottom, hidePassageChooser, passage, mode } = this.props
+
+    const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
+    const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
 
     return (
       <View style={styles.container}>
         {showing && <BackFunction func={hidePassageChooser} />}
-        <VersionChooser
-          versionIds={PRIMARY_VERSIONS}
-          update={this.updateVersion}
-          selectedVersionId={passage.versionId}
-        />
+        {showVersionChooser &&
+          <VersionChooser
+            versionIds={PRIMARY_VERSIONS}
+            update={this.updateVersion}
+            selectedVersionId={passage.versionId}
+            backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+          />
+        }
+        {showParallelVersionChooser &&
+          <VersionChooser
+            versionIds={SECONDARY_VERSIONS}
+            update={this.updateParallelVersion}
+            selectedVersionId={passage.parallelVersionId}
+            backgroundColor={PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR}
+          />
+        }
         <View style={styles.refChooser}>
           <View style={styles.bookList}>
             <FlatList
@@ -170,8 +217,9 @@ class PassageChooser extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage }) => ({
+const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,
+  mode: displaySettings.mode,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
