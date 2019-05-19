@@ -1,5 +1,7 @@
 import React from "react"
 import { View, StyleSheet } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
 class RecentSection extends React.PureComponent {
 
   render() {
-    // const { bookId, selected } = this.props
+    const { passage, history, recentPassages } = this.props
 
     const numFaderLines = 15
     const recentRefs = [
@@ -81,4 +83,14 @@ class RecentSection extends React.PureComponent {
   }
 }
 
-export default RecentSection
+const mapStateToProps = ({ passage, history, recentPassages }) => ({
+  passage,
+  history,
+  recentPassages,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(RecentSection)
