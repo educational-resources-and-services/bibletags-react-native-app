@@ -108,6 +108,7 @@ class Read extends React.Component {
           <PassageChooser
             hidePassageChooser={this.hidePassageChooser}
             paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
+            showing={showingPassageChooser}
           />
         </View>
         <RevealContainer

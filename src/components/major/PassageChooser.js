@@ -8,6 +8,7 @@ import { connect } from "react-redux"
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
+import BackFunction from "../basic/BackFunction"
 
 import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions.js"
 
@@ -50,14 +51,17 @@ const books = Array(39).fill(0).map((x, idx) => idx+1)
 
 class PassageChooser extends React.PureComponent {
 
-  constructor(props) {
-    super(props)
+  state = {}
 
-    const { passage: { ref: { bookId }} } = this.props
+  static getDerivedStateFromProps(props, state) {
+    const { showing, passage } = props
+    const stateUpdate = { showing }
 
-    this.state = {
-      bookId,
+    if(showing && !state.showing) {
+      stateUpdate.bookId = passage.ref.bookId
     }
+
+    return stateUpdate
   }
 
   updateVersion = versionId => {
@@ -119,10 +123,11 @@ class PassageChooser extends React.PureComponent {
   }
 
   render() {
-    const { passage, paddingBottom } = this.props
+    const { showing, passage, paddingBottom, hidePassageChooser } = this.props
 
     return (
       <View style={styles.container}>
+        {showing && <BackFunction func={hidePassageChooser} />}
         <VersionChooser
           versionIds={PRIMARY_VERSIONS}
           update={this.updateVersion}
