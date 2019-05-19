@@ -1,4 +1,4 @@
-const initialState = []
+const initialState = [ 'current' ]
 
 export default function(state = initialState, action) {
   const newState = { ...state }

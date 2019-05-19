@@ -35,20 +35,6 @@ class RecentSection extends React.PureComponent {
     const { passage, history, recentPassages } = this.props
 
     const numFaderLines = 15
-    const recentRefs = [
-      {
-        bookId: 21,
-        chapter: 22,
-      },
-      {
-        bookId: 4,
-        chapter: 39,
-      },
-      {
-        bookId: 19,
-        chapter: 150,
-      },
-    ]
 
     return (
       <View
@@ -69,13 +55,19 @@ class RecentSection extends React.PureComponent {
         ))}
         <View style={styles.main}>
           <View style={styles.refs}>
-            {recentRefs.map(dataRef => (
-              <RecentRef
-                key={`${dataRef.bookId} ${dataRef.chapter}`}
-                dataRef={dataRef}
-                selected={dataRef.bookId === 19}
-              />
-            ))}
+            {recentPassages.map(historyIndex => {
+              const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
+
+              if(!passageRef) return null  // just in case
+
+              return (
+                <RecentRef
+                  key={`${passageRef.bookId} ${passageRef.chapter}`}
+                  passageRef={passageRef}
+                  selected={historyIndex === 'current'}
+                />
+              )
+            })}
           </View>
         </View>
       </View>

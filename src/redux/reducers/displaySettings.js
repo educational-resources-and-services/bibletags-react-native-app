@@ -2,7 +2,7 @@ import { bibleFontList } from "../../utils/bibleFonts.js"
 
 const initialState = {
   mode: 'basic',
-  textSize: 16,
+  textSize: 1,
   lineSpacing: 1.3,
   font: bibleFontList[0],
   theme: "default"

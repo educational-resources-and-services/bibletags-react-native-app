@@ -5,22 +5,77 @@ const {
   SECONDARY_VERSIONS,
 } = Constants.manifest.extra
 
+const MAXIMUM_NUMBER_OF_RECENT = 6
+const MAXIMUM_NUMBER_OF_HISTORY = 100
+
+const refsMatch = (ref1, ref2) => JSON.stringify(ref1) === JSON.stringify(ref2)
+
 export default function(state = initialState, action) {
 
-  const newState = {
-    ...state,
-    passage: {...state.passage},
-    history: {...state.history},
-    recentPassages: {...state.recentPassages},
-  }
+  const newState = { ...state }
 
   switch (action.type) {
 
     case "SET_REF": {
 
-      if(JSON.stringify(newState.passage.ref) !== JSON.stringify(action.ref)) {
-        newState.passage.ref = { ...newState.passage.ref }
+      newState.history = [ ...newState.history ]
 
+      // take care of history
+      newState.history.unshift({
+        ...newState.passage,
+        type: 'passage',
+        lastViewTime: Date.now(),
+      })
+      newState.history.splice(MAXIMUM_NUMBER_OF_HISTORY, newState.history.length)
+
+      if(!refsMatch(newState.passage.ref, action.ref)) {
+
+        newState.passage = { ...newState.passage }
+        newState.passage.ref = { ...newState.passage.ref }
+        newState.recentPassages = [ ...newState.recentPassages ]
+        newState.recentSearches = [ ...newState.recentSearches ]
+
+        // take care of recentPassages and recentSearches
+        const newRecentPassages = [ 'current', 0 ]
+        const newRecentSearches = []
+        state.history.some(({ type, ref, searchString }, index) => {
+
+          if(
+            type === 'passage'
+            && state.recentPassages.includes(index)
+            && !refsMatch(newState.passage.ref, ref)
+          ) {
+            newRecentPassages.push(index + 1)
+          }
+
+          if(
+            type === 'search'
+            && state.recentSearches.includes(index)
+          ) {
+            newRecentSearches.push(index + 1)
+          }
+
+          if(newRecentPassages.length + newRecentSearches.length >= MAXIMUM_NUMBER_OF_RECENT) {
+            return true
+          }
+
+        })
+        newRecentPassages.sort((a, b) => {
+          const refA = a === 'current' ? action.ref : newState.history[a].ref
+          const refB = b === 'current' ? action.ref : newState.history[b].ref
+
+          return (
+            refA.bookId > refB.bookId
+            || (
+              refA.bookId === refB.bookId
+              && refA.chapter > refB.chapter
+            )
+          )
+        })
+        newState.recentPassages = newRecentPassages
+        newState.recentSearches = newRecentSearches
+
+        // take care of passage
         if(newState.passage.ref.bookId !== action.ref.bookId) {
           newState.passage.ref.bookId = action.ref.bookId
         }
@@ -44,6 +99,7 @@ export default function(state = initialState, action) {
         newState.passage.versionId !== action.versionId
         && PRIMARY_VERSIONS.includes(action.versionId)
       ) {
+        newState.passage = { ...newState.passage }
         newState.passage.versionId = action.versionId
         return newState
       }
@@ -55,6 +111,7 @@ export default function(state = initialState, action) {
         newState.passage.parallelVersionId !== action.parallelVersionId
         && SECONDARY_VERSIONS.includes(action.versionId)
       ) {
+        newState.passage = { ...newState.passage }
         newState.passage.parallelVersionId = action.parallelVersionId
         return newState
       }

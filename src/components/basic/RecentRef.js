@@ -114,7 +114,7 @@ class RecentRef extends React.PureComponent {
   })
 
   render() {
-    const { dataRef, selected } = this.props
+    const { passageRef, selected } = this.props
     const { beingTouched, dragY } = this.state
 
     return (
@@ -138,7 +138,7 @@ class RecentRef extends React.PureComponent {
             style={styles.bookmarkText}
           >
             {getPassageStr({
-              refs: [ dataRef ],
+              refs: [ passageRef ],
               abbreviated: true,
             })}
           </Text>
