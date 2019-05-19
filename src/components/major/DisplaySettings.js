@@ -6,6 +6,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import i18n from "../../utils/i18n.js"
+import { getToolbarHeight } from "../../utils/toolbox.js"
 import { bibleFontList } from "../../utils/bibleFonts.js"
 
 import BackFunction from '../basic/BackFunction'
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
   },
   options: {
     position: 'absolute',
-    top: -2,
+    top: getToolbarHeight() - 2,
     right: 1,
     minWidth: 230,
     paddingBottom: 15,
@@ -159,84 +160,82 @@ class DisplaySettings extends React.PureComponent {
         >
           <View style={styles.cover} />
         </TouchableWithoutFeedback>
-        <View style={styles.container}>
-          <Card style={styles.options}>
-            <CardItem header>
-              <Text style={styles.header}>
-                {i18n("Display options")}
-              </Text>
-            </CardItem>
-            <TouchableWithoutFeedback
-              onPress={this.toggleParallelMode}
-            >
-              <CardItem>
-                <Switch
-                  onValueChange={this.toggleParallelMode}
-                  style={styles.switch}
-                  trackColor={{
-                    true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
-                  }}
-                  ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                  thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                  value={mode === 'parallel'}
-                />
-                <Text>{i18n("Parallel mode")}</Text>
-              </CardItem>
-            </TouchableWithoutFeedback>
+        <Card style={styles.options}>
+          <CardItem header>
+            <Text style={styles.header}>
+              {i18n("Display options")}
+            </Text>
+          </CardItem>
+          <TouchableWithoutFeedback
+            onPress={this.toggleParallelMode}
+          >
             <CardItem>
-              <Body>
-                <Text>{i18n("Text size")}</Text>
-                <Slider
-                  minimumValue={.5}
-                  maximumValue={4}
-                  value={textSize}
-                  onValueChange={this.setTextSize}
-                  style={styles.slider}
-                  minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                  maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                  thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                />
-              </Body>
-            </CardItem>
-            {/* <CardItem>
-              <Body>
-                <Text>{i18n("Line spacing")}</Text>
-                <Slider
-                  minimumValue={1}
-                  maximumValue={4}
-                  value={lineSpacing}
-                  onValueChange={this.setLineSpacing}
-                  style={styles.slider}
-                  minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                  maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                  thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                />
-              </Body>
-            </CardItem> */}
-            <CardItem button
-              onPress={this.selectTheme}
-            >
-              <Text>
-                {currentThemeLabel}
-              </Text>
-              <Icon
-                name="arrow-dropdown"
-                style={styles.dropdownIcon}
+              <Switch
+                onValueChange={this.toggleParallelMode}
+                style={styles.switch}
+                trackColor={{
+                  true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+                }}
+                ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                value={mode === 'parallel'}
               />
+              <Text>{i18n("Parallel mode")}</Text>
             </CardItem>
-            <CardItem button
-              onPress={this.selectFont}
-            >
-              <Text>
-                {currentFontLabel}
-              </Text>
-              <Icon
-                name="arrow-dropdown"
-                style={styles.dropdownIcon}
+          </TouchableWithoutFeedback>
+          <CardItem>
+            <Body>
+              <Text>{i18n("Text size")}</Text>
+              <Slider
+                minimumValue={.5}
+                maximumValue={4}
+                value={textSize}
+                onValueChange={this.setTextSize}
+                style={styles.slider}
+                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
               />
-            </CardItem>
-          </Card>
-        </View>
+            </Body>
+          </CardItem>
+          {/* <CardItem>
+            <Body>
+              <Text>{i18n("Line spacing")}</Text>
+              <Slider
+                minimumValue={1}
+                maximumValue={4}
+                value={lineSpacing}
+                onValueChange={this.setLineSpacing}
+                style={styles.slider}
+                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
+                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+              />
+            </Body>
+          </CardItem> */}
+          <CardItem button
+            onPress={this.selectTheme}
+          >
+            <Text>
+              {currentThemeLabel}
+            </Text>
+            <Icon
+              name="arrow-dropdown"
+              style={styles.dropdownIcon}
+            />
+          </CardItem>
+          <CardItem button
+            onPress={this.selectFont}
+          >
+            <Text>
+              {currentFontLabel}
+            </Text>
+            <Icon
+              name="arrow-dropdown"
+              style={styles.dropdownIcon}
+            />
+          </CardItem>
+        </Card>
       </React.Fragment>
     )
   }
