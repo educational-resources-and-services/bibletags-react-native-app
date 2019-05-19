@@ -72,6 +72,8 @@
       "versionId": "kjv"
     }
   ],
+  "recentPassages": [ 0, 2, 4 ],
+  "recentSearches": [ 1 ],
   "displaySettings": {
     "mode": "parallel",
     "textSize": 1,
