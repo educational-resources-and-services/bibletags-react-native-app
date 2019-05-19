@@ -8,7 +8,6 @@ const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
     top: 'auto',
-    height: 110,
     zIndex: 5,
   },
   faderLine: {
@@ -19,6 +18,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
+    height: 75,
   },
   refs: {
     marginLeft: 30,
@@ -39,12 +39,12 @@ class RecentSection extends React.PureComponent {
         chapter: 22,
       },
       {
-        bookId: 5,
-        chapter: 1,
+        bookId: 4,
+        chapter: 39,
       },
       {
-        bookId: 10,
-        chapter: 5,
+        bookId: 19,
+        chapter: 150,
       },
     ]
 
@@ -67,13 +67,11 @@ class RecentSection extends React.PureComponent {
         ))}
         <View style={styles.main}>
           <View style={styles.refs}>
-            {recentRefs.map(({ bookId, chapter }, idx) => (
+            {recentRefs.map(dataRef => (
               <RecentRef
-                key={`${bookId} ${chapter}`}
-                index={idx}
-                bookId={bookId}
-                chapter={chapter}
-                selected={idx === 2}
+                key={`${dataRef.bookId} ${dataRef.chapter}`}
+                dataRef={dataRef}
+                selected={dataRef.bookId === 19}
               />
             ))}
           </View>

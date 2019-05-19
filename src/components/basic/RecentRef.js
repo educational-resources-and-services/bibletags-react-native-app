@@ -2,34 +2,24 @@ import React from "react"
 import { Text, View, StyleSheet, TouchableWithoutFeedback } from "react-native"
 import { Constants } from "expo"
 
-import { getBibleBookName } from "bibletags-ui-helper"
+import { getPassageStr } from "bibletags-ui-helper"
 
 const {
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-  CHOOSER_SELECTED_TEXT_COLOR,
-  RECENT_REF_TIP_BACKGROUND_COLOR,
+  RECENT_REF_BACKGROUND_COLOR,
+  RECENT_REF_SELECTED_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   bookmark: {
-    borderWidth: 1,
-    borderColor: 'black',
-    borderBottomWidth: 0,
-    width: 26,
-    height: 74,
+    width: 25,
+    height: 75,
     bottom: -12,
-    backgroundColor: 'white',
     marginRight: 10,
+    backgroundColor: RECENT_REF_BACKGROUND_COLOR,
   },
   bookmarkSelected: {
     bottom: 0,
-  },
-  bookmarkTip: {
-    backgroundColor: RECENT_REF_TIP_BACKGROUND_COLOR,
-    height: 8,
-  },
-  bookmarkTipSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
+    backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
   },
   bookmarkTextContainer: {
     transform: [
@@ -37,17 +27,18 @@ const styles = StyleSheet.create({
         rotate: '270deg',
       },
       {
-        translateX: -25,
+        translateX: -26,
       },
       {
-        translateY: -18,
+        translateY: -17.5,
       },
     ],
     width: 60,
-    height: 20,
+    height: 25,
   },
   bookmarkText: {
-    lineHeight: 18,
+    color: 'white',
+    lineHeight: 25,
     textAlign: 'right',
     fontSize: 12,
   },
@@ -60,7 +51,7 @@ class RecentRef extends React.PureComponent {
   }
 
   render() {
-    const { bookId, chapter, selected } = this.props
+    const { dataRef, selected } = this.props
 
     return (
       <TouchableWithoutFeedback
@@ -72,18 +63,15 @@ class RecentRef extends React.PureComponent {
             (selected ? styles.bookmarkSelected : null),
           ]}
         >
-          <View
-            style={[
-              styles.bookmarkTip,
-              (selected ? styles.bookmarkTipSelected : null),
-            ]}
-          />
           <View style={styles.bookmarkTextContainer}>
             <Text
               numberOfLines={1}
               style={styles.bookmarkText}
             >
-              Mt 22
+              {getPassageStr({
+                refs: [ dataRef ],
+                abbreviated: true,
+              })}
             </Text>
           </View>
         </View>

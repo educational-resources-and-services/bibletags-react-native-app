@@ -20,7 +20,7 @@
   "dependencies": {
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "5.1.1",
-    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#e63e70cb707f60c30650bf12bdc99272edaaf52e",
+    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#b754a94a3887ad7f96653150f090feaf45422cc4",
     "expo": "32.0.6",
     "find-in-files": "0.5.0",
     "native-base": "2.12.1",
