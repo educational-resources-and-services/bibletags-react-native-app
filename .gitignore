@@ -5,4 +5,5 @@ assets/*
 tenants/*
 /app.json
 /fonts.js
+/versions.js
 /src/utils/translations/current.json

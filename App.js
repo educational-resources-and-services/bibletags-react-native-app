@@ -15,6 +15,7 @@ import GlobalNavigator from "./src/navigators/Global.js"
 
 import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
+import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
 import i18n from "./src/utils/i18n.js"
 
@@ -64,6 +65,8 @@ export default class App extends React.Component {
     ])
     
     await updateDataStructure()  // needs to be after the persistStore call above
+
+    await importUsfm()
 
     this.setState({ isReady: true })
 
