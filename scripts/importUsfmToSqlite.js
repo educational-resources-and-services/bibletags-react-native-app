@@ -11,25 +11,36 @@ try {
 
   const db = new Database(`${versionsDir}/${version}.db`)
   
-  db
-    .prepare(
-      `CREATE TABLE ${version}Verses (
-        loc INTEGER PRIMARY KEY,
-        usfm TEXT COLLATE NOCASE,
-        search TEXT COLLATE NOCASE
-      );`
-    )
-    .run()
+  const create = db.prepare(
+    `CREATE TABLE ${version}Verses (
+      loc INTEGER PRIMARY KEY,
+      usfm TEXT COLLATE NOCASE,
+      search TEXT COLLATE NOCASE
+    );`
+  )
+
+  create.run()
   
-  db
-    .prepare(`INSERT INTO ${version}Verses (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
-    .run({
+  const insert = db.prepare(`INSERT INTO ${version}Verses (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
+
+  const insertMany = db.transaction((verses) => {
+    for(const verse of verses) insert.run(verse)
+  })
+
+  insertMany([
+    {
       loc: '01001001',
       usfm: '\\v In the b...',
       search: 'In...',
-    })
-  
-  
+    },
+    {
+      loc: '01001002',
+      usfm: '\\v And the...',
+      search: 'And...',
+    },
+  ])
+
+
   console.log(`${version}.db successfully created and placed into ${versionsDir}`)
   
 } catch(err) {
@@ -81,3 +92,149 @@ process.exit()
 //   { name: 'Sally', age: 4 },
 //   { name: 'Junior', age: 1 },
 // ]);
+
+
+
+
+// const bookNames = [
+//   "",
+//   ["Genesis", "GEN"],
+//   ["Exodus", "EXO"],
+//   ["Leviticus", "LEV"],
+//   ["Numbers", "NUM"],
+//   ["Deuteronomy", "DEU"],
+//   ["Joshua", "JOS"],
+//   ["Judges", "JDG"],
+//   ["Ruth", "RUT"],
+//   ["1 Samuel", "1SA"],
+//   ["2 Samuel", "2SA"],
+//   ["1 Kings", "1KI"],
+//   ["2 Kings", "2KI"],
+//   ["1 Chronicles", "1CH"],
+//   ["2 Chronicles", "2CH"],
+//   ["Ezra", "EZR"],
+//   ["Nehemiah", "NEH"],
+//   ["Esther", "EST"],
+//   ["Job", "JOB"],
+//   ["Psalms", "PSA"],
+//   ["Proverbs", "PRO"],
+//   ["Ecclesiastes", "ECC"],
+//   ["Song of Songs", "SNG"],
+//   ["Isaiah", "ISA"],
+//   ["Jeremiah", "JER"],
+//   ["Lamentations", "LAM"],
+//   ["Ezekiel", "EZK"],
+//   ["Daniel", "DAN"],
+//   ["Hosea", "HOS"],
+//   ["Joel", "JOL"],
+//   ["Amos", "AMO"],
+//   ["Obadiah", "OBA"],
+//   ["Jonah", "JON"],
+//   ["Micah", "MIC"],
+//   ["Nahum", "NAM"],
+//   ["Habakkuk", "HAB"],
+//   ["Zephaniah", "ZEP"],
+//   ["Haggai", "HAG"],
+//   ["Zechariah", "ZEC"],
+//   ["Malachi", "MAL"],
+//   ["Matthew", "MAT"],
+//   ["Mark", "MRK"],
+//   ["Luke", "LUK"],
+//   ["John", "JHN"],
+//   ["Acts", "ACT"],
+//   ["Romans", "ROM"],
+//   ["1 Corinthians", "1CO"],
+//   ["2 Corinthians", "2CO"],
+//   ["Galatians", "GAL"],
+//   ["Ephesians", "EPH"],
+//   ["Philippians", "PHP"],
+//   ["Colossians", "COL"],
+//   ["1 Thessalonians", "1TH"],
+//   ["2 Thessalonians", "2TH"],
+//   ["1 Timothy", "1TI"],
+//   ["2 Timothy", "2TI"],
+//   ["Titus", "TIT"],
+//   ["Philemon", "PHM"],
+//   ["Hebrews", "HEB"],
+//   ["James", "JAS"],
+//   ["1 Peter", "1PE"],
+//   ["2 Peter", "2PE"],
+//   ["1 John", "1JN"],
+//   ["2 John", "2JN"],
+//   ["3 John", "3JN"],
+//   ["Jude", "JUD"],
+//   ["Revelation", "REV"],
+// ]
+
+// const connection = mysql.createConnection({
+//   host: 'localhost',
+//   user: 'root',
+//   password: '',
+//   database: 'biblearc_static_copy'
+// })
+
+// connection.connect()
+
+// ;(async () => {
+
+//   await (new Promise(resolve => {
+//     fs.mkdir(`./versions/${table}`, { recursive: true }, err => {
+//       if(err) throw err
+//       resolve()
+//     })
+//   }))
+
+//   for(let bookId = 1; bookId <= 66; bookId++) {
+
+//     await (new Promise(resolve => {
+
+//       let fileToWrite = ``
+//       const bookName = bookNames[bookId][0]
+//       const usfmBookAbbreviation = bookNames[bookId][1]
+
+//       fileToWrite += `\\id ${usfmBookAbbreviation} ${table}\n`
+//       fileToWrite += `\\usfm 3.0\n`
+//       fileToWrite += `\\ide UTF-8\n`
+//       fileToWrite += `\\h ${bookName}\n`
+//       fileToWrite += `\\mt ${bookName}\n`
+
+//       connection.query(`SELECT * FROM ${table} WHERE book=? ORDER BY loc`, [ bookId ], (error, results) => {
+//         if(error) throw error
+
+//         let chapter
+
+//         results.forEach(row => {
+
+//           if(row.chapter !== chapter) {
+//             fileToWrite += `\n`
+//             fileToWrite += `\\c ${row.chapter}\n`
+//             chapter = row.chapter
+//           }
+
+//           fileToWrite += `\\p\n`
+//           fileToWrite += `\\v ${row.verse} ${row.strippedcontent}\n`
+
+//         })
+
+//         const path = `./versions/${table}/${usfmBookAbbreviation}.usfm`
+
+//         fs.writeFile(path, fileToWrite, error => {
+//           if(error) throw error
+        
+//           console.log(`Wrote ${path}`)
+//           resolve()
+//         })
+
+//       })
+
+//     }))
+
+//   }
+
+//   connection.end()
+//   process.exit()
+
+// })()
+
+
+
