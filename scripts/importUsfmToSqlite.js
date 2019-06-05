@@ -117,34 +117,36 @@ const readLines = ({ input }) => {
     // TODO: loop through all files, parse them and do the inserts
     const files = fs.readdirSync(folder)
 
-    await Promise.all(files.map(async file => {
-      if(!file.match(/\.u?sfm$/i)) return
+    for(let file of files) {
+      if(!file.match(/\.u?sfm$/i)) continue
 
       const input = fs.createReadStream(`${folder}/${file}`)
-
-      // const readInterface = readline.createInterface({  
-      //   input: fs.createReadStream(`${folder}/${file}`),
-      //   // output: process.stdout,
-      //   // console: false
-      // })
+      let bookId
+      let cnt = 0
 
       for await (const line of readLines({ input })) {
 
-        const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*/
-  
-        while(!line.match(bookIdRegex)) continue
-        
-        const bookAbbr = line.replace(bookIdRegex, '$1')
-        const bookId = bookAbbrs.indexOf(bookAbbr)
-  
-        if(bookId < 1) return
-  
-        console.log(`Importing ${bookAbbr}...`)
-        break
+        if(!bookId) {
 
+          const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*/
+    
+          while(!line.match(bookIdRegex)) continue
+          
+          const bookAbbr = line.replace(bookIdRegex, '$1')
+          bookId = bookAbbrs.indexOf(bookAbbr)
+    
+          if(bookId < 1) break
+    
+          console.log(`Importing ${bookAbbr}...`)
+          continue
+
+        }
+
+        console.log(line)
+        if(cnt++ > 3) break
       }
 
-    }))
+    }
 
 
     // insertMany([
