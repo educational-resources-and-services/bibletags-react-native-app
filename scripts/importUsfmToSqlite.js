@@ -1,82 +1,213 @@
 const Database = require('better-sqlite3')
+const fs = require('fs')
+const readline = require('readline')
+const stream = require('stream')
 
-let version, versionsDir
+const bookAbbrs = [
+  "",
+  "GEN",
+  "EXO",
+  "LEV",
+  "NUM",
+  "DEU",
+  "JOS",
+  "JDG",
+  "RUT",
+  "1SA",
+  "2SA",
+  "1KI",
+  "2KI",
+  "1CH",
+  "2CH",
+  "EZR",
+  "NEH",
+  "EST",
+  "JOB",
+  "PSA",
+  "PRO",
+  "ECC",
+  "SNG",
+  "ISA",
+  "JER",
+  "LAM",
+  "EZK",
+  "DAN",
+  "HOS",
+  "JOL",
+  "AMO",
+  "OBA",
+  "JON",
+  "MIC",
+  "NAM",
+  "HAB",
+  "ZEP",
+  "HAG",
+  "ZEC",
+  "MAL",
+  "MAT",
+  "MRK",
+  "LUK",
+  "JHN",
+  "ACT",
+  "ROM",
+  "1CO",
+  "2CO",
+  "GAL",
+  "EPH",
+  "PHP",
+  "COL",
+  "1TH",
+  "2TH",
+  "1TI",
+  "2TI",
+  "TIT",
+  "PHM",
+  "HEB",
+  "JAS",
+  "1PE",
+  "2PE",
+  "1JN",
+  "2JN",
+  "3JN",
+  "JUD",
+  "REV",
+]
 
-try {
-
-  const [ folder, tenant ] = JSON.parse(process.env.npm_config_argv).remain
-  
-  version = folder.split('/').pop()
-  versionsDir = `./tenants/${tenant}/assets/versions`
-
-  const db = new Database(`${versionsDir}/${version}.db`)
-  
-  const create = db.prepare(
-    `CREATE TABLE ${version}Verses (
-      loc INTEGER PRIMARY KEY,
-      usfm TEXT COLLATE NOCASE,
-      search TEXT COLLATE NOCASE
-    );`
-  )
-
-  create.run()
-  
-  const insert = db.prepare(`INSERT INTO ${version}Verses (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
-
-  const insertMany = db.transaction((verses) => {
-    for(const verse of verses) insert.run(verse)
+const readLines = ({ input }) => {
+  const output = new stream.PassThrough({ objectMode: true })
+  const rl = readline.createInterface({ input })
+  rl.on("line", line => { 
+    output.write(line)
   })
-
-  insertMany([
-    {
-      loc: '01001001',
-      usfm: '\\v In the b...',
-      search: 'In...',
-    },
-    {
-      loc: '01001002',
-      usfm: '\\v And the...',
-      search: 'And...',
-    },
-  ])
-
-
-  console.log(`${version}.db successfully created and placed into ${versionsDir}`)
-  
-} catch(err) {
-
-  const logSyntax = () => {
-    console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files tenant\``)
-    console.log(`Example: \`npm run usfm-to-sqlite -- ../../versions/esv bibletags\`\n`)
-  }
-
-  switch(err.message) {
-
-    case `table ${version}Verses already exists`: {
-      console.log(`\nERROR: The table ${version}Verses already exists in ${versionsDir}/${version}.db\n`)
-      break
-    }
-
-    case `Cannot open database because the directory does not exist`: {
-      console.log(`\nERROR: Invalid tenant\n`)
-      logSyntax()
-      break
-    }
-
-    case `Cannot read property 'split' of undefined`: {
-      console.log(`\nERROR: missing parameters\n`)
-      logSyntax()
-      break
-    }
-
-    default: {
-      console.log(`\nERROR: ${err.message}`)
-    }
-
-  }
+  rl.on("close", () => {
+    output.push(null)
+  })
+  return output
 }
 
-process.exit()
+;(async () => {
+
+  let version, versionsDir
+
+  try {
+
+    const [ folder, tenant ] = JSON.parse(process.env.npm_config_argv).remain
+    
+    version = folder.split('/').pop()
+    versionsDir = `./tenants/${tenant}/assets/versions`
+
+    const db = new Database(`${versionsDir}/${version}.db`)
+    
+    const create = db.prepare(
+      `CREATE TABLE ${version}Verses (
+        loc INTEGER PRIMARY KEY,
+        usfm TEXT COLLATE NOCASE,
+        search TEXT COLLATE NOCASE
+      );`
+    )
+
+    create.run()
+    
+    const insert = db.prepare(`INSERT INTO ${version}Verses (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
+
+    const insertMany = db.transaction((verses) => {
+      for(const verse of verses) insert.run(verse)
+    })
+
+    // TODO: loop through all files, parse them and do the inserts
+    const files = fs.readdirSync(folder)
+
+    await Promise.all(files.map(async file => {
+      if(!file.match(/\.u?sfm$/i)) return
+
+      const input = fs.createReadStream(`${folder}/${file}`)
+
+      // const readInterface = readline.createInterface({  
+      //   input: fs.createReadStream(`${folder}/${file}`),
+      //   // output: process.stdout,
+      //   // console: false
+      // })
+
+      for await (const line of readLines({ input })) {
+
+        const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*/
+  
+        while(!line.match(bookIdRegex)) continue
+        
+        const bookAbbr = line.replace(bookIdRegex, '$1')
+        const bookId = bookAbbrs.indexOf(bookAbbr)
+  
+        if(bookId < 1) return
+  
+        console.log(`Importing ${bookAbbr}...`)
+        break
+
+      }
+
+    }))
+
+
+    // insertMany([
+    //   {
+    //     loc: '01001001',
+    //     usfm: '\\v In the b...',
+    //     search: 'In...',
+    //   },
+    //   {
+    //     loc: '01001002',
+    //     usfm: '\\v And the...',
+    //     search: 'And...',
+    //   },
+    // ])
+
+
+    console.log(`${version}.db successfully created and placed into ${versionsDir}`)
+    
+  } catch(err) {
+
+    const logSyntax = () => {
+      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files tenant\``)
+      console.log(`Example: \`npm run usfm-to-sqlite -- ../../versions/esv bibletags\`\n`)
+    }
+
+    switch(err.message.split(',')[0]) {
+
+      case `table ${version}Verses already exists`: {
+        console.log(`\nERROR: The table ${version}Verses already exists in ${versionsDir}/${version}.db\n`)
+        break
+      }
+
+      case `Cannot open database because the directory does not exist`: {
+        console.log(`\nERROR: Invalid tenant\n`)
+        logSyntax()
+        break
+      }
+
+      case `Cannot read property 'split' of undefined`: {
+        console.log(`\nERROR: missing parameters\n`)
+        logSyntax()
+        break
+      }
+
+      case `ENOENT: no such file or directory`: {
+        try { fs.unlinkSync(`${versionsDir}/${version}.db`) } catch(e) {}
+        console.log(`\nERROR: invalid path\n`)
+        logSyntax()
+        break
+      }
+
+      default: {
+        try { fs.unlinkSync(`${versionsDir}/${version}.db`) } catch(e) {}
+        console.log(`\nERROR: ${err.message}\n`)
+      }
+
+    }
+  }
+
+  process.exit()
+
+})()
+
 
 // console.log(row.firstName, row.lastName, row.email);
 
@@ -96,75 +227,6 @@ process.exit()
 
 
 
-// const bookNames = [
-//   "",
-//   ["Genesis", "GEN"],
-//   ["Exodus", "EXO"],
-//   ["Leviticus", "LEV"],
-//   ["Numbers", "NUM"],
-//   ["Deuteronomy", "DEU"],
-//   ["Joshua", "JOS"],
-//   ["Judges", "JDG"],
-//   ["Ruth", "RUT"],
-//   ["1 Samuel", "1SA"],
-//   ["2 Samuel", "2SA"],
-//   ["1 Kings", "1KI"],
-//   ["2 Kings", "2KI"],
-//   ["1 Chronicles", "1CH"],
-//   ["2 Chronicles", "2CH"],
-//   ["Ezra", "EZR"],
-//   ["Nehemiah", "NEH"],
-//   ["Esther", "EST"],
-//   ["Job", "JOB"],
-//   ["Psalms", "PSA"],
-//   ["Proverbs", "PRO"],
-//   ["Ecclesiastes", "ECC"],
-//   ["Song of Songs", "SNG"],
-//   ["Isaiah", "ISA"],
-//   ["Jeremiah", "JER"],
-//   ["Lamentations", "LAM"],
-//   ["Ezekiel", "EZK"],
-//   ["Daniel", "DAN"],
-//   ["Hosea", "HOS"],
-//   ["Joel", "JOL"],
-//   ["Amos", "AMO"],
-//   ["Obadiah", "OBA"],
-//   ["Jonah", "JON"],
-//   ["Micah", "MIC"],
-//   ["Nahum", "NAM"],
-//   ["Habakkuk", "HAB"],
-//   ["Zephaniah", "ZEP"],
-//   ["Haggai", "HAG"],
-//   ["Zechariah", "ZEC"],
-//   ["Malachi", "MAL"],
-//   ["Matthew", "MAT"],
-//   ["Mark", "MRK"],
-//   ["Luke", "LUK"],
-//   ["John", "JHN"],
-//   ["Acts", "ACT"],
-//   ["Romans", "ROM"],
-//   ["1 Corinthians", "1CO"],
-//   ["2 Corinthians", "2CO"],
-//   ["Galatians", "GAL"],
-//   ["Ephesians", "EPH"],
-//   ["Philippians", "PHP"],
-//   ["Colossians", "COL"],
-//   ["1 Thessalonians", "1TH"],
-//   ["2 Thessalonians", "2TH"],
-//   ["1 Timothy", "1TI"],
-//   ["2 Timothy", "2TI"],
-//   ["Titus", "TIT"],
-//   ["Philemon", "PHM"],
-//   ["Hebrews", "HEB"],
-//   ["James", "JAS"],
-//   ["1 Peter", "1PE"],
-//   ["2 Peter", "2PE"],
-//   ["1 John", "1JN"],
-//   ["2 John", "2JN"],
-//   ["3 John", "3JN"],
-//   ["Jude", "JUD"],
-//   ["Revelation", "REV"],
-// ]
 
 // const connection = mysql.createConnection({
 //   host: 'localhost',
