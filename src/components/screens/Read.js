@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text, Dimensions, AppState, StatusBar,
+import { StyleSheet, View, Dimensions, AppState, StatusBar,
          TouchableWithoutFeedback, Platform } from "react-native"
 import { Constants, KeepAwake } from "expo"
 import { bindActionCreators } from "redux"
@@ -8,9 +8,9 @@ import { Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
 import { unmountTimeouts } from "../../utils/toolbox.js"
-import { getValidFontName } from "../../utils/bibleFonts.js"
 
 import ReadHeader from "../major/ReadHeader"
+import ReadContent from "../major/ReadContent"
 import DisplaySettings from "../major/DisplaySettings"
 import PassageChooser from "../major/PassageChooser"
 import FullScreenSpin from '../basic/FullScreenSpin'
@@ -31,6 +31,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 20,
   },
+  content: {
+    padding: 20,
+    paddingBottom: 110,
+  }
 })
 
 class Read extends React.Component {
@@ -93,8 +97,6 @@ class Read extends React.Component {
     const { showingDisplaySettings, showingPassageChooser, currentAppState } = this.state
 
     const { width, height } = Dimensions.get('window')
-    const { font, textSize } = displaySettings
-    const fontSize = DEFAULT_FONT_SIZE * textSize
 
     const statusBarHeight = StatusBar.currentHeight || 0
     const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
@@ -130,20 +132,14 @@ class Read extends React.Component {
           }
           <Content>
             <View
-              style={{ padding: 20, paddingBottom: 110 }}
+              style={[
+                styles.content,
+                {
+                  minHeight: height,  // this could be more precise
+                },
+              ]}
             >
-              <Text style={{ fontSize, fontFamily: getValidFontName({ font }) }}>
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-                normal text normal text normal text normal text normal text normal text normal text normal text normal text 
-              </Text>
-              <Text style={{ fontSize, fontFamily: getValidFontName({ font, variant: 'italic' }) }}>italics text2</Text>
-              <Text style={{ fontSize, fontFamily: getValidFontName({ font, variant: 'bold' }) }}>bold text2</Text>
+              <ReadContent />
             </View>
           </Content>
           <RecentSection />
