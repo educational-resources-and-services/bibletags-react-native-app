@@ -1,4 +1,5 @@
 import { Dimensions, NetInfo } from "react-native"
+import { SQLite } from 'expo'
 // import { Constants } from "expo"
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 // import { Toast } from "native-base"
@@ -122,3 +123,40 @@ export const isConnected = () => new Promise(resolve => {
 //   }
 
 // }
+
+export const executeSql = async ({ versionId, statement, args, statements }) => {
+  const db = SQLite.openDatabase(`${versionId}.db`)
+  const resultSets = []
+
+  const logDBError = error => console.log(`ERROR when running executeSql: ${error}`, error)
+
+  await new Promise(resolveAll => {
+    db.transaction(
+      tx => {
+
+        if(statement) {
+          statements = [{
+            statement,
+            args,
+          }]
+        }
+
+        for(let idx in statements) {
+          const { statement, args=[] } = statements[idx]
+
+          tx.executeSql(
+            statement,
+            args,
+            (x, resultSet) => resultSets[idx] = resultSet,
+            logDBError
+          )
+        }
+
+      },
+      logDBError,
+      resolveAll
+    )
+  })
+
+  return statement ? resultSets[0] : resultSets
+}
