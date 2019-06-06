@@ -112,10 +112,10 @@ const doubleSpacesRegex = / {2-}/g
     versionsDir = `./tenants/${tenant}/assets/versions`
 
     const db = new Database(`${versionsDir}/${version}.db`)
-    
+
     const create = db.prepare(
       `CREATE TABLE ${version}Verses (
-        loc INTEGER PRIMARY KEY,
+        loc TEXT PRIMARY KEY,
         usfm TEXT COLLATE NOCASE,
         search TEXT COLLATE NOCASE
       );`
