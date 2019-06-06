@@ -209,25 +209,13 @@ const doubleSpacesRegex = / {2-}/g
       })
 
       // console.log(verses.slice(0,5))
-      
+      insertMany(verses)
+
+      console.log(`  ...inserted ${verses.length} verses.`)
+
     }
 
-
-    // insertMany([
-    //   {
-    //     loc: '01001001',
-    //     usfm: '\\v In the b...',
-    //     search: 'In...',
-    //   },
-    //   {
-    //     loc: '01001002',
-    //     usfm: '\\v And the...',
-    //     search: 'And...',
-    //   },
-    // ])
-
-
-    console.log(`${version}.db successfully created and placed into ${versionsDir}`)
+    console.log(`\n${version}.db successfully created and placed into ${versionsDir}\n`)
     
   } catch(err) {
 
