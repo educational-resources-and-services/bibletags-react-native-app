@@ -85,6 +85,21 @@ const readLines = ({ input }) => {
   return output
 }
 
+const getLocFromRef = ({ bookId, chapter, verse }) => (
+  `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+verse).substr(-3)}`
+)
+
+const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
+const irrelevantLinesRegex = /^\\(?:usfm|ide|h)(?: .*)?$/
+const majorTitleRegex = /^\\mt[0-9]? .*$/
+const chapterRegex = /^\\c ([0-9]+)$/
+const paragraphRegex = /^\\p(?: .*)?$/
+const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
+const extraBiblicalRegex = /(?:^\\mt[0-9]? .*$|\\v [0-9]+ ?)/gm
+const allTagsRegex = /\\[a-z0-9]+ ?/g
+const newlinesRegex = /\n/g
+const doubleSpacesRegex = / {2-}/g
+
 ;(async () => {
 
   let version, versionsDir
@@ -121,15 +136,14 @@ const readLines = ({ input }) => {
       if(!file.match(/\.u?sfm$/i)) continue
 
       const input = fs.createReadStream(`${folder}/${file}`)
-      let bookId
-      let cnt = 0
+      let bookId, chapter
+      const verses = []
+      let goesWithNextVsText = []
 
       for await (const line of readLines({ input })) {
 
         if(!bookId) {
 
-          const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*/
-    
           while(!line.match(bookIdRegex)) continue
           
           const bookAbbr = line.replace(bookIdRegex, '$1')
@@ -142,10 +156,60 @@ const readLines = ({ input }) => {
 
         }
 
-        console.log(line)
-        if(cnt++ > 3) break
+        if(line === '') continue
+        if(irrelevantLinesRegex.test(line)) continue
+
+        // get chapter
+        if(chapterRegex.test(line)) {
+          chapter = line.replace(chapterRegex, '$1')
+          continue
+        }
+
+        // get tags which connect to verse text to follow
+        if(
+          majorTitleRegex.test(line)
+          || paragraphRegex.test(line)
+        ) {
+          goesWithNextVsText.push(line)
+          continue
+        }
+
+        // get verse
+        if(verseRegex.test(line)) {
+          const verse = line.replace(verseRegex, '$1')
+          verses.push({
+            loc: getLocFromRef({ bookId, chapter, verse }),
+            usfm: [
+              ...goesWithNextVsText,
+              line,
+            ],
+          })
+          goesWithNextVsText = []
+          continue
+        }
+
+        // add on verse text
+        verses[verses.length - 1].usfm = [
+          ...verses[verses.length - 1].usfm,
+          ...goesWithNextVsText,
+          line,
+        ]
+        goesWithNextVsText = []
+
       }
 
+      verses.forEach(verse => {
+        verse.usfm = verse.usfm.join("\n")
+        verse.search = verse.usfm
+          .replace(extraBiblicalRegex, '')
+          .replace(allTagsRegex, '')
+          .replace(newlinesRegex, ' ')
+          .replace(doubleSpacesRegex, ' ')
+          .trim()
+      })
+
+      // console.log(verses.slice(0,5))
+      
     }
 
 
