@@ -149,6 +149,9 @@ const doubleSpacesRegex = / {2-}/g
       let modifiedLine = line.trim()
       let chapter = 0
 
+      // when I get to the footnotes, go to the next book
+      if(/^<div id="_idContainer002"/.test(modifiedLine)) break
+
       if(!/^<p/.test(modifiedLine)) continue
 
       // get rid of anchors and empty spans
@@ -207,13 +210,15 @@ const doubleSpacesRegex = / {2-}/g
           modifiedLine = modifiedLine
             .replace(/<span class="Kohavit">\*<\/span>/g, '')
             .replace(/<span class="Brosh [a-zA-Z_]*CharOverride-[0-9]"><\/span>/g, '')
+            .replace(/<span class="CharOverride-5"> <\/span>/g, '')
 
-          // get rid of irrelevant spans
+          // get rid of irrelevant classes and then spans
           modifiedLine = modifiedLine
+            .replace(/ ?CharOverride-3/g, '')
             .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|)">([^<]+)<\/span>/g, '$1')
 
           if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
 
