@@ -73,7 +73,6 @@ const bookNames = [
   ["REV", 0, 22],
 ]
 
-
 const readLines = ({ input }) => {
   const output = new stream.PassThrough({ objectMode: true })
   const rl = readline.createInterface({ input })
@@ -85,6 +84,9 @@ const readLines = ({ input }) => {
   })
   return output
 }
+
+console.log(`\nWARNING: The data files this is run on have been changed for normalization.`)
+console.log(`Most notable is the fact that footnotes were removed in several book because they were inline.\n`)
 
 ;(async () => {
 
@@ -157,6 +159,7 @@ const readLines = ({ input }) => {
       // normalization
       modifiedLine = modifiedLine
         .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9]|ParaOverride-[0-9])/g, '')
+        .replace(/ lang="(?:he-IL|ar-SA|en-US)"/g, '')
 
       // get rid of anchors and empty spans
       modifiedLine = modifiedLine
@@ -197,10 +200,10 @@ const readLines = ({ input }) => {
           continue
       }
 
-      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy)">/.test(modifiedLine)) {
+      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|)">/.test(modifiedLine)) {
 
         modifiedLine = modifiedLine
-          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy)">(.*)<\/p>$/, '\n\\p\n$1')
+          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|)">(.*)<\/p>$/, '\n\\p\n$1')
 
         if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
@@ -223,7 +226,7 @@ const readLines = ({ input }) => {
 
         // get rid of irrelevant classes and then spans
         modifiedLine = modifiedLine
-          .replace(/<span (?:class="" )?lang="(?:ar-SA|en-US)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span>([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
@@ -231,7 +234,7 @@ const readLines = ({ input }) => {
           .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Bab-1|Shin|Vav-Patah|Sin|Zain|Kaf-Dagesh|Pei-Dagesh)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:KAf-patah|Het-Hataf-Patah|Alef-Patah|Alef-hataf-patah)">([^<]+)<\/span>/g, '$1')
-          .replace(/<span class="(?:Tav-kamaz|Tav-Shva|Kav-sofit-kamaz)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Tav-kamaz|Tav-Shva|Kav-sofit-kamaz|LAMED_ZIRE|LAMED-HIRIK)">([^<]+)<\/span>/g, '$1')
 
         // convert html entities
         modifiedLine = modifiedLine
