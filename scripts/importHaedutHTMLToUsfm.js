@@ -187,22 +187,22 @@ const doubleSpacesRegex = / {2-}/g
 
           if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
-          if(/<span class="Ot-gdola">[א-ת]+<\/span>/.test(modifiedLine)) {
+          if(/<span class="Ot-gdola">[א-ת]+ ?<\/span>/.test(modifiedLine)) {
 
-            if(!/^<span class="Ot-gdola">[א-ת]+<\/span>/.test(modifiedLine)) unexpected(`new chap not at beginning of p`)
+            if(!/^<span class="Ot-gdola">[א-ת]+ ?<\/span>/.test(modifiedLine)) unexpected(`new chap not at beginning of p`)
 
             // take care of when there are 2+ letters in separate spans
             modifiedLine = modifiedLine
-              .replace(/<\/span><span class="Ot-gdola">/g, '')
+              .replace(/(<span class="Ot-gdola">[א-ת]+ ?)<\/span><span class="Ot-gdola">/g, '$1')
 
-            const chapLetters = modifiedLine.replace(/^<span class="Ot-gdola">[א-ת]+<\/span>.*$/, '$1')
+            const chapLetters = modifiedLine.replace(/^<span class="Ot-gdola">([א-ת]+) ?<\/span>.*$/, '$1')
             chapter++
 
             fileToWrite += `\\c ${chapter}\n`
             fileToWrite += `\\cp ${chapLetters}\n`
 
             modifiedLine = modifiedLine
-              .replace(/^<span class="Ot-gdola">[א-ת]+<\/span>/, '')
+              .replace(/^<span class="Ot-gdola">[א-ת]+ ?<\/span>/, '')
 
           }
 
@@ -210,18 +210,19 @@ const doubleSpacesRegex = / {2-}/g
             // complex verse numbers
             modifiedLine = modifiedLine
               .replace(/ ?<span class="Mispar-pasuk">([0-9]+)<\/span><span class="Mispar-pasuk">-<\/span><span class="Mispar-pasuk">([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp*')
-console.log('\n\nmodifiedLine', modifiedLine, '\n\n')
+            console.log('> Found complex verse number line')
           }
 
           // verse numbers
           modifiedLine = modifiedLine
             .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
 
-          // get rid of unwanted spans
+          // get rid of unwanted tags
           modifiedLine = modifiedLine
-            .replace(/<span class="Kohavit">\*<\/span>/g, '')
+            .replace(/<span class="Kohavit">\*? ?<\/span>/g, '')
             .replace(/<span class="Brosh"><\/span>/g, '')
             .replace(/<span class="CharOverride-5"> <\/span>/g, '')
+            .replace(/<br \/>/g, '')
 
           // get rid of irrelevant classes and then spans
           modifiedLine = modifiedLine
@@ -229,6 +230,7 @@ console.log('\n\nmodifiedLine', modifiedLine, '\n\n')
             .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
 
           if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
 
