@@ -229,7 +229,8 @@ const readLines = ({ input }) => {
           .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
-          .replace(/<span class="(?:Bab-1|Shin|Vav-Patah|Sin)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Bab-1|Shin|Vav-Patah|Sin|Zain|Kaf-Dagesh|Pei-Dagesh)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:KAf-patah|Het-Hataf-Patah)">([^<]+)<\/span>/g, '$1')
 
         // convert html entities
         modifiedLine = modifiedLine
