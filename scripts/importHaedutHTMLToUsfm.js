@@ -197,10 +197,10 @@ const readLines = ({ input }) => {
           continue
       }
 
-      if(/^<p class="(?:Text-ragil|TEXT_RAZ)">/.test(modifiedLine)) {
+      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy)">/.test(modifiedLine)) {
 
         modifiedLine = modifiedLine
-          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ)">(.*)<\/p>$/, '\n\\p\n$1')
+          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy)">(.*)<\/p>$/, '\n\\p\n$1')
 
         if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
@@ -217,8 +217,9 @@ const readLines = ({ input }) => {
         // get rid of unwanted tags
         modifiedLine = modifiedLine
           .replace(/<span class="Kohavit">\*? ?<\/span>/g, '')
-          .replace(/<span class="Brosh"><\/span>/g, '')
+          .replace(/<span class="Brosh">(?:| )<\/span>/g, '')
           .replace(/<span class="CharOverride-5"> <\/span>/g, '')
+          .replace(/<span (?:class="" )?lang="ar-SA">([^<]+)<\/span>/g, '$1')
           .replace(/<br \/>/g, '')
 
         // get rid of irrelevant classes and then spans
