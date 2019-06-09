@@ -154,6 +154,10 @@ const doubleSpacesRegex = / {2-}/g
 
       if(!/^<p/.test(modifiedLine)) continue
 
+      // get rid of irrelevant classes and then spans
+      modifiedLine = modifiedLine
+        .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9])/g, '')
+
       // get rid of anchors and empty spans
       modifiedLine = modifiedLine
         .replace(/<a id="_idTextAnchor[0-9]+"><\/a>/g, '')
@@ -202,23 +206,29 @@ const doubleSpacesRegex = / {2-}/g
 
           }
 
+          if(/<span class="Mispar-pasuk">-<\/span>/.test(modifiedLine)) {
+            // complex verse numbers
+            modifiedLine = modifiedLine
+              .replace(/ ?<span class="Mispar-pasuk">([0-9]+)<\/span><span class="Mispar-pasuk">-<\/span><span class="Mispar-pasuk">([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp*')
+console.log('\n\nmodifiedLine', modifiedLine, '\n\n')
+          }
+
           // verse numbers
           modifiedLine = modifiedLine
-            .replace(/ ?<span class="Mispar-pasuk [a-zA-Z_]*CharOverride-[0-9]">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
+            .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
 
           // get rid of unwanted spans
           modifiedLine = modifiedLine
             .replace(/<span class="Kohavit">\*<\/span>/g, '')
-            .replace(/<span class="Brosh [a-zA-Z_]*CharOverride-[0-9]"><\/span>/g, '')
+            .replace(/<span class="Brosh"><\/span>/g, '')
             .replace(/<span class="CharOverride-5"> <\/span>/g, '')
 
           // get rid of irrelevant classes and then spans
           modifiedLine = modifiedLine
-            .replace(/ ?CharOverride-3/g, '')
             .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
 
           if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
 
