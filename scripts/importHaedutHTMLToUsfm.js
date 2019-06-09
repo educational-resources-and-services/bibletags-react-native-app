@@ -43,7 +43,7 @@ const bookNames = [
   ["ZEP", 23, 3],
   ["HAG", 24, 2],
   ["ZEC", 25, 14],
-  ["MAL", 26, 4],
+  ["MAL", 26, 3],
   ["MAT", 0, 28],
   ["MRK", 0, 16],
   ["LUK", 0, 24],
@@ -216,21 +216,22 @@ const readLines = ({ input }) => {
 
         // get rid of unwanted tags
         modifiedLine = modifiedLine
+          .replace(/<br \/>/g, '')
           .replace(/<span class="Kohavit">\*? ?<\/span>/g, '')
           .replace(/<span class="Brosh">(?:| )<\/span>/g, '')
           .replace(/<span class="CharOverride-5"> <\/span>/g, '')
-          .replace(/<span (?:class="" )?lang="ar-SA">([^<]+)<\/span>/g, '$1')
-          .replace(/<br \/>/g, '')
 
         // get rid of irrelevant classes and then spans
         modifiedLine = modifiedLine
+          .replace(/<span (?:class="" )?lang="(?:ar-SA|en-US)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Bab-1|Shin|Vav-Patah|Sin|Zain|Kaf-Dagesh|Pei-Dagesh)">([^<]+)<\/span>/g, '$1')
-          .replace(/<span class="(?:KAf-patah|Het-Hataf-Patah)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:KAf-patah|Het-Hataf-Patah|Alef-Patah|Alef-hataf-patah)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Tav-kamaz|Tav-Shva|Kav-sofit-kamaz)">([^<]+)<\/span>/g, '$1')
 
         // convert html entities
         modifiedLine = modifiedLine
