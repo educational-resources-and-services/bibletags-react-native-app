@@ -151,6 +151,11 @@ const doubleSpacesRegex = / {2-}/g
 
       if(!/^<p/.test(modifiedLine)) continue
 
+      // get rid of anchors and empty spans
+      modifiedLine = modifiedLine
+        .replace(/<a id="_idTextAnchor[0-9]+"><\/a>/g, '')
+        .replace(/<span ?[^>]*><\/span>/g, '')
+
       if(/^<p class="Tat_koteret_hadasha">/.test(modifiedLine)) {
         modifiedLine = modifiedLine
           .replace(/^<p class="Tat_koteret_hadasha">/, '')
@@ -200,12 +205,15 @@ const doubleSpacesRegex = / {2-}/g
 
           // get rid of unwanted spans
           modifiedLine = modifiedLine
-          .replace(/<span class="Kohavit">\*<\/span>/g, '')
-          .replace(/<span class="Brosh [a-zA-Z_]*CharOverride-[0-9]"><\/span>/g, '')
+            .replace(/<span class="Kohavit">\*<\/span>/g, '')
+            .replace(/<span class="Brosh [a-zA-Z_]*CharOverride-[0-9]"><\/span>/g, '')
 
           // get rid of irrelevant spans
           modifiedLine = modifiedLine
-            .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik|Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah|Lamed-Kamaz)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol)">([^<]+)<\/span>/g, '$1')
 
           if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
 
