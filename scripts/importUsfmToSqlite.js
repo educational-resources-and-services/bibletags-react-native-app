@@ -129,7 +129,7 @@ const doubleSpacesRegex = / {2-}/g
       for(const verse of verses) insert.run(verse)
     })
 
-    // TODO: loop through all files, parse them and do the inserts
+    // loop through all files, parse them and do the inserts
     const files = fs.readdirSync(folder)
 
     for(let file of files) {
@@ -261,96 +261,3 @@ const doubleSpacesRegex = / {2-}/g
   process.exit()
 
 })()
-
-
-// console.log(row.firstName, row.lastName, row.email);
-
-
-// const insert = db.prepare('INSERT INTO cats (name, age) VALUES (@name, @age)');
-
-// const insertMany = db.transaction((cats) => {
-//   for (const cat of cats) insert.run(cat);
-// });
-
-// insertMany([
-//   { name: 'Joey', age: 2 },
-//   { name: 'Sally', age: 4 },
-//   { name: 'Junior', age: 1 },
-// ]);
-
-
-
-
-
-// const connection = mysql.createConnection({
-//   host: 'localhost',
-//   user: 'root',
-//   password: '',
-//   database: 'biblearc_static_copy'
-// })
-
-// connection.connect()
-
-// ;(async () => {
-
-//   await (new Promise(resolve => {
-//     fs.mkdir(`./versions/${table}`, { recursive: true }, err => {
-//       if(err) throw err
-//       resolve()
-//     })
-//   }))
-
-//   for(let bookId = 1; bookId <= 66; bookId++) {
-
-//     await (new Promise(resolve => {
-
-//       let fileToWrite = ``
-//       const bookName = bookNames[bookId][0]
-//       const usfmBookAbbreviation = bookNames[bookId][1]
-
-//       fileToWrite += `\\id ${usfmBookAbbreviation} ${table}\n`
-//       fileToWrite += `\\usfm 3.0\n`
-//       fileToWrite += `\\ide UTF-8\n`
-//       fileToWrite += `\\h ${bookName}\n`
-//       fileToWrite += `\\mt ${bookName}\n`
-
-//       connection.query(`SELECT * FROM ${table} WHERE book=? ORDER BY loc`, [ bookId ], (error, results) => {
-//         if(error) throw error
-
-//         let chapter
-
-//         results.forEach(row => {
-
-//           if(row.chapter !== chapter) {
-//             fileToWrite += `\n`
-//             fileToWrite += `\\c ${row.chapter}\n`
-//             chapter = row.chapter
-//           }
-
-//           fileToWrite += `\\p\n`
-//           fileToWrite += `\\v ${row.verse} ${row.strippedcontent}\n`
-
-//         })
-
-//         const path = `./versions/${table}/${usfmBookAbbreviation}.usfm`
-
-//         fs.writeFile(path, fileToWrite, error => {
-//           if(error) throw error
-        
-//           console.log(`Wrote ${path}`)
-//           resolve()
-//         })
-
-//       })
-
-//     }))
-
-//   }
-
-//   connection.end()
-//   process.exit()
-
-// })()
-
-
-
