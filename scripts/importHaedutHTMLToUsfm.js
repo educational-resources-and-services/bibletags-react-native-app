@@ -180,6 +180,23 @@ const readLines = ({ input }) => {
           continue
       }
 
+      if(/^<p class="Tat-tatkoteret">/.test(modifiedLine)) {
+        modifiedLine = modifiedLine
+          .replace(/^<p class="Tat-tatkoteret">/, '')
+          .replace(/<\/p>$/, '')
+
+          if(/<\/?p/.test(modifiedLine)) unexpected(`bad subheading`)
+
+          modifiedLine = modifiedLine
+            .replace(/<[^>]+>/, '')
+            .replace(/•/, '')
+            .trim()
+          
+          fileToWrite += `\\s2 ${modifiedLine}\n`
+
+          continue
+      }
+
       if(/^<p class="(?:Text-ragil|TEXT_RAZ)">/.test(modifiedLine)) {
 
         modifiedLine = modifiedLine
