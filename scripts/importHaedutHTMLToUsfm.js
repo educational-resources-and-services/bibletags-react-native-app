@@ -200,10 +200,10 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           continue
       }
 
-      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|)">/.test(modifiedLine)) {
+      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|)">/.test(modifiedLine)) {
 
         modifiedLine = modifiedLine
-          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|)">(.*)<\/p>$/, '\n\\p\n$1')
+          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|)">(.*)<\/p>$/, '\n\\p\n$1')
 
         if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
@@ -211,8 +211,9 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
         modifiedLine = modifiedLine
           .replace(/(<span class="Mispar-pasuk">[0-9]+)<\/span><span class="Mispar-pasuk">/g, '$1')
           .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
-          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
-          .replace(/\\v 1 /g, (x) => `\n\\c ${++chapter}\n\\cp \n\\v 1 `)
+          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ~')
+          .replace(/\\v 1 ~/g, x => `\n\\c ${++chapter}\n\\cp \n\\v 1 `)
+          .replace(/~/g, '')
 
         // chapters
         modifiedLine = modifiedLine
@@ -273,7 +274,11 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   }
 
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
-    
+  
+  console.log(`\n\n\nTODOs:`)
+  console.log(`Psalm and prov sections`)
+
+
   process.exit()
 
 })()
