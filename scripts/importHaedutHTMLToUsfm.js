@@ -183,9 +183,9 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           continue
       }
 
-      if(/^<p class="Tat-tatkoteret">/.test(modifiedLine)) {
+      if(/^<p class="(?:Tat-tatkoteret|Tat-koteret|Tat-tat-koteret)">/.test(modifiedLine)) {
         modifiedLine = modifiedLine
-          .replace(/^<p class="Tat-tatkoteret">/, '')
+          .replace(/^<p class="(?:Tat-tatkoteret|Tat-koteret|Tat-tat-koteret)">/, '')
           .replace(/<\/p>$/, '')
 
           if(/<\/?p/.test(modifiedLine)) unexpected(`bad subheading`)
@@ -200,18 +200,18 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           continue
       }
 
-      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|)">/.test(modifiedLine)) {
+      if(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|Text_raz|)">/.test(modifiedLine)) {
 
         modifiedLine = modifiedLine
-          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|)">(.*)<\/p>$/, '\n\\p\n$1')
+          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ|Text-ragil-copy|ARAMIT|Text_raz|)">(.*)<\/p>$/, '\n\\p\n$1')
 
         if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
         // verse numbers
         modifiedLine = modifiedLine
-          .replace(/(<span class="Mispar-pasuk">[0-9]+)<\/span><span class="Mispar-pasuk">/g, '$1')
-          .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
-          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ~')
+          .replace(/(<span class="Mispar-pasuk3?">[0-9]+)<\/span><span class="Mispar-pasuk3?">/g, '$1')
+          .replace(/ ?<span class="Mispar-pasuk3?">([0-9]+)(?:<\/span><span class="Mispar-pasuk3?">)?-(?:<\/span><span class="Mispar-pasuk3?">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
+          .replace(/ ?<span class="Mispar-pasuk3?">([0-9]+) ?<\/span>/g, '\n\\v $1 ~')
           .replace(/\\v 1 ~/g, x => `\n\\c ${++chapter}\n\\cp \n\\v 1 `)
           .replace(/~/g, '')
 
@@ -238,6 +238,7 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           .replace(/<span class="(?:Bab-1|Shin|Vav-Patah|Sin|Zain|Kaf-Dagesh|Pei-Dagesh)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:KAf-patah|Het-Hataf-Patah|Alef-Patah|Alef-hataf-patah)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:Tav-kamaz|Tav-Shva|Kav-sofit-kamaz|LAMED_ZIRE|LAMED-HIRIK)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:NUN_HIRIK|VAV_ZIRE|Resh|Lamed-Sagol|2|4|Kaf|ZADIK_ZIRE)">([^<]+)<\/span>/g, '$1')
 
         // convert html entities
         modifiedLine = modifiedLine
@@ -276,6 +277,8 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
   console.log(`\n\n\nTODOs:`)
+  console.log(`strip HTML from headings`)
+  console.log(`when a paragraph does not start a chapter`)
   console.log(`Psalm and prov sections`)
 
 
