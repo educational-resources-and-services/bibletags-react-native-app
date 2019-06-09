@@ -174,8 +174,8 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           if(/<\/?p/.test(modifiedLine)) unexpected(`bad heading`)
 
           modifiedLine = modifiedLine
-            .replace(/<[^>]+>/, '')
-            .replace(/•/, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/•/g, '')
             .trim()
           
           fileToWrite += `\\s1 ${modifiedLine}\n`
@@ -191,8 +191,8 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           if(/<\/?p/.test(modifiedLine)) unexpected(`bad subheading`)
 
           modifiedLine = modifiedLine
-            .replace(/<[^>]+>/, '')
-            .replace(/•/, '')
+            .replace(/<[^>]+>/g, '')
+            .replace(/•/g, '')
             .trim()
           
           fileToWrite += `\\s2 ${modifiedLine}\n`
@@ -262,6 +262,11 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
     }
 
+    fileToWrite = fileToWrite
+      .replace(/\n\n+/g, '\n')
+      .replace(/\\s/g, '\n\\s')
+      .replace(/\\p/g, '\n\\p')
+
     if(bookNames[bookId][2] !== chapter) {
       console.log(`chapters bug: ${bookNames[bookId][2]} vs ${chapter}`)
       process.exit()
@@ -277,7 +282,6 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
   console.log(`\n\n\nTODOs:`)
-  console.log(`strip HTML from headings`)
   console.log(`when a paragraph does not start a chapter`)
   console.log(`Psalm and prov sections`)
 
