@@ -187,8 +187,8 @@ class DisplaySettings extends React.PureComponent {
             <Body>
               <Text>{i18n("Text size")}</Text>
               <Slider
-                minimumValue={.5}
-                maximumValue={4}
+                minimumValue={.3}
+                maximumValue={3}
                 value={textSize}
                 onValueChange={this.setTextSize}
                 style={styles.slider}
