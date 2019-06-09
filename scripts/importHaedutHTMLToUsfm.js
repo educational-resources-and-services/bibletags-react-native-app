@@ -207,15 +207,17 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
         if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
+        // verse numbers
+        modifiedLine = modifiedLine
+          .replace(/(<span class="Mispar-pasuk">[0-9]+)<\/span><span class="Mispar-pasuk">/g, '$1')
+          .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
+          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
+          .replace(/\\v 1 /g, (x) => `\n\\c ${++chapter}\n\\v 1 `)
+
         // chapters
         modifiedLine = modifiedLine
           .replace(/(<span class="Ot-gdola">[א-ת]+ ?)<\/span><span class="Ot-gdola">/g, '$1')
-          .replace(/<span class="Ot-gdola">([א-ת]+) ?<\/span>(.*)$/, (x, m) => `\n\\c ${chapter++}\n\\cp $1\n$1`)
-
-        // verse numbers
-        modifiedLine = modifiedLine
-          .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
-          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
+          .replace(/<span class="Ot-gdola">([א-ת]+) ?<\/span>(.*)$/m, (x, m) => `\n\\c ${++chapter}\n\\cp ${m}\n\\v 1 ${m}`)
 
         // get rid of unwanted tags
         modifiedLine = modifiedLine
