@@ -282,7 +282,9 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
   console.log(`\n\n\nTODOs:`)
-  console.log(`when a paragraph does not start a chapter`)
+  console.log(`first verse in chapter not coming through`)
+  console.log(`Single poetic line style`)
+  console.log(`when a paragraph does not start a chapter (Hos 2)`)
   console.log(`Psalm and prov sections`)
 
 
