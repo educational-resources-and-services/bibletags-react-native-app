@@ -129,6 +129,8 @@ const doubleSpacesRegex = / {2-}/g
     let fileToWrite = ``
     const usfmBookAbbreviation = bookNames[bookId][0]
 
+    console.log(`Converting ${usfmBookAbbreviation}...`)
+
     fileToWrite += `\\id ${usfmBookAbbreviation} העדות\n`
     fileToWrite += `\\usfm 3.0\n`
     fileToWrite += `\\ide UTF-8\n`
@@ -206,10 +208,10 @@ const doubleSpacesRegex = / {2-}/g
 
           }
 
-          if(/<span class="Mispar-pasuk">-<\/span>/.test(modifiedLine)) {
+          if(/<span class="Mispar-pasuk">(?:[0-9]+-[0-9]+|-)<\/span>/.test(modifiedLine)) {
             // complex verse numbers
             modifiedLine = modifiedLine
-              .replace(/ ?<span class="Mispar-pasuk">([0-9]+)<\/span><span class="Mispar-pasuk">-<\/span><span class="Mispar-pasuk">([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp*')
+              .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp*')
             console.log('> Found complex verse number line')
           }
 
@@ -231,8 +233,16 @@ const doubleSpacesRegex = / {2-}/g
             .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
             .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
+            .replace(/<span class="(?:Bab-1)">([^<]+)<\/span>/g, '$1')
+ 
+          // convert html entities
+          modifiedLine = modifiedLine
+            .replace(/&quot;/g, '"')
+            .replace(/&apos;/g, "'")
+            .replace(/&#160;/g, '')
 
           if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
+          if(/&/.test(modifiedLine)) unexpected(`unhandled &: ${modifiedLine}`)
 
           modifiedLine = modifiedLine
           //   .replace(/<[^>]+>/, '')
