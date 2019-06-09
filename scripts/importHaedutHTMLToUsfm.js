@@ -86,17 +86,6 @@ const readLines = ({ input }) => {
   return output
 }
 
-const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
-const irrelevantLinesRegex = /^\\(?:usfm|ide|h)(?: .*)?$/
-const majorTitleRegex = /^\\mt[0-9]? .*$/
-const chapterRegex = /^\\c ([0-9]+)$/
-const paragraphRegex = /^\\p(?: .*)?$/
-const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
-const extraBiblicalRegex = /(?:^\\mt[0-9]? .*$|\\v [0-9]+ ?)/gm
-const allTagsRegex = /\\[a-z0-9]+ ?/g
-const newlinesRegex = /\n/g
-const doubleSpacesRegex = / {2-}/g
-
 ;(async () => {
 
   const sourceDir = '/Users/huberts/Google Drive/ERAS/BibleTags/העדות/HTML Bible files'
@@ -128,6 +117,8 @@ const doubleSpacesRegex = / {2-}/g
 
     let fileToWrite = ``
     const usfmBookAbbreviation = bookNames[bookId][0]
+    let chapter = 0
+    let inTitleSection = false
 
     console.log(`Converting ${usfmBookAbbreviation}...`)
 
@@ -149,16 +140,23 @@ const doubleSpacesRegex = / {2-}/g
       }
 
       let modifiedLine = line.trim()
-      let chapter = 0
 
       // when I get to the footnotes, go to the next book
       if(/^<div id="_idContainer002"/.test(modifiedLine)) break
+      
+      // skip the book title section
+      if(/^<div id="_idContainer000"/.test(modifiedLine)) inTitleSection = true
+      if(inTitleSection && /^<\/div>$/.test(modifiedLine)) {
+        inTitleSection = false
+        continue
+      }
+      if(inTitleSection) continue
 
       if(!/^<p/.test(modifiedLine)) continue
 
-      // get rid of irrelevant classes and then spans
+      // normalization
       modifiedLine = modifiedLine
-        .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9])/g, '')
+        .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9]|ParaOverride-[0-9])/g, '')
 
       // get rid of anchors and empty spans
       modifiedLine = modifiedLine
@@ -182,81 +180,66 @@ const doubleSpacesRegex = / {2-}/g
           continue
       }
 
-      if(/^<p class="Text-ragil(?: ParaOverride-1)?">/.test(modifiedLine)) {
+      if(/^<p class="(?:Text-ragil|TEXT_RAZ)">/.test(modifiedLine)) {
+
         modifiedLine = modifiedLine
-          .replace(/^<p class="Text-ragil(?: ParaOverride-1)?">/, '')
-          .replace(/<\/p>$/, '')
+          .replace(/^<p class="(?:Text-ragil|TEXT_RAZ)">(.*)<\/p>$/, '\n\\p\n$1')
 
-          if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
+        if(/<\/?p/.test(modifiedLine)) unexpected(`bad paragraph`)
 
-          if(/<span class="Ot-gdola">[א-ת]+ ?<\/span>/.test(modifiedLine)) {
+        // chapters
+        modifiedLine = modifiedLine
+          .replace(/(<span class="Ot-gdola">[א-ת]+ ?)<\/span><span class="Ot-gdola">/g, '$1')
+          .replace(/<span class="Ot-gdola">([א-ת]+) ?<\/span>(.*)$/, (x, m) => `\n\\c ${chapter++}\n\\cp $1\n$1`)
 
-            if(!/^<span class="Ot-gdola">[א-ת]+ ?<\/span>/.test(modifiedLine)) unexpected(`new chap not at beginning of p`)
+        // verse numbers
+        modifiedLine = modifiedLine
+          .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp* ')
+          .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
 
-            // take care of when there are 2+ letters in separate spans
-            modifiedLine = modifiedLine
-              .replace(/(<span class="Ot-gdola">[א-ת]+ ?)<\/span><span class="Ot-gdola">/g, '$1')
+        // get rid of unwanted tags
+        modifiedLine = modifiedLine
+          .replace(/<span class="Kohavit">\*? ?<\/span>/g, '')
+          .replace(/<span class="Brosh"><\/span>/g, '')
+          .replace(/<span class="CharOverride-5"> <\/span>/g, '')
+          .replace(/<br \/>/g, '')
 
-            const chapLetters = modifiedLine.replace(/^<span class="Ot-gdola">([א-ת]+) ?<\/span>.*$/, '$1')
-            chapter++
+        // get rid of irrelevant classes and then spans
+        modifiedLine = modifiedLine
+          .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
+          .replace(/<span class="(?:Bab-1)">([^<]+)<\/span>/g, '$1')
 
-            fileToWrite += `\\c ${chapter}\n`
-            fileToWrite += `\\cp ${chapLetters}\n`
+        // convert html entities
+        modifiedLine = modifiedLine
+          .replace(/&quot;/g, '"')
+          .replace(/&apos;/g, "'")
+          .replace(/&#160;/g, '')
 
-            modifiedLine = modifiedLine
-              .replace(/^<span class="Ot-gdola">[א-ת]+ ?<\/span>/, '')
+        if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
+        if(/&/.test(modifiedLine)) unexpected(`unhandled &: ${modifiedLine}`)
 
-          }
+        modifiedLine = modifiedLine
+        //   .replace(/<[^>]+>/, '')
+          .trim()
+        
+        fileToWrite += `${modifiedLine}\n`
 
-          if(/<span class="Mispar-pasuk">(?:[0-9]+-[0-9]+|-)<\/span>/.test(modifiedLine)) {
-            // complex verse numbers
-            modifiedLine = modifiedLine
-              .replace(/ ?<span class="Mispar-pasuk">([0-9]+)(?:<\/span><span class="Mispar-pasuk">)?-(?:<\/span><span class="Mispar-pasuk">)?([0-9]+)<\/span>/g, '\n\\v $2 \\vp $2-$1\\vp*')
-            console.log('> Found complex verse number line')
-          }
-
-          // verse numbers
-          modifiedLine = modifiedLine
-            .replace(/ ?<span class="Mispar-pasuk">([0-9]+) ?<\/span>/g, '\n\\v $1 ')
-
-          // get rid of unwanted tags
-          modifiedLine = modifiedLine
-            .replace(/<span class="Kohavit">\*? ?<\/span>/g, '')
-            .replace(/<span class="Brosh"><\/span>/g, '')
-            .replace(/<span class="CharOverride-5"> <\/span>/g, '')
-            .replace(/<br \/>/g, '')
-
-          // get rid of irrelevant classes and then spans
-          modifiedLine = modifiedLine
-            .replace(/<span class="(?:diana|Resh-KAmaz|Dalet-Shva|Dalet-Hirik|Lamed-hirik)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Lamed-Shva|Dalet-Patah|Resh-sagol-|Resh-Patah)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Lamed-Kamaz|Lamed-Patach|Kaf-sofit-shva|Resh-Shva)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Dalet-Kamaz|Zain-Sagol|Resh-Zira|Resh-Hirik|Nun-sagol|)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Kaf-1|Bab|0|shin-2|Zain-KAmaz|Bet-dagesh|Zain-Patach)">([^<]+)<\/span>/g, '$1')
-            .replace(/<span class="(?:Bab-1)">([^<]+)<\/span>/g, '$1')
- 
-          // convert html entities
-          modifiedLine = modifiedLine
-            .replace(/&quot;/g, '"')
-            .replace(/&apos;/g, "'")
-            .replace(/&#160;/g, '')
-
-          if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
-          if(/&/.test(modifiedLine)) unexpected(`unhandled &: ${modifiedLine}`)
-
-          modifiedLine = modifiedLine
-          //   .replace(/<[^>]+>/, '')
-            .trim()
-          
-          fileToWrite += `${modifiedLine}\n`
-
-          continue
+        continue
       }
+
+      if(/<\/?p/.test(modifiedLine)) unexpected(`unexpected paragraph`)
 
     }
 
+
     // write
     fs.writeFileSync(`${destDir}/${usfmBookAbbreviation}.usfm`, fileToWrite)
+
+    console.log(` ...wrote ${chapter} chapters`)
 
   }
 
