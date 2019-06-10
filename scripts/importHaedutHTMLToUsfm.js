@@ -166,13 +166,36 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
       // normalization
       modifiedLine = modifiedLine
-        .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9]|ParaOverride-[0-9])/g, '')
+        .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9]|ParaOverride-[02-9])/g, '')
         .replace(/ lang="(?:he-IL|ar-SA|en-US)"/g, '')
+
+      // normalization (except for psalms)
+      if(usfmBookAbbreviation !== 'PSA') {
+        modifiedLine = modifiedLine
+          .replace(/ ?ParaOverride-1/g, '')
+      }
 
       // get rid of anchors and empty spans
       modifiedLine = modifiedLine
         .replace(/<a id="_idTextAnchor[0-9]+"><\/a>/g, '')
         .replace(/<span ?[^>]*><\/span>/g, '')
+
+      if(/^<p class="Text-ragil ParaOverride-1">/.test(modifiedLine)) {
+        modifiedLine = modifiedLine
+          .replace(/^<p class="Text-ragil ParaOverride-1">/, '')
+          .replace(/<\/p>$/, '')
+
+          if(/<\/?p/.test(modifiedLine)) unexpected(`bad psalm heading`)
+
+          modifiedLine = modifiedLine
+            .replace(/<[^>]+>/g, '')
+            .replace(/•/g, '')
+            .trim()
+          
+          fileToWrite += `\\ms ${modifiedLine}\n`
+
+          continue
+      }
 
       if(/^<p class="Tat_koteret_hadasha">/.test(modifiedLine)) {
         modifiedLine = modifiedLine
@@ -265,6 +288,7 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
     fileToWrite = fileToWrite
       .replace(/\n\n+/g, '\n')
+      .replace(/\\ms/g, '\n\\ms')
       .replace(/\\s/g, '\n\\s')
       .replace(/\\p/g, '\n\\p')
 
@@ -283,7 +307,6 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
   console.log(`\n\n\nTODOs:`)
-  console.log(`Single poetic line style`)
   console.log(`Psalm and prov sections`)
 
 
