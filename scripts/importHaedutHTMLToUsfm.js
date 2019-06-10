@@ -156,6 +156,14 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
       if(!/^<p/.test(modifiedLine)) continue
 
+      // convert html entities
+      modifiedLine = modifiedLine
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&#160;/g, '')
+
+      if(/&/.test(modifiedLine)) unexpected(`unhandled &: ${modifiedLine}`)
+
       // normalization
       modifiedLine = modifiedLine
         .replace(/ ?(?:CharOverride-3|[a-zA-Z_]*CharOverride-[0-9]|ParaOverride-[0-9])/g, '')
@@ -240,14 +248,7 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
           .replace(/<span class="(?:Tav-kamaz|Tav-Shva|Kav-sofit-kamaz|LAMED_ZIRE|LAMED-HIRIK)">([^<]+)<\/span>/g, '$1')
           .replace(/<span class="(?:NUN_HIRIK|VAV_ZIRE|Resh|Lamed-Sagol|2|4|Kaf|ZADIK_ZIRE)">([^<]+)<\/span>/g, '$1')
 
-        // convert html entities
-        modifiedLine = modifiedLine
-          .replace(/&quot;/g, '"')
-          .replace(/&apos;/g, "'")
-          .replace(/&#160;/g, '')
-
         if(/<[^>]+>/.test(modifiedLine)) unexpected(`more tags: ${modifiedLine}`)
-        if(/&/.test(modifiedLine)) unexpected(`unhandled &: ${modifiedLine}`)
 
         modifiedLine = modifiedLine
         //   .replace(/<[^>]+>/, '')
@@ -283,7 +284,6 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   
   console.log(`\n\n\nTODOs:`)
   console.log(`Single poetic line style`)
-  console.log(`when a paragraph does not start a chapter (Hos 2)`)
   console.log(`Psalm and prov sections`)
 
 
