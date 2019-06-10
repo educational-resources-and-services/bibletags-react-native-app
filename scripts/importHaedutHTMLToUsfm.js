@@ -170,7 +170,7 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
         .replace(/ lang="(?:he-IL|ar-SA|en-US)"/g, '')
 
       // normalization (except for psalms)
-      if(usfmBookAbbreviation !== 'PSA') {
+      if(![ 'PSA', 'PRO' ].includes(usfmBookAbbreviation)) {
         modifiedLine = modifiedLine
           .replace(/ ?ParaOverride-1/g, '')
       }
@@ -306,10 +306,6 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
 
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
-  console.log(`\n\n\nTODOs:`)
-  console.log(`Psalm and prov sections`)
-
-
   process.exit()
 
 })()
