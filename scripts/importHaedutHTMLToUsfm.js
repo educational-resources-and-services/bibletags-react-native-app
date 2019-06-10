@@ -1,3 +1,5 @@
+process.exit()  // to prevent an accidental run
+
 const Database = require('better-sqlite3')
 const fs = require('fs')
 const readline = require('readline')
