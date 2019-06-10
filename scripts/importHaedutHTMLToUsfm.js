@@ -218,7 +218,7 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
         // chapters
         modifiedLine = modifiedLine
           .replace(/(<span class="Ot-gdola">[א-ת]+ ?)<\/span><span class="Ot-gdola">/g, '$1')
-          .replace(/<span class="Ot-gdola">([א-ת]+) ?<\/span>(.*)$/m, (x, m) => `\n\\c ${++chapter}\n\\cp ${m}\n\\v 1 ${m}`)
+          .replace(/<span class="Ot-gdola">([א-ת]+) ?<\/span>(.*)$/m, (x, letter, following) => `\n\\c ${++chapter}\n\\cp ${letter}\n\\v 1 ${following}`)
 
         // get rid of unwanted tags
         modifiedLine = modifiedLine
@@ -282,7 +282,6 @@ console.log(`Most notable is the fact that footnotes were removed in several boo
   console.log(`\nCompleted conversion to USFM. Files placed in ${destDir}.\n`)
   
   console.log(`\n\n\nTODOs:`)
-  console.log(`first verse in chapter not coming through`)
   console.log(`Single poetic line style`)
   console.log(`when a paragraph does not start a chapter (Hos 2)`)
   console.log(`Psalm and prov sections`)
