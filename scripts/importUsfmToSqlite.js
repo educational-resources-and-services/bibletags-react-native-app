@@ -92,10 +92,13 @@ const getLocFromRef = ({ bookId, chapter, verse }) => (
 const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|h)(?: .*)?$/
 const majorTitleRegex = /^\\mt[0-9]? .*$/
+const majorSectionRegex = /^\\ms[0-9]? .*$/
+const sectionRegex = /^\\s[0-9]? .*$/
+const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphRegex = /^\\p(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
-const extraBiblicalRegex = /(?:^\\mt[0-9]? .*$|\\v [0-9]+ ?)/gm
+const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const allTagsRegex = /\\[a-z0-9]+ ?/g
 const newlinesRegex = /\n/g
 const doubleSpacesRegex = / {2-}/g
@@ -138,6 +141,7 @@ const doubleSpacesRegex = / {2-}/g
       const input = fs.createReadStream(`${folder}/${file}`)
       let bookId, chapter
       const verses = []
+      let lastVerse = 0
       let goesWithNextVsText = []
 
       for await (const line of readLines({ input })) {
@@ -168,6 +172,9 @@ const doubleSpacesRegex = / {2-}/g
         // get tags which connect to verse text to follow
         if(
           majorTitleRegex.test(line)
+          || majorSectionRegex.test(line)
+          || sectionRegex.test(line)
+          || chapterCharacterRegex.test(line)
           || paragraphRegex.test(line)
         ) {
           goesWithNextVsText.push(line)
@@ -176,7 +183,13 @@ const doubleSpacesRegex = / {2-}/g
 
         // get verse
         if(verseRegex.test(line)) {
+
           const verse = line.replace(verseRegex, '$1')
+          if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
+            console.log(`Non-consecutive verses: ${lastVerse} > ${verse}`)
+          }
+          lastVerse = parseInt(verse, 10)
+
           verses.push({
             loc: getLocFromRef({ bookId, chapter, verse }),
             usfm: [
