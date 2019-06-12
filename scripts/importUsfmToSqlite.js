@@ -109,9 +109,8 @@ const doubleSpacesRegex = / {2-}/g
 
   try {
 
-    const [ folder, tenant ] = JSON.parse(process.env.npm_config_argv).remain
+    const [ folder, version, tenant ] = JSON.parse(process.env.npm_config_argv).remain
     
-    version = folder.split('/').pop()
     versionsDir = `./tenants/${tenant}/assets/versions`
 
     const db = new Database(`${versionsDir}/${version}.db`)
