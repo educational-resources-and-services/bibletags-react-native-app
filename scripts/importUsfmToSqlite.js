@@ -97,6 +97,7 @@ const sectionRegex = /^\\s[0-9]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphRegex = /^\\p(?: .*)?$/
+const psalmTitleRegex = /^\\d .*$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const allTagsRegex = /\\[a-z0-9]+ ?/g
@@ -165,7 +166,6 @@ const doubleSpacesRegex = / {2-}/g
         // get chapter
         if(chapterRegex.test(line)) {
           chapter = line.replace(chapterRegex, '$1')
-          continue
         }
 
         // get tags which connect to verse text to follow
@@ -173,7 +173,9 @@ const doubleSpacesRegex = / {2-}/g
           majorTitleRegex.test(line)
           || majorSectionRegex.test(line)
           || sectionRegex.test(line)
+          || chapterRegex.test(line)
           || chapterCharacterRegex.test(line)
+          || psalmTitleRegex.test(line)
           || paragraphRegex.test(line)
         ) {
           goesWithNextVsText.push(line)
