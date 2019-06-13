@@ -5,6 +5,7 @@ import nativeBasePlatformVariables from 'native-base/src/theme/variables/platfor
 // import { Toast } from "native-base"
 
 // import i18n from "./i18n.js"
+import bibleVersions from '../../versions.js'
 
 // const {
 //   SOMETHING,
@@ -159,4 +160,17 @@ export const executeSql = async ({ versionId, statement, args, statements }) => 
   })
 
   return statement ? resultSets[0] : resultSets
+}
+
+export const getVersionAbbr = versionId => {
+  let versionAbbr = versionId
+
+  bibleVersions.some(({ id, abbr }) => {
+    if(versionId === id) {
+      versionAbbr = abbr
+      return true
+    }
+  })
+
+  return versionAbbr
 }

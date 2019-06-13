@@ -2,6 +2,8 @@ import React from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { Constants } from "expo"
 
+import { getVersionAbbr } from "../../utils/toolbox"
+
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
   CHOOSER_SELECTED_TEXT_COLOR,
@@ -50,7 +52,7 @@ class ChooserVersion extends React.PureComponent {
             styles.versionText,
             (selected ? styles.versionTextSelected : null),
           ]}
-        >{versionId.toUpperCase()}</Text>
+        >{getVersionAbbr(versionId)}</Text>
       </TouchableHighlight>
     )
   }
