@@ -11,13 +11,13 @@ const importUsfm = async () => {
   } catch(e) {}
 
   for(let idx in bibleVersions) {
-    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersions[idx].name}.db`)
+    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
 
     if(!exists) {
-      console.log(`Move ${bibleVersions[idx].name} to SQLite dir...`)
+      console.log(`Move ${bibleVersions[idx].id} to SQLite dir...`)
       await FileSystem.downloadAsync(
         Asset.fromModule(bibleVersions[idx].file).uri,
-        `${sqliteDir}/${bibleVersions[idx].name}.db`
+        `${sqliteDir}/${bibleVersions[idx].id}.db`
       )
     }
   }
