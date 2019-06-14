@@ -33,12 +33,20 @@ export const bibleFontLoads = bibleFonts
     {},
   )
 
-export const getValidFontName = ({ font, variant }) => {
+export const getValidFontName = ({ font, bold, italic, light }) => {
 
   if(!bibleFontList.includes(font)) {
     font = bibleFontList[0]
   }
 
+  const variant = {
+    "i": "italic",
+    "b": "bold",
+    "bi": "boldItalic",
+    "l": "light",
+    "il": "lightItalic",
+  }[`${bold ? 'b' : ''}${italic ? 'i' : ''}${light ? 'l' : ''}`]
+  
   return bibleFontLoads[`${font}-${variant}`]
     ? `${font}-${variant}`
     : `${font}-regular`

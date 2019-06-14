@@ -18,44 +18,90 @@ const {
 const viewStyles = StyleSheet.create({
   container: {
   },
-  sup: {
-    position: "relative",
-    top: "-0.3em",
+  mt: {
+    marginTop: 10,
+    marginBottom: 10,
   },
+  ms: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  s1: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  s2: {
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  d: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  p: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  // sup: {
+  //   position: "relative",
+  //   top: "-0.3em",
+  // },
 })
 
 const textStyles = StyleSheet.create({
   rtl: {
     writingDirection: "rtl",
   },
+  mt: {
+    color: "rgba(0,0,0,.5)",
+    textAlign: "center",
+    // fontVariant: ["small-caps"],
+  },
+  ms: {
+    color: "rgba(0,0,0,.5)",
+  },
+  s1: {
+    color: "rgba(0,0,0,.35)",
+  },
+  s2: {
+    color: "rgba(0,0,0,.5)",
+  },
   nd: {
-    // fontVariant: "small-caps",
-  },
-  em: {
-    fontStyle: "italic",
-  },
-  bd: {
-    fontWeight: "bold",
-  },
-  it: {
-    fontStyle: "italic",
-  },
-  bdit: {
-    fontWeight: "bold",
-    fontStyle: "italic",
+    // fontVariant: ["small-caps"],
   },
   no: {
-    // fontVariant: "normal",
+    fontVariant: [],
     fontStyle: "normal",
     fontWeight: "normal",
   },
   sc: {
-    // fontVariant: "small-caps",
-  },
-  sup: {
-    // fontSize: ".83em",
+    // fontVariant: ["small-caps"],
   },
 })
+
+const fontSizeStyleFactors = {
+  mt: 1.6,
+  ms: 1.4,
+  // s1: 1.1,
+  s2: .85,
+  // sup: .83,
+}
+
+const boldStyles = [
+  'mt',
+  'bd',
+  'bdit',
+]
+
+const italicStyles = [
+  'd',
+  'em',
+  'it',
+  'bdit',
+]
+
+const lightStyles = [
+]
 
 const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
@@ -110,20 +156,22 @@ class ReadText extends React.PureComponent {
     const { languageId } = this.state
 
     const { font, textSize } = displaySettings
-    const fontSize = DEFAULT_FONT_SIZE * textSize
-    const displaySettingsStyle = {
-      fontSize,
-      fontFamily: getValidFontName({ font }),
-      // TODO:
-      // getValidFontName({ font, variant: 'italic' })
-      // getValidFontName({ font, variant: 'bold' })
+    const baseFontSize = DEFAULT_FONT_SIZE * textSize
 
-    }
-
-// display verse numbers
-// display chapter numbers when in a different chapter
 // get all tags working
-// speed up
+
+// specialUsfmMarkers
+// (2) ["c", "cp"]
+// inlineUsfmMarkers
+// (13) ["v", "vp", "f", "fe", "x", "nd", "em", "bd", "it", "bdit", "no", "sc", "sup"]
+
+// \d tag for psalms
+
+// display chapter numbers when in a different chapter
+// speed up (check options adjustments)
+// fonts
+// books image in drawer
+// push out?
 
     verse = verse || 1
 
@@ -133,18 +181,31 @@ class ReadText extends React.PureComponent {
       if(!children && !text && !content) return null
 
       const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
-      const textStyle = getStyle({ tag, styles: textStyles })
 
-      if(text && !textStyle) return text
+      const bold = boldStyles.includes(tag)
+      const italic = italicStyles.includes(tag)
+      const light = lightStyles.includes(tag)
+      const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
+      const fontFamily = (bold || italic || light) && getValidFontName({
+        font,
+        bold,
+        italic,
+        light,
+      })
+
+      const styles = [
+        wrapInView && isRTL(languageId) && textStyles.rtl,
+        getStyle({ tag, styles: textStyles }),
+        fontSize && { fontSize },
+        fontFamily && { fontFamily },
+      ].filter(s => s)
+
+      if(text && styles.length === 0) return text
 
       let component = (
         <Text
           key={idx}
-          style={[
-            ((wrapInView && isRTL(languageId)) ? textStyles.rtl : null),
-            displaySettingsStyle,
-            textStyle,
-          ]}
+          style={styles}
         >
           {children
             ? this.getJSXFromPieces({
@@ -161,7 +222,6 @@ class ReadText extends React.PureComponent {
           <View
             key={idx}
             style={[
-              displaySettingsStyle,
               getStyle({ tag, styles: viewStyles }),
             ]}
           >
