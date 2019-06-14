@@ -18,6 +18,8 @@ const {
   CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
+const SET_TEXT_SIZE_THROTTLE_MS = 100
+
 const styles = StyleSheet.create({
   cover: {
     ...StyleSheet.absoluteFill,
@@ -88,10 +90,27 @@ class DisplaySettings extends React.PureComponent {
     })
   }
 
+  clearSetTextSizeTimeoutVars = () => {
+    delete this.setTextSizeTimeoutFunc
+    delete this.setTextSizeWaitTimeout
+  }
+
   setTextSize = textSize => {
     const { setTextSize } = this.props
 
+    // throttle because otherwise iOS gets slow
+
+    if(this.setTextSizeTimeoutFunc) {
+      this.setTextSizeTimeoutFunc = () => {
+        this.clearSetTextSizeTimeoutVars()
+        setTextSize({ textSize })
+      }
+      return
+    }
+
     setTextSize({ textSize })
+    this.setTextSizeTimeoutFunc = this.clearSetTextSizeTimeoutVars
+    this.setTextSizeWaitTimeout = setTimeout(() => this.setTextSizeTimeoutFunc(), SET_TEXT_SIZE_THROTTLE_MS)
   }
 
   setLineSpacing = lineSpacing => {

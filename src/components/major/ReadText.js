@@ -161,9 +161,10 @@ class ReadText extends React.PureComponent {
     const { font, textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
 
-// \d tag for psalms
-
 // refine styles
+// Get fileRevisionNum working
+// Get bibleVersionsToRemove working
+// ios font size adjustment
 
 // books image in drawer
 // push out?
