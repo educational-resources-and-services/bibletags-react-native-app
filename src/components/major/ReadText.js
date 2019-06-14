@@ -91,6 +91,8 @@ const boldStyles = [
   'mt',
   'bd',
   'bdit',
+  'v',
+  'vp',
 ]
 
 const italicStyles = [
@@ -167,6 +169,8 @@ class ReadText extends React.PureComponent {
 
 // \d tag for psalms
 
+// refine styles
+
 // display chapter numbers when in a different chapter
 // speed up (check options adjustments)
 // fonts
@@ -175,10 +179,19 @@ class ReadText extends React.PureComponent {
 
     verse = verse || 1
 
+    let textAlreadyDisplayedInThisView = false
+
     return pieces.map((piece, idx) => {
-      const { type, tag, text, content, children } = piece
+      let { type, tag, text, content, children } = piece
 
       if(!children && !text && !content) return null
+      if([ "c", "cp" ].includes(tag)) return null
+
+      if([ "v", "vp" ].includes(tag) && content) {
+        const nextPiece = pieces[idx+1] || {}
+        if(tag === "v" && nextPiece.tag === "vp") return null
+        content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content} `
+      }
 
       const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
 
@@ -186,7 +199,7 @@ class ReadText extends React.PureComponent {
       const italic = italicStyles.includes(tag)
       const light = lightStyles.includes(tag)
       const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-      const fontFamily = (bold || italic || light) && getValidFontName({
+      const fontFamily = (wrapInView || bold || italic || light) && getValidFontName({
         font,
         bold,
         italic,
@@ -199,6 +212,8 @@ class ReadText extends React.PureComponent {
         fontSize && { fontSize },
         fontFamily && { fontFamily },
       ].filter(s => s)
+
+      textAlreadyDisplayedInThisView = true
 
       if(text && styles.length === 0) return text
 
