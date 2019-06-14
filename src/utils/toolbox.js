@@ -174,3 +174,19 @@ export const getVersionAbbr = versionId => {
 
   return versionAbbr
 }
+
+export const isRTL = languageId => (
+  [
+    'heb',
+    'yid',
+    'ara',
+    'per',
+    'fas',
+    'urd',
+    'pus',
+    'syc',
+    'syr',
+    'sam',
+    'snd',
+  ].includes(languageId)
+)

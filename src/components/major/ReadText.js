@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { executeSql } from '../../utils/toolbox.js'
+import { executeSql, isRTL } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
@@ -25,6 +25,9 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
+  rtl: {
+    writingDirection: "rtl",
+  },
   nd: {
     // fontVariant: "small-caps",
   },
@@ -60,6 +63,7 @@ class ReadText extends React.PureComponent {
 
   state = {
     pieces: null,
+    languageId: 'eng',
   }
 
   componentDidMount() {
@@ -79,11 +83,12 @@ class ReadText extends React.PureComponent {
       ],
     })
 
-    let wordDividerRegex
+    let wordDividerRegex, languageId
 
     bibleVersions.some(version => {
       if(version.id === versionId) {
         wordDividerRegex = version.wordDividerRegex
+        languageId = version.languageId
       }
     })
 
@@ -92,12 +97,16 @@ class ReadText extends React.PureComponent {
       wordDividerRegex,
     })
 
-    this.setState({ pieces })
+    this.setState({
+      pieces,
+      languageId,
+    })
     // TODO: handle scrollY
   }
 
   getJSXFromPieces = ({ pieces, verse }) => {
     const { displaySettings } = this.props
+    const { languageId } = this.state
 
     const { font, textSize } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
@@ -111,49 +120,52 @@ class ReadText extends React.PureComponent {
     }
 
 // only do tags when needed (otherwise, do plain text)
-// can there be content and text?
 // display verse numbers
 // display chapter numbers when in a different chapter
 // get all tags working
-// speed up
+// speed up (don't group words if it is too intensive)
 
     verse = verse || 1
 
     return pieces.map((piece, idx) => {
       const { type, tag, text, content, children } = piece
 
-      if(children) {
+      if(!children && !text && !content) return null
 
-        let component = (
-          <Text
+      let component = (
+        <Text
+          key={idx}
+          style={[
+            (isRTL(languageId) ? textStyles.rtl : null),
+            displaySettingsStyle,
+            getStyle({ tag, styles: textStyles }),
+          ]}
+        >
+          {children
+            ? this.getJSXFromPieces({
+              pieces: children,
+              verse,
+            })
+            : (text || content)
+          }
+        </Text>
+      )
+
+      if(tagInList({ tag, list: blockUsfmMarkers })) {
+        component = (
+          <View
             key={idx}
             style={[
               displaySettingsStyle,
-              getStyle({ tag, styles: textStyles }),
+              getStyle({ tag, styles: viewStyles }),
             ]}
           >
-            {this.getJSXFromPieces({
-              pieces: children,
-              verse,
-            })}
-          </Text>
+            {component}
+          </View>
         )
+      }
 
-        if(tagInList({ tag, list: blockUsfmMarkers })) {
-          component = (
-            <View
-              key={idx}
-              style={[
-                displaySettingsStyle,
-                getStyle({ tag, styles: viewStyles }),
-              ]}
-            >
-              {component}
-            </View>
-          )
-        }
-
-        return component
+      return component
 
       // } else if(type === "word") {
 
@@ -166,25 +178,7 @@ class ReadText extends React.PureComponent {
       //     </Text>
       //   )
 
-      } else if(text || content) {
 
-        if(text && !tag) return text
-
-        return (
-          <Text
-            key={idx}
-            style={[
-              displaySettingsStyle,
-              getStyle({ tag, styles: textStyles }),
-            ]}
-          >
-            {text || content}
-          </Text>
-        )
-
-      } else {
-        return null
-      }
     })
   }
 
@@ -197,9 +191,13 @@ class ReadText extends React.PureComponent {
 
     if(!pieces) return null
 
+
+// console.log('pieces', JSON.stringify(pieces))
     return (
       <View
-        style={viewStyles.container}
+        style={[
+          viewStyles.container,
+        ]}
       >
         {this.getJSXFromPieces({ pieces })}
       </View>
