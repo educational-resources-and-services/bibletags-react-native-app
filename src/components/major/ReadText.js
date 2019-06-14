@@ -23,8 +23,8 @@ const viewStyles = StyleSheet.create({
     marginBottom: 10,
   },
   ms: {
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 7,
+    marginBottom: 5,
   },
   s1: {
     marginTop: 10,
@@ -58,7 +58,8 @@ const textStyles = StyleSheet.create({
     // fontVariant: ["small-caps"],
   },
   ms: {
-    color: "rgba(0,0,0,.5)",
+    textAlign: "center",
+    color: "rgba(0,0,0,.42)",
   },
   s1: {
     color: "rgba(0,0,0,.35)",
@@ -81,7 +82,7 @@ const textStyles = StyleSheet.create({
 
 const fontSizeStyleFactors = {
   mt: 1.6,
-  ms: 1.4,
+  ms: 1.2,
   // s1: 1.1,
   s2: .85,
   // sup: .83,
@@ -159,13 +160,6 @@ class ReadText extends React.PureComponent {
 
     const { font, textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
-
-// get all tags working
-
-// specialUsfmMarkers
-// (2) ["c", "cp"]
-// inlineUsfmMarkers
-// (13) ["v", "vp", "f", "fe", "x", "nd", "em", "bd", "it", "bdit", "no", "sc", "sup"]
 
 // \d tag for psalms
 
