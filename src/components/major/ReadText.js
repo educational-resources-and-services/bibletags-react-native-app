@@ -165,9 +165,6 @@ class ReadText extends React.PureComponent {
 
 // refine styles
 
-// display chapter numbers when in a different chapter
-// speed up (check options adjustments)
-// fonts
 // books image in drawer
 // push out?
 
