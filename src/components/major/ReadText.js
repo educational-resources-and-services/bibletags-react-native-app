@@ -94,6 +94,7 @@ class ReadText extends React.PureComponent {
 
     const pieces = getPiecesFromUSFM({
       usfm: verses.map(({ usfm }) => usfm).join('\n'),
+      // usfm: verses.slice(0,3).map(({ usfm }) => usfm).join('\n'),
       wordDividerRegex,
     })
 
@@ -119,11 +120,10 @@ class ReadText extends React.PureComponent {
 
     }
 
-// only do tags when needed (otherwise, do plain text)
 // display verse numbers
 // display chapter numbers when in a different chapter
 // get all tags working
-// speed up (don't group words if it is too intensive)
+// speed up
 
     verse = verse || 1
 
@@ -132,13 +132,18 @@ class ReadText extends React.PureComponent {
 
       if(!children && !text && !content) return null
 
+      const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
+      const textStyle = getStyle({ tag, styles: textStyles })
+
+      if(text && !textStyle) return text
+
       let component = (
         <Text
           key={idx}
           style={[
-            (isRTL(languageId) ? textStyles.rtl : null),
+            ((wrapInView && isRTL(languageId)) ? textStyles.rtl : null),
             displaySettingsStyle,
-            getStyle({ tag, styles: textStyles }),
+            textStyle,
           ]}
         >
           {children
@@ -151,7 +156,7 @@ class ReadText extends React.PureComponent {
         </Text>
       )
 
-      if(tagInList({ tag, list: blockUsfmMarkers })) {
+      if(wrapInView) {
         component = (
           <View
             key={idx}
@@ -166,18 +171,6 @@ class ReadText extends React.PureComponent {
       }
 
       return component
-
-      // } else if(type === "word") {
-
-      //   return (
-      //     <Text
-      //       key={idx}
-      //       {getStyle({ tag, styles: textStyles })}
-      //     >
-      //       {text}
-      //     </Text>
-      //   )
-
 
     })
   }
