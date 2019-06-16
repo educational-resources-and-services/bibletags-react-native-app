@@ -174,7 +174,7 @@ class ReadText extends React.PureComponent {
       if([ "v", "vp" ].includes(tag) && content) {
         const nextPiece = pieces[idx+1] || {}
         if(tag === "v" && nextPiece.tag === "vp") return null
-        content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content} `
+        content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
       }
 
       const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
