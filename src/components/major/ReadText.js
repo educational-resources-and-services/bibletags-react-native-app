@@ -235,11 +235,7 @@ class ReadText extends React.PureComponent {
   }
 
   render() {
-    const { displaySettings } = this.props
     const { pieces } = this.state
-
-    const { font, textSize } = displaySettings
-    const fontSize = DEFAULT_FONT_SIZE * textSize
 
     if(!pieces) return null
 
