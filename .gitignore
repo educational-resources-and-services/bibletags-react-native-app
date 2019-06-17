@@ -6,5 +6,6 @@ assets/*
 tenants/*
 /app.json
 /fonts.js
+/menu.js
 /versions.js
 /src/utils/translations/current.json

@@ -3,10 +3,12 @@ import { Constants } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
 import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
-import { Container, Content, Text, List, ListItem, Left, Icon, Body, Separator, View } from "native-base"
+import { Container, Content, Text, List, View } from "native-base"
 
 import i18n from "../../utils/i18n.js"
 import { debounce, isConnected } from "../../utils/toolbox.js"
+import menuItems from '../../../menu.js'
+import DrawerItem from '../basic/DrawerItem'
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,
@@ -96,14 +98,23 @@ class Drawer extends React.Component {
               source={require('../../../assets/images/drawer.png')}
               style={styles.image}
             />
+            <List style={styles.list}>
+              {menuItems.map((menuItem, idx) => (
+                <DrawerItem
+                  key={idx}
+                  offline={offline}
+                  {...menuItem}
+                />
+              ))}
+            </List>
             {!!LINK_TO_BIBLE_TAGS_MARKETING_SITE &&
               <TouchableOpacity
                 onPress={this.goToBibleTagsMarketingSite}
               >
                 <View style={styles.createdByContainer}>
-                  <Text style={styles.createdBy}>{i18n("Created by Toad Reader")}</Text>
+                  <Text style={styles.createdBy}>{i18n("Created by ERAS")}</Text>
                   {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
-                    <Text style={styles.launchYour}>{i18n("Launch your custom eReader")}</Text>
+                    <Text style={styles.launchYour}>{i18n("Get apps for your Bible version")}</Text>
                   }
                 </View>
               </TouchableOpacity>
