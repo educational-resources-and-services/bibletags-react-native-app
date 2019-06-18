@@ -1,6 +1,6 @@
 import React from "react"
 import { Constants } from "expo"
-import { View, Text, StyleSheet } from "react-native"
+import { View, ScrollView, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -17,6 +17,10 @@ const {
 
 const viewStyles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
   },
   mt: {
     marginTop: 10,
@@ -240,13 +244,11 @@ class ReadText extends React.PureComponent {
     if(!pieces) return null
 
     return (
-      <View
-        style={[
-          viewStyles.container,
-        ]}
-      >
-        {this.getJSXFromPieces({ pieces })}
-      </View>
+      <ScrollView style={viewStyles.container}>
+        <View style={viewStyles.content}>
+          {this.getJSXFromPieces({ pieces })}
+        </View>
+      </ScrollView>
     )
   }
 }

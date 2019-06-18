@@ -32,8 +32,8 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   content: {
-    padding: 20,
-    paddingBottom: 110,
+    paddingBottom: 84,  // for the recent passage bookmarks
+    flex: 1,
   }
 })
 
@@ -130,18 +130,9 @@ class Read extends React.Component {
               hideDisplaySettings={this.hideDisplaySettings}
             />
           }
-          <Content>
-            <View
-              style={[
-                styles.content,
-                {
-                  minHeight: height,  // this could be more precise
-                },
-              ]}
-            >
-              <ReadContent />
-            </View>
-          </Content>
+          <View style={styles.content}>
+            <ReadContent />
+          </View>
           <RecentSection />
           {!!showingPassageChooser &&
             <TouchableWithoutFeedback
