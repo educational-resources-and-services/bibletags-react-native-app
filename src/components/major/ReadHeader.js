@@ -84,6 +84,8 @@ class ReadHeader extends React.PureComponent {
       .join(i18n(", ", {}, "list separator"))
       .toUpperCase()
 
+    const rtl = false  // TODO
+
     return (
       <AppHeader
         hideStatusBar={hideStatusBar}
@@ -120,7 +122,7 @@ class ReadHeader extends React.PureComponent {
                 })}
               </Title>
               <Subtitle style={styles.subtitle}>
-                {versionsText}
+                {`${rtl ? `\u200F` : `\u200E`}${versionsText}`}
               </Subtitle>
               <Icon
                 name="arrow-dropdown"
