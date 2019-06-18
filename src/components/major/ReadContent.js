@@ -22,6 +22,45 @@ const styles = StyleSheet.create({
 
 class ReadContent extends React.PureComponent {
 
+  hasParallel = () => !!this.props.passage.parallelVersionId
+
+  getScrollFactor = () => {
+    const primaryMaxScroll = Math.max(this.primaryContentHeight - this.primaryHeight, 0)
+    const secondaryMaxScroll = Math.max(this.secondaryContentHeight - this.secondaryHeight, 0)
+
+    return primaryMaxScroll / secondaryMaxScroll
+  }
+
+  onPrimaryTouchStart = () => this.scrollController = 'primary'
+  onSecondaryTouchStart = () => this.scrollController = 'secondary'
+
+  onPrimaryScroll = ({ nativeEvent }) => {
+    if(!this.secondaryRef) return
+    if(this.scrollController !== 'primary') return
+    if(!this.hasParallel()) return
+
+    const y = nativeEvent.contentOffset.y / this.getScrollFactor()
+    this.secondaryRef.scrollTo({ y })
+  }
+
+  onSecondaryScroll = ({ nativeEvent }) => {
+    if(!this.primaryRef) return
+    if(this.scrollController !== 'secondary') return
+    if(!this.hasParallel()) return
+
+    const y = nativeEvent.contentOffset.y * this.getScrollFactor()
+    this.primaryRef.scrollTo({ y })
+  }
+
+  onPrimaryLayout = ({ nativeEvent }) => this.primaryHeight = nativeEvent.layout.height
+  onSecondaryLayout = ({ nativeEvent }) => this.secondaryHeight = nativeEvent.layout.height
+
+  onPrimaryContentSizeChange = (contentWidth, contentHeight) => this.primaryContentHeight = contentHeight
+  onSecondaryContentSizeChange = (contentWidth, contentHeight) => this.secondaryContentHeight = contentHeight
+
+  setPrimaryRef = ref => this.primaryRef = ref
+  setSecondaryRef = ref => this.secondaryRef = ref
+
   render() {
     const { passage } = this.props
     const { ref, versionId, parallelVersionId } = passage
@@ -34,6 +73,11 @@ class ReadContent extends React.PureComponent {
           key={`${versionId} ${ref.bookId} ${ref.chapter}`}
           passageRef={ref}
           versionId={versionId}
+          onTouchStart={this.onPrimaryTouchStart}
+          onScroll={this.onPrimaryScroll}
+          onLayout={this.onPrimaryLayout}
+          onContentSizeChange={this.onPrimaryContentSizeChange}
+          setRef={this.setPrimaryRef}
         />
         {!!parallelVersionId &&
           <React.Fragment>
@@ -42,6 +86,11 @@ class ReadContent extends React.PureComponent {
               key={`${parallelVersionId} ${ref.bookId} ${ref.chapter}`}
               passageRef={ref}
               versionId={parallelVersionId}
+              onTouchStart={this.onSecondaryTouchStart}
+              onScroll={this.onSecondaryScroll}
+              onLayout={this.onSecondaryLayout}
+              onContentSizeChange={this.onSecondaryContentSizeChange}
+              setRef={this.setSecondaryRef}
             />
           </React.Fragment>
         }

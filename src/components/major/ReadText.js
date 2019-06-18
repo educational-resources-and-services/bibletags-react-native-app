@@ -239,12 +239,21 @@ class ReadText extends React.PureComponent {
   }
 
   render() {
+    const { setRef, onScroll, onTouchStart, onLayout, onContentSizeChange } = this.props
     const { pieces } = this.state
 
     if(!pieces) return null
 
     return (
-      <ScrollView style={viewStyles.container}>
+      <ScrollView
+        style={viewStyles.container}
+        scrollEventThrottle={16}
+        onTouchStart={onTouchStart}
+        onScroll={onScroll}
+        onLayout={onLayout}
+        onContentSizeChange={onContentSizeChange}
+        ref={setRef}
+      >
         <View style={viewStyles.content}>
           {this.getJSXFromPieces({ pieces })}
         </View>
