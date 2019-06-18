@@ -14,11 +14,26 @@ const importUsfm = async () => {
     const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
 
     if(!exists) {
-      console.log(`Move ${bibleVersions[idx].id} to SQLite dir...`)
-      await FileSystem.downloadAsync(
-        Asset.fromModule(bibleVersions[idx].file).uri,
-        `${sqliteDir}/${bibleVersions[idx].id}.db`
-      )
+    // if(exists) {
+    //   await FileSystem.deleteAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
+    // }
+
+      console.log(`Copy ${bibleVersions[idx].id} to SQLite dir...`)
+
+      const { localUri, uri } = Asset.fromModule(bibleVersions[idx].file)
+
+      if(localUri) {
+        await FileSystem.copyAsync({
+          from: localUri,
+          to: `${sqliteDir}/${bibleVersions[idx].id}.db`
+        })
+      } else {
+        await FileSystem.downloadAsync(
+          uri,
+          `${sqliteDir}/${bibleVersions[idx].id}.db`
+        )
+      }
+
     }
   }
 
