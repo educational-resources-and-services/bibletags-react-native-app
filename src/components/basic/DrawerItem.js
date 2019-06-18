@@ -53,8 +53,8 @@ class DrawerItem extends React.PureComponent {
               style={[
                 styles.image,
                 {
-                  width: `${imageWidth}%`,
-                  paddingBottom: `${imageHeight}%`,
+                  width: imageWidth,
+                  paddingBottom: imageHeight,
                 },
               ]}
             />
