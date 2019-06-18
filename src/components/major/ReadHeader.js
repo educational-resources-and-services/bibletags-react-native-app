@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import i18n from "../../utils/i18n.js"
-import { isPhoneSize, debounce, getVersionAbbr } from '../../utils/toolbox.js'
+import { isPhoneSize, debounce, getVersionAbbr, getToolbarHeight } from '../../utils/toolbox.js'
 
 import AppHeader from "../basic/AppHeader"
 import { getPassageStr } from "bibletags-ui-helper"
@@ -34,9 +34,22 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     textAlign: 'left',
+    writingDirection: 'ltr',
+  },
+  titles: {
+    paddingRight: 34,
+  },
+  dropdownIcon: {
+    position: 'absolute',
+    right: 10,
+    top: 0,
+    fontSize: Platform.OS === 'ios' ? 18 : 22,
+    lineHeight: getToolbarHeight() - (Platform.OS === 'ios' ? 24 : 0) - 6,  // 24 is the height of the status bar; 6 offsets it toward the top more
+    ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : { color: 'rgba(255,255,255,.5)' }),
   },
 })
 
+console.log('getToolbarHeight()', getToolbarHeight())
 class ReadHeader extends React.PureComponent {
 
   openDrawer = () => {
@@ -98,7 +111,7 @@ class ReadHeader extends React.PureComponent {
           <TouchableOpacity
             onPressIn={showPassageChooser}
           >
-            <View>
+            <View style={styles.titles}>
               <Title>
                 {getPassageStr({
                   refs: [
@@ -109,6 +122,10 @@ class ReadHeader extends React.PureComponent {
               <Subtitle style={styles.subtitle}>
                 {versionsText}
               </Subtitle>
+              <Icon
+                name="arrow-dropdown"
+                style={styles.dropdownIcon}
+              />
             </View>
           </TouchableOpacity>
         </Body>

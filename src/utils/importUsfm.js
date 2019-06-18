@@ -1,5 +1,4 @@
 import { FileSystem, Asset, SQLite } from 'expo'
-import { getToolbarHeight } from './toolbox.js'
 import bibleVersions from '../../versions.js'
 
 const importUsfm = async () => {
