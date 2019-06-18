@@ -84,7 +84,7 @@ class ReadHeader extends React.PureComponent {
       .join(i18n(", ", {}, "list separator"))
       .toUpperCase()
 
-    const rtl = false  // TODO
+    const rtl = false  // TODO (Also, put the rtl and ltr chars in toolbox)
 
     return (
       <AppHeader
