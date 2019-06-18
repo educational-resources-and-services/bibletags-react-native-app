@@ -25,6 +25,8 @@ class DrawerItem extends React.PureComponent {
   goToURL = event => {
     const { href } = this.props
 
+    if(!href) return
+
     Linking.openURL(href).catch(err => {
       console.log('ERROR: Request to open URL failed.', err)
       navigation.navigate("ErrorMessage", {
@@ -38,9 +40,13 @@ class DrawerItem extends React.PureComponent {
 
     return (
       <ListItem
-        button
-        data-href={href}
-        onPress={this.goToURL}
+        {...(href
+          ? {
+            button: true,
+            onPress: this.goToURL,
+          }
+          : {}
+        )}
         style={styles.listItem}
       >
         <Body>
