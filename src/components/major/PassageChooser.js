@@ -158,8 +158,10 @@ class PassageChooser extends React.PureComponent {
   render() {
     const { showing, paddingBottom, hidePassageChooser, passage, mode } = this.props
 
-    const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
-    const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
+    // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
+    // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
+    const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
+    const showVersionChooser = PRIMARY_VERSIONS.length > 1
 
     return (
       <View style={styles.container}>
