@@ -54,6 +54,11 @@ class SearchHeader extends React.PureComponent {
     const { navigation, setEditing } = this.props
     const { searchString } = navigation.state.params
 
+    if(!searchString) {
+      this.onBackPress()
+      return
+    }
+
     setEditing(false)
 
     this.setState({
@@ -106,7 +111,6 @@ class SearchHeader extends React.PureComponent {
             <Button
               transparent
               onPress={this.onCancel}
-              disabled={!searchString}
             >
               <Icon name="close" />
             </Button>
