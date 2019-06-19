@@ -19,6 +19,8 @@ const {
   APP_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
+const MAX_RESULTS = 1000
+
 const styles = StyleSheet.create({
   messageContainer: {
     padding: 20,
@@ -84,7 +86,7 @@ class Search extends React.Component {
     if(!searchString) return
     if(searchString === searchedString) return
 
-    const limit = `LIMIT 50`
+    const limit = `LIMIT ${MAX_RESULTS}`
     const order = `ORDER BY loc`
 
     const { rows: { _array: verses } } = await executeSql({
@@ -139,9 +141,6 @@ class Search extends React.Component {
               searchString={searchString}
             />
           }
-          {!editing && !searchDone &&
-            <FullScreenSpin />
-          }
           {!editing && searchDone && searchResults.length === 0 &&
             <View style={styles.messageContainer}>
               <Text style={styles.message}>
@@ -162,6 +161,7 @@ class Search extends React.Component {
             </View>
           }
         </Content>
+        {!editing && !searchDone && <FullScreenSpin />}
       </Container>
     )
   }

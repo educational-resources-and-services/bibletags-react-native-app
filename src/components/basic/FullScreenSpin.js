@@ -19,10 +19,10 @@ const styles = StyleSheet.create({
   },
 })
 
-class FullScreenSpin extends React.Component {
+class FullScreenSpin extends React.PureComponent {
   render() {
     const { style, text, percentage } = this.props
-    
+
     return (
       <View style={[
         styles.spinnerContainer,

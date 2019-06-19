@@ -116,7 +116,7 @@ class SearchResult extends React.PureComponent {
 
         return (
           <Text
-            key={idx2 || idx}
+            key={`${idx}-${idx2}`}
             style={[
               ...styles,
               (isMatch ? textStyles.match : null),
