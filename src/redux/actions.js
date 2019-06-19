@@ -18,6 +18,12 @@ export const removeRecentPassage = ({ ref }) => ({
   ref,
 })
 
+export const recordSearch = ({ searchString, numberResults }) => ({
+  type: "RECORD_SEARCH",
+  searchString,
+  numberResults,
+})
+
 export const setMode = ({ mode }) => ({
   type: "SET_MODE",
   mode,

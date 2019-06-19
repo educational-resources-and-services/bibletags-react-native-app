@@ -1,12 +1,12 @@
 import React from "react"
 import { StyleSheet, View, Text, Dimensions } from "react-native"
 import { Constants } from "expo"
-// import { bindActionCreators } from "redux"
-// import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
-import { unmountTimeouts } from "../../utils/toolbox.js"
+import { unmountTimeouts, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
 
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
@@ -29,6 +29,7 @@ class Search extends React.Component {
 
     this.state = {
       editing: !!editOnOpen,
+      searchResults: null,
     }
   }
 
@@ -47,12 +48,59 @@ class Search extends React.Component {
   //   })
   // }
 
+
+  componentDidMount() {
+    this.performSearch()
+  }
+
+  componentDidUpdate() {
+    this.performSearch()
+  }
+
+  performSearch = async () => {
+    const { navigation, passage } = this.props
+    const { searchResults } = this.state
+    const { searchString } = navigation.state.params
+
+    const { versionId, parallelVersionId } = passage
+
+    if(!searchString) {
+      if(searchResults) {
+        this.setState({ searchResults: null })
+      }
+      return
+    }
+
+    const { rows: { _array: verses } } = await executeSql({
+      versionId,
+      statement: `SELECT * FROM ${versionId}Verses WHERE search LIKE ? ESCAPE '\\' LIMIT 50`,
+      args: [
+        `%${escapeLike(searchString)}%`,
+      ],
+    })
+
+    const { wordDividerRegex, languageId } = getVersionInfo(versionId)
+
+    console.log('verses', verses)
+    // const pieces = getPiecesFromUSFM({
+    //   usfm: verses.map(({ usfm }) => usfm).join('\n'),
+    //   // usfm: verses.slice(0,3).map(({ usfm }) => usfm).join('\n'),
+    //   wordDividerRegex,
+    // })
+
+    // this.setState({
+    //   pieces,
+    //   languageId,
+    // })
+    // TODO: handle scrollY
+  }
+
   setEditing = editing => this.setState({ editing })
 
   render() {
 
     const { navigation } = this.props
-    const { editing } = this.state
+    const { editing, searchResults } = this.state
 
     const { width } = Dimensions.get('window')
 
@@ -74,13 +122,12 @@ class Search extends React.Component {
   }
 }
 
-export default Search
-// const mapStateToProps = (state) => ({
-//   // readerStatus: state.readerStatus,
-// })
+const mapStateToProps = ({ passage }) => ({
+  passage,
+})
 
-// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-//   // setXapiConsentShown,
-// }, dispatch)
+const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+  // setXapiConsentShown,
+}, dispatch)
 
-// export default connect(mapStateToProps, matchDispatchToProps)(Search)
+export default connect(mapStateToProps, matchDispatchToProps)(Search)

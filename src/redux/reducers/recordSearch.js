@@ -9,6 +9,7 @@ export default function(state, action) {
   switch (action.type) {
 
     case "RECORD_SEARCH": {
+      // TODO
     }
 
   }

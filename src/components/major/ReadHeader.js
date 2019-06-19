@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import i18n from "../../utils/i18n.js"
-import { isPhoneSize, debounce, getVersionAbbr, getToolbarHeight } from '../../utils/toolbox.js'
+import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 
 import AppHeader from "../basic/AppHeader"
 import { getPassageStr } from "bibletags-ui-helper"
@@ -77,8 +77,8 @@ class ReadHeader extends React.PureComponent {
     width -= (leftIconsWidth + rightIconsWidth)
 
     const versionsText = [
-      getVersionAbbr(passage.versionId),
-      getVersionAbbr(passage.parallelVersionId || null),
+      getVersionInfo(passage.versionId).abbr,
+      getVersionInfo(passage.parallelVersionId || null).abbr,
     ]
       .filter(val => val)
       .join(i18n(", ", {}, "list separator"))

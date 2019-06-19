@@ -4,7 +4,7 @@ import { View, ScrollView, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { executeSql, isRTL } from '../../utils/toolbox.js'
+import { executeSql, isRTL, getVersionInfo } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
@@ -136,14 +136,7 @@ class ReadText extends React.PureComponent {
       ],
     })
 
-    let wordDividerRegex, languageId
-
-    bibleVersions.some(version => {
-      if(version.id === versionId) {
-        wordDividerRegex = version.wordDividerRegex
-        languageId = version.languageId
-      }
-    })
+    const { wordDividerRegex, languageId } = getVersionInfo(versionId)
 
     const pieces = getPiecesFromUSFM({
       usfm: verses.map(({ usfm }) => usfm).join('\n'),

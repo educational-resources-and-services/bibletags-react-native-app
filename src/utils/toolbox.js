@@ -162,17 +162,23 @@ export const executeSql = async ({ versionId, statement, args, statements }) => 
   return statement ? resultSets[0] : resultSets
 }
 
-export const getVersionAbbr = versionId => {
-  let versionAbbr = versionId
+export const escapeLike = like => (
+  like
+    .replace(/%/g, '\\%')
+    .replace(/_/g, '\\_')
+)
 
-  bibleVersions.some(({ id, abbr }) => {
-    if(versionId === id) {
-      versionAbbr = abbr
+export const getVersionInfo = versionId => {
+  let versionInfo = {}
+
+  bibleVersions.some(version => {
+    if(versionId === version.id) {
+      versionInfo = version
       return true
     }
   })
 
-  return versionAbbr
+  return versionInfo
 }
 
 export const isRTL = languageId => (
