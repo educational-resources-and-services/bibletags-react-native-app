@@ -35,6 +35,21 @@ class SearchHeader extends React.PureComponent {
     this.setState({ editedSearchString: nativeEvent.text })
   }
 
+  updateSearchString = () => {
+    const { navigation, setEditing } = this.props
+    const { editedSearchString } = this.state
+
+    setEditing(false)
+
+    debounce(
+      navigation.setParams,
+      {
+        searchString: editedSearchString,
+        editOnOpen: false,
+      },
+    )
+  }
+
   onCancel = () => {
     const { navigation, setEditing } = this.props
     const { searchString } = navigation.state.params
@@ -83,6 +98,7 @@ class SearchHeader extends React.PureComponent {
               returnKeyType="search"
               value={editedSearchString}
               onChange={this.updateEditedSearchString}
+              onSubmitEditing={this.updateSearchString}
               autoFocus={true}
             />
           </Item>
