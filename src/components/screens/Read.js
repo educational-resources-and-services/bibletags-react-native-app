@@ -13,7 +13,7 @@ import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
 import DisplaySettings from "../major/DisplaySettings"
 import PassageChooser from "../major/PassageChooser"
-import FullScreenSpin from '../basic/FullScreenSpin'
+// import FullScreenSpin from '../basic/FullScreenSpin'
 import RevealContainer from '../basic/RevealContainer'
 import RecentSection from '../major/RecentSection'
 

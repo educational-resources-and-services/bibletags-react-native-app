@@ -7,7 +7,10 @@ import { Container, Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
 import { unmountTimeouts, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
+import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
 
+import SearchResult from '../basic/SearchResult'
+import SearchSuggestions from '../basic/SearchSuggestions'
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
 import SearchHeader from '../major/SearchHeader'
@@ -16,8 +19,20 @@ const {
   APP_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
-const contentsStyles = {
-}
+const styles = StyleSheet.create({
+  messageContainer: {
+    padding: 20,
+    paddingTop: 50,
+  },
+  message: {
+    fontSize: 20,
+    textAlign: 'center',
+    color: 'rgba(0,0,0,.5)',
+  },
+  searchResults: {
+    paddingBottom: 20,
+  },
+})
 
 class Search extends React.Component {
 
@@ -29,7 +44,9 @@ class Search extends React.Component {
 
     this.state = {
       editing: !!editOnOpen,
-      searchResults: null,
+      searchedString: null,
+      versesInPieces: null,
+      languageId: 'eng',
     }
   }
 
@@ -59,40 +76,35 @@ class Search extends React.Component {
 
   performSearch = async () => {
     const { navigation, passage } = this.props
-    const { searchResults } = this.state
+    const { searchedString } = this.state
     const { searchString } = navigation.state.params
 
     const { versionId, parallelVersionId } = passage
 
-    if(!searchString) {
-      if(searchResults) {
-        this.setState({ searchResults: null })
-      }
-      return
-    }
+    if(!searchString) return
+    if(searchString === searchedString) return
 
     const { rows: { _array: verses } } = await executeSql({
       versionId,
-      statement: `SELECT * FROM ${versionId}Verses WHERE search LIKE ? ESCAPE '\\' LIMIT 50`,
+      statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' LIMIT 50`,
       args: [
-        `%${escapeLike(searchString)}%`,
+        `% ${escapeLike(searchString)} %`,
       ],
     })
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)
 
-    console.log('verses', verses)
-    // const pieces = getPiecesFromUSFM({
-    //   usfm: verses.map(({ usfm }) => usfm).join('\n'),
-    //   // usfm: verses.slice(0,3).map(({ usfm }) => usfm).join('\n'),
-    //   wordDividerRegex,
-    // })
+    const versesInPieces = verses.map(({ usfm }) => getPiecesFromUSFM({
+      usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+      inlineMarkersOnly: true,
+      wordDividerRegex,
+    }))
 
-    // this.setState({
-    //   pieces,
-    //   languageId,
-    // })
-    // TODO: handle scrollY
+    this.setState({
+      searchedString: searchString,
+      versesInPieces,
+      languageId,
+    })
   }
 
   setEditing = editing => this.setState({ editing })
@@ -100,9 +112,12 @@ class Search extends React.Component {
   render() {
 
     const { navigation } = this.props
-    const { editing, searchResults } = this.state
+    const { editing, searchedString, versesInPieces, languageId } = this.state
+
+    const { searchString } = navigation.state.params
 
     const { width } = Dimensions.get('window')
+    const searchDone = searchString === searchedString
 
     return (
       <Container>
@@ -113,9 +128,33 @@ class Search extends React.Component {
           width={width}  // By sending this as a prop, I force a rerender
         />
         <Content>
-          <View>
-            <Text>Search Results</Text>
-          </View>
+          {editing &&
+            <SearchSuggestions
+              searchString={searchString}
+            />
+          }
+          {!editing && !searchDone &&
+            <FullScreenSpin />
+          }
+          {!editing && searchDone && versesInPieces.length === 0 &&
+            <View style={styles.messageContainer}>
+              <Text style={styles.message}>
+                {i18n("No results found.")}
+              </Text>
+            </View>
+          }
+          {!editing && searchDone && versesInPieces.length > 0 &&
+            <View style={styles.searchResults}>
+              {versesInPieces.map((pieces, idx) => (
+                <SearchResult
+                  key={idx}
+                  pieces={pieces}
+                  searchString={searchString}
+                  languageId={languageId}
+                />
+              ))}
+            </View>
+          }
         </Content>
       </Container>
     )

@@ -9,7 +9,7 @@ import i18n from "../../utils/i18n.js"
 import { unmountTimeouts } from "../../utils/toolbox.js"
 
 import BackFunction from '../basic/BackFunction'
-import FullScreenSpin from '../basic/FullScreenSpin'
+// import FullScreenSpin from '../basic/FullScreenSpin'
 
 const {
   APP_BACKGROUND_COLOR,
