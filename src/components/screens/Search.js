@@ -24,7 +24,11 @@ class Search extends React.Component {
   constructor(props) {
     super(props)
 
+    const { navigation } = props
+    const { editOnOpen } = navigation.state.params
+
     this.state = {
+      editing: !!editOnOpen,
     }
   }
 
@@ -43,17 +47,21 @@ class Search extends React.Component {
   //   })
   // }
 
+  setEditing = editing => this.setState({ editing })
+
   render() {
 
     const { navigation } = this.props
-    // const { currentAppState } = this.state
+    const { editing } = this.state
 
     const { width } = Dimensions.get('window')
 
     return (
       <Container>
         <SearchHeader
+          editing={editing}
           navigation={navigation}
+          setEditing={this.setEditing}
           width={width}  // By sending this as a prop, I force a rerender
         />
         <Content>

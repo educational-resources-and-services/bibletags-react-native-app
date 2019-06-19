@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
   },
 })
 
-console.log('getToolbarHeight()', getToolbarHeight())
 class ReadHeader extends React.PureComponent {
 
   openDrawer = () => {

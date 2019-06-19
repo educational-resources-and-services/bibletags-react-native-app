@@ -20,19 +20,15 @@ const styles = StyleSheet.create({
 
 class SearchHeader extends React.PureComponent {
 
-  state = {
-    editing: false,
-    editedSearchString: "",
-  }
+  constructor(props) {
+    super(props)
 
-  componentDidMount() {
     const { navigation } = this.props
-    const { editOnOpen, searchString } = navigation.state.params
+    const { searchString } = navigation.state.params
 
-    this.setState({
-      editedSearchString: searchString,
-      editing: !!editOnOpen,
-    })
+    this.state = {
+      editedSearchString: searchString || "",
+    }
   }
 
   updateEditedSearchString = ({ nativeEvent }) => {
@@ -40,16 +36,21 @@ class SearchHeader extends React.PureComponent {
   }
 
   onCancel = () => {
-    const { navigation } = this.props
+    const { navigation, setEditing } = this.props
     const { searchString } = navigation.state.params
+
+    setEditing(false)
 
     this.setState({
       editedSearchString: searchString,
-      editing: false,
     })
   }
 
-  editSearchString = () => this.setState({ editing: true })
+  editSearchString = () => {
+    const { setEditing } = this.props
+
+    setEditing(true)
+  }
 
   onBackPress = () => {
     const { navigation } = this.props
@@ -59,8 +60,8 @@ class SearchHeader extends React.PureComponent {
   }
 
   render() {
-    const { navigation } = this.props
-    const { editing, editedSearchString } = this.state
+    const { navigation, editing } = this.props
+    const { editedSearchString } = this.state
 
     const { searchString } = navigation.state.params
 
