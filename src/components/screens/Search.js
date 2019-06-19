@@ -84,9 +84,12 @@ class Search extends React.Component {
     if(!searchString) return
     if(searchString === searchedString) return
 
+    const limit = `LIMIT 50`
+    const order = `ORDER BY loc`
+
     const { rows: { _array: verses } } = await executeSql({
       versionId,
-      statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' LIMIT 50`,
+      statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} ${limit}`,
       args: [
         `% ${escapeLike(searchString)} %`,
       ],
