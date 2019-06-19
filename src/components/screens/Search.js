@@ -10,7 +10,7 @@ import { unmountTimeouts } from "../../utils/toolbox.js"
 
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
-import SearchResultsHeader from '../major/SearchResultsHeader'
+import SearchHeader from '../major/SearchHeader'
 
 const {
   APP_BACKGROUND_COLOR,
@@ -19,7 +19,7 @@ const {
 const contentsStyles = {
 }
 
-class SearchResults extends React.Component {
+class Search extends React.Component {
 
   constructor(props) {
     super(props)
@@ -52,7 +52,7 @@ class SearchResults extends React.Component {
 
     return (
       <Container>
-        <SearchResultsHeader
+        <SearchHeader
           navigation={navigation}
           width={width}  // By sending this as a prop, I force a rerender
         />
@@ -66,7 +66,7 @@ class SearchResults extends React.Component {
   }
 }
 
-export default SearchResults
+export default Search
 // const mapStateToProps = (state) => ({
 //   // readerStatus: state.readerStatus,
 // })
@@ -75,4 +75,4 @@ export default SearchResults
 //   // setXapiConsentShown,
 // }, dispatch)
 
-// export default connect(mapStateToProps, matchDispatchToProps)(SearchResults)
+// export default connect(mapStateToProps, matchDispatchToProps)(Search)

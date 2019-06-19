@@ -63,9 +63,10 @@ class ReadHeader extends React.PureComponent {
 
     debounce(
       navigation.navigate,
-      "SearchResults",
+      "Search",
       {
-        searchString: "love",
+        // searchString: "",
+        editOnOpen: true,
       }
     )
   }

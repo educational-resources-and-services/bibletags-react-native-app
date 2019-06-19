@@ -3,7 +3,7 @@ import { createStackNavigator, createAppContainer } from "react-navigation"
 import { StyleSheet } from "react-native"
 
 import HomeNavigator from "./Home.js"
-import SearchResults from "../components/screens/SearchResults"
+import Search from "../components/screens/Search"
 import VerseFocus from "../components/screens/VerseFocus"
 import ErrorMessage from "../components/screens/ErrorMessage"
 
@@ -22,7 +22,7 @@ const noHeader = {
 const GlobalNavigator = createStackNavigator(
   {
     Home: { screen: HomeNavigator, ...noHeader },
-    SearchResults: { screen: SearchResults, ...noHeader },
+    Search: { screen: Search, ...noHeader },
     VerseFocus: { screen: VerseFocus, ...noHeader },
     ErrorMessage: { screen: ErrorMessage, ...noHeader },
   },

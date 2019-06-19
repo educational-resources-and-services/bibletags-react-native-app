@@ -31,7 +31,7 @@ class AppHeader extends React.Component {
   // Thus, this component is a hack to force it to render properly.
 
   render() {
-    const { hide, hideStatusBar } = this.props
+    const { hide, hideStatusBar, ...headerParams } = this.props
 
     const style = {}
 
@@ -43,6 +43,7 @@ class AppHeader extends React.Component {
       <View style={!hide && styles.container}>
         <Header
           androidStatusBarColor={ANDROID_STATUS_BAR_COLOR}
+          {...headerParams}
           style={[
             styles.header,
             (hideStatusBar ? styles.noStatusBarSpace : null),
