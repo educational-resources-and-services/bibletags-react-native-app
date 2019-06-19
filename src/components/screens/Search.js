@@ -45,7 +45,7 @@ class Search extends React.Component {
     this.state = {
       editing: !!editOnOpen,
       searchedString: null,
-      versesInPieces: null,
+      searchResults: null,
       languageId: 'eng',
     }
   }
@@ -94,15 +94,18 @@ class Search extends React.Component {
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)
 
-    const versesInPieces = verses.map(({ usfm }) => getPiecesFromUSFM({
-      usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
-      inlineMarkersOnly: true,
-      wordDividerRegex,
+    const searchResults = verses.map(({ usfm, loc }) => ({
+      loc,
+      pieces: getPiecesFromUSFM({
+        usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+        inlineMarkersOnly: true,
+        wordDividerRegex,
+      }),
     }))
 
     this.setState({
       searchedString: searchString,
-      versesInPieces,
+      searchResults,
       languageId,
     })
   }
@@ -112,7 +115,7 @@ class Search extends React.Component {
   render() {
 
     const { navigation } = this.props
-    const { editing, searchedString, versesInPieces, languageId } = this.state
+    const { editing, searchedString, searchResults, languageId } = this.state
 
     const { searchString } = navigation.state.params
 
@@ -136,19 +139,19 @@ class Search extends React.Component {
           {!editing && !searchDone &&
             <FullScreenSpin />
           }
-          {!editing && searchDone && versesInPieces.length === 0 &&
+          {!editing && searchDone && searchResults.length === 0 &&
             <View style={styles.messageContainer}>
               <Text style={styles.message}>
                 {i18n("No results found.")}
               </Text>
             </View>
           }
-          {!editing && searchDone && versesInPieces.length > 0 &&
+          {!editing && searchDone && searchResults.length > 0 &&
             <View style={styles.searchResults}>
-              {versesInPieces.map((pieces, idx) => (
+              {searchResults.map((result, idx) => (
                 <SearchResult
                   key={idx}
-                  pieces={pieces}
+                  result={result}
                   searchString={searchString}
                   languageId={languageId}
                 />

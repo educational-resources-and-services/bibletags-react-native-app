@@ -105,6 +105,7 @@ class SearchHeader extends React.PureComponent {
               onChange={this.updateEditedSearchString}
               onSubmitEditing={this.updateSearchString}
               autoFocus={true}
+              selectTextOnFocus={true}
             />
           </Item>
           <Right style={styles.searchBarRight}>

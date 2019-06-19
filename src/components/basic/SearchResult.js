@@ -7,13 +7,18 @@ import { connect } from "react-redux"
 import { isRTL } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 // import i18n from "../../utils/i18n.js"
+import { getRefFromLoc } from 'bibletags-versification/src/versification'
+import { getPassageStr } from "bibletags-ui-helper"
 
 const {
   DEFAULT_FONT_SIZE,
+  SEARCH_RESULT_REFERENCE_COLOR,
+  SEARCH_RESULT_VERSE_COLOR,
+  SEARCH_RESULT_MATCH_COLOR,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
-  content: {
+  container: {
     padding: 20,
     paddingBottom: 0,
   },
@@ -24,19 +29,32 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
+  verse: {
+    color: SEARCH_RESULT_VERSE_COLOR,
+  },
+  reference: {
+    color: SEARCH_RESULT_REFERENCE_COLOR,
+    fontWeight: 'bold',
+  },
+  match: {
+    color: SEARCH_RESULT_MATCH_COLOR,
+  },
   rtl: {
-    writingDirection: "rtl",
+    writingDirection: 'rtl',
+  },
+  rightAlign: {
+    textAlign: 'right',
   },
   nd: {
-    // fontVariant: ["small-caps"],
+    // fontVariant: ['small-caps'],
   },
   no: {
     fontVariant: [],
-    fontStyle: "normal",
-    fontWeight: "normal",
+    fontStyle: 'normal',
+    fontWeight: 'normal',
   },
   sc: {
-    // fontVariant: ["small-caps"],
+    // fontVariant: ['small-caps'],
   },
 })
 
@@ -63,7 +81,7 @@ const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 class SearchResult extends React.PureComponent {
 
   getJSXFromPieces = ({ pieces }) => {
-    const { displaySettings } = this.props
+    const { searchString, displaySettings } = this.props
 
     const { font, textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
@@ -91,37 +109,83 @@ class SearchResult extends React.PureComponent {
         fontFamily && { fontFamily },
       ].filter(s => s)
 
-      if(text && styles.length === 0) return text
+      const getPartOfPiece = (text, idx2) => {
+        const isMatch = text === searchString
 
-      return (
-        <Text
-          key={idx}
-          style={styles}
-        >
-          {children
-            ? this.getJSXFromPieces({
-              pieces: children,
-            })
-            : (text || content)
-          }
-        </Text>
-      )
+        if(text && styles.length === 0 && !isMatch) return text
+
+        return (
+          <Text
+            key={idx2 || idx}
+            style={[
+              ...styles,
+              (isMatch ? textStyles.match : null),
+            ]}
+          >
+            {children
+              ? this.getJSXFromPieces({
+                pieces: children,
+              })
+              : (text || content)
+            }
+          </Text>
+        )
+      }
+
+      const textPieces = (text || "")
+        .split(
+          new RegExp(
+            `(${
+              searchString
+                .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                .replace(/\\/g, '\\\\')
+            })`,
+            'g'
+          )
+        )
+        .filter(s => s)
+
+      if(textPieces.length > 0) {
+        return textPieces.map((textPiece, idx2) => getPartOfPiece(textPiece, idx2))
+      } else {
+        getPartOfPiece(text)
+      }
 
     })
   }
 
   render() {
-    const { pieces, searchString, languageId, displaySettings } = this.props
+    const { result, searchString, languageId, displaySettings } = this.props
 
     const { font, textSize } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
     const fontFamily = getValidFontName({ font })
 
+    const { pieces, loc } = result
+
+    const passageStr = getPassageStr({
+      refs: [
+        getRefFromLoc(loc),
+      ],
+    })
+
     return (
-      <View style={viewStyles.content}>
+      <View style={viewStyles.container}>
         <Text
           style={[
-            isRTL(languageId) ? textStyles.rtl : null,
+            textStyles.reference,
+            (isRTL(languageId) ? textStyles.rightAlign : null),
+            {
+              fontSize: Math.max(fontSize * .65, 12),
+            },
+          ]}
+        >
+          {passageStr}
+        </Text>
+        <Text
+          style={[
+            textStyles.verse,
+            (isRTL(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
           ]}
