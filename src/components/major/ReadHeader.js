@@ -126,7 +126,7 @@ class ReadHeader extends React.PureComponent {
                 {`${rtl ? `\u200F` : `\u200E`}${versionsText}`}
               </Subtitle>
               <Icon
-                name="arrow-dropdown"
+                name="md-arrow-dropdown"
                 style={styles.dropdownIcon}
               />
             </View>
