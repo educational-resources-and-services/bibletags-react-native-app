@@ -40,7 +40,7 @@ class ReadContent extends React.PureComponent {
     if(!this.hasParallel()) return
 
     const y = nativeEvent.contentOffset.y / this.getScrollFactor()
-    this.secondaryRef.scrollTo({ y })
+    this.secondaryRef.scrollTo({ y, animated: false })
   }
 
   onSecondaryScroll = ({ nativeEvent }) => {
@@ -49,7 +49,7 @@ class ReadContent extends React.PureComponent {
     if(!this.hasParallel()) return
 
     const y = nativeEvent.contentOffset.y * this.getScrollFactor()
-    this.primaryRef.scrollTo({ y })
+    this.primaryRef.scrollTo({ y, animated: false })
   }
 
   onPrimaryLayout = ({ nativeEvent }) => this.primaryHeight = nativeEvent.layout.height
