@@ -18,9 +18,10 @@ export const removeRecentPassage = ({ ref }) => ({
   ref,
 })
 
-export const recordSearch = ({ searchString, numberResults }) => ({
+export const recordSearch = ({ searchString, versionId, numberResults }) => ({
   type: "RECORD_SEARCH",
   searchString,
+  versionId,
   numberResults,
 })
 

@@ -1,14 +1,11 @@
-import { Constants } from "expo"
+import { Constants } from 'expo'
+import { refsMatch, updateRecentLists } from '../../utils/toolbox.js'
 
 const {
   PRIMARY_VERSIONS,
   SECONDARY_VERSIONS,
+  MAXIMUM_NUMBER_OF_HISTORY,
 } = Constants.manifest.extra
-
-const MAXIMUM_NUMBER_OF_RECENT = 6
-const MAXIMUM_NUMBER_OF_HISTORY = 100
-
-const refsMatch = (ref1, ref2) => JSON.stringify(ref1) === JSON.stringify(ref2)
 
 export default function(state = initialState, action) {
 
@@ -27,53 +24,14 @@ export default function(state = initialState, action) {
         lastViewTime: Date.now(),
       })
       newState.history.splice(MAXIMUM_NUMBER_OF_HISTORY, newState.history.length)
+      newState.recentPassages = newState.recentPassages.map(index => index === 'current' ? 0 : index + 1)
+      newState.recentSearches = newState.recentSearches.map(index => index + 1)
+      newState.recentPassages.unshift('current')
 
       if(!refsMatch(newState.passage.ref, action.ref)) {
 
         newState.passage = { ...newState.passage }
         newState.passage.ref = { ...newState.passage.ref }
-        newState.recentPassages = [ ...newState.recentPassages ]
-        newState.recentSearches = [ ...newState.recentSearches ]
-
-        // take care of recentPassages and recentSearches
-        const newRecentPassages = [ 'current', 0 ]
-        const newRecentSearches = []
-        state.history.some(({ type, ref, searchString }, index) => {
-
-          if(
-            type === 'passage'
-            && state.recentPassages.includes(index)
-            && !refsMatch(action.ref, ref)
-          ) {
-            newRecentPassages.push(index + 1)
-          }
-
-          if(
-            type === 'search'
-            && state.recentSearches.includes(index)
-          ) {
-            newRecentSearches.push(index + 1)
-          }
-
-          if(newRecentPassages.length + newRecentSearches.length >= MAXIMUM_NUMBER_OF_RECENT) {
-            return true
-          }
-
-        })
-        newRecentPassages.sort((a, b) => {
-          const refA = a === 'current' ? action.ref : newState.history[a].ref
-          const refB = b === 'current' ? action.ref : newState.history[b].ref
-
-          return (
-            refA.bookId > refB.bookId
-            || (
-              refA.bookId === refB.bookId
-              && refA.chapter > refB.chapter
-            )
-          )
-        })
-        newState.recentPassages = newRecentPassages
-        newState.recentSearches = newRecentSearches
 
         // take care of passage
         if(newState.passage.ref.bookId !== action.ref.bookId) {
@@ -87,6 +45,9 @@ export default function(state = initialState, action) {
         if(newState.passage.ref.scrollY !== action.ref.scrollY) {
           newState.passage.ref.scrollY = action.ref.scrollY
         }
+
+        // take care of recentPassages and recentSearches
+        updateRecentLists({ newState })
 
         return newState
       }

@@ -1,15 +1,15 @@
 import { Dimensions, NetInfo } from "react-native"
 import { SQLite } from 'expo'
-// import { Constants } from "expo"
+import { Constants } from "expo"
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 // import { Toast } from "native-base"
 
 // import i18n from "./i18n.js"
 import bibleVersions from '../../versions.js'
 
-// const {
-//   SOMETHING,
-// } = Constants.manifest.extra
+const {
+  MAXIMUM_NUMBER_OF_RECENT,
+} = Constants.manifest.extra
 
 // const cachedSizes = {}
 
@@ -196,3 +196,54 @@ export const isRTL = languageId => (
     'snd',
   ].includes(languageId)
 )
+
+export const refsMatch = (ref1, ref2) => JSON.stringify(ref1) === JSON.stringify(ref2)
+
+export const updateRecentLists = ({ newState }) => {
+
+  const newRecentPassages = [ 'current' ]
+  const newRecentSearches = []
+  const newRecentSearchStrings = []
+
+  newState.history.some(({ type, ref, searchString }, index) => {
+
+    if(
+      type === 'passage'
+      && newState.recentPassages.includes(index)
+      && !refsMatch(newState.passage.ref, ref)
+    ) {
+      newRecentPassages.push(index)
+    }
+
+    if(
+      type === 'search'
+      && newState.recentSearches.includes(index)
+      && !newRecentSearchStrings.includes(searchString)
+    ) {
+      newRecentSearches.push(index)
+      newRecentSearchStrings.push(searchString)
+    }
+
+    if(newRecentPassages.length + newRecentSearches.length >= MAXIMUM_NUMBER_OF_RECENT) {
+      return true
+    }
+
+  })
+
+  newRecentPassages.sort((a, b) => {
+    const refA = a === 'current' ? newState.passage.ref : newState.history[a].ref
+    const refB = b === 'current' ? newState.passage.ref : newState.history[b].ref
+
+    return (
+      refA.bookId > refB.bookId
+      || (
+        refA.bookId === refB.bookId
+        && refA.chapter > refB.chapter
+      )
+    )
+  })
+
+  newState.recentPassages = newRecentPassages
+  newState.recentSearches = newRecentSearches
+
+}

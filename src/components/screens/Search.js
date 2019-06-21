@@ -16,6 +16,8 @@ import FullScreenSpin from '../basic/FullScreenSpin'
 import SearchHeader from '../major/SearchHeader'
 import VersionChooser from '../major/VersionChooser'
 
+import { recordSearch } from "../../redux/actions.js"
+
 const {
   VERSION_CHOOSER_BACKGROUND_COLOR,
   PRIMARY_VERSIONS,
@@ -82,7 +84,7 @@ class Search extends React.Component {
   }
 
   performSearch = async () => {
-    const { navigation, passage } = this.props
+    const { navigation, passage, recordSearch } = this.props
     const { searchedString, searchedVersionId } = this.state
     const { searchString, versionId } = navigation.state.params
 
@@ -116,6 +118,12 @@ class Search extends React.Component {
       searchedVersionId: versionId,
       searchResults,
       languageId,
+    })
+
+    recordSearch({
+      searchString,
+      versionId,
+      numberResults: searchResults.length,
     })
   }
 
@@ -200,7 +208,7 @@ const mapStateToProps = ({ passage }) => ({
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  // setXapiConsentShown,
+  recordSearch,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(Search)

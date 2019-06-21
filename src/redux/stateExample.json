@@ -31,6 +31,7 @@
     {
       "type": "search",
       "searchString": "love",
+      "versionId": "kjv",
       "numberResults": 189,
       "lastViewTime": 123140422
     },
@@ -58,6 +59,7 @@
     {
       "type": "search",
       "searchString": "#H01600#plural",
+      "versionId": "uhb",
       "numberResults": 28,
       "lastViewTime": 123119422
     },
