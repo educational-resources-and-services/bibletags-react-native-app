@@ -52,6 +52,7 @@ class Search extends React.Component {
     this.state = {
       editing: !!editOnOpen,
       searchedString: null,
+      searchedVersionId: null,
       searchResults: null,
       languageId: 'eng',
     }
@@ -83,11 +84,11 @@ class Search extends React.Component {
 
   performSearch = async () => {
     const { navigation, passage } = this.props
-    const { searchedString } = this.state
+    const { searchedString, searchedVersionId } = this.state
     const { searchString, versionId } = navigation.state.params
 
     if(!searchString) return
-    if(searchString === searchedString) return
+    if(searchString === searchedString && versionId === searchedVersionId) return
 
     const limit = `LIMIT ${MAX_RESULTS}`
     const order = `ORDER BY loc`
@@ -113,6 +114,7 @@ class Search extends React.Component {
 
     this.setState({
       searchedString: searchString,
+      searchedVersionId: versionId,
       searchResults,
       languageId,
     })
@@ -135,12 +137,12 @@ class Search extends React.Component {
   render() {
 
     const { navigation } = this.props
-    const { editing, searchedString, searchResults, languageId } = this.state
+    const { editing, searchedString, searchedVersionId, searchResults, languageId } = this.state
 
     const { searchString, versionId } = navigation.state.params
 
     const { width } = Dimensions.get('window')
-    const searchDone = searchString === searchedString
+    const searchDone = searchString === searchedString && versionId === searchedVersionId
 
     return (
       <Container>
