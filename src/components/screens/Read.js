@@ -134,7 +134,9 @@ class Read extends React.Component {
           <View style={styles.content}>
             <ReadContent />
           </View>
-          <RecentSection />
+          <RecentSection
+            navigation={navigation}
+          />
           {!!showingPassageChooser &&
             <TouchableWithoutFeedback
               style={styles.invisibleCover}

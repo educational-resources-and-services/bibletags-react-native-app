@@ -120,11 +120,13 @@ class Search extends React.Component {
       languageId,
     })
 
-    recordSearch({
-      searchString,
-      versionId,
-      numberResults: searchResults.length,
-    })
+    if(searchResults.length > 0) {
+      recordSearch({
+        searchString,
+        versionId,
+        numberResults: searchResults.length,
+      })
+    }
   }
 
   setEditing = editing => this.setState({ editing })

@@ -25,6 +25,10 @@ export const recordSearch = ({ searchString, versionId, numberResults }) => ({
   numberResults,
 })
 
+export const removeRecentSearch = ({ searchString }) => ({
+  type: "REMOVE_RECENT_SEARCH",
+  searchString,
+})
 export const setMode = ({ mode }) => ({
   type: "SET_MODE",
   mode,

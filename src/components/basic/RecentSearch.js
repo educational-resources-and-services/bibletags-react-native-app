@@ -1,40 +1,62 @@
 import React from "react"
-import { Text, View, StyleSheet, TouchableWithoutFeedback } from "react-native"
+import { Constants } from "expo"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
-const styles = StyleSheet.create({
-  bookmark: {
-    backgroundColor: 'blue',
-    position: 'absolute',
-    width: 20,
-    height: 100,
-    bottom: 0,
-    left: 20,
-  },
-  bookmarkText: {
-  },
-})
+import i18n from "../../utils/i18n.js"
+import { debounce } from "../../utils/toolbox.js"
+import RecentBookmark from "./RecentBookmark"
+
+import { removeRecentSearch } from "../../redux/actions.js"
+
+const {
+  RECENT_REF_BACKGROUND_COLOR,
+  RECENT_REF_SELECTED_BACKGROUND_COLOR,
+} = Constants.manifest.extra
 
 class RecentSearch extends React.PureComponent {
 
-  onPress = () => {
-    console.log('do something')
+  discard = () => {
+    const { searchString, removeRecentSearch } = this.props
+
+    removeRecentSearch({ searchString })
+  }
+
+  select = () => {
+    const { navigation, searchString, versionId } = this.props
+
+    debounce(
+      navigation.navigate,
+      "Search",
+      {
+        editOnOpen: false,
+        searchString,
+        versionId,
+      }
+    )
   }
 
   render() {
-    const { bookId, selected } = this.props
+    const { searchString, selected } = this.props
 
     return (
-      <TouchableWithoutFeedback
-        onPress={this.onPress}
-      >
-        <View style={styles.bookmark}>
-          <Text style={styles.bookmarkText}>
-            Mt 22
-          </Text>
-        </View>
-      </TouchableWithoutFeedback>
+      <RecentBookmark
+        selected={selected}
+        text={i18n("“{{searchString}}”", { searchString })}
+        backgroundColor={selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR}
+        discard={this.discard}
+        select={this.select}
+      />
     )
   }
 }
 
-export default RecentSearch
+const mapStateToProps = () => ({
+  // recentSearches,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  removeRecentSearch,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(RecentSearch)

@@ -7,16 +7,15 @@ const {
 
 export default function(state, action) {
 
-  const newState = {
-    ...state,
-    history: [ ...state.history ],
-  }
-    
+  const newState = { ...state }
+
   switch (action.type) {
 
     case "RECORD_SEARCH": {
 
       const { searchString, versionId, numberResults } = action
+
+      newState.history = [ ...newState.history ]
 
       // take care of history
       newState.history.unshift({
@@ -36,6 +35,17 @@ export default function(state, action) {
 
       return newState
 
+    }
+
+    case "REMOVE_RECENT_SEARCH": {
+
+      newState.recentSearches = newState.recentSearches.filter(historyIndex => (
+        action.searchString !== (state.history[historyIndex] || {}).searchString
+      ))
+
+      if(newState.recentSearches.length !== state.recentSearches.length) {
+        return newState
+      }
     }
 
   }

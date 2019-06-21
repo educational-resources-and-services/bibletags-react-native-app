@@ -24,7 +24,10 @@ const styles = StyleSheet.create({
   },
   refs: {
     marginLeft: 30,
-    marginRight: 30,
+    marginRight: 20,
+    flexDirection: 'row',
+  },
+  searches: {
     flexDirection: 'row',
   },
 })
@@ -32,7 +35,7 @@ const styles = StyleSheet.create({
 class RecentSection extends React.PureComponent {
 
   render() {
-    const { passage, history, recentPassages } = this.props
+    const { passage, history, recentPassages, recentSearches, navigation } = this.props
 
     const numFaderLines = 15
 
@@ -69,16 +72,35 @@ class RecentSection extends React.PureComponent {
               )
             })}
           </View>
+          <View style={styles.searches}>
+            {recentSearches.map(historyIndex => {
+              const recentSearch = history[historyIndex]
+
+              if(!recentSearch) return null  // just in case
+
+              const { searchString, versionId } = recentSearch
+
+              return (
+                <RecentSearch
+                  key={`${searchString} ${versionId}`}
+                  searchString={searchString}
+                  versionId={versionId}
+                  navigation={navigation}
+                />
+              )
+            })}
+          </View>
         </View>
       </View>
     )
   }
 }
 
-const mapStateToProps = ({ passage, history, recentPassages }) => ({
+const mapStateToProps = ({ passage, history, recentPassages, recentSearches }) => ({
   passage,
   history,
   recentPassages,
+  recentSearches,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
