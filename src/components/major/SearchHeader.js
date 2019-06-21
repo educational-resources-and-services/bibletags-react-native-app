@@ -12,8 +12,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     ...(Platform.OS !== 'android' ? {} : {
-      color: 'rgba(255, 255, 255, .5)',
-      fontSize: 12,
+      color: 'rgba(255, 255, 255, .65)',
+      fontSize: 13,
     }),
   },
   side: {

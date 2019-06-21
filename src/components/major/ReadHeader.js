@@ -35,6 +35,10 @@ const styles = StyleSheet.create({
   subtitle: {
     textAlign: 'left',
     writingDirection: 'ltr',
+    ...(Platform.OS !== 'android' ? {} : {
+      color: 'rgba(255, 255, 255, .65)',
+      fontSize: 13,
+    }),
   },
   titles: {
     paddingRight: 34,
