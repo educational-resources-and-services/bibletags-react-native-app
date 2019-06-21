@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
   },
   refs: {
     marginLeft: 30,
-    marginRight: 20,
+    marginRight: 25,
     flexDirection: 'row',
   },
   searches: {

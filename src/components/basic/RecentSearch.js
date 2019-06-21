@@ -10,8 +10,7 @@ import RecentBookmark from "./RecentBookmark"
 import { removeRecentSearch } from "../../redux/actions.js"
 
 const {
-  RECENT_REF_BACKGROUND_COLOR,
-  RECENT_REF_SELECTED_BACKGROUND_COLOR,
+  RECENT_SEARCH_BACKGROUND_COLOR,
 } = Constants.manifest.extra
 
 class RecentSearch extends React.PureComponent {
@@ -37,13 +36,12 @@ class RecentSearch extends React.PureComponent {
   }
 
   render() {
-    const { searchString, selected } = this.props
+    const { searchString } = this.props
 
     return (
       <RecentBookmark
-        selected={selected}
         text={i18n("“{{searchString}}”", { searchString })}
-        backgroundColor={selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR}
+        backgroundColor={RECENT_SEARCH_BACKGROUND_COLOR}
         discard={this.discard}
         select={this.select}
       />
