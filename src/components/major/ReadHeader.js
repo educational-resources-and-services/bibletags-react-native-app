@@ -72,7 +72,7 @@ class ReadHeader extends React.PureComponent {
 
   render() {
     let { passage, toggleShowOptions, showPassageChooser,
-          hideStatusBar, width } = this.props
+          showingPassageChooser, hideStatusBar, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
 
@@ -125,7 +125,7 @@ class ReadHeader extends React.PureComponent {
                 {`${rtl ? `\u2067` : `\u2066`}${versionsText}`}
               </Subtitle>
               <Icon
-                name="md-arrow-dropdown"
+                name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
                 style={styles.dropdownIcon}
               />
             </View>
