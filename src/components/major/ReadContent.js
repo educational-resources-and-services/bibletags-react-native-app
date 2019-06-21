@@ -62,12 +62,17 @@ class ReadContent extends React.PureComponent {
   setSecondaryRef = ref => this.secondaryRef = ref
 
   render() {
-    const { passage } = this.props
+    const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
+
+    const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
     return (
       <View
-        style={styles.container}
+        style={[
+          styles.container,
+          (showingRecentBookmarks ? { paddingBottom: 84 } : null),
+        ]}
       >
         <ReadText
           key={`${versionId} ${ref.bookId} ${ref.chapter}`}
@@ -99,8 +104,10 @@ class ReadContent extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, history, recentPassages }) => ({
+const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
   passage,
+  recentPassages,
+  recentSearches,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

@@ -37,6 +37,8 @@ class RecentSection extends React.PureComponent {
   render() {
     const { passage, history, recentPassages, recentSearches, navigation } = this.props
 
+    if(recentPassages.length + recentSearches.length === 1) return null
+
     const numFaderLines = 15
 
     return (

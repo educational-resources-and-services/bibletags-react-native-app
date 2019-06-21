@@ -31,10 +31,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     zIndex: 20,
   },
-  content: {
-    paddingBottom: 84,  // for the recent passage bookmarks
-    flex: 1,
-  }
 })
 
 class Read extends React.Component {
@@ -131,9 +127,7 @@ class Read extends React.Component {
               hideDisplaySettings={this.hideDisplaySettings}
             />
           }
-          <View style={styles.content}>
-            <ReadContent />
-          </View>
+          <ReadContent />
           <RecentSection
             navigation={navigation}
           />
