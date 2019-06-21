@@ -1,9 +1,10 @@
 import React from "react"
-import { StyleSheet } from "react-native"
+import { StyleSheet, Text } from "react-native"
 import { Title, Left, Icon, Right, Button, Body, Item, Input } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
-import { debounce } from '../../utils/toolbox.js'
+import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
+import i18n from "../../utils/i18n.js"
 
 const styles = StyleSheet.create({
   searchBarLeft: {
@@ -15,6 +16,9 @@ const styles = StyleSheet.create({
   },
   searchString: {
     flexDirection: 'row',
+  },
+  versionAbbr: {
+    fontSize: 12,
   },
 })
 
@@ -44,6 +48,7 @@ class SearchHeader extends React.PureComponent {
     debounce(
       navigation.setParams,
       {
+        ...navigation.state.params,
         searchString: editedSearchString,
         editOnOpen: false,
       },
@@ -83,7 +88,8 @@ class SearchHeader extends React.PureComponent {
     const { navigation, editing } = this.props
     const { editedSearchString } = this.state
 
-    const { searchString } = navigation.state.params
+    const { searchString, versionId } = navigation.state.params
+    const { abbr, languageId } = getVersionInfo(versionId)
 
     if(editing) {
       return (
@@ -131,7 +137,14 @@ class SearchHeader extends React.PureComponent {
           </Button>
         </Left>
         <Body>
-          <Title>{`“${searchString}”`}</Title>
+          <Title>
+            {`\u2066`}
+            {i18n("“{{searchString}}”", {
+              searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : searchString,
+            })}
+            {`  `}
+            <Text style={styles.versionAbbr}>{abbr}</Text>
+          </Title>
         </Body>
         <Right>
           <Button

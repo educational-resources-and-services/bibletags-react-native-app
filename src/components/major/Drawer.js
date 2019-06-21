@@ -112,9 +112,9 @@ class Drawer extends React.Component {
                 onPress={this.goToBibleTagsMarketingSite}
               >
                 <View style={styles.createdByContainer}>
-                  <Text style={styles.createdBy}>{i18n("Created by ERAS")}</Text>
+                  <Text style={styles.createdBy}>{i18n("Powered by Bible Tags")}</Text>
                   {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
-                    <Text style={styles.launchYour}>{i18n("Get apps for your Bible version")}</Text>
+                    <Text style={styles.launchYour}>{i18n("Open source Bible apps")}</Text>
                   }
                 </View>
               </TouchableOpacity>

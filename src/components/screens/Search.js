@@ -6,7 +6,7 @@ import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
-import { unmountTimeouts, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
+import { unmountTimeouts, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
 
 import SearchResult from '../basic/SearchResult'
@@ -14,10 +14,15 @@ import SearchSuggestions from '../basic/SearchSuggestions'
 import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
 import SearchHeader from '../major/SearchHeader'
+import VersionChooser from '../major/VersionChooser'
 
 const {
-  APP_BACKGROUND_COLOR,
+  VERSION_CHOOSER_BACKGROUND_COLOR,
+  PRIMARY_VERSIONS,
+  SECONDARY_VERSIONS,
 } = Constants.manifest.extra
+
+const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
 
 const MAX_RESULTS = 1000
 
@@ -79,9 +84,7 @@ class Search extends React.Component {
   performSearch = async () => {
     const { navigation, passage } = this.props
     const { searchedString } = this.state
-    const { searchString } = navigation.state.params
-
-    const { versionId, parallelVersionId } = passage
+    const { searchString, versionId } = navigation.state.params
 
     if(!searchString) return
     if(searchString === searchedString) return
@@ -117,12 +120,24 @@ class Search extends React.Component {
 
   setEditing = editing => this.setState({ editing })
 
+  updateVersion = versionId => {
+    const { navigation } = this.props
+
+    debounce(
+      navigation.setParams,
+      {
+        ...navigation.state.params,
+        versionId,
+      },
+    )
+  }
+
   render() {
 
     const { navigation } = this.props
     const { editing, searchedString, searchResults, languageId } = this.state
 
-    const { searchString } = navigation.state.params
+    const { searchString, versionId } = navigation.state.params
 
     const { width } = Dimensions.get('window')
     const searchDone = searchString === searchedString
@@ -135,6 +150,14 @@ class Search extends React.Component {
           setEditing={this.setEditing}
           width={width}  // By sending this as a prop, I force a rerender
         />
+        {editing &&
+          <VersionChooser
+            versionIds={ALL_VERSIONS}
+            update={this.updateVersion}
+            selectedVersionId={versionId}
+            backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+          />
+        }
         <Content>
           {editing &&
             <SearchSuggestions
@@ -150,7 +173,7 @@ class Search extends React.Component {
           }
           {!editing && searchDone && searchResults.length > 0 &&
             <View style={styles.searchResults}>
-              {searchResults.map((result, idx) => (
+              {searchResults.slice(0,50).map((result, idx) => (
                 <SearchResult
                   key={idx}
                   result={result}

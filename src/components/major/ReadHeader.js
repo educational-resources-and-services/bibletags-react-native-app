@@ -58,14 +58,14 @@ class ReadHeader extends React.PureComponent {
   }
 
   goSearch = () => {
-    const { navigation } = this.props
+    const { navigation, passage } = this.props
 
     debounce(
       navigation.navigate,
       "Search",
       {
-        // searchString: "",
         editOnOpen: true,
+        versionId: passage.versionId,
       }
     )
   }
@@ -122,7 +122,7 @@ class ReadHeader extends React.PureComponent {
                 })}
               </Title>
               <Subtitle style={styles.subtitle}>
-                {`${rtl ? `\u200F` : `\u200E`}${versionsText}`}
+                {`${rtl ? `\u2067` : `\u2066`}${versionsText}`}
               </Subtitle>
               <Icon
                 name="md-arrow-dropdown"
