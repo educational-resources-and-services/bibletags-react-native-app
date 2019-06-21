@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, Text } from "react-native"
+import { StyleSheet, Text, Dimensions, Platform } from "react-native"
 import { Title, Left, Icon, Right, Button, Body, Item, Input } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
@@ -7,6 +7,13 @@ import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
 
 const styles = StyleSheet.create({
+  title: {
+    ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
+  },
+  side: {
+    width: 46,
+    flex: 0,
+  },
   searchBarLeft: {
     flex: 0,
     marginRight: 10,
@@ -91,6 +98,9 @@ class SearchHeader extends React.PureComponent {
     const { searchString, versionId } = navigation.state.params
     const { abbr, languageId } = getVersionInfo(versionId)
 
+    const { width } = Dimensions.get('window')
+    const maxTitleWidth = width - 120
+
     if(editing) {
       return (
         <AppHeader searchBar rounded>
@@ -128,7 +138,7 @@ class SearchHeader extends React.PureComponent {
 
     return (
       <AppHeader>
-        <Left>
+        <Left style={styles.side}>
           <Button
             transparent
             onPress={this.onBackPress}
@@ -137,7 +147,10 @@ class SearchHeader extends React.PureComponent {
           </Button>
         </Left>
         <Body>
-          <Title>
+          <Title style={[
+            styles.title,
+            { width: maxTitleWidth },
+          ]}>
             {`\u2066`}
             {i18n("“{{searchString}}”", {
               searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : searchString,
@@ -146,7 +159,7 @@ class SearchHeader extends React.PureComponent {
             <Text style={styles.versionAbbr}>{abbr}</Text>
           </Title>
         </Body>
-        <Right>
+        <Right style={styles.side}>
           <Button
             transparent
             onPress={this.editSearchString}
