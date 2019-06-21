@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, Text, Dimensions, Platform } from "react-native"
-import { Title, Left, Icon, Right, Button, Body, Item, Input } from "native-base"
+import { Title, Subtitle, Left, Icon, Right, Button, Body, Item, Input } from "native-base"
 import AppHeader from "../basic/AppHeader"
 
 import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
@@ -9,6 +9,12 @@ import i18n from "../../utils/i18n.js"
 const styles = StyleSheet.create({
   title: {
     ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
+  },
+  subtitle: {
+    ...(Platform.OS !== 'android' ? {} : {
+      color: 'rgba(255, 255, 255, .5)',
+      fontSize: 12,
+    }),
   },
   side: {
     width: 46,
@@ -92,7 +98,7 @@ class SearchHeader extends React.PureComponent {
   }
 
   render() {
-    const { navigation, editing } = this.props
+    const { navigation, editing, numResults } = this.props
     const { editedSearchString } = this.state
 
     const { searchString, versionId } = navigation.state.params
@@ -158,6 +164,13 @@ class SearchHeader extends React.PureComponent {
             {`  `}
             <Text style={styles.versionAbbr}>{abbr}</Text>
           </Title>
+          <Subtitle style={styles.subtitle}>
+            {
+              numResults === false
+                ? i18n("Searching...")
+                : i18n("{{numResults}} result(s)", { numResults })
+            }
+          </Subtitle>
         </Body>
         <Right style={styles.side}>
           <Button

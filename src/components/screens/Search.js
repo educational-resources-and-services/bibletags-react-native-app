@@ -20,11 +20,10 @@ const {
   VERSION_CHOOSER_BACKGROUND_COLOR,
   PRIMARY_VERSIONS,
   SECONDARY_VERSIONS,
+  MAX_RESULTS,
 } = Constants.manifest.extra
 
 const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
-
-const MAX_RESULTS = 1000
 
 const styles = StyleSheet.create({
   messageContainer: {
@@ -144,12 +143,16 @@ class Search extends React.Component {
     const { width } = Dimensions.get('window')
     const searchDone = searchString === searchedString && versionId === searchedVersionId
 
+    let numResults = searchDone && searchResults.length
+    if(numResults === MAX_RESULTS) numResults += '+'
+
     return (
       <Container>
         <SearchHeader
           editing={editing}
           navigation={navigation}
           setEditing={this.setEditing}
+          numResults={numResults}
           width={width}  // By sending this as a prop, I force a rerender
         />
         {editing &&
