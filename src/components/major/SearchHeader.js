@@ -98,7 +98,7 @@ class SearchHeader extends React.PureComponent {
   }
 
   render() {
-    const { navigation, editing, numResults } = this.props
+    const { navigation, editing, numberResults } = this.props
     const { editedSearchString } = this.state
 
     const { searchString, versionId } = navigation.state.params
@@ -166,9 +166,9 @@ class SearchHeader extends React.PureComponent {
           </Title>
           <Subtitle style={styles.subtitle}>
             {
-              numResults === false
+              numberResults === false
                 ? i18n("Searching...")
-                : i18n("{{numResults}} result(s)", { numResults })
+                : i18n("{{num_results}} result(s)", { num_results: numberResults })
             }
           </Subtitle>
         </Body>

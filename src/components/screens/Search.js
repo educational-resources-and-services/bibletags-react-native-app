@@ -143,8 +143,8 @@ class Search extends React.Component {
     const { width } = Dimensions.get('window')
     const searchDone = searchString === searchedString && versionId === searchedVersionId
 
-    let numResults = searchDone && searchResults.length
-    if(numResults === MAX_RESULTS) numResults += '+'
+    let numberResults = searchDone && searchResults.length
+    if(numberResults === MAX_RESULTS) numberResults += '+'
 
     return (
       <Container>
@@ -152,7 +152,7 @@ class Search extends React.Component {
           editing={editing}
           navigation={navigation}
           setEditing={this.setEditing}
-          numResults={numResults}
+          numberResults={numberResults}
           width={width}  // By sending this as a prop, I force a rerender
         />
         {editing &&
