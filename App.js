@@ -1,5 +1,5 @@
 import React from "react"
-import { Constants, Font, AppLoading } from "expo"
+import { Constants, Font, AppLoading, StoreReview } from "expo"
 import { Root } from "native-base"
 
 import { AsyncStorage } from "react-native"
@@ -18,6 +18,10 @@ import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
 import i18n from "./src/utils/i18n.js"
+
+const {
+  NUM_OPENS_FOR_RATING_REQUEST=0,
+} = Constants.manifest.extra
 
 passOverI18n(i18n)
 
@@ -74,6 +78,22 @@ export default class App extends React.Component {
     // Asset.fromModule(require('./assets/images/drawer.png')).downloadAsync(),
     // the above line was causing a crash in development mode
   }
+
+  componentDidMount() {
+    this.requestRating()
+  }
+
+  requestRating = async () => {
+    const numUserOpensKey = `numUserOpens`
+    const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
+
+    if(numUserOpens === NUM_OPENS_FOR_RATING_REQUEST) {
+      StoreReview.requestReview()
+    }
+
+    await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
+  }
+
 
   render() {
     const { isReady } = this.state

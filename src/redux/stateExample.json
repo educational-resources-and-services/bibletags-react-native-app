@@ -82,10 +82,6 @@
     "lineSpacing": 1.3,
     "theme": "default"
   },
-  "rateUs": {
-    "numberOfOpens": 5,
-    "dismissed": true
-  },
   "analyticsQueue": [
     {
       "action": "opened"

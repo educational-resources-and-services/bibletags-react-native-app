@@ -1,6 +1,5 @@
 import React from "react"
-// import { bindActionCreators } from "redux"
-// import { connect } from "react-redux"
+import { StoreReview } from "expo"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
@@ -36,14 +35,14 @@ class DrawerItem extends React.PureComponent {
   }
 
   render() {
-    const { text, image, imageWidth, imageHeight, onPress, href } = this.props
+    const { text, image, imageWidth, imageHeight, onPress, rate, href } = this.props
 
     return (
       <ListItem
-        {...((onPress || href)
+        {...((onPress || rate || href)
           ? {
             button: true,
-            onPress: onPress || this.goToURL,
+            onPress: onPress || (rate && StoreReview.requestReview) || this.goToURL,
           }
           : {}
         )}
