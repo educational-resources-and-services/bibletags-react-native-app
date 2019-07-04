@@ -99,7 +99,8 @@ const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphRegex = /^\\p(?: .*)?$/
 const psalmTitleRegex = /^\\d .*$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
-const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
+const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
+const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const allTagsRegex = /\\[a-z0-9]+ ?/g
 const newlinesRegex = /\n/g
 const doubleSpacesRegex = / {2-}/g
@@ -215,6 +216,7 @@ const doubleSpacesRegex = / {2-}/g
       verses.forEach(verse => {
         verse.usfm = verse.usfm.join("\n")
         verse.search = verse.usfm
+          .replace(wordRegex, '$1')
           .replace(extraBiblicalRegex, '')
           .replace(allTagsRegex, '')
           .replace(newlinesRegex, ' ')
@@ -234,8 +236,8 @@ const doubleSpacesRegex = / {2-}/g
   } catch(err) {
 
     const logSyntax = () => {
-      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files tenant\``)
-      console.log(`Example: \`npm run usfm-to-sqlite -- ../../versions/esv bibletags\`\n`)
+      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files versionId tenant\``)
+      console.log(`Example: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\`\n`)
     }
 
     switch(err.message.split(',')[0]) {
