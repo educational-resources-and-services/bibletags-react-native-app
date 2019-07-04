@@ -102,6 +102,7 @@ class Search extends React.Component {
         `% ${escapeLike(searchString)} %`,
       ],
       removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
+      removeWordPartDivisions: true,
     })
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)

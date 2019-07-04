@@ -125,7 +125,11 @@ export const isConnected = () => new Promise(resolve => {
 
 // }
 
-export const executeSql = async ({ versionId, statement, args, statements, removeCantillation }) => {
+export const executeSql = async ({ versionId, statement, args, statements, removeCantillation, removeWordPartDivisions }) => {
+  const versionInfo = getVersionInfo(versionId)
+
+  if(!versionInfo) return null
+
   const db = SQLite.openDatabase(`${versionId}.db`)
   const resultSets = []
 
@@ -159,13 +163,21 @@ export const executeSql = async ({ versionId, statement, args, statements, remov
     )
   })
 
-  if(removeCantillation) {
+  if(versionInfo.isOriginal && versionInfo.languageId === 'heb') {
     resultSets.forEach(resultSet => {
       try {
         const { rows: { _array: verses } } = resultSet
 
         verses.forEach(verse => {
-          verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C5\u05C7]/g,'')
+
+          if(removeWordPartDivisions) {
+            verse.usfm = verse.usfm.replace(/\u200B/g, '')  // zero-width space (used to indicate word parts)
+          }
+          
+          if(removeCantillation) {
+            verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C5\u05C7]/g,'')
+          }
+
         })
 
       } catch(e) {}

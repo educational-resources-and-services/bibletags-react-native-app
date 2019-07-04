@@ -137,6 +137,7 @@ class ReadText extends React.PureComponent {
         `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
       ],
       removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
+      removeWordPartDivisions: true,
     })
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)
