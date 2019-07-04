@@ -36,14 +36,14 @@ class DrawerItem extends React.PureComponent {
   }
 
   render() {
-    const { text, image, imageWidth, imageHeight, href } = this.props
+    const { text, image, imageWidth, imageHeight, onPress, href } = this.props
 
     return (
       <ListItem
-        {...(href
+        {...((onPress || href)
           ? {
             button: true,
-            onPress: this.goToURL,
+            onPress: onPress || this.goToURL,
           }
           : {}
         )}

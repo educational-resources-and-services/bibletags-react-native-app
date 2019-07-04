@@ -84,6 +84,15 @@ class Drawer extends React.Component {
     })
   }
 
+  goVersions = () => {
+    const { navigation } = this.props
+
+    debounce(
+      navigation.navigate,
+      "Versions",
+    )
+  }
+
   render() {
     const { offline } = this.state
 
@@ -99,6 +108,11 @@ class Drawer extends React.Component {
               style={styles.image}
             />
             <List style={styles.list}>
+              <DrawerItem
+                offline={offline}
+                text={i18n("Bible version information")}
+                onPress={this.goVersions}
+              />
               {menuItems.map((menuItem, idx) => (
                 <DrawerItem
                   key={idx}
