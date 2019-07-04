@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native'
 import { FileSystem, Asset, SQLite } from 'expo'
 import bibleVersions, { bibleVersionsToRemove } from '../../versions.js'
 
@@ -9,36 +10,61 @@ const importUsfm = async () => {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true })
   } catch(e) {}
 
+  // remove bible versions which are no longer a part of the app
   for(let idx in bibleVersionsToRemove) {
-    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersionsToRemove[idx]}.db`)
+    const versionId = bibleVersionsToRemove[idx]
+
+    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${versionId}.db`)
 
     if(exists) {
-      console.log(`Removing ${bibleVersionsToRemove[idx]} from SQLite...`)
-      await FileSystem.deleteAsync(`${sqliteDir}/${bibleVersionsToRemove[idx]}.db`)
+      console.log(`Removing ${versionId} from SQLite...`)
+      await FileSystem.deleteAsync(`${sqliteDir}/${versionId}.db`)
       console.log(`...done.`)
     }
   }
 
+  // copy in needed bible versions
   for(let idx in bibleVersions) {
-    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
+    const versionId = bibleVersions[idx].id
+    const fileRevisionNum = `${bibleVersions[idx].fileRevisionNum || 0}`
+    const fileRevisionKey = `fileRevisionNum-${versionId}`
+
+    let { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${versionId}.db`)
+
+    if(exists) {
+
+      // first remove bible versions which have an update
+      if(await AsyncStorage.getItem(fileRevisionKey) !== fileRevisionNum) {
+
+        console.log(`Removing ${versionId} from SQLite (there is a new revision)...`)
+
+        await FileSystem.deleteAsync(`${sqliteDir}/${versionId}.db`)
+        exists = false
+
+        console.log(`...done.`)
+
+      }
+    }
 
     if(!exists) {
 
-      console.log(`Copy ${bibleVersions[idx].id} to SQLite dir...`)
+      console.log(`Copy ${versionId} to SQLite dir...`)
 
       const { localUri, uri } = Asset.fromModule(bibleVersions[idx].file)
 
       if(localUri) {
         await FileSystem.copyAsync({
           from: localUri,
-          to: `${sqliteDir}/${bibleVersions[idx].id}.db`
+          to: `${sqliteDir}/${versionId}.db`
         })
       } else {
         await FileSystem.downloadAsync(
           uri,
-          `${sqliteDir}/${bibleVersions[idx].id}.db`
+          `${sqliteDir}/${versionId}.db`
         )
       }
+
+      await AsyncStorage.setItem(fileRevisionKey, fileRevisionNum)
 
       console.log(`...done.`)
 
