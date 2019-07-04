@@ -1,5 +1,5 @@
 import { FileSystem, Asset, SQLite } from 'expo'
-import bibleVersions from '../../versions.js'
+import bibleVersions, { bibleVersionsToRemove } from '../../versions.js'
 
 const importUsfm = async () => {
 
@@ -9,13 +9,20 @@ const importUsfm = async () => {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true })
   } catch(e) {}
 
+  for(let idx in bibleVersionsToRemove) {
+    const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersionsToRemove[idx]}.db`)
+
+    if(exists) {
+      console.log(`Removing ${bibleVersionsToRemove[idx]} from SQLite...`)
+      await FileSystem.deleteAsync(`${sqliteDir}/${bibleVersionsToRemove[idx]}.db`)
+      console.log(`...done.`)
+    }
+  }
+
   for(let idx in bibleVersions) {
     const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
 
     if(!exists) {
-    // if(exists) {
-    //   await FileSystem.deleteAsync(`${sqliteDir}/${bibleVersions[idx].id}.db`)
-    // }
 
       console.log(`Copy ${bibleVersions[idx].id} to SQLite dir...`)
 
@@ -32,6 +39,8 @@ const importUsfm = async () => {
           `${sqliteDir}/${bibleVersions[idx].id}.db`
         )
       }
+
+      console.log(`...done.`)
 
     }
   }

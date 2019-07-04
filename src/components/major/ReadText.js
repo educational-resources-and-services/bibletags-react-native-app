@@ -125,8 +125,9 @@ class ReadText extends React.PureComponent {
 
   getText = async () => {
     const { versionId, passageRef } = this.props
-
     const { bookId, chapter } = passageRef
+
+    if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
 
     const { rows: { _array: verses } } = await executeSql({
       versionId,

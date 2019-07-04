@@ -6,8 +6,12 @@ import { connect } from "react-redux"
 
 import ReadText from './ReadText'
 
+import { setVersionId, setParallelVersionId } from "../../redux/actions"
+
 const {
   DIVIDER_COLOR,
+  PRIMARY_VERSIONS,
+  SECONDARY_VERSIONS,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -21,6 +25,21 @@ const styles = StyleSheet.create({
 })
 
 class ReadContent extends React.PureComponent {
+
+  componentWillMount() {
+    const { passage, setVersionId, setParallelVersionId } = this.props
+    const { versionId, parallelVersionId } = passage
+
+    // in the event that a version has been removed...
+
+    if(!PRIMARY_VERSIONS.includes(versionId)) {
+      setVersionId({ versionId: PRIMARY_VERSIONS[0] })
+    }
+
+    if(!SECONDARY_VERSIONS.includes(parallelVersionId)) {
+      setParallelVersionId({ parallelVersionId: SECONDARY_VERSIONS[0] })
+    }
+  }
 
   hasParallel = () => !!this.props.passage.parallelVersionId
 
@@ -111,7 +130,8 @@ const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
-  // setRef,
+  setVersionId,
+  setParallelVersionId,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(ReadContent)
