@@ -6,9 +6,10 @@ import { connect } from "react-redux"
 
 import i18n from "../../utils/i18n.js"
 import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
+import { getPassageStr } from "bibletags-ui-helper"
 
 import AppHeader from "../basic/AppHeader"
-import { getPassageStr } from "bibletags-ui-helper"
+import HeaderIcon from "../basic/HeaderIcon"
 
 const leftIconsWidth = 50
 const rightIconsWidth = 135
@@ -99,7 +100,7 @@ class ReadHeader extends React.PureComponent {
             transparent
             onPressIn={this.openDrawer}
           >
-            <Icon name="menu" />
+            <HeaderIcon name="menu" />
           </Button>
         </Left>
         <Body style={[
@@ -140,13 +141,13 @@ class ReadHeader extends React.PureComponent {
             transparent
             onPressIn={this.goSearch}
           >
-            <Icon name="search" />
+            <HeaderIcon name="search" />
           </Button>
           <Button
             transparent
             onPressIn={toggleShowOptions}
           >
-            <Icon name="more" />
+            <HeaderIcon name="more" />
           </Button>
         </Right>
       </AppHeader>

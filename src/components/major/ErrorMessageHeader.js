@@ -1,11 +1,12 @@
 import React from "react"
 import { StyleSheet, Platform } from "react-native"
-import { Title, Left, Right, Icon, Button, Body } from "native-base"
+import { Title, Left, Right, Button, Body } from "native-base"
 
 import i18n from "../../utils/i18n.js"
 import { isPhoneSize, isStatusBarHidden, setStatusBarHidden, setUpTimeout, unmountTimeouts } from '../../utils/toolbox.js'
 
 import AppHeader from "../basic/AppHeader"
+import HeaderIcon from "../basic/HeaderIcon"
 
 const styles = StyleSheet.create({
   title: {
@@ -42,7 +43,7 @@ class ErrorMessageHeader extends React.PureComponent {
               transparent
               onPress={this.onBackPress}
             >
-              <Icon name="arrow-back" />
+              <HeaderIcon name="arrow-back" />
             </Button>
           }
         </Left>

@@ -14,8 +14,8 @@ import BackFunction from '../basic/BackFunction'
 import { setMode, setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
 
 const {
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-  CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+  INPUT_HIGHLIGHT_COLOR,
+  INPUT_HIGHLIGHT_SECONDARY_COLOR,
 } = Constants.manifest.extra
 
 const SET_TEXT_SIZE_THROTTLE_MS = 100
@@ -193,10 +193,10 @@ class DisplaySettings extends React.PureComponent {
                 onValueChange={this.toggleParallelMode}
                 style={styles.switch}
                 trackColor={{
-                  true: CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR,
+                  true: INPUT_HIGHLIGHT_SECONDARY_COLOR,
                 }}
-                ios_backgroundColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                ios_backgroundColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
+                thumbColor={INPUT_HIGHLIGHT_COLOR}
                 value={mode === 'parallel'}
               />
               <Text>{i18n("Parallel mode")}</Text>
@@ -211,9 +211,9 @@ class DisplaySettings extends React.PureComponent {
                 value={textSize}
                 onValueChange={this.setTextSize}
                 style={styles.slider}
-                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                minimumTrackTintColor={INPUT_HIGHLIGHT_COLOR}
+                maximumTrackTintColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
+                thumbTintColor={INPUT_HIGHLIGHT_COLOR}
               />
             </Body>
           </CardItem>
@@ -226,9 +226,9 @@ class DisplaySettings extends React.PureComponent {
                 value={lineSpacing}
                 onValueChange={this.setLineSpacing}
                 style={styles.slider}
-                minimumTrackTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
-                maximumTrackTintColor={CHOOSER_SELECTED_SECONDARY_BACKGROUND_COLOR}
-                thumbTintColor={CHOOSER_SELECTED_BACKGROUND_COLOR}
+                minimumTrackTintColor={INPUT_HIGHLIGHT_COLOR}
+                maximumTrackTintColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
+                thumbTintColor={INPUT_HIGHLIGHT_COLOR}
               />
             </Body>
           </CardItem> */}

@@ -14,6 +14,10 @@ import bibleVersions from '../../../versions.js'
 const {
   DEFAULT_FONT_SIZE,
   HEBREW_CANTILLATION_MODE,
+  TEXT_MAJOR_TITLE_COLOR,
+  TEXT_MAJOR_SECTION_HEADING_COLOR,
+  TEXT_SECTION_HEADING_1_COLOR,
+  TEXT_SECTION_HEADING_2_COLOR,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -58,19 +62,19 @@ const textStyles = StyleSheet.create({
     writingDirection: "rtl",
   },
   mt: {
-    color: "rgba(0,0,0,.5)",
+    color: TEXT_MAJOR_TITLE_COLOR,
     textAlign: "center",
     // fontVariant: ["small-caps"],
   },
   ms: {
     textAlign: "center",
-    color: "rgba(0,0,0,.42)",
+    color: TEXT_MAJOR_SECTION_HEADING_COLOR,
   },
   s1: {
-    color: "rgba(0,0,0,.35)",
+    color: TEXT_SECTION_HEADING_1_COLOR,
   },
   s2: {
-    color: "rgba(0,0,0,.5)",
+    color: TEXT_SECTION_HEADING_2_COLOR,
   },
   nd: {
     // fontVariant: ["small-caps"],

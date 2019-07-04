@@ -1,10 +1,12 @@
 import React from "react"
 import { StyleSheet, Text, Dimensions, Platform } from "react-native"
-import { Title, Subtitle, Left, Icon, Right, Button, Body, Item, Input } from "native-base"
-import AppHeader from "../basic/AppHeader"
+import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-base"
 
 import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
+
+import AppHeader from "../basic/AppHeader"
+import HeaderIcon from "../basic/HeaderIcon"
 
 const styles = StyleSheet.create({
   title: {
@@ -115,11 +117,11 @@ class SearchHeader extends React.PureComponent {
               transparent
               onPress={this.onBackPress}
             >
-              <Icon name="arrow-back" />
+              <HeaderIcon name="arrow-back" />
             </Button>
           </Left>
           <Item>
-            <Icon name="search" />
+            <HeaderIcon name="search" />
             <Input
               placeholder="Search"
               returnKeyType="search"
@@ -135,7 +137,7 @@ class SearchHeader extends React.PureComponent {
               transparent
               onPress={this.onCancel}
             >
-              <Icon name="close" />
+              <HeaderIcon name="close" />
             </Button>
           </Right>
         </AppHeader>
@@ -149,7 +151,7 @@ class SearchHeader extends React.PureComponent {
             transparent
             onPress={this.onBackPress}
           >
-            <Icon name="arrow-back" />
+            <HeaderIcon name="arrow-back" />
           </Button>
         </Left>
         <Body>
@@ -177,7 +179,7 @@ class SearchHeader extends React.PureComponent {
             transparent
             onPress={this.editSearchString}
           >
-            <Icon name="search" />
+            <HeaderIcon name="search" />
           </Button>
         </Right>
       </AppHeader>

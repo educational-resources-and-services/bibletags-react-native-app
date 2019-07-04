@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View, Text, Dimensions } from "react-native"
-import { Constants } from "expo"
+// import { Constants } from "expo"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
 import { Container, Content } from "native-base"
@@ -11,9 +11,9 @@ import { unmountTimeouts } from "../../utils/toolbox.js"
 import BackFunction from '../basic/BackFunction'
 // import FullScreenSpin from '../basic/FullScreenSpin'
 
-const {
-  APP_BACKGROUND_COLOR,
-} = Constants.manifest.extra
+// const {
+//   SOMETHING
+// } = Constants.manifest.extra
 
 const contentsStyles = {
 }

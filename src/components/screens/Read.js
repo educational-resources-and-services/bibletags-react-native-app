@@ -18,7 +18,6 @@ import RevealContainer from '../basic/RevealContainer'
 import RecentSection from '../major/RecentSection'
 
 const {
-  APP_BACKGROUND_COLOR,
   PASSAGE_CHOOSER_HEIGHT,
   DEFAULT_FONT_SIZE,
 } = Constants.manifest.extra
