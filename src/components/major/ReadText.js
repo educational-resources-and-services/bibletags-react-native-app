@@ -118,6 +118,7 @@ class ReadText extends React.PureComponent {
   state = {
     pieces: null,
     languageId: 'eng',
+    isOriginal: false,
   }
 
   componentDidMount() {
@@ -140,7 +141,7 @@ class ReadText extends React.PureComponent {
       removeWordPartDivisions: true,
     })
 
-    const { wordDividerRegex, languageId } = getVersionInfo(versionId)
+    const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
 
     const pieces = getPiecesFromUSFM({
       usfm: verses.map(({ usfm }) => usfm).join('\n'),
@@ -150,13 +151,14 @@ class ReadText extends React.PureComponent {
     this.setState({
       pieces,
       languageId,
+      isOriginal,
     })
     // TODO: handle scrollY
   }
 
   getJSXFromPieces = ({ pieces, verse }) => {
     const { displaySettings } = this.props
-    const { languageId } = this.state
+    const { languageId, isOriginal } = this.state
 
     const { font, textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
@@ -184,7 +186,7 @@ class ReadText extends React.PureComponent {
       const light = lightStyles.includes(tag)
       const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
       const fontFamily = (wrapInView || bold || italic || light) && getValidFontName({
-        font,
+        font: isOriginal ? `original-${languageId}` : font,
         bold,
         italic,
         light,

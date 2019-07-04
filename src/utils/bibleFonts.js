@@ -11,29 +11,39 @@ const variants = [
 
 export const bibleFontList = bibleFonts.map(({ name }) => name)
 
-export const bibleFontLoads = bibleFonts
-  .reduce(
-    (acc, font) => ({
-      ...acc,
-      ...variants
-        .reduce(
-          (acc2, variant) => ({
-            ...acc2,
-            ...(
-              font[variant]
-                ? {
-                  [`${font.name}-${variant}`]: font[variant],
-                }
-                : {}
+export const bibleFontLoads = {
+  'original-heb': require(`../../assets/fonts/OriginalHebrewFont.ttf`),
+  // 'original-grk': require(`../../assets/fonts/OriginalGreekFont.ttf`),
+  ...(
+    bibleFonts
+      .reduce(
+        (acc, font) => ({
+          ...acc,
+          ...variants
+            .reduce(
+              (acc2, variant) => ({
+                ...acc2,
+                ...(
+                  font[variant]
+                    ? {
+                      [`${font.name}-${variant}`]: font[variant],
+                    }
+                    : {}
+                )
+              }),
+              {},
             )
-          }),
-          {},
-        )
-    }),
-    {},
-  )
+        }),
+        {},
+      )
+  ),
+}
 
 export const getValidFontName = ({ font, bold, italic, light }) => {
+
+  if([ 'original-heb', 'original-grk' ].includes(font)) {
+    return font
+  }
 
   if(!bibleFontList.includes(font)) {
     font = bibleFontList[0]

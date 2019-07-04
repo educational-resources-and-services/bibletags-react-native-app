@@ -57,6 +57,7 @@ class Search extends React.Component {
       searchedVersionId: null,
       searchResults: null,
       languageId: 'eng',
+      isOriginal: false,
     }
   }
 
@@ -105,7 +106,7 @@ class Search extends React.Component {
       removeWordPartDivisions: true,
     })
 
-    const { wordDividerRegex, languageId } = getVersionInfo(versionId)
+    const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
 
     const searchResults = verses.map(({ usfm, loc }) => ({
       loc,
@@ -121,6 +122,7 @@ class Search extends React.Component {
       searchedVersionId: versionId,
       searchResults,
       languageId,
+      isOriginal,
     })
 
     if(searchResults.length > 0) {
@@ -149,7 +151,7 @@ class Search extends React.Component {
   render() {
 
     const { navigation } = this.props
-    const { editing, searchedString, searchedVersionId, searchResults, languageId } = this.state
+    const { editing, searchedString, searchedVersionId, searchResults, languageId, isOriginal } = this.state
 
     const { searchString, versionId } = navigation.state.params
 
@@ -197,6 +199,7 @@ class Search extends React.Component {
                   result={result}
                   searchString={searchString}
                   languageId={languageId}
+                  isOriginal={isOriginal}
                 />
               ))}
             </View>

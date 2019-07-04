@@ -80,10 +80,17 @@ const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
 class SearchResult extends React.PureComponent {
 
+  getFont = () => {
+    const { displaySettings, languageId, isOriginal } = this.props
+    const { font } = displaySettings
+
+    return isOriginal ? `original-${languageId}` : font
+  }
+
   getJSXFromPieces = ({ pieces }) => {
     const { searchString, displaySettings } = this.props
 
-    const { font, textSize } = displaySettings
+    const { textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
 
     return pieces.map((piece, idx) => {
@@ -97,7 +104,7 @@ class SearchResult extends React.PureComponent {
       const light = lightStyles.includes(tag)
       const fontSize = fontSizeStyleFactors[tag] && baseFontSize * (fontSizeStyleFactors[tag] || 1)
       const fontFamily = (bold || italic || light) && getValidFontName({
-        font,
+        font: this.getFont(),
         bold,
         italic,
         light,
@@ -157,9 +164,9 @@ class SearchResult extends React.PureComponent {
   render() {
     const { result, searchString, languageId, displaySettings } = this.props
 
-    const { font, textSize } = displaySettings
+    const { textSize } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
-    const fontFamily = getValidFontName({ font })
+    const fontFamily = getValidFontName({ font: this.getFont() })
 
     const { pieces, loc } = result
 
