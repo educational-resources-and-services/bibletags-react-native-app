@@ -175,7 +175,7 @@ export const executeSql = async ({ versionId, statement, args, statements, remov
           }
           
           if(removeCantillation) {
-            verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C5\u05C7]/g,'')
+            verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g,'')
           }
 
         })
