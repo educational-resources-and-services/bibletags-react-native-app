@@ -23,6 +23,7 @@ const {
   PRIMARY_VERSIONS,
   SECONDARY_VERSIONS,
   MAX_RESULTS,
+  HEBREW_CANTILLATION_MODE,
 } = Constants.manifest.extra
 
 const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
@@ -100,6 +101,7 @@ class Search extends React.Component {
       args: [
         `% ${escapeLike(searchString)} %`,
       ],
+      removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
     })
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)

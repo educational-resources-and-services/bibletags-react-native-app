@@ -13,6 +13,7 @@ import bibleVersions from '../../../versions.js'
 
 const {
   DEFAULT_FONT_SIZE,
+  HEBREW_CANTILLATION_MODE,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -135,13 +136,13 @@ class ReadText extends React.PureComponent {
       args: [
         `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
       ],
+      removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
     })
 
     const { wordDividerRegex, languageId } = getVersionInfo(versionId)
 
     const pieces = getPiecesFromUSFM({
       usfm: verses.map(({ usfm }) => usfm).join('\n'),
-      // usfm: verses.slice(0,3).map(({ usfm }) => usfm).join('\n'),
       wordDividerRegex,
     })
 

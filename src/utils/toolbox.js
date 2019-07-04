@@ -125,7 +125,7 @@ export const isConnected = () => new Promise(resolve => {
 
 // }
 
-export const executeSql = async ({ versionId, statement, args, statements }) => {
+export const executeSql = async ({ versionId, statement, args, statements, removeCantillation }) => {
   const db = SQLite.openDatabase(`${versionId}.db`)
   const resultSets = []
 
@@ -158,6 +158,19 @@ export const executeSql = async ({ versionId, statement, args, statements }) => 
       resolveAll
     )
   })
+
+  if(removeCantillation) {
+    resultSets.forEach(resultSet => {
+      try {
+        const { rows: { _array: verses } } = resultSet
+
+        verses.forEach(verse => {
+          verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C5\u05C7]/g,'')
+        })
+
+      } catch(e) {}
+    })
+  }
 
   return statement ? resultSets[0] : resultSets
 }
