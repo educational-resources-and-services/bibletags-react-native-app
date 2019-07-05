@@ -8,7 +8,6 @@ const initialState = {
   "ref": {
     "bookId": 1,
     "chapter": 1,
-    "scrollY": 0,
   },
   "versionId": PRIMARY_VERSIONS[0],
 }

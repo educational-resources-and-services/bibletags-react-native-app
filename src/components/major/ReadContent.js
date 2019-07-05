@@ -6,7 +6,7 @@ import { connect } from "react-redux"
 
 import ReadText from './ReadText'
 
-import { setVersionId, setParallelVersionId } from "../../redux/actions"
+import { setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
 
 const {
   DIVIDER_COLOR,
@@ -26,17 +26,6 @@ const styles = StyleSheet.create({
 
 class ReadContent extends React.PureComponent {
 
-  constructor(props) {
-    super(props)
-
-    const { passage } = this.props
-    const { parallelVersionId } = passage
-
-    this.state = {
-      parallelVersionId,
-    }
-  }
-
   componentWillMount() {
     const { passage, setVersionId, setParallelVersionId } = this.props
     const { versionId, parallelVersionId } = passage
@@ -52,26 +41,16 @@ class ReadContent extends React.PureComponent {
     }
   }
 
-  componentDidUpdate() {
-    const { passage } = this.props
-    const { parallelVersionId } = passage
+  setUpParallelScroll = () => {
 
-    if(parallelVersionId !== this.state.parallelVersionId) {
-      if(parallelVersionId) {
-        this.setUpParallelScroll = () => {
-          this.onPrimaryTouchStart()
-          this.onPrimaryScroll({
-            nativeEvent: {
-              contentOffset: {
-                y: this.primaryScrollY,
-              }
-            }
-          })
+    this.onPrimaryTouchStart()
+    this.onPrimaryScroll({
+      nativeEvent: {
+        contentOffset: {
+          y: this.primaryScrollY,
         }
       }
-
-      this.setState({ parallelVersionId })
-    }
+    })
   }
 
   hasParallel = () => !!this.props.passage.parallelVersionId
@@ -89,7 +68,12 @@ class ReadContent extends React.PureComponent {
   primaryScrollY = 0
 
   onPrimaryScroll = ({ nativeEvent }) => {
+    const { setPassageScroll } = this.props
     this.primaryScrollY = nativeEvent.contentOffset.y
+
+    setPassageScroll({
+      y: this.primaryScrollY,
+    })
 
     if(!this.secondaryRef) return
     if(this.scrollController !== 'primary') return
@@ -114,10 +98,15 @@ class ReadContent extends React.PureComponent {
   onPrimaryContentSizeChange = (contentWidth, contentHeight) => this.primaryContentHeight = contentHeight
   onSecondaryContentSizeChange = (contentWidth, contentHeight) => {
     this.secondaryContentHeight = contentHeight
+    this.setUpParallelScroll()
+  }
 
-    if(this.setUpParallelScroll) {
+  onPrimaryLoaded = () => {
+    const { passageScrollY } = this.props
+
+    if(passageScrollY && this.primaryRef) {
+      this.primaryRef.scrollTo({ y: passageScrollY, animated: false })
       this.setUpParallelScroll()
-      delete this.setUpParallelScroll
     }
   }
 
@@ -145,6 +134,7 @@ class ReadContent extends React.PureComponent {
           onScroll={this.onPrimaryScroll}
           onLayout={this.onPrimaryLayout}
           onContentSizeChange={this.onPrimaryContentSizeChange}
+          onLoaded={this.onPrimaryLoaded}
           setRef={this.setPrimaryRef}
         />
         {!!parallelVersionId &&
@@ -167,8 +157,9 @@ class ReadContent extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches }) => ({
   passage,
+  passageScrollY,
   recentPassages,
   recentSearches,
 })
@@ -176,6 +167,7 @@ const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
 const matchDispatchToProps = dispatch => bindActionCreators({
   setVersionId,
   setParallelVersionId,
+  setPassageScroll,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(ReadContent)

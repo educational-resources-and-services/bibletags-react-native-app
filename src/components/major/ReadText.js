@@ -130,7 +130,7 @@ class ReadText extends React.PureComponent {
   }
 
   getText = async () => {
-    const { versionId, passageRef } = this.props
+    const { versionId, passageRef, onLoaded } = this.props
     const { bookId, chapter } = passageRef
 
     if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
@@ -156,8 +156,7 @@ class ReadText extends React.PureComponent {
       pieces,
       languageId,
       isOriginal,
-    })
-    // TODO: handle scrollY
+    }, onLoaded)
   }
 
   getJSXFromPieces = ({ pieces, verse }) => {

@@ -223,7 +223,7 @@ export const isRTL = languageId => (
   ].includes(languageId)
 )
 
-export const refsMatch = (ref1, ref2) => JSON.stringify(ref1) === JSON.stringify(ref2)
+export const refsMatch = (ref1={}, ref2={}) => `${ref1.bookId}:${ref1.chapter}` === `${ref2.bookId}:${ref2.chapter}`
 
 export const updateRecentLists = ({ newState }) => {
 

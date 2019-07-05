@@ -22,6 +22,10 @@ export default function(state = initialState, action) {
       // take care of history
       newState.history.unshift({
         ...newState.passage,
+        ref: {
+          ...newState.passage.ref,
+          scrollY: newState.passageScrollY,
+        },
         type: 'passage',
         lastViewTime: Date.now(),
       })
@@ -44,8 +48,8 @@ export default function(state = initialState, action) {
           newState.passage.ref.chapter = action.ref.chapter
         }
 
-        if(newState.passage.ref.scrollY !== action.ref.scrollY) {
-          newState.passage.ref.scrollY = action.ref.scrollY
+        if(newState.passageScrollY !== action.ref.scrollY) {
+          newState.passageScrollY = action.ref.scrollY
         }
 
         // take care of recentPassages and recentSearches
@@ -57,13 +61,18 @@ export default function(state = initialState, action) {
           Passage: getPassageStr({ refs: [ newState.passage.ref ] }),
         }
         logEvent({ eventName, properties })
-    
+
         return newState
       }
 
       return state
     }
-  
+
+    case "SET_PASSAGE_SCROLL": {
+      newState.passageScrollY = action.y
+      return newState
+    }
+
     case "SET_VERSION_ID": {
       if(
         newState.passage.versionId !== action.versionId

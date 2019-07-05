@@ -3,6 +3,11 @@ export const setRef = ({ ref }) => ({
   ref,
 })
 
+export const setPassageScroll = ({ y }) => ({
+  type: "SET_PASSAGE_SCROLL",
+  y,
+})
+
 export const setVersionId = ({ versionId }) => ({
   type: "SET_VERSION_ID",
   versionId,

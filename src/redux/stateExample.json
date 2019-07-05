@@ -10,12 +10,12 @@
   "passage": {
     "ref": {
       "bookId": 1,
-      "chapter": 1,
-      "scrollY": 0
+      "chapter": 1
     },
     "versionId": "kjv",
     "parallelVersionId": "wlc"
   },
+  "passageScrollY": 210,
   "history": [
     {
       "type": "passage",
