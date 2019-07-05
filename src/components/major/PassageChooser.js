@@ -4,6 +4,8 @@ import { StyleSheet, ScrollView, FlatList } from "react-native"
 import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { getNumberOfChapters } from 'bibletags-versification/src/versification'
+import { getVersionInfo } from "../../utils/toolbox"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
@@ -158,6 +160,29 @@ class PassageChooser extends React.PureComponent {
     )
   }
 
+  numChaptersPerVersionAndBook = {}
+
+  getNumChapters = () => {
+    const { passage } = this.props
+    const { bookId } = this.state
+    const { versionId } = passage
+
+    const key = `${versionId}:${bookId}`
+
+    if(!this.numChaptersPerVersionAndBook[key]) {
+
+      const versionInfo = getVersionInfo(versionId)
+
+      this.numChaptersPerVersionAndBook[key] = getNumberOfChapters({
+        versionInfo,
+        bookId,
+      }) || 0
+
+    }
+    
+    return this.numChaptersPerVersionAndBook[key]
+  }
+
   render() {
     const { showing, paddingBottom, hidePassageChooser, passage, mode } = this.props
     const { chapter } = this.state
@@ -204,10 +229,7 @@ class PassageChooser extends React.PureComponent {
                 },
               ]}
             >
-
-              {/* TODO: I need to get the number of chapters per the head version (from bibletags-versification) */}
-
-              {Array(150).fill(0).map((x, idx) => (
+              {Array(this.getNumChapters()).fill(0).map((x, idx) => (
                 <ChooserChapter
                   key={idx+1}
                   chapter={idx+1}

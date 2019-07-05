@@ -23,7 +23,7 @@
     "babel-preset-expo": "5.1.1",
     "better-sqlite3": "^5.4.0",
     "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#df6e0c0656711fdf193ec677d0ffc0f3a97c50b7",
-    "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#b91312ea9551b83740d17db2e61a35a102052359",
+    "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#6e37b450c2eb84632cc221068b97398803704816",
     "expo": "32.0.6",
     "find-in-files": "0.5.0",
     "native-base": "2.12.1",
