@@ -40,7 +40,7 @@ class RecentSearch extends React.PureComponent {
 
     return (
       <RecentBookmark
-        text={i18n("“{{searchString}}”", { searchString })}
+        text={searchString}
         backgroundColor={RECENT_SEARCH_BACKGROUND_COLOR}
         discard={this.discard}
         select={this.select}
