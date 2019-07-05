@@ -62,6 +62,7 @@ class PassageChooser extends React.PureComponent {
 
     if(showing && !state.showing) {
       stateUpdate.bookId = passage.ref.bookId
+      stateUpdate.chapter = passage.ref.chapter
     }
 
     return stateUpdate
@@ -115,6 +116,8 @@ class PassageChooser extends React.PureComponent {
     const { setRef, hidePassageChooser } = this.props
     const { bookId } = this.state
 
+    this.setState({ chapter })
+
     setRef({
       ref: {
         bookId,
@@ -126,7 +129,7 @@ class PassageChooser extends React.PureComponent {
     hidePassageChooser()
   }
   
-  updateBook = bookId => this.setState({ bookId })
+  updateBook = bookId => this.setState({ bookId, chapter: null })
 
   keyExtractor = bookId => bookId.toString()
 
@@ -157,6 +160,7 @@ class PassageChooser extends React.PureComponent {
 
   render() {
     const { showing, paddingBottom, hidePassageChooser, passage, mode } = this.props
+    const { chapter } = this.state
 
     // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
     // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
@@ -207,7 +211,7 @@ class PassageChooser extends React.PureComponent {
                 <ChooserChapter
                   key={idx+1}
                   chapter={idx+1}
-                  selected={idx+1 === passage.ref.chapter}
+                  selected={idx+1 === chapter}
                   onPress={this.updateChapter}
                 />
               ))}
