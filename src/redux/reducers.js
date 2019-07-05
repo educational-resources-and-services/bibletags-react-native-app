@@ -6,8 +6,6 @@ import history from "./reducers/history.js"
 import recentPassages from "./reducers/recentPassages.js"
 import recentSearches from "./reducers/recentSearches.js"
 import displaySettings from "./reducers/displaySettings.js"
-import rateUs from "./reducers/rateUs.js"
-import analyticsQueue from "./reducers/analyticsQueue.js"
 
 import setPassage from "./reducers/setPassage.js"
 import recordSearch from "./reducers/recordSearch.js"
@@ -19,8 +17,6 @@ const slicedReducers = combineReducers({
   recentPassages,
   recentSearches,
   displaySettings,
-  rateUs,
-  analyticsQueue,
 })
 
 const allReducers = reduceReducers(

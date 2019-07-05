@@ -81,16 +81,5 @@
     "textSize": 1,
     "lineSpacing": 1.3,
     "theme": "default"
-  },
-  "analyticsQueue": [
-    {
-      "action": "opened"
-    },
-    {
-      "action": "exited",
-      "data": {
-        "duration": 38232
-      }
-    }
-  ]
+  }
 }

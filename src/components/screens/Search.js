@@ -6,6 +6,7 @@ import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
+import { logEvent } from '../../utils/analytics'
 import { unmountTimeouts, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
 
@@ -92,6 +93,14 @@ class Search extends React.Component {
 
     if(!searchString) return
     if(searchString === searchedString && versionId === searchedVersionId) return
+
+    // analytics
+    const eventName = `Search`
+    const properties = {
+      SearchString: searchString,
+      VersionId: versionId,
+    }
+    logEvent({ eventName, properties })
 
     const limit = `LIMIT ${MAX_RESULTS}`
     const order = `ORDER BY loc`

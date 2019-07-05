@@ -1,5 +1,7 @@
 import { Constants } from 'expo'
 import { refsMatch, updateRecentLists } from '../../utils/toolbox.js'
+import { logEvent } from '../../utils/analytics'
+import { getPassageStr } from "bibletags-ui-helper"
 
 const {
   PRIMARY_VERSIONS,
@@ -49,6 +51,13 @@ export default function(state = initialState, action) {
         // take care of recentPassages and recentSearches
         updateRecentLists({ newState })
 
+        // analytics
+        const eventName = `SetPassage`
+        const properties = {
+          Passage: getPassageStr({ refs: [ newState.passage.ref ] }),
+        }
+        logEvent({ eventName, properties })
+    
         return newState
       }
 
@@ -62,6 +71,14 @@ export default function(state = initialState, action) {
       ) {
         newState.passage = { ...newState.passage }
         newState.passage.versionId = action.versionId
+
+        // analytics
+        const eventName = `SetVersion`
+        const properties = {
+          VersionId: newState.passage.versionId,
+        }
+        logEvent({ eventName, properties })
+
         return newState
       }
       return state
@@ -74,6 +91,14 @@ export default function(state = initialState, action) {
       ) {
         newState.passage = { ...newState.passage }
         newState.passage.parallelVersionId = action.parallelVersionId
+
+        // analytics
+        const eventName = `SetParallelVersion`
+        const properties = {
+          ParallelVersionId: newState.passage.parallelVersionId,
+        }
+        logEvent({ eventName, properties })
+
         return newState
       }
       return state

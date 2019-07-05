@@ -10,6 +10,7 @@ import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
 import { Ionicons } from '@expo/vector-icons'
 import { passOverI18n } from "bibletags-ui-helper/src/i18n.js"
+import { logEvent } from './src/utils/analytics'
 
 import GlobalNavigator from "./src/navigators/Global.js"
 
@@ -77,6 +78,9 @@ export default class App extends React.Component {
     // no need to wait for the following, but preload anyway
     // Asset.fromModule(require('./assets/images/drawer.png')).downloadAsync(),
     // the above line was causing a crash in development mode
+
+    logEvent({ eventName: `OpenApp` })
+
   }
 
   componentDidMount() {
