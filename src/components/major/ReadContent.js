@@ -26,6 +26,17 @@ const styles = StyleSheet.create({
 
 class ReadContent extends React.PureComponent {
 
+  constructor(props) {
+    super(props)
+
+    const { passage } = this.props
+    const { parallelVersionId } = passage
+
+    this.state = {
+      parallelVersionId,
+    }
+  }
+
   componentWillMount() {
     const { passage, setVersionId, setParallelVersionId } = this.props
     const { versionId, parallelVersionId } = passage
@@ -41,6 +52,28 @@ class ReadContent extends React.PureComponent {
     }
   }
 
+  componentDidUpdate() {
+    const { passage } = this.props
+    const { parallelVersionId } = passage
+
+    if(parallelVersionId !== this.state.parallelVersionId) {
+      if(parallelVersionId) {
+        this.setUpParallelScroll = () => {
+          this.onPrimaryTouchStart()
+          this.onPrimaryScroll({
+            nativeEvent: {
+              contentOffset: {
+                y: this.primaryScrollY,
+              }
+            }
+          })
+        }
+      }
+
+      this.setState({ parallelVersionId })
+    }
+  }
+
   hasParallel = () => !!this.props.passage.parallelVersionId
 
   getScrollFactor = () => {
@@ -53,12 +86,16 @@ class ReadContent extends React.PureComponent {
   onPrimaryTouchStart = () => this.scrollController = 'primary'
   onSecondaryTouchStart = () => this.scrollController = 'secondary'
 
+  primaryScrollY = 0
+
   onPrimaryScroll = ({ nativeEvent }) => {
+    this.primaryScrollY = nativeEvent.contentOffset.y
+
     if(!this.secondaryRef) return
     if(this.scrollController !== 'primary') return
     if(!this.hasParallel()) return
 
-    const y = nativeEvent.contentOffset.y / this.getScrollFactor()
+    const y = this.primaryScrollY / this.getScrollFactor()
     this.secondaryRef.scrollTo({ y, animated: false })
   }
 
@@ -75,7 +112,14 @@ class ReadContent extends React.PureComponent {
   onSecondaryLayout = ({ nativeEvent }) => this.secondaryHeight = nativeEvent.layout.height
 
   onPrimaryContentSizeChange = (contentWidth, contentHeight) => this.primaryContentHeight = contentHeight
-  onSecondaryContentSizeChange = (contentWidth, contentHeight) => this.secondaryContentHeight = contentHeight
+  onSecondaryContentSizeChange = (contentWidth, contentHeight) => {
+    this.secondaryContentHeight = contentHeight
+
+    if(this.setUpParallelScroll) {
+      this.setUpParallelScroll()
+      delete this.setUpParallelScroll
+    }
+  }
 
   setPrimaryRef = ref => this.primaryRef = ref
   setSecondaryRef = ref => this.secondaryRef = ref

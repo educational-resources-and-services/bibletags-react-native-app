@@ -244,7 +244,11 @@ class ReadText extends React.PureComponent {
     const { setRef, onScroll, onTouchStart, onLayout, onContentSizeChange } = this.props
     const { pieces } = this.state
 
-    if(!pieces) return null
+    if(!pieces) {
+      return (
+        <View style={viewStyles.container} />
+      )
+    }
 
     return (
       <ScrollView
