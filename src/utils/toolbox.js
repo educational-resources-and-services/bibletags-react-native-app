@@ -6,6 +6,7 @@ import nativeBasePlatformVariables from 'native-base/src/theme/variables/platfor
 
 // import i18n from "./i18n.js"
 import bibleVersions from '../../versions.js'
+import { getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,
@@ -255,12 +256,15 @@ export const updateRecentLists = ({ newState }) => {
 
   })
 
+  const versionInfo = getVersionInfo(newState.passage.versionId)
+  const bookIds = getBookIdListWithCorrectOrdering({ versionInfo })
+
   newRecentPassages.sort((a, b) => {
     const refA = a === 'current' ? newState.passage.ref : newState.history[a].ref
     const refB = b === 'current' ? newState.passage.ref : newState.history[b].ref
 
     return (
-      refA.bookId > refB.bookId
+      bookIds.indexOf(refA.bookId) > bookIds.indexOf(refB.bookId)
       || (
         refA.bookId === refB.bookId
         && refA.chapter > refB.chapter
