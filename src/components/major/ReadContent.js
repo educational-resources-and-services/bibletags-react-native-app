@@ -104,10 +104,10 @@ class ReadContent extends React.PureComponent {
   onPrimaryLoaded = () => {
     const { passageScrollY } = this.props
 
-    if(passageScrollY && this.primaryRef) {
-      this.primaryRef.scrollTo({ y: passageScrollY, animated: false })
-      this.setUpParallelScroll()
-    }
+    this.primaryRef.scrollTo({ y: passageScrollY, animated: false })
+    this.primaryScrollY = passageScrollY
+
+    this.setUpParallelScroll()
   }
 
   setPrimaryRef = ref => this.primaryRef = ref
