@@ -36,7 +36,7 @@ class ReadContent extends React.PureComponent {
       setVersionId({ versionId: PRIMARY_VERSIONS[0] })
     }
 
-    if(!SECONDARY_VERSIONS.includes(parallelVersionId)) {
+    if(parallelVersionId && !SECONDARY_VERSIONS.includes(parallelVersionId)) {
       setParallelVersionId({ parallelVersionId: SECONDARY_VERSIONS[0] })
     }
   }
