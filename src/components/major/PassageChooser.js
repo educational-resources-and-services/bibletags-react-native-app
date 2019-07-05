@@ -4,7 +4,7 @@ import { StyleSheet, ScrollView, FlatList } from "react-native"
 import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getNumberOfChapters } from 'bibletags-versification/src/versification'
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 import { getVersionInfo } from "../../utils/toolbox"
 
 import VersionChooser from "./VersionChooser"
@@ -50,9 +50,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 })
-
-// TODO: I need to get the book ordering per the head version (from bibletags-versification)
-const books = Array(39).fill(0).map((x, idx) => idx+1)
 
 class PassageChooser extends React.PureComponent {
 
@@ -133,6 +130,23 @@ class PassageChooser extends React.PureComponent {
   
   updateBook = bookId => this.setState({ bookId, chapter: null })
 
+  bookIdsPerVersion = {}
+
+  getBookIds = () => {
+    const { passage } = this.props
+    const { versionId } = passage
+
+    if(!this.bookIdsPerVersion[versionId]) {
+
+      const versionInfo = getVersionInfo(versionId)
+
+      this.bookIdsPerVersion[versionId] = getBookIdListWithCorrectOrdering({ versionInfo })
+
+    }
+    
+    return this.bookIdsPerVersion[versionId]
+  }
+
   keyExtractor = bookId => bookId.toString()
 
   renderItem = ({ item, index }) => {
@@ -149,7 +163,7 @@ class PassageChooser extends React.PureComponent {
           selected={item === bookId}
           onPress={this.updateBook}
         />
-        {index === books.length - 1 &&
+        {index === this.getBookIds().length - 1 &&
           <View
             style={{
               paddingBottom,
@@ -214,7 +228,7 @@ class PassageChooser extends React.PureComponent {
         <View style={styles.refChooser}>
           <View style={styles.bookList}>
             <FlatList
-              data={books}
+              data={this.getBookIds()}
               extraData={this.state}
               keyExtractor={this.keyExtractor}
               renderItem={this.renderItem}
