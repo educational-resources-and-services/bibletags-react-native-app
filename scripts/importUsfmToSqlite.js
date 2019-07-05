@@ -3,6 +3,53 @@ const fs = require('fs')
 const readline = require('readline')
 const stream = require('stream')
 
+const versionsWithHebrewOrdering = [
+  "uhb",
+  "haedut",
+]
+
+const hebrewOrderingOfBookIds = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  9,
+  10,
+  11,
+  12,
+  23,
+  24,
+  26,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  19,
+  20,
+  18,
+  22,
+  8,
+  25,
+  21,
+  17,
+  27,
+  15,
+  16,
+  13,
+  14,
+]
+
 const bookAbbrs = [
   "",
   "GEN",
@@ -124,6 +171,7 @@ const doubleSpacesRegex = /  +/g
     const create = db.prepare(
       `CREATE TABLE ${version}Verses (
         loc TEXT PRIMARY KEY,
+        bookOrdering INTEGER,
         usfm TEXT COLLATE NOCASE,
         search TEXT COLLATE NOCASE
       );`
@@ -131,7 +179,13 @@ const doubleSpacesRegex = /  +/g
 
     create.run()
     
-    const insert = db.prepare(`INSERT INTO ${version}Verses (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
+    const index1 = db.prepare(
+      `CREATE INDEX bookOrdering_idx ON ${version}Verses (bookOrdering);`
+    )
+
+    index1.run()
+
+    const insert = db.prepare(`INSERT INTO ${version}Verses (loc, bookOrdering, usfm, search) VALUES (@loc, @bookOrdering, @usfm, @search)`)
 
     const insertMany = db.transaction((verses) => {
       for(const verse of verses) insert.run(verse)
@@ -202,6 +256,7 @@ const doubleSpacesRegex = /  +/g
               ...goesWithNextVsText,
               line,
             ],
+            bookOrdering: versionsWithHebrewOrdering.includes(version) ? hebrewOrderingOfBookIds.indexOf(bookId) + 1 : bookId,
           })
           goesWithNextVsText = []
           continue

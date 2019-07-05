@@ -62,6 +62,9 @@ else
     fi
     cp -R "src/utils/translations/$LANGUAGE_CODE.json" "src/utils/translations/current.json" || exit 1;
 
+    # optimize assets
+    expo optimize
+
     echo "Changed tenant to $TENANT_TO_SWITCH_TO (language code: $LANGUAGE_CODE)."
   fi
 fi

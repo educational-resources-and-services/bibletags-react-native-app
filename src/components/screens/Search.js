@@ -103,7 +103,7 @@ class Search extends React.Component {
     logEvent({ eventName, properties })
 
     const limit = `LIMIT ${MAX_RESULTS}`
-    const order = `ORDER BY loc`
+    const order = `ORDER BY bookOrdering, loc`
 
     const { rows: { _array: verses } } = await executeSql({
       versionId,
