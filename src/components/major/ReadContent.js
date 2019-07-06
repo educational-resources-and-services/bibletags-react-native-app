@@ -4,9 +4,10 @@ import { ScrollView, View, StyleSheet, Dimensions } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import { debounce } from "../../utils/toolbox.js"
 import ReadText from './ReadText'
 
-import { setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
+import { setRef, setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
 
 const {
   DIVIDER_COLOR,
@@ -34,11 +35,7 @@ const styles = StyleSheet.create({
 
 class ReadContent extends React.PureComponent {
 
-  state = {
-    primaryLoaded: false,
-    secondaryLoaded: false,
-    passage: null,
-  }
+  state = {}
 
   static getDerivedStateFromProps(props, state) {
     const { passage } = props
@@ -51,10 +48,26 @@ class ReadContent extends React.PureComponent {
     const primaryChanged = versionId !== statePassage.versionId
     const secondaryChanged = parallelVersionId !== statePassage.parallelVersionId
 
+    const adjacentRefs = (
+      !refChanged
+        ? state.adjacentRefs
+        : {
+          previous: {
+            ...ref,
+            chapter: ref.chapter - 1,
+          },
+          next: {
+            ...ref,
+            chapter: ref.chapter + 1,
+          },
+        }
+    )
+
     return {
       primaryLoaded: !!(state.primaryLoaded && !refChanged && !primaryChanged),
       secondaryLoaded: !!(state.secondaryLoaded && !refChanged && !secondaryChanged),
       passage,
+      adjacentRefs,
     }
   }
 
@@ -159,23 +172,30 @@ class ReadContent extends React.PureComponent {
     this.ref.scrollTo({ x: width, animated: false })
   }
 
+  onPageSwipeEnd = ({ nativeEvent }) => {
+    const { setRef } = this.props
+    const { adjacentRefs } = this.state
+
+    const { x } = nativeEvent.contentOffset
+    const { width } = Dimensions.get('window')
+
+    if(x !== width) {
+      debounce(
+        setRef,
+        {
+          ref: adjacentRefs[ x < width ? 'previous' : 'next' ],
+        },
+      )
+      setTimeout(this.setContentOffset)
+    }
+  }
+
   render() {
     const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
-    const { primaryLoaded, secondaryLoaded } = this.state
+    const { primaryLoaded, secondaryLoaded, adjacentRefs } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
-
-    const adjacentRefs = {
-      previous: {
-        ...ref,
-        chapter: ref.chapter - 1,
-      },
-      next: {
-        ...ref,
-        chapter: ref.chapter + 1,
-      },
-    }
 
     const { width } = Dimensions.get('window')
 
@@ -217,7 +237,8 @@ class ReadContent extends React.PureComponent {
         showsHorizontalScrollIndicator={false}
         contentOffset={{ x: width, y: 0 }}
         ref={this.setRef}
-        //onContentSizeChange={this.setContentOffset}  I might need this for device rotation
+        onMomentumScrollEnd={this.onPageSwipeEnd}
+        //onContentSizeChange={this.setContentOffset}  // I might need this for device rotation
       >
         {getAdjacentPage('previous')}
         <View style={styles.page}>
@@ -263,6 +284,7 @@ const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearch
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
+  setRef,
   setVersionId,
   setParallelVersionId,
   setPassageScroll,
