@@ -1,6 +1,6 @@
 import React from "react"
 import { Constants } from "expo"
-import { View, StyleSheet } from "react-native"
+import { ScrollView, View, StyleSheet, Dimensions } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -18,6 +18,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  contentContainer: {
+    width: '300%',
+  },
+  page: {
+    width: '100%',
+    maxWidth: '100%',
+    height: '100%',
+  },
   divider: {
     height: 1,
     backgroundColor: DIVIDER_COLOR,
@@ -26,7 +34,25 @@ const styles = StyleSheet.create({
 
 class ReadContent extends React.PureComponent {
 
-  componentWillMount() {
+  state = {
+    primaryLoaded: false,
+    secondaryLoaded: false,
+    passage: null,
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const { passage } = props
+
+    if(passage === state.passage) return null
+
+    return {
+      primaryLoaded: false,
+      secondaryLoaded: false,
+      passage,
+    }
+  }
+
+  componentDidMount() {
     const { passage, setVersionId, setParallelVersionId } = this.props
     const { versionId, parallelVersionId } = passage
 
@@ -108,51 +134,117 @@ class ReadContent extends React.PureComponent {
     this.primaryScrollY = passageScrollY
 
     this.setUpParallelScroll()
+
+    this.setState({ primaryLoaded: true })
   }
+
+  onSecondaryLoaded = () => this.setState({ secondaryLoaded: true })
 
   setPrimaryRef = ref => this.primaryRef = ref
   setSecondaryRef = ref => this.secondaryRef = ref
 
+  setRef = ref => {
+    this.ref = ref
+    setTimeout(this.setContentOffset)
+  }
+
+  setContentOffset = () => {
+    const { width } = Dimensions.get('window')
+    this.ref.scrollTo({ x: width, animated: false })
+  }
+
   render() {
     const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
+    const { primaryLoaded, secondaryLoaded } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
+    const adjacentRefs = {
+      previous: {
+        ...ref,
+        chapter: ref.chapter - 1,
+      },
+      next: {
+        ...ref,
+        chapter: ref.chapter + 1,
+      },
+    }
+
+    const { width } = Dimensions.get('window')
+
+    const getAdjacentPage = direction => {
+      return (
+        <View style={styles.page}>
+          {primaryLoaded && (secondaryLoaded || !parallelVersionId) &&
+            <React.Fragment>
+              <ReadText
+                key={`${versionId} ${ref.bookId} ${ref.chapter} ${direction}`}
+                passageRef={adjacentRefs[direction]}
+                versionId={versionId}
+              />
+              {!!parallelVersionId &&
+                <React.Fragment>
+                  <View style={styles.divider} />
+                  <ReadText
+                    key={`${parallelVersionId} ${ref.bookId} ${ref.chapter} ${direction}`}
+                    passageRef={adjacentRefs[direction]}
+                    versionId={parallelVersionId}
+                  />
+                </React.Fragment>
+              }
+            </React.Fragment>
+          }
+        </View>
+      )
+    }
+
     return (
-      <View
+      <ScrollView
         style={[
           styles.container,
-          (showingRecentBookmarks ? { paddingBottom: 84 } : null),
+          (showingRecentBookmarks ? { marginBottom: 84 } : null),
         ]}
+        contentContainerStyle={styles.contentContainer}
+        horizontal={true}
+        pagingEnabled={true}
+        showsHorizontalScrollIndicator={false}
+        contentOffset={{ x: width, y: 0 }}
+        ref={this.setRef}
+        //onContentSizeChange={this.setContentOffset}  I might need this for device rotation
       >
-        <ReadText
-          key={`${versionId} ${ref.bookId} ${ref.chapter}`}
-          passageRef={ref}
-          versionId={versionId}
-          onTouchStart={this.onPrimaryTouchStart}
-          onScroll={this.onPrimaryScroll}
-          onLayout={this.onPrimaryLayout}
-          onContentSizeChange={this.onPrimaryContentSizeChange}
-          onLoaded={this.onPrimaryLoaded}
-          setRef={this.setPrimaryRef}
-        />
-        {!!parallelVersionId &&
-          <React.Fragment>
-            <View style={styles.divider} />
-            <ReadText
-              key={`${parallelVersionId} ${ref.bookId} ${ref.chapter}`}
-              passageRef={ref}
-              versionId={parallelVersionId}
-              onTouchStart={this.onSecondaryTouchStart}
-              onScroll={this.onSecondaryScroll}
-              onLayout={this.onSecondaryLayout}
-              onContentSizeChange={this.onSecondaryContentSizeChange}
-              setRef={this.setSecondaryRef}
-            />
-          </React.Fragment>
-        }
-      </View>
+        {getAdjacentPage('previous')}
+        <View style={styles.page}>
+          <ReadText
+            key={`${versionId} ${ref.bookId} ${ref.chapter}`}
+            passageRef={ref}
+            versionId={versionId}
+            onTouchStart={this.onPrimaryTouchStart}
+            onScroll={this.onPrimaryScroll}
+            onLayout={this.onPrimaryLayout}
+            onContentSizeChange={this.onPrimaryContentSizeChange}
+            onLoaded={this.onPrimaryLoaded}
+            setRef={this.setPrimaryRef}
+          />
+          {!!parallelVersionId &&
+            <React.Fragment>
+              <View style={styles.divider} />
+              <ReadText
+                key={`${parallelVersionId} ${ref.bookId} ${ref.chapter}`}
+                passageRef={ref}
+                versionId={parallelVersionId}
+                onTouchStart={this.onSecondaryTouchStart}
+                onScroll={this.onSecondaryScroll}
+                onLayout={this.onSecondaryLayout}
+                onContentSizeChange={this.onSecondaryContentSizeChange}
+                onLoaded={this.onSecondaryLoaded}
+                setRef={this.setSecondaryRef}
+              />
+            </React.Fragment>
+          }
+        </View>
+        {getAdjacentPage('next')}
+      </ScrollView>
     )
   }
 }

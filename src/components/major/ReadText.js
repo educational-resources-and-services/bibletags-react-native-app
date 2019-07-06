@@ -24,6 +24,10 @@ const viewStyles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  viewContainer: {
+    flex: 1,
+    overflow: 'hidden',
+  },
   content: {
     padding: 20,
   },
@@ -245,7 +249,17 @@ class ReadText extends React.PureComponent {
 
     if(!pieces) {
       return (
-        <View style={viewStyles.container} />
+        <View style={viewStyles.viewContainer} />
+      )
+    }
+
+    if(!onScroll) {
+      return (
+        <View style={viewStyles.viewContainer}>
+          <View style={viewStyles.content}>
+            {this.getJSXFromPieces({ pieces })}
+          </View>
+        </View>
       )
     }
 
