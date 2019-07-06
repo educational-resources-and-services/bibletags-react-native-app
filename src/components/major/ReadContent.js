@@ -42,12 +42,18 @@ class ReadContent extends React.PureComponent {
 
   static getDerivedStateFromProps(props, state) {
     const { passage } = props
+    const { ref, versionId, parallelVersionId } = passage
+    const statePassage = state.passage || {}
 
     if(passage === state.passage) return null
 
+    const refChanged = ref !== statePassage.ref
+    const primaryChanged = versionId !== statePassage.versionId
+    const secondaryChanged = parallelVersionId !== statePassage.parallelVersionId
+
     return {
-      primaryLoaded: false,
-      secondaryLoaded: false,
+      primaryLoaded: !!(state.primaryLoaded && !refChanged && !primaryChanged),
+      secondaryLoaded: !!(state.secondaryLoaded && !refChanged && !secondaryChanged),
       passage,
     }
   }
