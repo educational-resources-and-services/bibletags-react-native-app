@@ -55,11 +55,19 @@ const store = createStore(persistedReducer, applyMiddleware(patchMiddleware))
 const persistor = persistStore(store)
 
 export default class App extends React.Component {
-  state = {
-    isReady: false,
+
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      isReady: false,
+    }
+
+    this.setUp()
   }
 
-  async componentWillMount() {
+  setUp = async () => {
+
     await Promise.all([
       Font.loadAsync({
         Roboto: require('native-base/Fonts/Roboto.ttf'),
