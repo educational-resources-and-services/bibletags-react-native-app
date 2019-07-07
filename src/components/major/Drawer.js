@@ -6,7 +6,7 @@ import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOp
 import { Container, Content, Text, List, View } from "native-base"
 
 import i18n from "../../utils/i18n.js"
-import { debounce, isConnected } from "../../utils/toolbox.js"
+import { isConnected } from "../../utils/toolbox.js"
 import menuItems from '../../../menu.js'
 import DrawerItem from '../basic/DrawerItem'
 
@@ -84,16 +84,8 @@ class Drawer extends React.Component {
     })
   }
 
-  goVersions = () => {
-    const { navigation } = this.props
-
-    debounce(
-      navigation.navigate,
-      "Versions",
-    )
-  }
-
   render() {
+    const { navigation } = this.props
     const { offline } = this.state
 
     const { height } = Dimensions.get('window')
@@ -108,15 +100,11 @@ class Drawer extends React.Component {
               style={styles.image}
             />
             <List style={styles.list}>
-              <DrawerItem
-                offline={offline}
-                text={i18n("Bible version information")}
-                onPress={this.goVersions}
-              />
               {menuItems.map((menuItem, idx) => (
                 <DrawerItem
                   key={idx}
                   offline={offline}
+                  navigation={navigation}
                   {...menuItem}
                 />
               ))}

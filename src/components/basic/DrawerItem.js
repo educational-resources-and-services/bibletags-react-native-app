@@ -4,6 +4,7 @@ import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
 import i18n from "../../utils/i18n.js"
+import { debounce, isConnected } from "../../utils/toolbox.js"
 
 const styles = StyleSheet.create({
   image: {
@@ -21,6 +22,15 @@ const styles = StyleSheet.create({
 
 class DrawerItem extends React.PureComponent {
 
+  goVersions = () => {
+    const { navigation } = this.props
+
+    debounce(
+      navigation.navigate,
+      "Versions",
+    )
+  }
+
   goToURL = event => {
     const { href } = this.props
 
@@ -35,22 +45,37 @@ class DrawerItem extends React.PureComponent {
   }
 
   render() {
-    const { text, image, imageWidth, imageHeight, onPress, rate, href } = this.props
+    const { text, image, imageWidth, imageHeight, onPress, type, href } = this.props
+
+    let typeAction, typeText
+
+    switch(type) {
+      case 'rate': {
+        typeText = i18n("Rate this app")
+        typeAction = StoreReview.requestReview
+        break
+      }
+      case 'versions': {
+        typeText = i18n("Bible version information")
+        typeAction = this.goVersions
+        break
+      }
+    }
 
     return (
       <ListItem
-        {...((onPress || rate || href)
+        {...((onPress || typeAction || href)
           ? {
             button: true,
-            onPress: onPress || (rate && StoreReview.requestReview) || this.goToURL,
+            onPress: onPress || typeAction || this.goToURL,
           }
           : {}
         )}
         style={styles.listItem}
       >
         <Body>
-          {!!text &&
-            <Text>{text}</Text> 
+          {!!(text || typeText) &&
+            <Text>{text || typeText}</Text> 
           }
           {!!image &&
             <Image

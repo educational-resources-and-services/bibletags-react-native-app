@@ -34,7 +34,7 @@ class Versions extends React.Component {
       <Container>
         <BasicHeader
           navigation={navigation}
-          title={i18n("Bible versions")}
+          title={i18n("Bible version information")}
         />
         <Content>
           <Body style={styles.body}>
