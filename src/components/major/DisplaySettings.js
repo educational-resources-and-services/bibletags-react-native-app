@@ -55,15 +55,15 @@ const styles = StyleSheet.create({
 const themeOptions = [
   {
     id: 'default',
-    label: i18n("Default theme"),
+    label: i18n("Default"),
   },
   {
     id: 'low-light',
-    label: i18n("Low light theme"),
+    label: i18n("Low light"),
   },
   {
     id: 'high-contrast',
-    label: i18n("High contrast theme"),
+    label: i18n("High contrast"),
   },
 ]
 
@@ -123,7 +123,11 @@ class DisplaySettings extends React.PureComponent {
     ActionSheet.show(
       {
         title: i18n("Font"),
-        options: bibleFontList,
+        options: [
+          ...bibleFontList,
+          ...(Platform.OS === 'ios' ? [i18n("Cancel")] : []),
+        ],
+        cancelButtonIndex: bibleFontList.length,
       },
       this.setFont,
     )
@@ -132,7 +136,7 @@ class DisplaySettings extends React.PureComponent {
   setFont = idx => {
     const { setFont } = this.props
 
-    if(idx != null) {
+    if(bibleFontList[idx]) {
       setFont({ font: bibleFontList[idx] })
     }
   }
@@ -140,7 +144,12 @@ class DisplaySettings extends React.PureComponent {
   selectTheme = () => {
     ActionSheet.show(
       {
-        options: themeOptions.map(({ label }) => label),
+        title: i18n("Theme"),
+        options: [
+          ...themeOptions.map(({ label }) => label),
+          ...(Platform.OS === 'ios' ? [i18n("Cancel")] : []),
+        ],
+        cancelButtonIndex: themeOptions.length,
       },
       this.setTheme,
     )
@@ -149,7 +158,7 @@ class DisplaySettings extends React.PureComponent {
   setTheme = idx => {
     const { setTheme } = this.props
 
-    if(idx != null) {
+    if(themeOptions[idx]) {
       setTheme({ theme: themeOptions[idx].id })
     }
   }
@@ -236,7 +245,7 @@ class DisplaySettings extends React.PureComponent {
             onPress={this.selectTheme}
           >
             <Text>
-              {currentThemeLabel}
+              {i18n("Theme: {{theme}}", { theme: currentThemeLabel })}
             </Text>
             <Icon
               name="arrow-dropdown"
@@ -247,7 +256,7 @@ class DisplaySettings extends React.PureComponent {
             onPress={this.selectFont}
           >
             <Text>
-              {currentFontLabel}
+              {i18n("Font: {{font}}", { font: currentFontLabel })}
             </Text>
             <Icon
               name="arrow-dropdown"
