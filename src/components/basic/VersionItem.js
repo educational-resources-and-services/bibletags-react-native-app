@@ -11,6 +11,10 @@ const styles = StyleSheet.create({
   },
   abbrText: {
     fontWeight: 'bold',
+    textAlign: 'left',
+  },
+  versionName: {
+    textAlign: 'left',
   },
   image: {
     width: '100%',
@@ -57,7 +61,7 @@ class VersionItem extends React.PureComponent {
           </Text> 
         </View>
         <Body>
-          <Text>{name}</Text> 
+          <Text style={styles.versionName}>{name}</Text> 
         </Body>
       </ListItem>
     )

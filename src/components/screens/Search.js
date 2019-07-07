@@ -157,6 +157,15 @@ class Search extends React.Component {
     )
   }
 
+  goVersions = () => {
+    const { navigation } = this.props
+
+    debounce(
+      navigation.navigate,
+      "Versions",
+    )
+  }
+
   render() {
 
     const { navigation } = this.props
@@ -185,6 +194,7 @@ class Search extends React.Component {
             update={this.updateVersion}
             selectedVersionId={versionId}
             backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+            goVersions={this.goVersions}
           />
         }
         <Content>

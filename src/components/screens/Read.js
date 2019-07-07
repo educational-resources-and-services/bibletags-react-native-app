@@ -7,7 +7,7 @@ import { connect } from "react-redux"
 import { Content } from "native-base"
 
 import i18n from "../../utils/i18n.js"
-import { unmountTimeouts } from "../../utils/toolbox.js"
+import { unmountTimeouts, debounce } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
@@ -86,6 +86,17 @@ class Read extends React.Component {
   
   hideDisplaySettings = () => this.setState({ showingDisplaySettings: false })
 
+  goVersions = () => {
+    const { navigation } = this.props
+
+    this.hidePassageChooser()
+
+    debounce(
+      navigation.navigate,
+      "Versions",
+    )
+  }
+
   render() {
 
     const { navigation, displaySettings } = this.props
@@ -106,6 +117,7 @@ class Read extends React.Component {
             hidePassageChooser={this.hidePassageChooser}
             paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
             showing={showingPassageChooser}
+            goVersions={this.goVersions}
           />
         </View>
         <RevealContainer

@@ -198,13 +198,15 @@ class PassageChooser extends React.PureComponent {
   }
 
   render() {
-    const { showing, paddingBottom, hidePassageChooser, passage, mode } = this.props
+    const { showing, paddingBottom, hidePassageChooser, passage, mode, goVersions } = this.props
     const { chapter } = this.state
 
     // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
     // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
-    const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
-    const showVersionChooser = PRIMARY_VERSIONS.length > 1
+    // const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
+    // const showVersionChooser = PRIMARY_VERSIONS.length > 1
+    const showParallelVersionChooser = mode === 'parallel'
+    const showVersionChooser = true
 
     return (
       <View style={styles.container}>
@@ -215,6 +217,7 @@ class PassageChooser extends React.PureComponent {
             update={this.updateVersion}
             selectedVersionId={passage.versionId}
             backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+            goVersions={goVersions}
           />
         }
         {showParallelVersionChooser &&
@@ -223,6 +226,7 @@ class PassageChooser extends React.PureComponent {
             update={this.updateParallelVersion}
             selectedVersionId={passage.parallelVersionId}
             backgroundColor={PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR}
+            goVersions={goVersions}
           />
         }
         <View style={styles.refChooser}>
