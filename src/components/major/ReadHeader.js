@@ -33,6 +33,9 @@ const styles = StyleSheet.create({
         : {}
     ),
   },
+  title: {
+    textAlign: 'left',
+  },
   subtitle: {
     textAlign: 'left',
     writingDirection: 'ltr',
@@ -119,7 +122,7 @@ class ReadHeader extends React.PureComponent {
             onPressIn={showPassageChooser}
           >
             <View style={styles.titles}>
-              <Title>
+              <Title style={styles.title}>
                 {getPassageStr({
                   refs: [
                     passage.ref,
