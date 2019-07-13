@@ -186,7 +186,7 @@ class ReadContent extends React.PureComponent {
           ref: adjacentRefs[ x < width ? 'previous' : 'next' ],
         },
       )
-      setTimeout(this.setContentOffset)
+      this.setContentOffset()
     }
   }
 
@@ -199,26 +199,39 @@ class ReadContent extends React.PureComponent {
 
     const { width } = Dimensions.get('window')
 
-    const getAdjacentPage = direction => {
+    const getPage = direction => {
+      const pageRef = adjacentRefs[direction] || ref
+
       return (
-        <View style={styles.page}>
-          {primaryLoaded && (secondaryLoaded || !parallelVersionId) &&
+        <View
+          key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
+          style={styles.page}
+        >
+          <ReadText
+            key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
+            passageRef={pageRef}
+            versionId={versionId}
+            onTouchStart={!direction ? this.onPrimaryTouchStart : null}
+            onScroll={!direction ? this.onPrimaryScroll : null}
+            onLayout={!direction ? this.onPrimaryLayout : null}
+            onContentSizeChange={!direction ? this.onPrimaryContentSizeChange : null}
+            onLoaded={!direction ? this.onPrimaryLoaded : null}
+            setRef={!direction ? this.setPrimaryRef : null}
+          />
+          {!!parallelVersionId &&
             <React.Fragment>
+              <View style={styles.divider} />
               <ReadText
-                key={`${versionId} ${ref.bookId} ${ref.chapter} ${direction}`}
-                passageRef={adjacentRefs[direction]}
-                versionId={versionId}
+                key={`${parallelVersionId} ${pageRef.bookId} ${pageRef.chapter}`}
+                passageRef={pageRef}
+                versionId={parallelVersionId}
+                onTouchStart={!direction ? this.onSecondaryTouchStart : null}
+                onScroll={!direction ? this.onSecondaryScroll : null}
+                onLayout={!direction ? this.onSecondaryLayout : null}
+                onContentSizeChange={!direction ? this.onSecondaryContentSizeChange : null}
+                onLoaded={!direction ? this.onSecondaryLoaded : null}
+                setRef={!direction ? this.setSecondaryRef : null}
               />
-              {!!parallelVersionId &&
-                <React.Fragment>
-                  <View style={styles.divider} />
-                  <ReadText
-                    key={`${parallelVersionId} ${ref.bookId} ${ref.chapter} ${direction}`}
-                    passageRef={adjacentRefs[direction]}
-                    versionId={parallelVersionId}
-                  />
-                </React.Fragment>
-              }
             </React.Fragment>
           }
         </View>
@@ -240,37 +253,11 @@ class ReadContent extends React.PureComponent {
         onMomentumScrollEnd={this.onPageSwipeEnd}
         //onContentSizeChange={this.setContentOffset}  // I might need this for device rotation
       >
-        {getAdjacentPage('previous')}
-        <View style={styles.page}>
-          <ReadText
-            key={`${versionId} ${ref.bookId} ${ref.chapter}`}
-            passageRef={ref}
-            versionId={versionId}
-            onTouchStart={this.onPrimaryTouchStart}
-            onScroll={this.onPrimaryScroll}
-            onLayout={this.onPrimaryLayout}
-            onContentSizeChange={this.onPrimaryContentSizeChange}
-            onLoaded={this.onPrimaryLoaded}
-            setRef={this.setPrimaryRef}
-          />
-          {!!parallelVersionId &&
-            <React.Fragment>
-              <View style={styles.divider} />
-              <ReadText
-                key={`${parallelVersionId} ${ref.bookId} ${ref.chapter}`}
-                passageRef={ref}
-                versionId={parallelVersionId}
-                onTouchStart={this.onSecondaryTouchStart}
-                onScroll={this.onSecondaryScroll}
-                onLayout={this.onSecondaryLayout}
-                onContentSizeChange={this.onSecondaryContentSizeChange}
-                onLoaded={this.onSecondaryLoaded}
-                setRef={this.setSecondaryRef}
-              />
-            </React.Fragment>
-          }
-        </View>
-        {getAdjacentPage('next')}
+        {[
+          getPage('previous'),
+          getPage(),
+          getPage('next'),
+        ]}
       </ScrollView>
     )
   }

@@ -253,16 +253,6 @@ class ReadText extends React.PureComponent {
       )
     }
 
-    if(!onScroll) {
-      return (
-        <View style={viewStyles.viewContainer}>
-          <View style={viewStyles.content}>
-            {this.getJSXFromPieces({ pieces })}
-          </View>
-        </View>
-      )
-    }
-
     return (
       <ScrollView
         style={viewStyles.container}
