@@ -31,6 +31,9 @@ export default function(state = initialState, action) {
       })
       newState.history.splice(MAXIMUM_NUMBER_OF_HISTORY, newState.history.length)
       newState.recentPassages = newState.recentPassages.map(index => index === 'current' ? 0 : index + 1)
+      if(action.wasSwipe) {
+        newState.recentPassages = newState.recentPassages.filter(index => index !== 0)
+      }
       newState.recentSearches = newState.recentSearches.map(index => index + 1)
       newState.recentPassages.unshift('current')
 

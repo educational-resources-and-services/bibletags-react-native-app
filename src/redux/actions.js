@@ -1,6 +1,7 @@
-export const setRef = ({ ref }) => ({
+export const setRef = ({ ref, wasSwipe }) => ({
   type: "SET_REF",
   ref,
+  wasSwipe,
 })
 
 export const setPassageScroll = ({ y }) => ({

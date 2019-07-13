@@ -184,6 +184,7 @@ class ReadContent extends React.PureComponent {
         setRef,
         {
           ref: adjacentRefs[ x < width ? 'previous' : 'next' ],
+          wasSwipe: true,
         },
       )
       this.setContentOffset()
