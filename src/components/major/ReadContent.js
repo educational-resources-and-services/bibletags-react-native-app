@@ -4,7 +4,8 @@ import { ScrollView, View, StyleSheet, Dimensions } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce } from "../../utils/toolbox.js"
+import { debounce, getVersionInfo } from "../../utils/toolbox.js"
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 import ReadText from './ReadText'
 
 import { setRef, setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
@@ -48,18 +49,55 @@ class ReadContent extends React.PureComponent {
     const primaryChanged = versionId !== statePassage.versionId
     const secondaryChanged = parallelVersionId !== statePassage.parallelVersionId
 
+    const versionInfo = getVersionInfo(versionId)
+    const bookIdsWithCorrectOrdering = getBookIdListWithCorrectOrdering({ versionInfo })
+    const { bookId } = ref
+
+    const numChapters = getNumberOfChapters({
+      versionInfo,
+      bookId,
+    }) || 0
+
+    let previous = {
+      ...ref,
+      chapter: ref.chapter - 1,
+    }
+
+    let next = {
+      ...ref,
+      chapter: ref.chapter + 1,
+    }
+
+    if(ref.chapter <= 1) {
+      const previousBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) - 1 ]
+      const numChaptersPreviousBook = getNumberOfChapters({
+        versionInfo,
+        bookId: previousBookId,
+      }) || 0
+
+      previous = {
+        ...previous,
+        chapter: numChaptersPreviousBook,
+        bookId: previousBookId,
+      }
+    }
+
+    if(ref.chapter >= numChapters) {
+      const nextBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) + 1 ]
+
+      next = {
+        ...next,
+        chapter: 1,
+        bookId: nextBookId,
+      }
+    }
+
     const adjacentRefs = (
       !refChanged
         ? state.adjacentRefs
         : {
-          previous: {
-            ...ref,
-            chapter: ref.chapter - 1,
-          },
-          next: {
-            ...ref,
-            chapter: ref.chapter + 1,
-          },
+          previous,
+          next,
         }
     )
 
@@ -180,10 +218,17 @@ class ReadContent extends React.PureComponent {
     const { width } = Dimensions.get('window')
 
     if(x !== width) {
+      const ref = adjacentRefs[ x < width ? 'previous' : 'next' ]
+
+      if(!ref.bookId) {
+        this.setContentOffset()
+        return
+      }
+
       debounce(
         setRef,
         {
-          ref: adjacentRefs[ x < width ? 'previous' : 'next' ],
+          ref,
           wasSwipe: true,
         },
       )
