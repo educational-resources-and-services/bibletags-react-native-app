@@ -8,6 +8,7 @@ import { executeSql, isRTL, getVersionInfo } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
+import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'
 
@@ -163,14 +164,12 @@ class ReadText extends React.PureComponent {
     }, onLoaded)
   }
 
-  getJSXFromPieces = ({ pieces, verse }) => {
-    const { displaySettings } = this.props
+  getJSXFromPieces = ({ pieces }) => {
+    const { displaySettings, selectedVerse, onVerseTap } = this.props
     const { languageId, isOriginal } = this.state
 
     const { font, textSize } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
-
-    verse = verse || 1
 
     let textAlreadyDisplayedInThisView = false
 
@@ -179,6 +178,12 @@ class ReadText extends React.PureComponent {
 
       if(!children && !text && !content) return null
       if([ "c", "cp" ].includes(tag)) return null
+
+      if([ "v" ].includes(tag) && content) {
+        this.verse = parseInt(content, 10)
+      }
+      
+      const verse = /^(?:ms|mt|s[0-9])$/.test(tag) ? null : this.verse
 
       if([ "v", "vp" ].includes(tag) && content) {
         const nextPiece = pieces[idx+1] || {}
@@ -204,25 +209,29 @@ class ReadText extends React.PureComponent {
         getStyle({ tag, styles: textStyles }),
         fontSize && { fontSize },
         fontFamily && { fontFamily },
+        (selectedVerse !== null && (
+          verse === selectedVerse
+            ? { color: '#000000' }
+            : { color: '#bbbbbb' }
+        )),
       ].filter(s => s)
 
       textAlreadyDisplayedInThisView = true
 
-      if(text && styles.length === 0) return text
-
       let component = (
-        <Text
+        <VerseText
           key={idx}
           style={styles}
+          onPress={onVerseTap}
+          verseNumber={verse}
         >
           {children
             ? this.getJSXFromPieces({
               pieces: children,
-              verse,
             })
             : (text || content)
           }
-        </Text>
+        </VerseText>
       )
 
       if(wrapInView) {

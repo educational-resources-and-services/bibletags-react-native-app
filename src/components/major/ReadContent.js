@@ -106,6 +106,8 @@ class ReadContent extends React.PureComponent {
       secondaryLoaded: !!(state.secondaryLoaded && !refChanged && !secondaryChanged),
       passage,
       adjacentRefs,
+      selectedVerse: null,
+      selectedSection: null,
     }
   }
 
@@ -236,10 +238,28 @@ class ReadContent extends React.PureComponent {
     }
   }
 
+
+  onPrimaryVerseTap = selectedVerse => this.onVerseTap({ selectedSection: 'primary', selectedVerse })
+  onSecondaryVerseTap = selectedVerse => this.onVerseTap({ selectedSection: 'secondary', selectedVerse })
+
+  onVerseTap = ({ selectedSection, selectedVerse }) => {
+    if(this.state.selectedVerse) {
+      this.setState({
+        selectedSection: null,
+        selectedVerse: null,
+      })
+    } else {
+      this.setState({
+        selectedSection,
+        selectedVerse,
+      })
+    }
+  }
+
   render() {
     const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
-    const { primaryLoaded, secondaryLoaded, adjacentRefs } = this.state
+    const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
@@ -257,11 +277,21 @@ class ReadContent extends React.PureComponent {
             key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
             passageRef={pageRef}
             versionId={versionId}
+            selectedVerse={
+              selectedSection === 'primary'
+                ? selectedVerse
+                : (
+                  selectedSection === 'secondary'
+                    ? -1
+                    : null
+                )
+            }
             onTouchStart={!direction ? this.onPrimaryTouchStart : null}
             onScroll={!direction ? this.onPrimaryScroll : null}
             onLayout={!direction ? this.onPrimaryLayout : null}
             onContentSizeChange={!direction ? this.onPrimaryContentSizeChange : null}
             onLoaded={!direction ? this.onPrimaryLoaded : null}
+            onVerseTap={!direction ? this.onPrimaryVerseTap : null}
             setRef={!direction ? this.setPrimaryRef : null}
           />
           {!!parallelVersionId &&
@@ -271,11 +301,21 @@ class ReadContent extends React.PureComponent {
                 key={`${parallelVersionId} ${pageRef.bookId} ${pageRef.chapter}`}
                 passageRef={pageRef}
                 versionId={parallelVersionId}
+                selectedVerse={
+                  selectedSection === 'secondary'
+                    ? selectedVerse
+                    : (
+                      selectedSection === 'primary'
+                        ? -1
+                        : null
+                    )
+                }
                 onTouchStart={!direction ? this.onSecondaryTouchStart : null}
                 onScroll={!direction ? this.onSecondaryScroll : null}
                 onLayout={!direction ? this.onSecondaryLayout : null}
                 onContentSizeChange={!direction ? this.onSecondaryContentSizeChange : null}
                 onLoaded={!direction ? this.onSecondaryLoaded : null}
+                onVerseTap={!direction ? this.onSecondaryVerseTap : null}
                 setRef={!direction ? this.setSecondaryRef : null}
               />
             </React.Fragment>
