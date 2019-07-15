@@ -4,13 +4,12 @@ import { View, ScrollView, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import i18n from "../../utils/i18n.js"
-import { executeSql, isRTL, getVersionInfo } from '../../utils/toolbox.js'
+// import i18n from "../../utils/i18n.js"
+import { executeSql, isRTL, getVersionInfo, getCopyVerseText } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
 import VerseText from '../basic/VerseText'
-import { getPassageStr } from "bibletags-ui-helper"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'
 
@@ -190,26 +189,14 @@ class ReadText extends React.PureComponent {
       wordDividerRegex,
     })
 
-    let selectedTextContent = ''
-
-    pieces.forEach(({ tag, text }) => {
-      if([ 'd' ].includes(tag)) return
-      if(!text) return
-
-      selectedTextContent += text
+    const selectedTextContent = getCopyVerseText({
+      pieces,
+      ref: {
+        ...passageRef,
+        verse: selectedVerse,
+      },
+      versionAbbr: abbr,
     })
-
-    selectedTextContent += i18n(" ({{passage_reference}} {{version}})", {
-      passage_reference: getPassageStr({
-        refs: [{
-          ...passageRef,
-          verse: selectedVerse,
-        }],
-      }),
-      version: abbr,
-    })
-
-    selectedTextContent = selectedTextContent.trim()
 
     onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
   }

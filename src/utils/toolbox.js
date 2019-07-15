@@ -2,9 +2,10 @@ import { Dimensions, NetInfo } from "react-native"
 import { SQLite } from 'expo'
 import { Constants } from "expo"
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
+import { getPassageStr } from "bibletags-ui-helper"
 // import { Toast } from "native-base"
 
-// import i18n from "./i18n.js"
+import i18n from "./i18n.js"
 import bibleVersions from '../../versions.js'
 import { getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 
@@ -275,4 +276,23 @@ export const updateRecentLists = ({ newState }) => {
   newState.recentPassages = newRecentPassages
   newState.recentSearches = newRecentSearches
 
+}
+
+export const getCopyVerseText = ({ pieces, ref, versionAbbr }) => {
+  let selectedTextContent = ''
+
+  pieces.forEach(({ tag, text }) => {
+    if([ 'd' ].includes(tag)) return
+    if(!text) return
+
+    selectedTextContent += text
+  })
+
+  return i18n("{{verse}} ({{passage_reference}} {{version}})", {
+    verse: selectedTextContent.trim(),
+    passage_reference: getPassageStr({
+      refs: [ ref ],
+    }),
+    version: versionAbbr,
+  })
 }

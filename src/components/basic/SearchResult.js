@@ -1,19 +1,24 @@
 import React from "react"
 import { Constants } from "expo"
-import { View, StyleSheet, Text } from "react-native"
+import { View, StyleSheet, Text, Dimensions, Clipboard } from "react-native"
+import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { isRTL } from '../../utils/toolbox.js'
+import { isRTL, getCopyVerseText } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
-// import i18n from "../../utils/i18n.js"
+import i18n from "../../utils/i18n.js"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
 import { getPassageStr } from "bibletags-ui-helper"
+import TapOptions from "./TapOptions"
+
+import { setRef } from "../../redux/actions.js"
 
 const {
   DEFAULT_FONT_SIZE,
   SEARCH_RESULT_REFERENCE_COLOR,
   SEARCH_RESULT_VERSE_COLOR,
+  SEARCH_RESULT_SELECTED_COLOR,
   SEARCH_RESULT_MATCH_COLOR,
 } = Constants.manifest.extra
 
@@ -21,6 +26,9 @@ const viewStyles = StyleSheet.create({
   container: {
     padding: 20,
     paddingBottom: 0,
+  },
+  containerSelected: {
+    zIndex: 1,
   },
   // sup: {
   //   position: "relative",
@@ -31,6 +39,9 @@ const viewStyles = StyleSheet.create({
 const textStyles = StyleSheet.create({
   verse: {
     color: SEARCH_RESULT_VERSE_COLOR,
+  },
+  selected: {
+    color: SEARCH_RESULT_SELECTED_COLOR,
   },
   reference: {
     color: SEARCH_RESULT_REFERENCE_COLOR,
@@ -161,9 +172,53 @@ class SearchResult extends React.PureComponent {
     })
   }
 
-  render() {
-    const { result, searchString, languageId, displaySettings } = this.props
+  tapOptions = [
+    {
+      label: i18n("Read"),
+      action: () => {
+        const { result, navigation, setRef } = this.props
+        const { pieces, loc } = result
 
+        const ref = getRefFromLoc(loc)
+
+        navigation.goBack()
+        setRef({ ref })
+      }
+    },
+    {
+      label: i18n("Copy"),
+      action: () => {
+        const { result, versionAbbr, unselect } = this.props
+        const { pieces, loc } = result
+
+        const ref = getRefFromLoc(loc)
+        const passageStr = getPassageStr({ refs: [ ref ] })
+    
+        const copyTextContent = getCopyVerseText({ pieces, ref, versionAbbr })
+
+        Clipboard.setString(copyTextContent)
+        Toast.show({
+          text: i18n("Verse copied"),
+          duration: 1700,
+        })
+
+        unselect()
+      }
+    },
+  ]
+
+  onPress = ({ nativeEvent }) => {
+    const { result, onSelect } = this.props
+    const { pageY } = nativeEvent
+
+    onSelect({ loc: result.loc, pageY })
+  }
+
+  render() {
+    const { result, searchString, languageId, displaySettings,
+            selected, selectTapY, onTouchStart, onTouchEnd } = this.props
+
+    const { width, height } = Dimensions.get('window')
     const { textSize } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
     const fontFamily = getValidFontName({ font: this.getFont() })
@@ -176,29 +231,52 @@ class SearchResult extends React.PureComponent {
       ],
     })
 
+    const showBelow = selectTapY < height / 2
+
     return (
-      <View style={viewStyles.container}>
+      <View
+        style={[
+          viewStyles.container,
+          selected ? viewStyles.containerSelected : null,
+        ]}
+      >
         <Text
           style={[
             textStyles.reference,
+            selected ? textStyles.selected : null,
             (isRTL(languageId) ? textStyles.rightAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
             },
           ]}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onPress={this.onPress}
         >
           {passageStr}
         </Text>
         <Text
           style={[
             textStyles.verse,
+            selected ? textStyles.selected : null,
             (isRTL(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
           ]}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onPress={this.onPress}
         >
           {this.getJSXFromPieces({ pieces })}
         </Text>
+        {selected &&
+          <TapOptions
+            options={this.tapOptions}
+            centerX={parseInt(width/2, 10)}
+            bottomY={showBelow ? -50 : null}
+            topY={!showBelow ? -20 : null}
+          />
+        }
       </View>
     )
   }
@@ -209,7 +287,7 @@ const mapStateToProps = ({ displaySettings }) => ({
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
-  // setTheme,
+  setRef,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(SearchResult)

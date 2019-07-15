@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, Text, Dimensions } from "react-native"
+import { StyleSheet, View, Text, Dimensions, FlatList } from "react-native"
 import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -59,6 +59,9 @@ class Search extends React.Component {
       searchResults: null,
       languageId: 'eng',
       isOriginal: false,
+      versionAbbr: '',
+      selectedLoc: null,
+      selectTapY: 0,
     }
   }
 
@@ -115,7 +118,7 @@ class Search extends React.Component {
       removeWordPartDivisions: true,
     })
 
-    const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
+    const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
 
     const searchResults = verses.map(({ usfm, loc }) => ({
       loc,
@@ -132,6 +135,7 @@ class Search extends React.Component {
       searchResults,
       languageId,
       isOriginal,
+      versionAbbr: abbr,
     })
 
     if(searchResults.length > 0) {
@@ -166,10 +170,65 @@ class Search extends React.Component {
     )
   }
 
+  clearSelection = () => {
+    this.setState({
+      selectedLoc: null,
+      selectTapY: 0,
+    })
+  }
+
+  onTouchStart = () => {
+    const { selectedLoc } = this.state
+
+    if(selectedLoc) {
+      this.clearSelection()
+      this.skipVerseTap = true
+    }
+  }
+
+  onTouchEnd = () => delete this.skipVerseTap
+
+  selectLoc = ({ loc, pageY }) => {
+    if(this.skipVerseTap) return
+
+    this.setState({
+      selectedLoc: loc,
+      selectTapY: pageY,
+    })
+  }
+
+  renderItem = ({ item, index }) => {
+    const { navigation } = this.props
+    const { searchedString, languageId, isOriginal,
+            versionAbbr, selectedLoc, selectTapY } = this.state
+
+    const selected = item.loc === selectedLoc
+
+    return (
+      <SearchResult
+        result={item}
+        searchString={searchedString}
+        languageId={languageId}
+        isOriginal={isOriginal}
+        versionAbbr={versionAbbr}
+        selected={selected}
+        selectTapY={selected ? selectTapY : null}
+        navigation={navigation}
+        onTouchStart={this.onTouchStart}
+        onTouchEnd={this.onTouchEnd}
+        onSelect={this.selectLoc}
+        unselect={this.clearSelection}
+      />
+    )
+  }
+
+  keyExtractor = item => item.loc
+
   render() {
 
     const { navigation } = this.props
-    const { editing, searchedString, searchedVersionId, searchResults, languageId, isOriginal } = this.state
+    const { editing, searchedString, searchedVersionId, searchResults,
+            languageId, isOriginal, versionAbbr, selectedLoc } = this.state
 
     const { searchString, versionId } = navigation.state.params
 
@@ -212,15 +271,12 @@ class Search extends React.Component {
           }
           {!editing && searchDone && searchResults.length > 0 &&
             <View style={styles.searchResults}>
-              {searchResults.slice(0,50).map((result, idx) => (
-                <SearchResult
-                  key={idx}
-                  result={result}
-                  searchString={searchString}
-                  languageId={languageId}
-                  isOriginal={isOriginal}
-                />
-              ))}
+              <FlatList
+                data={searchResults}
+                renderItem={this.renderItem}
+                keyExtractor={this.keyExtractor}
+                extraData={selectedLoc}
+              />
             </View>
           }
         </Content>
