@@ -4,9 +4,11 @@ import { ScrollView, View, StyleSheet, Dimensions } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import i18n from "../../utils/i18n.js"
 import { debounce, getVersionInfo } from "../../utils/toolbox.js"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 import ReadText from './ReadText'
+import TapOptions from '../basic/TapOptions'
 
 import { setRef, setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
 
@@ -108,6 +110,8 @@ class ReadContent extends React.PureComponent {
       adjacentRefs,
       selectedVerse: null,
       selectedSection: null,
+      selectedTapX: 0,
+      selectedTapY: 0,
     }
   }
 
@@ -147,8 +151,24 @@ class ReadContent extends React.PureComponent {
     return primaryMaxScroll / secondaryMaxScroll
   }
 
-  onPrimaryTouchStart = () => this.scrollController = 'primary'
-  onSecondaryTouchStart = () => this.scrollController = 'secondary'
+  onPrimaryTouchStart = () => this.onTouchStart('primary')
+  onSecondaryTouchStart = () => this.onTouchStart('secondary')
+
+  onTouchStart = scrollController => {
+    const { selectedSection } = this.state
+
+    this.scrollController = scrollController
+
+    if(selectedSection) {
+      this.setState({
+        selectedSection: null,
+        selectedVerse: null,
+      })
+      this.skipVerseTap = true
+    }
+  }
+
+  onTouchEnd = () => delete this.skipVerseTap
 
   primaryScrollY = 0
 
@@ -239,31 +259,39 @@ class ReadContent extends React.PureComponent {
   }
 
 
-  onPrimaryVerseTap = selectedVerse => this.onVerseTap({ selectedSection: 'primary', selectedVerse })
-  onSecondaryVerseTap = selectedVerse => this.onVerseTap({ selectedSection: 'secondary', selectedVerse })
+  onPrimaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'primary', ...params })
+  onSecondaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'secondary', ...params })
 
-  onVerseTap = ({ selectedSection, selectedVerse }) => {
-    if(this.state.selectedVerse) {
-      this.setState({
-        selectedSection: null,
-        selectedVerse: null,
-      })
-    } else {
-      this.setState({
-        selectedSection,
-        selectedVerse,
-      })
-    }
+  onVerseTap = ({ selectedSection, selectedVerse, pageX, pageY }) => {
+    if(this.skipVerseTap) return
+    if(selectedVerse == null) return
+
+    this.setState({
+      selectedSection,
+      selectedVerse,
+      selectedTapX: pageX,
+      selectedTapY: pageY,
+    })
   }
+
+  tapOptions = [
+    {
+      label: i18n("Copy"),
+      action: () => {
+        alert('do copy')
+      }
+    },
+  ]
 
   render() {
     const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
-    const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse } = this.state
+    const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse,
+            selectedTapX, selectedTapY } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
-    const { width } = Dimensions.get('window')
+    const { width, height } = Dimensions.get('window')
 
     const getPage = direction => {
       const pageRef = adjacentRefs[direction] || ref
@@ -287,6 +315,7 @@ class ReadContent extends React.PureComponent {
                 )
             }
             onTouchStart={!direction ? this.onPrimaryTouchStart : null}
+            onTouchEnd={!direction ? this.onTouchEnd : null}
             onScroll={!direction ? this.onPrimaryScroll : null}
             onLayout={!direction ? this.onPrimaryLayout : null}
             onContentSizeChange={!direction ? this.onPrimaryContentSizeChange : null}
@@ -311,6 +340,7 @@ class ReadContent extends React.PureComponent {
                     )
                 }
                 onTouchStart={!direction ? this.onSecondaryTouchStart : null}
+                onTouchEnd={!direction ? this.onTouchEnd : null}
                 onScroll={!direction ? this.onSecondaryScroll : null}
                 onLayout={!direction ? this.onSecondaryLayout : null}
                 onContentSizeChange={!direction ? this.onSecondaryContentSizeChange : null}
@@ -325,26 +355,36 @@ class ReadContent extends React.PureComponent {
     }
 
     return (
-      <ScrollView
-        style={[
-          styles.container,
-          (showingRecentBookmarks ? { marginBottom: 84 } : null),
-        ]}
-        contentContainerStyle={styles.contentContainer}
-        horizontal={true}
-        pagingEnabled={true}
-        showsHorizontalScrollIndicator={false}
-        contentOffset={{ x: width, y: 0 }}
-        ref={this.setRef}
-        onMomentumScrollEnd={this.onPageSwipeEnd}
-        //onContentSizeChange={this.setContentOffset}  // I might need this for device rotation
-      >
-        {[
-          getPage('previous'),
-          getPage(),
-          getPage('next'),
-        ]}
-      </ScrollView>
+      <React.Fragment>
+        <ScrollView
+          style={[
+            styles.container,
+            (showingRecentBookmarks ? { marginBottom: 84 } : null),
+          ]}
+          contentContainerStyle={styles.contentContainer}
+          horizontal={true}
+          pagingEnabled={true}
+          showsHorizontalScrollIndicator={false}
+          contentOffset={{ x: width, y: 0 }}
+          ref={this.setRef}
+          onMomentumScrollEnd={this.onPageSwipeEnd}
+          //onContentSizeChange={this.setContentOffset}  // I might need this for device rotation
+        >
+          {[
+            getPage('previous'),
+            getPage(),
+            getPage('next'),
+          ]}
+        </ScrollView>
+        {!!selectedSection &&
+          <TapOptions
+            options={this.tapOptions}
+            centerX={selectedTapX}
+            bottomY={selectedTapY >= 150 ? (height - selectedTapY + 20) : null}
+            topY={selectedTapY < 150 ? (selectedTapY + 40) : null}
+          />
+        }
+      </React.Fragment>
     )
   }
 }

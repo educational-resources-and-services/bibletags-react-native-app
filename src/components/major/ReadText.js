@@ -164,6 +164,13 @@ class ReadText extends React.PureComponent {
     }, onLoaded)
   }
 
+  getJSX = () => {
+    const { pieces } = this.state
+
+    delete this.verse
+    return this.getJSXFromPieces({ pieces })
+  }
+
   getJSXFromPieces = ({ pieces }) => {
     const { displaySettings, selectedVerse, onVerseTap } = this.props
     const { languageId, isOriginal } = this.state
@@ -253,7 +260,7 @@ class ReadText extends React.PureComponent {
   }
 
   render() {
-    const { setRef, onScroll, onTouchStart, onLayout, onContentSizeChange } = this.props
+    const { setRef, onScroll, onTouchStart, onTouchEnd, onLayout, onContentSizeChange } = this.props
     const { pieces } = this.state
 
     if(!pieces) {
@@ -267,13 +274,14 @@ class ReadText extends React.PureComponent {
         style={viewStyles.container}
         scrollEventThrottle={16}
         onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
         onScroll={onScroll}
         onLayout={onLayout}
         onContentSizeChange={onContentSizeChange}
         ref={setRef}
       >
         <View style={viewStyles.content}>
-          {this.getJSXFromPieces({ pieces })}
+          {this.getJSX()}
         </View>
       </ScrollView>
     )

@@ -3,9 +3,11 @@ import { Text } from "react-native"
 
 class VerseText extends React.PureComponent {
 
-  onPress = () => {
+  onPress = ({ nativeEvent }) => {
     const { verseNumber, onPress } = this.props
-    onPress(verseNumber)
+    const { pageX, pageY } = nativeEvent
+
+    onPress({ selectedVerse: verseNumber, pageX, pageY })
   }
 
   render() {
