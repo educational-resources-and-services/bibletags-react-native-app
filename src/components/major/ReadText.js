@@ -4,11 +4,13 @@ import { View, ScrollView, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import i18n from "../../utils/i18n.js"
 import { executeSql, isRTL, getVersionInfo } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
 import VerseText from '../basic/VerseText'
+import { getPassageStr } from "bibletags-ui-helper"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'
 
@@ -150,6 +152,8 @@ class ReadText extends React.PureComponent {
       removeWordPartDivisions: true,
     })
 
+    this.verses = verses
+
     const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
 
     const pieces = getPiecesFromUSFM({
@@ -164,6 +168,52 @@ class ReadText extends React.PureComponent {
     }, onLoaded)
   }
 
+  onVerseTap = ({ selectedVerse, ...otherParams }) => {
+    const { onVerseTap, versionId, passageRef } = this.props
+    const { bookId, chapter } = passageRef
+
+    if(selectedVerse == null) return
+
+    let verseUsfm
+    this.verses.some(({ loc, usfm }) => {
+      if(loc === `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+selectedVerse).substr(-3)}`) {
+        verseUsfm = usfm
+        return
+      }
+    })
+
+    const { wordDividerRegex, abbr } = getVersionInfo(versionId)
+
+    const pieces = getPiecesFromUSFM({
+      usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+      inlineMarkersOnly: true,
+      wordDividerRegex,
+    })
+
+    let selectedTextContent = ''
+
+    pieces.forEach(({ tag, text }) => {
+      if([ 'd' ].includes(tag)) return
+      if(!text) return
+
+      selectedTextContent += text
+    })
+
+    selectedTextContent += i18n(" ({{passage_reference}} {{version}})", {
+      passage_reference: getPassageStr({
+        refs: [{
+          ...passageRef,
+          verse: selectedVerse,
+        }],
+      }),
+      version: abbr,
+    })
+
+    selectedTextContent = selectedTextContent.trim()
+
+    onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
+  }
+
   getJSX = () => {
     const { pieces } = this.state
 
@@ -172,7 +222,7 @@ class ReadText extends React.PureComponent {
   }
 
   getJSXFromPieces = ({ pieces }) => {
-    const { displaySettings, selectedVerse, onVerseTap } = this.props
+    const { displaySettings, selectedVerse } = this.props
     const { languageId, isOriginal } = this.state
 
     const { font, textSize } = displaySettings
@@ -229,7 +279,7 @@ class ReadText extends React.PureComponent {
         <VerseText
           key={idx}
           style={styles}
-          onPress={onVerseTap}
+          onPress={this.onVerseTap}
           verseNumber={verse}
         >
           {children

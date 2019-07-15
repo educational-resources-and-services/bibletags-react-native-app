@@ -1,6 +1,7 @@
 import React from "react"
 import { Constants } from "expo"
-import { ScrollView, View, StyleSheet, Dimensions } from "react-native"
+import { ScrollView, View, StyleSheet, Dimensions, Clipboard } from "react-native"
+import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -110,6 +111,7 @@ class ReadContent extends React.PureComponent {
       adjacentRefs,
       selectedVerse: null,
       selectedSection: null,
+      selectedTextContent: '',
       selectedTapX: 0,
       selectedTapY: 0,
     }
@@ -151,6 +153,14 @@ class ReadContent extends React.PureComponent {
     return primaryMaxScroll / secondaryMaxScroll
   }
 
+  clearSelection = () => {
+    this.setState({
+      selectedSection: null,
+      selectedVerse: null,
+      selectedTextContent: '',
+    })
+  }
+
   onPrimaryTouchStart = () => this.onTouchStart('primary')
   onSecondaryTouchStart = () => this.onTouchStart('secondary')
 
@@ -160,10 +170,7 @@ class ReadContent extends React.PureComponent {
     this.scrollController = scrollController
 
     if(selectedSection) {
-      this.setState({
-        selectedSection: null,
-        selectedVerse: null,
-      })
+      this.clearSelection()
       this.skipVerseTap = true
     }
   }
@@ -262,13 +269,14 @@ class ReadContent extends React.PureComponent {
   onPrimaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'primary', ...params })
   onSecondaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'secondary', ...params })
 
-  onVerseTap = ({ selectedSection, selectedVerse, pageX, pageY }) => {
+  onVerseTap = ({ selectedSection, selectedVerse, selectedTextContent, pageX, pageY }) => {
     if(this.skipVerseTap) return
     if(selectedVerse == null) return
 
     this.setState({
       selectedSection,
       selectedVerse,
+      selectedTextContent,
       selectedTapX: pageX,
       selectedTapY: pageY,
     })
@@ -278,7 +286,14 @@ class ReadContent extends React.PureComponent {
     {
       label: i18n("Copy"),
       action: () => {
-        alert('do copy')
+        const { selectedTextContent } = this.state
+
+        Clipboard.setString(selectedTextContent)
+        Toast.show({
+          text: i18n("Verse copied"),
+          duration: 1700,
+        })
+        this.clearSelection()
       }
     },
   ]
@@ -287,7 +302,7 @@ class ReadContent extends React.PureComponent {
     const { passage, recentPassages, recentSearches } = this.props
     const { ref, versionId, parallelVersionId } = passage
     const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse,
-            selectedTapX, selectedTapY } = this.state
+            selectedTextContent, selectedTapX, selectedTapY } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
