@@ -43,8 +43,8 @@ class TapOptions extends React.PureComponent {
             width: MAX_WIDTH,
             left: Math.min(Math.max(centerX, sideBuffer), width - sideBuffer),
           },
-          bottomY ? { bottom: bottomY } : null,
-          !bottomY ? { top: topY } : null,
+          bottomY != null ? { bottom: bottomY } : null,
+          bottomY == null ? { top: topY } : null,
         ]}
       >
         <View style={styles.buttons}>

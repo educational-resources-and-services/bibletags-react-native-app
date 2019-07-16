@@ -27,9 +27,6 @@ const viewStyles = StyleSheet.create({
     padding: 20,
     paddingBottom: 0,
   },
-  containerSelected: {
-    zIndex: 1,
-  },
   // sup: {
   //   position: "relative",
   //   top: "-0.3em",
@@ -234,12 +231,7 @@ class SearchResult extends React.PureComponent {
     const showBelow = selectTapY < height / 2
 
     return (
-      <View
-        style={[
-          viewStyles.container,
-          selected ? viewStyles.containerSelected : null,
-        ]}
-      >
+      <View style={viewStyles.container}>
         <Text
           style={[
             textStyles.reference,
@@ -273,7 +265,7 @@ class SearchResult extends React.PureComponent {
           <TapOptions
             options={this.tapOptions}
             centerX={parseInt(width/2, 10)}
-            bottomY={showBelow ? -50 : null}
+            bottomY={showBelow ? 0 : null}
             topY={!showBelow ? -20 : null}
           />
         }
