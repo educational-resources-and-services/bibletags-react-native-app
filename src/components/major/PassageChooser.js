@@ -5,7 +5,7 @@ import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
-import { getVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, setUpTimeout, unmountTimeouts } from "../../utils/toolbox"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
@@ -21,7 +21,11 @@ const {
   SECONDARY_VERSIONS,
   VERSION_CHOOSER_BACKGROUND_COLOR,
   PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR,
+  CHOOSER_BOOK_LINE_HEIGHT,
 } = Constants.manifest.extra
+
+const SPACER_BEFORE_FIRST_BOOK = 5
+const NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL = 10
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +39,7 @@ const styles = StyleSheet.create({
     backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
   },
   spacerBeforeFirstBook: {
-    height: 5,
+    height: SPACER_BEFORE_FIRST_BOOK,
   },
   bookList: {
     // borderRightWidth: 1,
@@ -53,7 +57,10 @@ const styles = StyleSheet.create({
 
 class PassageChooser extends React.PureComponent {
 
-  state = {}
+  state = {
+    chapterChooserHeight: 0,
+    chapterChooserScrollHeight: 0,
+  }
 
   static getDerivedStateFromProps(props, state) {
     const { showing, passage } = props
@@ -65,6 +72,65 @@ class PassageChooser extends React.PureComponent {
     }
 
     return stateUpdate
+  }
+
+  componentDidMount() {
+    this.scrollToChosen()
+  }
+
+  componentDidUpdate(prevProps) {
+    const { passage } = this.props
+
+    if(prevProps.passage !== passage) {
+      this.scrollToChosen()
+    }
+  }
+
+  componentWillUnmount = unmountTimeouts
+
+  scrollToChosen = () => {
+    // Put them in a timeout so that it doesn't jump when user is tapping a chooser change.
+    setUpTimeout(() => {
+      this.scrollToChosenBook()
+      this.scrollToChosenChapter()
+    }, 500, this)
+  }
+
+  scrollToChosenBook = () => {
+    const { passage } = this.props
+    const { bookId } = passage.ref
+
+    this.bookChooserRef.scrollToIndex({
+      animated: false,
+      index: this.getBookIds().indexOf(bookId) - 1,
+      viewPosition: 0,
+      viewOffset: CHOOSER_BOOK_LINE_HEIGHT * 1.5,
+    })
+  }
+
+  scrollToChosenChapter = () => {
+    const { passage } = this.props
+    const { chapterChooserHeight, chapterChooserScrollHeight } = this.state
+    
+    const { chapter } = passage.ref
+    const maxScroll = chapterChooserScrollHeight - chapterChooserHeight
+    const numChapters = this.getNumChapters()
+    
+    if(maxScroll <= 0) return
+    
+    if(chapter <= NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) {
+      this.chapterChooserRef.scrollTo({ y: 0, animated: false })
+
+    } else if(chapter >= numChapters - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) {
+      this.chapterChooserRef.scrollTo({ y: maxScroll, animated: false })
+
+    } else {
+      this.chapterChooserRef.scrollTo({
+        y: ((chapter - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) / (this.getNumChapters() - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL*2)) * maxScroll,
+        animated: false,
+      })
+    }
+
   }
 
   updateVersion = versionId => {
@@ -174,6 +240,12 @@ class PassageChooser extends React.PureComponent {
     )
   }
 
+  getItemLayout = (data, index) => ({
+    length: CHOOSER_BOOK_LINE_HEIGHT,
+    offset: CHOOSER_BOOK_LINE_HEIGHT * index + SPACER_BEFORE_FIRST_BOOK,
+    index,
+  })
+
   numChaptersPerVersionAndBook = {}
 
   getNumChapters = () => {
@@ -196,6 +268,12 @@ class PassageChooser extends React.PureComponent {
     
     return this.numChaptersPerVersionAndBook[key]
   }
+
+  setBookChooserRef = ref => this.bookChooserRef = ref
+  setChapterChooserRef = ref => this.chapterChooserRef = ref
+
+  onChaptersLayout = ({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => console.log('h') || this.setState({ chapterChooserHeight })
+  onChaptersContentSizeChange = (x, chapterChooserScrollHeight) => this.setState({ chapterChooserScrollHeight })
 
   render() {
     const { showing, paddingBottom, hidePassageChooser, passage, mode, goVersions } = this.props
@@ -236,9 +314,15 @@ class PassageChooser extends React.PureComponent {
               extraData={this.state}
               keyExtractor={this.keyExtractor}
               renderItem={this.renderItem}
+              getItemLayout={this.getItemLayout}
+              ref={this.setBookChooserRef}
             />
           </View>
-          <ScrollView>
+          <ScrollView
+            ref={this.setChapterChooserRef}
+            onContentSizeChange={this.onChaptersContentSizeChange}
+            onLayout={this.onChaptersLayout}
+          >
             <View
               style={[
                 styles.chapterList,

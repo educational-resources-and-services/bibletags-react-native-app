@@ -5,6 +5,7 @@ import { Constants } from "expo"
 import { getBibleBookName } from "bibletags-ui-helper"
 
 const {
+  CHOOSER_BOOK_LINE_HEIGHT,
   CHOOSER_SELECTED_BACKGROUND_COLOR,
   CHOOSER_SELECTED_TEXT_COLOR,
   CHOOSER_CHOOSING_BACKGROUND_COLOR,
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
   },
   bookText: {
-    lineHeight: 40,
+    lineHeight: CHOOSER_BOOK_LINE_HEIGHT,
   },
   bookSelected: {
     backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
