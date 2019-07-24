@@ -50,13 +50,14 @@ class Search extends React.Component {
     super(props)
 
     const { navigation } = props
-    const { editOnOpen } = navigation.state.params
+    const { editOnOpen, searchString } = navigation.state.params
 
     this.state = {
       editing: !!editOnOpen,
       searchedString: null,
       searchedVersionId: null,
       searchResults: null,
+      editedSearchString: searchString || "",
       languageId: 'eng',
       isOriginal: false,
       versionAbbr: '',
@@ -197,6 +198,10 @@ class Search extends React.Component {
     })
   }
 
+  updateEditedSearchString = ({ nativeEvent }) => {
+    this.setState({ editedSearchString: nativeEvent.text })
+  }
+
   renderItem = ({ item, index }) => {
     const { navigation } = this.props
     const { searchedString, languageId, isOriginal,
@@ -228,7 +233,7 @@ class Search extends React.Component {
 
     const { navigation } = this.props
     const { editing, searchedString, searchedVersionId, searchResults,
-            languageId, isOriginal, versionAbbr, selectedLoc } = this.state
+            languageId, isOriginal, versionAbbr, selectedLoc, editedSearchString } = this.state
 
     const { searchString, versionId } = navigation.state.params
 
@@ -245,6 +250,8 @@ class Search extends React.Component {
           navigation={navigation}
           setEditing={this.setEditing}
           numberResults={numberResults}
+          editedSearchString={editedSearchString}
+          updateEditedSearchString={this.updateEditedSearchString}
           width={width}  // By sending this as a prop, I force a rerender
         />
         {editing &&
@@ -259,7 +266,10 @@ class Search extends React.Component {
         <Content>
           {editing &&
             <SearchSuggestions
-              searchString={searchString}
+              editedSearchString={editedSearchString}
+              updateEditedSearchString={this.updateEditedSearchString}
+              setEditing={this.setEditing}
+              navigation={navigation}
             />
           }
           {!editing && searchDone && searchResults.length === 0 &&

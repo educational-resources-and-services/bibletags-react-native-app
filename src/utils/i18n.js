@@ -20,7 +20,7 @@
 
 */
 
-import translations from "./translations/current.json"
+import translations from "../../translations/en.json"
 
 const i18n = (str, swaps={}, desc) => 
   (

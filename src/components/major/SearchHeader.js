@@ -39,24 +39,8 @@ const styles = StyleSheet.create({
 
 class SearchHeader extends React.PureComponent {
 
-  constructor(props) {
-    super(props)
-
-    const { navigation } = this.props
-    const { searchString } = navigation.state.params
-
-    this.state = {
-      editedSearchString: searchString || "",
-    }
-  }
-
-  updateEditedSearchString = ({ nativeEvent }) => {
-    this.setState({ editedSearchString: nativeEvent.text })
-  }
-
   updateSearchString = () => {
-    const { navigation, setEditing } = this.props
-    const { editedSearchString } = this.state
+    const { navigation, setEditing, editedSearchString } = this.props
 
     setEditing(false)
 
@@ -71,7 +55,7 @@ class SearchHeader extends React.PureComponent {
   }
 
   onCancel = () => {
-    const { navigation, setEditing } = this.props
+    const { navigation, setEditing, updateEditedSearchString } = this.props
     const { searchString } = navigation.state.params
 
     if(!searchString) {
@@ -81,9 +65,7 @@ class SearchHeader extends React.PureComponent {
 
     setEditing(false)
 
-    this.setState({
-      editedSearchString: searchString,
-    })
+    updateEditedSearchString({ nativeEvent: { text: searchString }})
   }
 
   editSearchString = () => {
@@ -100,8 +82,7 @@ class SearchHeader extends React.PureComponent {
   }
 
   render() {
-    const { navigation, editing, numberResults } = this.props
-    const { editedSearchString } = this.state
+    const { navigation, editing, numberResults, editedSearchString, updateEditedSearchString } = this.props
 
     const { searchString, versionId } = navigation.state.params
     const { abbr, languageId } = getVersionInfo(versionId)
@@ -126,7 +107,7 @@ class SearchHeader extends React.PureComponent {
               placeholder="Search"
               returnKeyType="search"
               value={editedSearchString}
-              onChange={this.updateEditedSearchString}
+              onChange={updateEditedSearchString}
               onSubmitEditing={this.updateSearchString}
               autoFocus={true}
               selectTextOnFocus={true}
