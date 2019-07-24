@@ -34,18 +34,6 @@ export const debounce = (func, ...params) => {
   }
 }
 
-let statusBarIsHidden = false
-export const setStatusBarHidden = setHidden => {
-  if(Platform.OS === 'ios') {
-    StatusBar.setHidden(setHidden)
-  } else if(Platform.OS === 'android') {
-    StatusBar.setBackgroundColor(setHidden ? 'white' : ANDROID_STATUS_BAR_COLOR, true)
-    // StatusBar.setBarStyle(setHidden ? 'dark-content' : 'light-content', true)
-  }
-  statusBarIsHidden = !!setHidden
-}
-export const isStatusBarHidden = () => statusBarIsHidden
-
 let nextIdForTimeout = 1
 const componentTimeouts = {}
 

@@ -3,7 +3,7 @@ import { StyleSheet, Platform } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
 
 import i18n from "../../utils/i18n.js"
-import { isPhoneSize, isStatusBarHidden, setStatusBarHidden, setUpTimeout, unmountTimeouts } from '../../utils/toolbox.js'
+import { isPhoneSize } from '../../utils/toolbox.js'
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -16,18 +16,9 @@ const styles = StyleSheet.create({
 
 class ErrorMessageHeader extends React.PureComponent {
 
-  componentDidMount() {
-    this.priorStatusBarHiddenValue = isStatusBarHidden()
-    setUpTimeout(() => setStatusBarHidden(false), 20, this)
-  }
-
-  componentWillUnmount = unmountTimeouts
-
   onBackPress = () => {
     const { navigation } = this.props
     
-    setStatusBarHidden(this.priorStatusBarHiddenValue)
-
     navigation.goBack()
   }
 

@@ -66,10 +66,6 @@ class Read extends React.Component {
     const { showingPassageChooser } = this.state
 
     this.setState({ showingPassageChooser: !showingPassageChooser })
-
-    if(Platform.OS === 'ios') {
-      StatusBar.setHidden(!showingPassageChooser, 'fade')
-    }
   }
   
   hidePassageChooser = () => {
@@ -106,7 +102,7 @@ class Read extends React.Component {
 
     const statusBarHeight = StatusBar.currentHeight || 0
     const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
-    const hideStatusBar = showingPassageChooser && Platform.OS === 'ios'
+    const hideStatusBar = showingPassageChooser
 
     return (
       <React.Fragment>

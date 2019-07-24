@@ -1,7 +1,7 @@
 import React from "react"
 import { Constants } from "expo"
 import { Header } from "native-base"
-import { Platform, StyleSheet, View } from "react-native"
+import { Platform, StyleSheet, View, StatusBar } from "react-native"
 
 import { getToolbarHeight } from '../../utils/toolbox.js'
 
@@ -13,15 +13,38 @@ const {
 const styles = StyleSheet.create({
   container: {
     zIndex: 3,
+    ...(
+      Platform.OS === 'android'
+        ? {
+          backgroundColor: ANDROID_STATUS_BAR_COLOR,
+        }
+        : {}
+    ),
   },
   header: {
-    ...(Platform.OS === 'android' ? { backgroundColor: ANDROID_TOOLBAR_COLOR } : {}),
+    ...(
+      Platform.OS === 'android'
+        ? {
+          backgroundColor: ANDROID_TOOLBAR_COLOR,
+          marginTop: StatusBar.currentHeight,
+        }
+        : {}
+    ),
   },
   noStatusBarSpace: {
-    paddingTop: 0,
-    height: 46,
-    //borderTopWidth: 1,
-    //borderTopColor: '#cccccc',
+    ...(
+      Platform.OS === 'android'
+        ? {
+          marginTop: 0,
+          paddingTop: 0,
+        }
+        : {
+          paddingTop: 0,
+          height: 46,
+          //borderTopWidth: 1,
+          //borderTopColor: '#cccccc',
+        }
+    ),
   },
 })
 
@@ -41,8 +64,13 @@ class AppHeader extends React.Component {
 
     return (
       <View style={!hide && styles.container}>
+        <StatusBar
+          backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
+          translucent={true}
+          animated={!hideStatusBar}
+          hidden={hideStatusBar}
+        />
         <Header
-          androidStatusBarColor={ANDROID_STATUS_BAR_COLOR}
           {...headerParams}
           style={[
             styles.header,
