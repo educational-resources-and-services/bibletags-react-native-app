@@ -136,6 +136,7 @@ const getLocFromRef = ({ bookId, chapter, verse }) => (
   `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+verse).substr(-3)}`
 )
 
+// See the Search component for some of the same variables
 const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|h)(?: .*)?$/
 const majorTitleRegex = /^\\mt[0-9]? .*$/

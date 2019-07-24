@@ -48,7 +48,11 @@ class SearchHeader extends React.PureComponent {
       navigation.setParams,
       {
         ...navigation.state.params,
-        searchString: editedSearchString,
+        searchString: (
+          editedSearchString
+            .replace(/  +/g, ' ')
+            .trim()
+        ),
         editOnOpen: false,
       },
     )
