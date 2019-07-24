@@ -205,7 +205,7 @@ class SearchResult extends React.PureComponent {
 
         Clipboard.setString(copyTextContent)
         Toast.show({
-          text: i18n("Verse copied"),
+          text: i18n("Verse copied to clipboard"),
           duration: 1700,
         })
 

@@ -290,7 +290,7 @@ class ReadContent extends React.PureComponent {
 
         Clipboard.setString(selectedTextContent)
         Toast.show({
-          text: i18n("Verse copied"),
+          text: i18n("Verse copied to clipboard"),
           duration: 1700,
         })
         this.clearSelection()
