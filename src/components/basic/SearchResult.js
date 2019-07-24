@@ -125,7 +125,11 @@ class SearchResult extends React.PureComponent {
       ].filter(s => s)
 
       const getPartOfPiece = (text, idx2) => {
-        const isMatch = text === searchString
+
+        const lowerCaseText = text.toLowerCase()
+        const isMatch = searchString
+          .split(i18n(" ", {}, "word separator"))
+          .some(searchWord => lowerCaseText === searchWord)
 
         if(text && styles.length === 0 && !isMatch) return text
 
@@ -150,12 +154,18 @@ class SearchResult extends React.PureComponent {
       const textPieces = (text || "")
         .split(
           new RegExp(
-            `(${
+            `(\\b(?:${
               searchString
-                .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-                .replace(/\\/g, '\\\\')
-            })`,
-            'g'
+                .split(i18n(" ", {}, "word separator"))
+                .map(word => (
+                  word
+                    // escape regex chars in the next two lines
+                    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                    .replace(/\\/g, '\\\\')
+                ))
+                .join('|')
+            })\\b)`,
+            'gi'
           )
         )
         .filter(s => s)
