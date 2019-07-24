@@ -37,7 +37,7 @@ class SearchSuggestion extends React.PureComponent {
   goSearch = () => {
     const { navigation, searchString, versionId, setEditing, updateEditedSearchString } = this.props
 
-    updateEditedSearchString({ nativeEvent: { text: searchString }})
+    updateEditedSearchString(searchString)
     setEditing(false)
 
     debounce(

@@ -198,7 +198,7 @@ class Search extends React.Component {
     })
   }
 
-  updateEditedSearchString = ({ nativeEvent }) => {
+  updateEditedSearchString = searchString => {
     // See scripts/importUsfmToSqlite.js for the same variables
     const hebrewCantillationRegex = /[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g
     const hebrewVowelsRegex = /[\u05B0-\u05BC\u05C1\u05C2\u05C4]/g
@@ -207,7 +207,7 @@ class Search extends React.Component {
 
     this.setState({
       editedSearchString: (
-        nativeEvent.text
+        searchString
           .replace(hebrewCantillationRegex, '')
           .replace(hebrewVowelsRegex, '')
           .replace(wordPartDividerRegex, '')

@@ -41,6 +41,13 @@ class SearchHeader extends React.PureComponent {
 
   updateSearchString = () => {
     const { navigation, setEditing, editedSearchString } = this.props
+    
+    const searchString = 
+      editedSearchString
+        .replace(/  +/g, ' ')
+        .trim()
+
+    if(searchString === '') return
 
     setEditing(false)
 
@@ -48,11 +55,7 @@ class SearchHeader extends React.PureComponent {
       navigation.setParams,
       {
         ...navigation.state.params,
-        searchString: (
-          editedSearchString
-            .replace(/  +/g, ' ')
-            .trim()
-        ),
+        searchString,
         editOnOpen: false,
       },
     )
@@ -69,7 +72,7 @@ class SearchHeader extends React.PureComponent {
 
     setEditing(false)
 
-    updateEditedSearchString({ nativeEvent: { text: searchString }})
+    updateEditedSearchString(searchString)
   }
 
   editSearchString = () => {
@@ -111,8 +114,13 @@ class SearchHeader extends React.PureComponent {
               placeholder="Search"
               returnKeyType="search"
               value={editedSearchString}
-              onChange={updateEditedSearchString}
+              onChangeText={updateEditedSearchString}
               onSubmitEditing={this.updateSearchString}
+              autoCapitalize="none"
+              autoCompleteType={false}
+              autoCorrect={true}
+              enablesReturnKeyAutomatically={true}
+              importantForAutofill="no"
               autoFocus={true}
               selectTextOnFocus={true}
             />
