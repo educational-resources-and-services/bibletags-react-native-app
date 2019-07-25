@@ -2,6 +2,8 @@ import React from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { Constants } from "expo"
 
+import { i18nNumber } from "../../utils/i18n.js"
+
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
   CHOOSER_SELECTED_TEXT_COLOR,
@@ -50,7 +52,7 @@ class ChooserChapter extends React.PureComponent {
             styles.chapterText,
             (selected ? styles.chapterTextSelected : null),
           ]}
-        >{chapter}</Text>
+        >{i18nNumber({ num: chapter, type: 'chapter' })}</Text>
       </TouchableHighlight>
     )
   }
