@@ -1,0 +1,35 @@
+{
+	"Okay": "בסדר",
+	"{{verse}} ({{passage_reference}} {{version}})": "{{verse}} ({{passage_reference}} {{version}})",
+	"Bible version information": "אודות גרסאות התנ״ך",
+	"No results found.": "אין תוצאות.",
+	"“{{searchString}}”": "“{{searchString}}”",
+	"Searching...": "מחפש...",
+	"{{num_results}} result(s)": "{{num_results}} תוצאה/ות",
+	", ": {
+		"list separator": ", "
+	},
+	"Copy": "להעתיק",
+	"Verse copied to clipboard": "הפסוק הועתק ללוח",
+	"Error": "שגיאה",
+	"Your device is not allowing us to open this link.": "המכשיר שלך לא נותן לנו לפתוח את הקישור.",
+	"Powered by Bible Tags": "מופעל על ידי “Bible Tags”",
+	"Open source Bible apps": "Open source Bible apps",
+	"Default": "ברירת מחדל",
+	"Low light": "תאורה חלשה",
+	"High contrast": "ניגודיות גבוה",
+	"Font": "פונט",
+	"Cancel": "לבטל",
+	"Theme": "סגנון",
+	"Display options": "אפשרויות תצוגה",
+	"Parallel mode": "מצב מקביל",
+	"Text size": "גודל הטקסט",
+	"Line spacing": "מרווח בין שורות",
+	"Theme: {{theme}}": "סגנון: {{theme}}",
+	"Font: {{font}}": "פונט: {{font}}",
+	" ": {
+		"word separator": " "
+	},
+	"Read": "לקרוא",
+	"Rate this app": "דרג את האפליקציה הזו"
+}
