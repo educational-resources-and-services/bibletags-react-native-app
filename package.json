@@ -24,7 +24,7 @@
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "5.1.1",
     "better-sqlite3": "5.4.0",
-    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#9d0a5a057f7d0ea5dfebb7fecf93c05ce77f3adf",
+    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#32edc9c3252774314ef327b06c62bfccbff36da8",
     "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#229efd9a5348d105d9e4c49112fe220cdfa97877",
     "expo": "32.0.6",
     "find-in-files": "0.5.0",

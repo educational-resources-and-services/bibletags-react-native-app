@@ -20,7 +20,7 @@
 
 */
 
-import { translations } from "../../language.js"
+import { translations, LOCALE } from "../../language.js"
 
 const i18n = (str, swaps={}, desc) => 
   (
@@ -34,3 +34,53 @@ const i18n = (str, swaps={}, desc) =>
   ).replace(/{{([^}]+)}}/g, (x, swapSpot) => swaps[swapSpot]!==undefined ? swaps[swapSpot] : "")
 
 export default i18n
+
+const hebrewNums = Array(200)
+  .fill(0)
+  .map((x, idx) => {
+    let num = idx
+    let letters = ''
+
+    if(num >= 100) {
+      letters += 'ק'
+      num -= 100
+    }
+
+    if(num === 16) {
+      letters += 'טו'
+      num = 0
+    }
+
+    if(num === 17) {
+      letters += 'טז'
+      num = 0
+    }
+
+    if(num >= 10) {
+      letters += 'יכלמנסעפצ'.substr(parseInt(num / 10) - 1, 1)
+      num %= 10
+    }
+
+    if(num >= 1) {
+      letters += 'אבגדהוזחט'.substr(num - 1, 1)
+      num = 0
+    }
+
+    return letters
+  })
+
+export const i18nNumber = ({ num, type }) => {
+
+  switch(LOCALE) {
+    case 'he': {
+
+      if(type === 'chapter') {
+        return hebrewNums[num]
+      }
+
+      break
+    }
+  }
+
+  return num
+}

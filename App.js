@@ -9,7 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react'
 import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
 import { Ionicons } from '@expo/vector-icons'
-import { passOverI18n } from "bibletags-ui-helper/src/i18n.js"
+import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n.js"
 import { logEvent } from './src/utils/analytics'
 
 import GlobalNavigator from "./src/navigators/Global.js"
@@ -18,13 +18,14 @@ import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
-import i18n from "./src/utils/i18n.js"
+import i18n, { i18nNumber } from "./src/utils/i18n.js"
 
 const {
   NUM_OPENS_FOR_RATING_REQUEST=0,
 } = Constants.manifest.extra
 
 passOverI18n(i18n)
+passOverI18nNumber(i18nNumber)
 
 const patchMiddleware = store => next => action => {
   const result = next(action)
