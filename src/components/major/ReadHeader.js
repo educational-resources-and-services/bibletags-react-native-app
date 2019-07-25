@@ -17,10 +17,24 @@ const rightIconsWidth = 135
 
 const styles = StyleSheet.create({
   left: {
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+    ...(
+      RTL
+        ? {
+          flexDirection: 'row-reverse',
+          marginRight: 20,
+        }
+        : {}
+    ),
   },
   right: {
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+    ...(
+      RTL
+        ? {
+          flexDirection: 'row-reverse',
+          left: 15,
+        }
+        : {}
+    ),
   },
   body: {
     ...(

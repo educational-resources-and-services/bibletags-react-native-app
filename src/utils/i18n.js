@@ -46,12 +46,12 @@ const hebrewNums = Array(200)
       num -= 100
     }
 
-    if(num === 16) {
+    if(num === 15) {
       letters += 'טו'
       num = 0
     }
 
-    if(num === 17) {
+    if(num === 16) {
       letters += 'טז'
       num = 0
     }

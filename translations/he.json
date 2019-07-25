@@ -190,5 +190,6 @@
 	},
 	"{{book}} {{start_chapter}}:{{start_verse}}–{{end_chapter}}:{{end_verse}}": "{{book}} {{start_chapter}}{{start_verse}}–{{end_chapter}}{{end_verse}}",
 	"{{book}} {{chapter}}:{{start_verse}}–{{end_verse}}": "{{book}} {{chapter}}{{start_verse}}–{{end_verse}}",
-	"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}}{{verse}}"
+	"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}}{{verse}}",
+	"Search": "לחפש"
 }

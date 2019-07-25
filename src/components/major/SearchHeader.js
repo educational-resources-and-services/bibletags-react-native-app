@@ -4,6 +4,7 @@ import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-
 
 import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
+import { RTL } from "../../../language.js"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -25,15 +26,27 @@ const styles = StyleSheet.create({
   searchBarLeft: {
     flex: 0,
     marginRight: 10,
+    ...(RTL ? { left: -12 } : {}),
   },
   searchBarRight: {
     flex: 0,
+    ...(RTL ? { left: 12 } : {}),
   },
   searchString: {
     flexDirection: 'row',
   },
   versionAbbr: {
     fontSize: 12,
+  },
+  input: {
+    ...(
+      RTL
+        ? {
+          textAlign: 'right',
+          paddingRight: 15,
+        }
+        : {}
+    ),
   },
 })
 
@@ -105,13 +118,13 @@ class SearchHeader extends React.PureComponent {
               transparent
               onPress={this.onBackPress}
             >
-              <HeaderIcon name="arrow-back" />
+              <HeaderIcon name={RTL ? "arrow-forward" : "arrow-back"} />
             </Button>
           </Left>
           <Item>
             <HeaderIcon name="search" />
             <Input
-              placeholder="Search"
+              placeholder={i18n("Search")}
               returnKeyType="search"
               value={editedSearchString}
               onChangeText={updateEditedSearchString}
@@ -123,6 +136,7 @@ class SearchHeader extends React.PureComponent {
               importantForAutofill="no"
               autoFocus={true}
               selectTextOnFocus={true}
+              style={styles.input}
             />
           </Item>
           <Right style={styles.searchBarRight}>

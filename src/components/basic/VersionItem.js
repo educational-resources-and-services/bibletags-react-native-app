@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     paddingLeft: 20,
     paddingRight: 20,
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
   },
 })
 
