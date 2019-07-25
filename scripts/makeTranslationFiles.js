@@ -69,14 +69,14 @@ findInFiles.find(`i18n\\((?:\\\\.|[^)"']|"(?:\\\\.|[^"])*"|'(?:\\\\.|[^'])*')*\\
     }
 
     // for each translation file (except English)
-    fs.readdir('./src/utils/translations', (err, files) => {
+    fs.readdir('./translations', (err, files) => {
       if(!err) {
         files.forEach((file, index) => {
           if(['current.json', 'en.json'].includes(file)) return
           if(files.includes(file.replace(/\.json$/, '-incomplete.json'))) return
 
           const lang = file.replace(/(?:\-incomplete)?\.json$/, '')
-          const translationObj = JSON.parse(fs.readFileSync(`./src/utils/translations/${file}`, 'utf8'))
+          const translationObj = JSON.parse(fs.readFileSync(`./translations/${file}`, 'utf8'))
           const newTranslationObj = JSON.parse(JSON.stringify(defaultTranslationObj))
           
           // fill in the default json where language variables are missing
@@ -106,7 +106,7 @@ findInFiles.find(`i18n\\((?:\\\\.|[^)"']|"(?:\\\\.|[^"])*"|'(?:\\\\.|[^'])*')*\\
           const incompleteFileContent = JSON.stringify(newTranslationObj, null, '\t')
 
           if(incompleteFileContent.indexOf(TRANSLATION_NEEDED) !== -1) {
-            fs.writeFileSync(`./src/utils/translations/${lang}-incomplete.json`, incompleteFileContent)
+            fs.writeFileSync(`./translations/${lang}-incomplete.json`, incompleteFileContent)
             langsGettingNewFile.push(lang)
           } else {
             langsNotGettingNewFile.push(lang)
