@@ -31,5 +31,161 @@
 		"word separator": " "
 	},
 	"Read": "לקרוא",
-	"Rate this app": "דרג את האפליקציה הזו"
+	"Rate this app": "דרג את האפליקציה הזו",
+	"Genesis": "בראשית",
+	"Exodus": "שמות",
+	"Leviticus": "ויקרא",
+	"Numbers": "במדבר",
+	"Deuteronomy": "דברים",
+	"Joshua": "יהושע",
+	"Judges": "שופטים",
+	"Ruth": "רות",
+	"1 Samuel": "שמואל א",
+	"2 Samuel": "שמואל ב",
+	"1 Kings": "מלכים א",
+	"2 Kings": "מלכים ב",
+	"1 Chronicles": "דברי הימים א",
+	"2 Chronicles": "דברי הימים ב",
+	"Ezra": "עזרה",
+	"Nehemiah": "נחמיה",
+	"Esther": "אסתר",
+	"Job": "איוב",
+	"Psalms": "תהילים",
+	"Proverbs": "משלי",
+	"Ecclesiastes": "קהלת",
+	"Song of Songs": "שיר השירים",
+	"Isaiah": "ישעיה",
+	"Jeremiah": "ירמיה",
+	"Lamentations": "איכה",
+	"Ezekiel": "יחזקאל",
+	"Daniel": "דניאל",
+	"Hosea": "הושע",
+	"Joel": {
+		"": "יואל",
+		"Abbreviation for Job": "איוב"
+	},
+	"Amos": "עמוס",
+	"Obadiah": "עובדיה",
+	"Jonah": "יונה",
+	"Micah": "מיכה",
+	"Nahum": "נחום",
+	"Habakkuk": "חבקוק",
+	"Zephaniah": "צפניה",
+	"Haggai": "חגי",
+	"Zechariah": "זכריה",
+	"Malachi": "מלאכי",
+	"Gen": {
+		"Abbreviation for Genesis": "בר׳"
+	},
+	"Ex": {
+		"Abbreviation for Exodus": "שמ׳"
+	},
+	"Lev": {
+		"Abbreviation for Leviticus": "וי׳"
+	},
+	"Num": {
+		"Abbreviation for Numbers": "במ׳"
+	},
+	"Dt": {
+		"Abbreviation for Deuteronomy": "דב׳"
+	},
+	"Jsh": {
+		"Abbreviation for Joshua": "יהו׳"
+	},
+	"Jdg": {
+		"Abbreviation for Judges": "שו׳"
+	},
+	"Rth": {
+		"Abbreviation for Ruth": "רות"
+	},
+	"1Sa": {
+		"Abbreviation for 1 Samuel": "ש״א"
+	},
+	"2Sa": {
+		"Abbreviation for 2 Samuel": "ש״ב"
+	},
+	"1Ki": {
+		"Abbreviation for 1 Kings": "מ״א"
+	},
+	"2Ki": {
+		"Abbreviation for 2 Kings": "מ״ב"
+	},
+	"1Ch": {
+		"Abbreviation for 1 Chronicles": "דה״א"
+	},
+	"2Ch": {
+		"Abbreviation for 2 Chronicles": "דה״ב"
+	},
+	"Ezr": {
+		"Abbreviation for Ezra": "עז׳"
+	},
+	"Neh": {
+		"Abbreviation for Nehemiah": "נחה׳"
+	},
+	"Est": {
+		"Abbreviation for Esther": "אס׳"
+	},
+	"Ps": {
+		"Abbreviation for Psalms": "תה׳"
+	},
+	"Prv": {
+		"Abbreviation for Proverbs": "מש׳"
+	},
+	"Ecc": {
+		"Abbreviation for Ecclesiastes": "קה׳"
+	},
+	"Sng": {
+		"Abbreviation for Song": "שה״ש"
+	},
+	"Is": {
+		"Abbreviation for Isaiah": "יש׳"
+	},
+	"Jer": {
+		"Abbreviation for Jeremiah": "יר׳"
+	},
+	"Lam": {
+		"Abbreviation for Lamentations": "איכה"
+	},
+	"Ezk": {
+		"Abbreviation for Ezekiel": "יח׳"
+	},
+	"Dan": {
+		"Abbreviation for Daniel": "דנ׳"
+	},
+	"Hos": {
+		"Abbreviation for Hosea": "הו׳"
+	},
+	"Jl": {
+		"Abbreviation for Joel": "יואל"
+	},
+	"Amo": {
+		"Abbreviation for Amos": "עמ׳"
+	},
+	"Ob": {
+		"Abbreviation for Obadiah": "עו׳"
+	},
+	"Jon": {
+		"Abbreviation for Jonah": "יונה"
+	},
+	"Mic": {
+		"Abbreviation for Micah": "מי׳"
+	},
+	"Nah": {
+		"Abbreviation for Nahum": "נח׳"
+	},
+	"Hab": {
+		"Abbreviation for Habakkuk": "חב׳"
+	},
+	"Zph": {
+		"Abbreviation for Zephaniah": "צפ׳"
+	},
+	"Hag": {
+		"Abbreviation for Haggai": "חגי"
+	},
+	"Zch": {
+		"Abbreviation for Zechariah": "זכ׳"
+	},
+	"Mal": {
+		"Abbreviation for Malachi": "מל׳"
+	}
 }

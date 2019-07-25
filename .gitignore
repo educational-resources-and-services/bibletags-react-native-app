@@ -5,6 +5,7 @@ npm-debug.*
 assets/*
 tenants/*
 /app.json
+/language.js
 /fonts.js
 /menu.js
 /versions.js
