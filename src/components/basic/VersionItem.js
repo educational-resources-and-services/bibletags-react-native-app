@@ -2,6 +2,7 @@ import React from "react"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, View, Text } from "native-base"
 
+import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { debounce, getVersionInfo } from "../../utils/toolbox"
 
@@ -11,10 +12,10 @@ const styles = StyleSheet.create({
   },
   abbrText: {
     fontWeight: 'bold',
-    textAlign: 'left',
+    textAlign: RTL ? 'right' : 'left',
   },
   versionName: {
-    textAlign: 'left',
+    textAlign: RTL ? 'right' : 'left',
   },
   image: {
     width: '100%',

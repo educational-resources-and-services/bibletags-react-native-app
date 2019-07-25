@@ -4,6 +4,7 @@ import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 import { getPassageStr } from "bibletags-ui-helper"
@@ -15,6 +16,12 @@ const leftIconsWidth = 50
 const rightIconsWidth = 135
 
 const styles = StyleSheet.create({
+  left: {
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+  },
+  right: {
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+  },
   body: {
     ...(
       Platform.OS === 'ios' && isPhoneSize() ?
@@ -32,24 +39,33 @@ const styles = StyleSheet.create({
         }
         : {}
     ),
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
   },
   title: {
-    textAlign: 'left',
+    textAlign: RTL ? 'right' : 'left',
   },
   subtitle: {
-    textAlign: 'left',
-    writingDirection: 'ltr',
+    textAlign: RTL ? 'right' : 'left',
+    writingDirection: RTL ? 'rtl' : 'ltr',
     ...(Platform.OS !== 'android' ? {} : {
       color: 'rgba(255, 255, 255, .65)',
       fontSize: 13,
     }),
   },
   titles: {
-    paddingRight: 34,
+    ...(
+      RTL ?
+        {
+          paddingLeft: 23,
+        }
+        : {
+          paddingRight: 34,
+        }
+    ),
   },
   dropdownIcon: {
     position: 'absolute',
-    right: 10,
+    [RTL ? 'left' : 'right']: 10,
     top: 0,
     fontSize: Platform.OS === 'ios' ? 18 : 22,
     lineHeight: getToolbarHeight() - (Platform.OS === 'ios' ? 24 : 0) - 6,  // 24 is the height of the status bar; 6 offsets it toward the top more
@@ -92,13 +108,11 @@ class ReadHeader extends React.PureComponent {
       .join(i18n(", ", {}, "list separator"))
       .toUpperCase()
 
-    const rtl = false  // TODO (Also, put the rtl and ltr chars in toolbox)
-
     return (
       <AppHeader
         hideStatusBar={hideStatusBar}
       >
-        <Left>
+        <Left style={styles.left}>
           <Button
             transparent
             onPressIn={this.openDrawer}
@@ -130,7 +144,7 @@ class ReadHeader extends React.PureComponent {
                 })}
               </Title>
               <Subtitle style={styles.subtitle}>
-                {`${rtl ? `\u2067` : `\u2066`}${versionsText}`}
+                {`${RTL ? `\u2067` : `\u2066`}${versionsText}`}
               </Subtitle>
               <Icon
                 name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
@@ -139,7 +153,7 @@ class ReadHeader extends React.PureComponent {
             </View>
           </TouchableOpacity>
         </Body>
-        <Right>
+        <Right style={styles.right}>
           <Button
             transparent
             onPressIn={this.goSearch}
