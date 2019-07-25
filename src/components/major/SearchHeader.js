@@ -19,14 +19,27 @@ const styles = StyleSheet.create({
       fontSize: 13,
     }),
   },
-  side: {
+  left: {
     width: 46,
     flex: 0,
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+  },
+  right: {
+    width: 46,
+    flex: 0,
+    ...(RTL ? { left: 12 } : {}),
   },
   searchBarLeft: {
     flex: 0,
     marginRight: 10,
-    ...(RTL ? { left: -12 } : {}),
+    ...(
+      RTL
+        ? {
+          left: -10,
+          paddingLeft: 5,
+        }
+        : {}
+    ),
   },
   searchBarRight: {
     flex: 0,
@@ -153,12 +166,12 @@ class SearchHeader extends React.PureComponent {
 
     return (
       <AppHeader>
-        <Left style={styles.side}>
+        <Left style={styles.left}>
           <Button
             transparent
             onPress={this.onBackPress}
           >
-            <HeaderIcon name="arrow-back" />
+            <HeaderIcon name={RTL ? "arrow-forward" : "arrow-back"} />
           </Button>
         </Left>
         <Body>
@@ -166,9 +179,9 @@ class SearchHeader extends React.PureComponent {
             styles.title,
             { width: maxTitleWidth },
           ]}>
-            {`\u2066`}
+            {RTL ? `\u2067`: `\u2066`}
             {i18n("“{{searchString}}”", {
-              searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : searchString,
+              searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
             })}
             {`  `}
             <Text style={styles.versionAbbr}>{abbr}</Text>
@@ -181,7 +194,7 @@ class SearchHeader extends React.PureComponent {
             }
           </Subtitle>
         </Body>
-        <Right style={styles.side}>
+        <Right style={styles.right}>
           <Button
             transparent
             onPress={this.editSearchString}
