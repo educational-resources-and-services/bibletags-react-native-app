@@ -102,9 +102,9 @@ class PassageChooser extends React.PureComponent {
 
     this.bookChooserRef.scrollToIndex({
       animated: false,
-      index: this.getBookIds().indexOf(bookId) - 1,
+      index: this.getBookIds().indexOf(bookId),
       viewPosition: 0,
-      viewOffset: CHOOSER_BOOK_LINE_HEIGHT * 1.5,
+      viewOffset: CHOOSER_BOOK_LINE_HEIGHT * 2.5,
     })
   }
 
@@ -272,7 +272,7 @@ class PassageChooser extends React.PureComponent {
   setBookChooserRef = ref => this.bookChooserRef = ref
   setChapterChooserRef = ref => this.chapterChooserRef = ref
 
-  onChaptersLayout = ({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => console.log('h') || this.setState({ chapterChooserHeight })
+  onChaptersLayout = ({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => this.setState({ chapterChooserHeight })
   onChaptersContentSizeChange = (x, chapterChooserScrollHeight) => this.setState({ chapterChooserScrollHeight })
 
   render() {
