@@ -3,6 +3,7 @@ import { StoreReview } from "expo"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
+import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { debounce, isConnected } from "../../utils/toolbox.js"
 
@@ -17,6 +18,9 @@ const styles = StyleSheet.create({
   listItem: {
     marginLeft: 0,
     paddingLeft: 10,
+  },
+  text: {
+    ...(RTL ? { textAlign: 'right' } : {}),
   },
 })
 
@@ -75,7 +79,7 @@ class DrawerItem extends React.PureComponent {
       >
         <Body>
           {!!(text || typeText) &&
-            <Text>{text || typeText}</Text> 
+            <Text style={styles.text}>{text || typeText}</Text> 
           }
           {!!image &&
             <Image
