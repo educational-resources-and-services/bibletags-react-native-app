@@ -20,6 +20,9 @@ const styles = StyleSheet.create({
     padding: 5,
     flexDirection: 'row',
   },
+  contentContainer: {
+    minWidth: '100%',
+  },
   info: {
     color: CHOOSER_SELECTED_BACKGROUND_COLOR,
     fontSize: 20,
@@ -41,6 +44,7 @@ class VersionChooser extends React.PureComponent {
           styles.container,
           { backgroundColor },
         ]}
+        contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.content}>
           {versionIds.map(versionId => (
