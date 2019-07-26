@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
   },
   bookText: {
     lineHeight: CHOOSER_BOOK_LINE_HEIGHT,
+    textAlign: 'left',
   },
   bookSelected: {
     backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
