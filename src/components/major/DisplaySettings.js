@@ -1,6 +1,6 @@
 import React from "react"
 import { Card, CardItem, Icon, Text, View, Switch, Body, ActionSheet } from "native-base"
-import { StyleSheet, TouchableWithoutFeedback, Platform, Slider } from "react-native"
+import { StyleSheet, TouchableWithoutFeedback, Platform, Slider, StatusBar } from "react-native"
 import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   },
   options: {
     position: 'absolute',
-    top: getToolbarHeight() - 2,
+    top: getToolbarHeight() + (StatusBar.currentHeight || 0) - 2,
     right: 1,
     minWidth: 230,
     paddingBottom: 15,
@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   switch: {
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
     marginRight: 10,
+    ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
   sliderText: {
     width: '100%',
@@ -54,6 +55,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'android' ? { width: 220 } : { width: 200 }),
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
+    ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
 })
 
