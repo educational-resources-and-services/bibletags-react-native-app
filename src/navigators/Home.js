@@ -1,4 +1,5 @@
 import React from "react"
+import { Platform } from "react-native"
 import { createDrawerNavigator } from "react-navigation"
 
 import { RTL } from '../../language.js'
@@ -13,7 +14,8 @@ const HomeNavigator = createDrawerNavigator(
   },
   {
     drawerPosition: RTL ? 'right' : 'left',
-    contentComponent: props => <Drawer {...props} />
+    contentComponent: props => <Drawer {...props} />,
+    ...(Platform.OS === 'android' && RTL ? { edgeWidth: -9999 } : {}),  // turn off for android rtl because it is buggy
   },
 )
 
