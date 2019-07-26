@@ -23,14 +23,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   subtitleView: {
-    flex: RTL ? 0 : 1,
-  },
-  timeView: {
-    flex: RTL ? 1 : 0,
+    flex: 1,
   },
   subtitle: {
     color: 'rgba(0, 0, 0, .6)',
     fontSize: 13,
+    textAlign: 'left',
   },
   time: {
     fontSize: 13,
@@ -82,7 +80,7 @@ class SearchSuggestion extends React.PureComponent {
             <View style={styles.subtitleView}>
               <Text style={styles.subtitle}>{i18n("{{num_results}} result(s)", { num_results: numberResults })}</Text>
             </View>
-            <View style={styles.timeView}>
+            <View>
               <RelativeTime
                 style={styles.time}
                 time={lastViewTime}
