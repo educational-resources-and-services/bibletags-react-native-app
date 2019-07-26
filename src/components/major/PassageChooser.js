@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
 class PassageChooser extends React.PureComponent {
 
   state = {
+    bookChooserHeight: 0,
     chapterChooserHeight: 0,
     chapterChooserScrollHeight: 0,
   }
@@ -97,14 +98,20 @@ class PassageChooser extends React.PureComponent {
   }
 
   scrollToChosenBook = () => {
-    const { passage } = this.props
+    const { passage, paddingBottom } = this.props
+    const { bookChooserHeight } = this.state
     const { bookId } = passage.ref
+
+    const index = this.getBookIds().indexOf(bookId)
+    const maxScroll = CHOOSER_BOOK_LINE_HEIGHT * this.getBookIds().length - (bookChooserHeight - paddingBottom)
+    const scrollAtIndex = CHOOSER_BOOK_LINE_HEIGHT * index
+    const minOffset = scrollAtIndex - maxScroll
 
     this.bookChooserRef.scrollToIndex({
       animated: false,
-      index: this.getBookIds().indexOf(bookId),
+      index,
       viewPosition: 0,
-      viewOffset: CHOOSER_BOOK_LINE_HEIGHT * 2.5,
+      viewOffset: Math.max(CHOOSER_BOOK_LINE_HEIGHT * Math.min(2.5, index), minOffset),
     })
   }
 
@@ -272,6 +279,7 @@ class PassageChooser extends React.PureComponent {
   setBookChooserRef = ref => this.bookChooserRef = ref
   setChapterChooserRef = ref => this.chapterChooserRef = ref
 
+  onBooksLayout = ({ nativeEvent: { layout: { height: bookChooserHeight }}}) => this.setState({ bookChooserHeight })
   onChaptersLayout = ({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => this.setState({ chapterChooserHeight })
   onChaptersContentSizeChange = (x, chapterChooserScrollHeight) => this.setState({ chapterChooserScrollHeight })
 
@@ -316,6 +324,7 @@ class PassageChooser extends React.PureComponent {
               renderItem={this.renderItem}
               getItemLayout={this.getItemLayout}
               ref={this.setBookChooserRef}
+              onLayout={this.onBooksLayout}
             />
           </View>
           <ScrollView
