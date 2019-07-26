@@ -1,6 +1,8 @@
 import React from "react"
 import { Text, View, StyleSheet, PanResponder } from "react-native"
 
+import { RTL } from '../../../language.js'
+
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
 const X_TO_Y_CANCEL_PROPORTION = .4
@@ -29,7 +31,7 @@ const styles = StyleSheet.create({
         translateX: -26,
       },
       {
-        translateY: -17.5,
+        translateY: RTL ? 17.5 : -17.5,
       },
     ],
     width: 60,
@@ -38,7 +40,7 @@ const styles = StyleSheet.create({
   bookmarkText: {
     color: 'white',
     lineHeight: 25,
-    textAlign: 'right',
+    textAlign: RTL ? 'left' : 'right',
     fontSize: 12,
   },
 })
