@@ -3,7 +3,6 @@ import { Constants } from "expo"
 import { Header } from "native-base"
 import { Platform, StyleSheet, View, StatusBar } from "react-native"
 
-import { RTL } from '../../../language.js'
 import { getToolbarHeight } from '../../utils/toolbox.js'
 
 const {
@@ -31,7 +30,6 @@ const styles = StyleSheet.create({
         }
         : {}
     ),
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
   },
   noStatusBarSpace: {
     ...(

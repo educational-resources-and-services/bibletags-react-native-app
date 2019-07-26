@@ -29,41 +29,24 @@ const styles = StyleSheet.create({
   options: {
     position: 'absolute',
     top: getToolbarHeight() - 2,
-    [RTL ? 'left' : 'right']: 1,
+    right: 1,
     minWidth: 230,
     paddingBottom: 15,
     zIndex: 16,
-    ...(RTL ? { alignItems: 'flex-end' } : {}),
   },
   header: {
     fontWeight: 'bold',
-    ...(RTL ? { textAlign: 'right' } : {}),
   },
   switch: {
-    ...(Platform.OS === 'android' ? { [RTL ? 'marginRight' : 'marginLeft']: -10 } : {}),
-    [RTL ? 'marginLeft' : 'marginRight']: 10,
-    ...(RTL ? { transform: [{ scaleX: -1 }] } : {}),
-  },
-  switchContainer: {
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+    ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
+    marginRight: 10,
   },
   sliderText: {
     width: '100%',
-    ...(RTL ? { textAlign: 'right' } : {}),
-  },
-  selectContainer: {
-    flexDirection: 'row-reverse',
+    textAlign: 'left',
   },
   dropdownIcon: {
-    ...(
-      RTL
-        ? {
-          marginRight: -10,
-        }
-        : {
-          marginLeft: 10,
-        }
-    ),
+    marginLeft: RTL ? -10 : 10,
     fontSize: 20,
     ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
   },
@@ -71,7 +54,6 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'android' ? { width: 220 } : { width: 200 }),
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
-    ...(RTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
 })
 
@@ -220,7 +202,7 @@ class DisplaySettings extends React.PureComponent {
           <TouchableWithoutFeedback
             onPress={this.toggleParallelMode}
           >
-            <CardItem style={styles.switchContainer}>
+            <CardItem>
               <Switch
                 onValueChange={this.toggleParallelMode}
                 style={styles.switch}
@@ -266,7 +248,6 @@ class DisplaySettings extends React.PureComponent {
           </CardItem> */}
           <CardItem button
             onPress={this.selectTheme}
-            style={styles.selectContainer}
           >
             <Text>
               {i18n("Theme: {{theme}}", { theme: currentThemeLabel })}
@@ -278,7 +259,6 @@ class DisplaySettings extends React.PureComponent {
           </CardItem>
           <CardItem button
             onPress={this.selectFont}
-            style={styles.selectContainer}
           >
             <Text>
               {i18n("Font: {{font}}", { font: currentFontLabel })}

@@ -3,7 +3,6 @@ import { StoreReview } from "expo"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
-import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { debounce, isConnected } from "../../utils/toolbox.js"
 
@@ -20,7 +19,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
   },
   text: {
-    ...(RTL ? { textAlign: 'right' } : {}),
+    textAlign: 'left',
   },
 })
 

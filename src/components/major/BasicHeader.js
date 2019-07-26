@@ -11,9 +11,6 @@ const styles = StyleSheet.create({
   title: {
     ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
   },
-  left: {
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
-  },
 })
 
 class BasicHeader extends React.PureComponent {
@@ -32,7 +29,7 @@ class BasicHeader extends React.PureComponent {
 
     return (
       <AppHeader>
-        <Left style={styles.left}>
+        <Left>
           <Button
             transparent
             onPress={this.onBackPress}

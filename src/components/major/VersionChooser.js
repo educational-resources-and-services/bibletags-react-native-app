@@ -3,8 +3,6 @@ import { Content, Button, Icon } from "native-base"
 import { StyleSheet, ScrollView, View } from "react-native"
 import { Constants } from "expo"
 
-import { RTL } from "../../../language.js"
-
 import ChooserVersion from "../basic/ChooserVersion"
 
 const {
@@ -20,24 +18,18 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 5,
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+    flexDirection: 'row',
   },
   info: {
     color: CHOOSER_SELECTED_BACKGROUND_COLOR,
     fontSize: 20,
     lineHeight: 18,
     opacity: .75,
-    [RTL ? 'marginLeft' : 'marginRight']: 30,
+    marginRight: 30,
   },
 })
 
 class VersionChooser extends React.PureComponent {
-
-  componentDidMount() {
-    setTimeout(() => this.ref.scrollToEnd({ animated: false }))
-  }
-
-  setRef = ref => this.ref = ref
 
   render() {
     const { versionIds, selectedVersionId, backgroundColor, update, goVersions } = this.props
@@ -49,7 +41,6 @@ class VersionChooser extends React.PureComponent {
           styles.container,
           { backgroundColor },
         ]}
-        ref={this.setRef}
       >
         <View style={styles.content}>
           {versionIds.map(versionId => (

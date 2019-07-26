@@ -12,12 +12,10 @@ const styles = StyleSheet.create({
   searchString: {
     fontWeight: '700',
     fontSize: 16,
-  },
-  line: {
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+    textAlign: 'left',
   },
   secondLine: {
-    flexDirection: RTL ? 'row-reverse' : 'row',
+    flexDirection: 'row',
     marginTop: 2,
   },
   versionAbbr: {
@@ -69,7 +67,7 @@ class SearchSuggestion extends React.PureComponent {
         onPress={this.goSearch}
       >
         <Body>
-          <View style={styles.line}>
+          <View>
             <Text style={styles.searchString}>
               {RTL ? `\u2067`: `\u2066`}
               {i18n("“{{searchString}}”", {

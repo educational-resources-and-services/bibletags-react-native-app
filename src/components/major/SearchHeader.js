@@ -22,28 +22,17 @@ const styles = StyleSheet.create({
   left: {
     width: 46,
     flex: 0,
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
   },
   right: {
     width: 46,
     flex: 0,
-    ...(RTL ? { left: 12 } : {}),
   },
   searchBarLeft: {
     flex: 0,
     marginRight: 10,
-    ...(
-      RTL
-        ? {
-          left: -10,
-          paddingLeft: 5,
-        }
-        : {}
-    ),
   },
   searchBarRight: {
     flex: 0,
-    ...(RTL ? { left: 12 } : {}),
   },
   searchString: {
     flexDirection: 'row',
@@ -52,14 +41,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   input: {
-    ...(
-      RTL
-        ? {
-          textAlign: 'right',
-          paddingRight: 15,
-        }
-        : {}
-    ),
+    ...(RTL ? { textAlign: 'right' } : {}),
   },
 })
 

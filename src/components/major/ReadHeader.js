@@ -16,26 +16,6 @@ const leftIconsWidth = 50
 const rightIconsWidth = 135
 
 const styles = StyleSheet.create({
-  left: {
-    ...(
-      RTL
-        ? {
-          flexDirection: 'row-reverse',
-          marginRight: 20,
-        }
-        : {}
-    ),
-  },
-  right: {
-    ...(
-      RTL
-        ? {
-          flexDirection: 'row-reverse',
-          left: 15,
-        }
-        : {}
-    ),
-  },
   body: {
     ...(
       Platform.OS === 'ios' && isPhoneSize() ?
@@ -53,33 +33,24 @@ const styles = StyleSheet.create({
         }
         : {}
     ),
-    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
   },
   title: {
-    textAlign: RTL ? 'right' : 'left',
+    textAlign: 'left',
   },
   subtitle: {
-    textAlign: RTL ? 'right' : 'left',
-    writingDirection: RTL ? 'rtl' : 'ltr',
+    textAlign: 'left',
+    writingDirection: 'ltr',
     ...(Platform.OS !== 'android' ? {} : {
       color: 'rgba(255, 255, 255, .65)',
       fontSize: 13,
     }),
   },
   titles: {
-    ...(
-      RTL ?
-        {
-          paddingLeft: 23,
-        }
-        : {
-          paddingRight: 34,
-        }
-    ),
+    paddingRight: 34,
   },
   dropdownIcon: {
     position: 'absolute',
-    [RTL ? 'left' : 'right']: 10,
+    right: 10,
     top: 0,
     fontSize: Platform.OS === 'ios' ? 18 : 22,
     lineHeight: getToolbarHeight() - (Platform.OS === 'ios' ? 24 : 0) - 6,  // 24 is the height of the status bar; 6 offsets it toward the top more
@@ -126,7 +97,7 @@ class ReadHeader extends React.PureComponent {
       <AppHeader
         hideStatusBar={hideStatusBar}
       >
-        <Left style={styles.left}>
+        <Left>
           <Button
             transparent
             onPressIn={this.openDrawer}
@@ -167,7 +138,7 @@ class ReadHeader extends React.PureComponent {
             </View>
           </TouchableOpacity>
         </Body>
-        <Right style={styles.right}>
+        <Right>
           <Button
             transparent
             onPressIn={this.goSearch}

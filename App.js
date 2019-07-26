@@ -2,7 +2,7 @@ import React from "react"
 import { Constants, Font, AppLoading, StoreReview } from "expo"
 import { Root } from "native-base"
 
-import { AsyncStorage } from "react-native"
+import { AsyncStorage, I18nManager } from "react-native"
 import { createStore, compose, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
 import { PersistGate } from 'redux-persist/integration/react'
@@ -18,6 +18,7 @@ import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
+import { RTL } from "./language.js"
 import i18n, { i18nNumber } from "./src/utils/i18n.js"
 
 const {
@@ -26,6 +27,8 @@ const {
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
+
+I18nManager.forceRTL(RTL)
 
 const patchMiddleware = store => next => action => {
   const result = next(action)

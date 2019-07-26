@@ -5,6 +5,7 @@ import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import { RTL } from "../../../language.js"
 import { isRTL, getCopyVerseText } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import i18n from "../../utils/i18n.js"
@@ -41,6 +42,7 @@ const textStyles = StyleSheet.create({
     color: SEARCH_RESULT_SELECTED_COLOR,
   },
   reference: {
+    textAlign: 'right',
     color: SEARCH_RESULT_REFERENCE_COLOR,
     fontWeight: 'bold',
   },
@@ -50,8 +52,8 @@ const textStyles = StyleSheet.create({
   rtl: {
     writingDirection: 'rtl',
   },
-  rightAlign: {
-    textAlign: 'right',
+  leftAlign: {
+    textAlign: 'left',
   },
   nd: {
     // fontVariant: ['small-caps'],
@@ -246,7 +248,7 @@ class SearchResult extends React.PureComponent {
           style={[
             textStyles.reference,
             selected ? textStyles.selected : null,
-            (isRTL(languageId) ? textStyles.rightAlign : null),
+            (isRTL(languageId) === RTL ? textStyles.leftAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
             },
@@ -261,7 +263,7 @@ class SearchResult extends React.PureComponent {
           style={[
             textStyles.verse,
             selected ? textStyles.selected : null,
-            (isRTL(languageId) ? textStyles.rtl : null),
+            (isRTL(languageId) === RTL ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
           ]}
