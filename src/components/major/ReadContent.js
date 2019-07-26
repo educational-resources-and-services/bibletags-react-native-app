@@ -1,10 +1,11 @@
 import React from "react"
 import { Constants } from "expo"
-import { ScrollView, View, StyleSheet, Dimensions, Clipboard } from "react-native"
+import { ScrollView, View, StyleSheet, Dimensions, Clipboard, Platform } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { debounce, getVersionInfo } from "../../utils/toolbox.js"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
@@ -247,7 +248,9 @@ class ReadContent extends React.PureComponent {
     const { width } = Dimensions.get('window')
 
     if(x !== width) {
-      const ref = adjacentRefs[ x < width ? 'previous' : 'next' ]
+      let goPrev = x < width
+      if(Platform.OS === 'android' && RTL) goPrev = !goPrev
+      const ref = adjacentRefs[ goPrev ? 'previous' : 'next' ]
 
       if(!ref.bookId) {
         this.setContentOffset()
