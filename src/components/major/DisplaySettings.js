@@ -5,6 +5,7 @@ import { Constants } from "expo"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
+import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
 import { getToolbarHeight } from "../../utils/toolbox.js"
 import { bibleFontList } from "../../utils/bibleFonts.js"
@@ -28,20 +29,41 @@ const styles = StyleSheet.create({
   options: {
     position: 'absolute',
     top: getToolbarHeight() - 2,
-    right: 1,
+    [RTL ? 'left' : 'right']: 1,
     minWidth: 230,
     paddingBottom: 15,
     zIndex: 16,
+    ...(RTL ? { alignItems: 'flex-end' } : {}),
   },
   header: {
     fontWeight: 'bold',
+    ...(RTL ? { textAlign: 'right' } : {}),
   },
   switch: {
-    ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
-    marginRight: 10,
+    ...(Platform.OS === 'android' ? { [RTL ? 'marginRight' : 'marginLeft']: -10 } : {}),
+    [RTL ? 'marginLeft' : 'marginRight']: 10,
+    ...(RTL ? { transform: [{ scaleX: -1 }] } : {}),
+  },
+  switchContainer: {
+    ...(RTL ? { flexDirection: 'row-reverse' } : {}),
+  },
+  sliderText: {
+    width: '100%',
+    ...(RTL ? { textAlign: 'right' } : {}),
+  },
+  selectContainer: {
+    flexDirection: 'row-reverse',
   },
   dropdownIcon: {
-    marginLeft: 10,
+    ...(
+      RTL
+        ? {
+          marginRight: -10,
+        }
+        : {
+          marginLeft: 10,
+        }
+    ),
     fontSize: 20,
     ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
   },
@@ -49,6 +71,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'android' ? { width: 220 } : { width: 200 }),
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
+    ...(RTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
 })
 
@@ -197,7 +220,7 @@ class DisplaySettings extends React.PureComponent {
           <TouchableWithoutFeedback
             onPress={this.toggleParallelMode}
           >
-            <CardItem>
+            <CardItem style={styles.switchContainer}>
               <Switch
                 onValueChange={this.toggleParallelMode}
                 style={styles.switch}
@@ -213,7 +236,7 @@ class DisplaySettings extends React.PureComponent {
           </TouchableWithoutFeedback>
           <CardItem>
             <Body>
-              <Text>{i18n("Text size")}</Text>
+              <Text style={styles.sliderText}>{i18n("Text size")}</Text>
               <Slider
                 minimumValue={.3}
                 maximumValue={3}
@@ -243,6 +266,7 @@ class DisplaySettings extends React.PureComponent {
           </CardItem> */}
           <CardItem button
             onPress={this.selectTheme}
+            style={styles.selectContainer}
           >
             <Text>
               {i18n("Theme: {{theme}}", { theme: currentThemeLabel })}
@@ -254,6 +278,7 @@ class DisplaySettings extends React.PureComponent {
           </CardItem>
           <CardItem button
             onPress={this.selectFont}
+            style={styles.selectContainer}
           >
             <Text>
               {i18n("Font: {{font}}", { font: currentFontLabel })}
