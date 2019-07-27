@@ -263,7 +263,7 @@ class SearchResult extends React.PureComponent {
           style={[
             textStyles.verse,
             selected ? textStyles.selected : null,
-            (isRTL(languageId) === RTL ? textStyles.rtl : null),
+            (isRTL(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
           ]}
