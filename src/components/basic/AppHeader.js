@@ -2,8 +2,9 @@ import React from "react"
 import Constants from "expo-constants"
 import { Header } from "native-base"
 import { Platform, StyleSheet, View, StatusBar } from "react-native"
+import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 
-import { getToolbarHeight } from '../../utils/toolbox.js'
+import { getToolbarHeight, isIPhoneX } from '../../utils/toolbox.js'
 
 const {
   ANDROID_TOOLBAR_COLOR,
@@ -28,7 +29,14 @@ const styles = StyleSheet.create({
           backgroundColor: ANDROID_TOOLBAR_COLOR,
           marginTop: StatusBar.currentHeight,
         }
-        : {}
+        : (
+          isIPhoneX
+            ? {
+              paddingTop: -20,
+              height: 34,
+            }
+            : {}
+        )
     ),
   },
   noStatusBarSpace: {
@@ -38,13 +46,19 @@ const styles = StyleSheet.create({
           marginTop: 0,
           paddingTop: 0,
         }
-        : {
-          paddingTop: 0,
-          height: 46,
-          //borderTopWidth: 1,
-          //borderTopColor: '#cccccc',
-        }
+        : (
+          isIPhoneX
+            ? {}
+            : {
+              paddingTop: 0,
+              height: 46,
+            }
+        )
     ),
+  },
+  iphoneXBuffer: {
+    backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
+    height: 34,
   },
 })
 
@@ -64,11 +78,14 @@ class AppHeader extends React.Component {
 
     return (
       <View style={!hide && styles.container}>
+        {(!hideStatusBar && isIPhoneX) &&
+          <View style={styles.iphoneXBuffer} />
+        }
         <StatusBar
           backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
           translucent={true}
           animated={!hideStatusBar}
-          hidden={hideStatusBar}
+          hidden={hideStatusBar && !isIPhoneX}
         />
         <Header
           {...headerParams}

@@ -3,11 +3,10 @@ import { StyleSheet, View, Dimensions, AppState, StatusBar,
          TouchableWithoutFeedback, Platform } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 
 // import i18n from "../../utils/i18n.js"
-import { unmountTimeouts, debounce } from "../../utils/toolbox.js"
+import { unmountTimeouts, debounce, isIPhoneX } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
@@ -19,7 +18,6 @@ import RecentSection from '../major/RecentSection'
 
 const {
   PASSAGE_CHOOSER_HEIGHT,
-  DEFAULT_FONT_SIZE,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -29,6 +27,10 @@ const styles = StyleSheet.create({
   invisibleCover: {
     ...StyleSheet.absoluteFill,
     zIndex: 20,
+  },
+  iphoneXBuffer: {
+    height: 44,
+    backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
   },
 })
 
@@ -97,7 +99,7 @@ class Read extends React.Component {
 
   render() {
 
-    const { navigation, displaySettings } = this.props
+    const { navigation } = this.props
     const { showingDisplaySettings, showingPassageChooser, currentAppState } = this.state
 
     const { width, height } = Dimensions.get('window')
@@ -111,6 +113,7 @@ class Read extends React.Component {
         <View
           style={styles.passageChooserContainer}
         >
+          {isIPhoneX && <View style={styles.iphoneXBuffer} />}
           <PassageChooser
             hidePassageChooser={this.hidePassageChooser}
             paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
@@ -120,7 +123,7 @@ class Read extends React.Component {
         </View>
         <RevealContainer
           revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-          immediateAdjustment={hideStatusBar ? 20 : 0}
+          immediateAdjustment={hideStatusBar ? (isIPhoneX ? 34 : 20) : 0}
         >
           <ReadHeader
             navigation={navigation}
@@ -155,12 +158,4 @@ class Read extends React.Component {
   }
 }
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setTheme,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(Read)
+export default Read
