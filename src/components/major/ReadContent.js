@@ -1,5 +1,5 @@
 import React from "react"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 import { ScrollView, View, StyleSheet, Dimensions, Clipboard, Platform } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"

@@ -1,7 +1,7 @@
 import React from "react"
 import { Button, Text, View } from "native-base"
 import { StyleSheet, ScrollView, FlatList } from "react-native"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'

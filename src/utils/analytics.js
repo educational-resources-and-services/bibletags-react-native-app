@@ -1,5 +1,6 @@
 import { Platform } from 'react-native'
-import { Constants, Amplitude } from 'expo'
+import * as Amplitude from "expo-analytics-amplitude"
+import Constants from "expo-constants"
 
 const {
   AMPLITUDE_API_KEY,

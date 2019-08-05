@@ -1,5 +1,5 @@
 import React from "react"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 import { Platform } from "react-native"
 import { Icon } from "native-base"
 

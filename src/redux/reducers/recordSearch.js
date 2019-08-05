@@ -1,4 +1,4 @@
-import { Constants } from "expo"
+import Constants from "expo-constants"
 import { updateRecentLists } from '../../utils/toolbox.js'
 
 const {

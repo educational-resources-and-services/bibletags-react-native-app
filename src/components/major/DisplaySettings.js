@@ -1,7 +1,7 @@
 import React from "react"
 import { Card, CardItem, Icon, Text, View, Switch, Body, ActionSheet } from "native-base"
 import { StyleSheet, TouchableWithoutFeedback, Platform, Slider, StatusBar } from "react-native"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 

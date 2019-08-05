@@ -1,5 +1,7 @@
 import React from "react"
-import { Constants, Font, AppLoading, StoreReview } from "expo"
+import Constants from "expo-constants"
+import * as Font from "expo-font"
+import { AppLoading, StoreReview } from "expo"
 import { Root } from "native-base"
 
 import { AsyncStorage, I18nManager } from "react-native"

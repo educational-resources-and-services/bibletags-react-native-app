@@ -1,7 +1,7 @@
 import React from "react"
 import { Content, Button, Icon } from "native-base"
 import { StyleSheet, ScrollView, View } from "react-native"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 
 import ChooserVersion from "../basic/ChooserVersion"
 

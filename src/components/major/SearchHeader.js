@@ -125,7 +125,7 @@ class SearchHeader extends React.PureComponent {
               onChangeText={updateEditedSearchString}
               onSubmitEditing={this.updateSearchString}
               autoCapitalize="none"
-              autoCompleteType={false}
+              autoCompleteType="off"
               autoCorrect={true}
               enablesReturnKeyAutomatically={true}
               importantForAutofill="no"

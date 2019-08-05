@@ -1,12 +1,12 @@
 import React from "react"
 import { StyleSheet, View, Dimensions, AppState, StatusBar,
          TouchableWithoutFeedback, Platform } from "react-native"
-import { Constants, KeepAwake } from "expo"
+import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
+import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Content } from "native-base"
 
-import i18n from "../../utils/i18n.js"
+// import i18n from "../../utils/i18n.js"
 import { unmountTimeouts, debounce } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"
@@ -43,11 +43,13 @@ class Read extends React.Component {
 
   componentDidMount() {
     AppState.addEventListener('change', this.handleAppStateChange)
+    activateKeepAwake()
   }
 
   componentWillUnmount = () => {
     AppState.removeEventListener('change', this.handleAppStateChange)
     unmountTimeouts.bind(this)()
+    deactivateKeepAwake()
   }
 
   handleAppStateChange = currentAppState => {
@@ -128,7 +130,6 @@ class Read extends React.Component {
             hideStatusBar={hideStatusBar}
             width={width}  // By sending this as a prop, I force a rerender
           />
-          <KeepAwake />
           {showingDisplaySettings &&
             <DisplaySettings
               hideDisplaySettings={this.hideDisplaySettings}

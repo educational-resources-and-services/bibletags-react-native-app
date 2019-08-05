@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View, Text, Dimensions } from "react-native"
-// import { Constants } from "expo"
+// import Constants from "expo-constants"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
 import { Container, Content } from "native-base"

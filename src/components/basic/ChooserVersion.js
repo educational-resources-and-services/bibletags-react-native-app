@@ -1,6 +1,6 @@
 import React from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
-import { Constants } from "expo"
+import Constants from "expo-constants"
 
 import { getVersionInfo } from "../../utils/toolbox"
 

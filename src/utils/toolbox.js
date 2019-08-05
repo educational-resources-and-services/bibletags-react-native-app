@@ -1,6 +1,6 @@
 import { Dimensions, NetInfo } from "react-native"
-import { SQLite } from 'expo'
-import { Constants } from "expo"
+import Constants from "expo-constants"
+import { SQLite } from 'expo-sqlite'
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { getPassageStr } from "bibletags-ui-helper"
 // import { Toast } from "native-base"
