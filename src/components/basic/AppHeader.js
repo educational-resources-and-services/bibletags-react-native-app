@@ -2,9 +2,11 @@ import React from "react"
 import Constants from "expo-constants"
 import { Header } from "native-base"
 import { Platform, StyleSheet, View, StatusBar } from "react-native"
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 
+import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { getToolbarHeight, isIPhoneX } from '../../utils/toolbox.js'
+
+import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
 const {
   ANDROID_TOOLBAR_COLOR,
@@ -32,8 +34,8 @@ const styles = StyleSheet.create({
         : (
           isIPhoneX
             ? {
-              paddingTop: -20,
-              height: 34,
+              paddingTop: nativeBasePlatformVariables.Inset['portrait'].topInset * -1,
+              height: nativeBasePlatformVariables.Inset['portrait'].bottomInset,
             }
             : {}
         )
@@ -56,10 +58,6 @@ const styles = StyleSheet.create({
         )
     ),
   },
-  iphoneXBuffer: {
-    backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
-    height: 34,
-  },
 })
 
 class AppHeader extends React.Component {
@@ -79,7 +77,7 @@ class AppHeader extends React.Component {
     return (
       <View style={!hide && styles.container}>
         {(!hideStatusBar && isIPhoneX) &&
-          <View style={styles.iphoneXBuffer} />
+          <IPhoneXBuffer />
         }
         <StatusBar
           backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work

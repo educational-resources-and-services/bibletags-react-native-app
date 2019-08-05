@@ -3,8 +3,8 @@ import { StyleSheet, View, Dimensions, AppState, StatusBar,
          TouchableWithoutFeedback, Platform } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 
+import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 // import i18n from "../../utils/i18n.js"
 import { unmountTimeouts, debounce, isIPhoneX } from "../../utils/toolbox.js"
 
@@ -15,6 +15,7 @@ import PassageChooser from "../major/PassageChooser"
 // import FullScreenSpin from '../basic/FullScreenSpin'
 import RevealContainer from '../basic/RevealContainer'
 import RecentSection from '../major/RecentSection'
+import IPhoneXBuffer from "../basic/IPhoneXBuffer.js"
 
 const {
   PASSAGE_CHOOSER_HEIGHT,
@@ -27,10 +28,6 @@ const styles = StyleSheet.create({
   invisibleCover: {
     ...StyleSheet.absoluteFill,
     zIndex: 20,
-  },
-  iphoneXBuffer: {
-    height: 44,
-    backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
   },
 })
 
@@ -113,7 +110,7 @@ class Read extends React.Component {
         <View
           style={styles.passageChooserContainer}
         >
-          {isIPhoneX && <View style={styles.iphoneXBuffer} />}
+          <IPhoneXBuffer extraSpace={true} />
           <PassageChooser
             hidePassageChooser={this.hidePassageChooser}
             paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
@@ -123,7 +120,7 @@ class Read extends React.Component {
         </View>
         <RevealContainer
           revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-          immediateAdjustment={hideStatusBar ? (isIPhoneX ? 34 : 20) : 0}
+          immediateAdjustment={hideStatusBar ? (isIPhoneX ? nativeBasePlatformVariables.Inset['portrait'].bottomInset : 20) : 0}
         >
           <ReadHeader
             navigation={navigation}
