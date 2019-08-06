@@ -1,5 +1,7 @@
 import React from "react"
 import { Text, View, StyleSheet, PanResponder } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import { RTL } from '../../../language.js'
 
@@ -42,6 +44,12 @@ const styles = StyleSheet.create({
     lineHeight: 25,
     textAlign: RTL ? 'left' : 'right',
     fontSize: 12,
+  },
+  contrast: {
+    backgroundColor: '#444444',
+  },
+  contrastSelected: {
+    backgroundColor: 'black',
   },
 })
 
@@ -111,7 +119,7 @@ class RecentBookmark extends React.PureComponent {
   })
 
   render() {
-    const { selected, text, backgroundColor } = this.props
+    const { selected, text, backgroundColor, displaySettings } = this.props
     const { beingTouched, dragY } = this.state
 
     return (
@@ -120,6 +128,8 @@ class RecentBookmark extends React.PureComponent {
         style={[
           styles.bookmark,
           { backgroundColor },
+          (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
+          (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
           (selected ? styles.bookmarkSelected : null),
           (beingTouched ? styles.bookmarkBeingTouched : null),
           (beingTouched
@@ -143,4 +153,11 @@ class RecentBookmark extends React.PureComponent {
   }
 }
 
-export default RecentBookmark
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings
+})
+
+const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(RecentBookmark)

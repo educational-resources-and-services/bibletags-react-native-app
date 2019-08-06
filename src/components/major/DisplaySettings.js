@@ -57,6 +57,9 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
     ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
+  contrast: {
+    color: 'black',
+  },
 })
 
 const themeOptions = [
@@ -256,7 +259,10 @@ class DisplaySettings extends React.PureComponent {
             </Text>
             <Icon
               name="arrow-dropdown"
-              style={styles.dropdownIcon}
+              style={[
+                styles.dropdownIcon,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+              ]}
             />
           </CardItem>
           <CardItem button
@@ -267,7 +273,10 @@ class DisplaySettings extends React.PureComponent {
             </Text>
             <Icon
               name="arrow-dropdown"
-              style={styles.dropdownIcon}
+              style={[
+                styles.dropdownIcon,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+              ]}
             />
           </CardItem>
         </Card>

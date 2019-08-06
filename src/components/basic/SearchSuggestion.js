@@ -1,6 +1,8 @@
 import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { ListItem, Body, Right } from "native-base"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
 import { RTL } from "../../../language.js"
@@ -33,6 +35,9 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 13,
   },
+  contrast: {
+    color: 'black',
+  },
 })
 
 class SearchSuggestion extends React.PureComponent {
@@ -55,7 +60,7 @@ class SearchSuggestion extends React.PureComponent {
   }
 
   render() {
-    const { searchString, versionId, lastViewTime, numberResults } = this.props
+    const { searchString, versionId, lastViewTime, numberResults, displaySettings } = this.props
 
     const { abbr, languageId } = getVersionInfo(versionId)
 
@@ -78,7 +83,14 @@ class SearchSuggestion extends React.PureComponent {
           <View style={styles.secondLine}
           >
             <View style={styles.subtitleView}>
-              <Text style={styles.subtitle}>{i18n("{{num_results}} result(s)", { num_results: numberResults })}</Text>
+              <Text
+              style={[
+                styles.subtitle,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+              ]}
+            >
+              {i18n("{{num_results}} result(s)", { num_results: numberResults })}
+            </Text>
             </View>
             <View>
               <RelativeTime
@@ -93,4 +105,12 @@ class SearchSuggestion extends React.PureComponent {
   }
 }
 
-export default SearchSuggestion
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(SearchSuggestion)

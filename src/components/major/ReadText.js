@@ -93,6 +93,9 @@ const textStyles = StyleSheet.create({
   sc: {
     // fontVariant: ["small-caps"],
   },
+  contrast: {
+    color: 'black',
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -212,7 +215,7 @@ class ReadText extends React.PureComponent {
     const { displaySettings, selectedVerse } = this.props
     const { languageId, isOriginal } = this.state
 
-    const { font, textSize } = displaySettings
+    const { font, textSize, theme } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
 
     let textAlreadyDisplayedInThisView = false
@@ -251,6 +254,7 @@ class ReadText extends React.PureComponent {
       const styles = [
         wrapInView && isRTL(languageId) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
+        theme === 'high-contrast' ? textStyles.contrast : null,
         fontSize && { fontSize },
         fontFamily && { fontFamily },
         (selectedVerse !== null && (

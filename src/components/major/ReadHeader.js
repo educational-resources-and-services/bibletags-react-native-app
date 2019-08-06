@@ -45,6 +45,9 @@ const styles = StyleSheet.create({
       fontSize: 13,
     }),
   },
+  contrast: {
+    color: Platform.OS === 'ios' ? 'black' : 'white',
+  },
   titles: {
     paddingRight: 34,
   },
@@ -54,7 +57,7 @@ const styles = StyleSheet.create({
     top: 0,
     fontSize: Platform.OS === 'ios' ? 18 : 22,
     lineHeight: getToolbarHeight() - (Platform.OS === 'ios' ? 24 : 0) - 6,  // 24 is the height of the status bar; 6 offsets it toward the top more
-    ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : { color: 'rgba(255,255,255,.5)' }),
+    color: Platform.OS === 'ios' ? '#bbbbbb' : 'rgba(255,255,255,.5)',
   },
 })
 
@@ -80,7 +83,7 @@ class ReadHeader extends React.PureComponent {
   }
 
   render() {
-    let { passage, toggleShowOptions, showPassageChooser,
+    let { passage, toggleShowOptions, showPassageChooser, displaySettings,
           showingPassageChooser, hideStatusBar, width } = this.props
 
     width -= (leftIconsWidth + rightIconsWidth)
@@ -128,12 +131,20 @@ class ReadHeader extends React.PureComponent {
                   ],
                 })}
               </Title>
-              <Subtitle style={styles.subtitle}>
+              <Subtitle
+                style={[
+                  styles.subtitle,
+                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                ]}
+              >
                 {`${RTL ? `\u2067` : `\u2066`}${versionsText}`}
               </Subtitle>
               <Icon
                 name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-                style={styles.dropdownIcon}
+                style={[
+                  styles.dropdownIcon,
+                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                ]}
               />
             </View>
           </TouchableOpacity>
@@ -157,8 +168,9 @@ class ReadHeader extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage }) => ({
+const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

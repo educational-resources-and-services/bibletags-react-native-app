@@ -102,7 +102,8 @@ class PassageChooser extends React.PureComponent {
     const { bookChooserHeight } = this.state
     const { bookId } = passage.ref
 
-    const index = this.getBookIds().indexOf(bookId)
+    let index = this.getBookIds().indexOf(bookId)
+    if(index === -1) index = 0
     const maxScroll = CHOOSER_BOOK_LINE_HEIGHT * this.getBookIds().length - (bookChooserHeight - paddingBottom)
     const scrollAtIndex = CHOOSER_BOOK_LINE_HEIGHT * index
     const minOffset = scrollAtIndex - maxScroll

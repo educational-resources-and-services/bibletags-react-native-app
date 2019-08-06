@@ -38,6 +38,9 @@ const textStyles = StyleSheet.create({
   verse: {
     color: SEARCH_RESULT_VERSE_COLOR,
   },
+  contrast: {
+    color: 'black',
+  },
   selected: {
     color: SEARCH_RESULT_SELECTED_COLOR,
   },
@@ -224,7 +227,7 @@ class SearchResult extends React.PureComponent {
   }
 
   render() {
-    const { result, searchString, languageId, displaySettings,
+    const { result, languageId, displaySettings,
             selected, selectTapY, onTouchStart, onTouchEnd } = this.props
 
     const { width, height } = Dimensions.get('window')
@@ -262,6 +265,7 @@ class SearchResult extends React.PureComponent {
         <Text
           style={[
             textStyles.verse,
+            displaySettings.theme === 'high-contrast' ? textStyles.contrast : null,
             selected ? textStyles.selected : null,
             (isRTL(languageId) ? textStyles.rtl : null),
             { fontSize },

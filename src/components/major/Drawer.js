@@ -1,7 +1,7 @@
 import React from "react"
 import Constants from "expo-constants"
-// import { bindActionCreators } from "redux"
-// import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
 import { Container, Content, Text, List, View } from "native-base"
 
@@ -48,6 +48,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999999',
   },
+  contrast: {
+    color: '#000000',
+  },
 })
 
 class Drawer extends React.Component {
@@ -85,7 +88,7 @@ class Drawer extends React.Component {
   }
 
   render() {
-    const { navigation } = this.props
+    const { navigation, displaySettings } = this.props
     const { offline } = this.state
 
     const { height } = Dimensions.get('window')
@@ -114,9 +117,23 @@ class Drawer extends React.Component {
                 onPress={this.goToBibleTagsMarketingSite}
               >
                 <View style={styles.createdByContainer}>
-                  <Text style={styles.createdBy}>{i18n("Powered by Bible Tags")}</Text>
+                  <Text
+                    style={[
+                      styles.createdBy,
+                      displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                    ]}
+                  >
+                    {i18n("Powered by Bible Tags")}
+                  </Text>
                   {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
-                    <Text style={styles.launchYour}>{i18n("Open source Bible apps")}</Text>
+                    <Text
+                      style={[
+                        styles.launchYour,
+                        displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                      ]}
+                    >
+                      {i18n("Open source Bible apps")}
+                    </Text>
                   }
                 </View>
               </TouchableOpacity>
@@ -128,12 +145,11 @@ class Drawer extends React.Component {
   }
 }
 
-export default Drawer
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings
+})
 
-// const mapStateToProps = (state) => ({
-// })
+const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+}, dispatch)
 
-// const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-// }, dispatch)
-
-// export default connect(mapStateToProps, matchDispatchToProps)(Drawer)
+export default connect(mapStateToProps, matchDispatchToProps)(Drawer)

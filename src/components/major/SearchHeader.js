@@ -1,6 +1,8 @@
 import React from "react"
 import { StyleSheet, Text, Dimensions, Platform } from "react-native"
 import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-base"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
 import i18n from "../../utils/i18n.js"
@@ -42,6 +44,9 @@ const styles = StyleSheet.create({
   },
   input: {
     ...(RTL ? { textAlign: 'right' } : {}),
+  },
+  contrast: {
+    color: 'black',
   },
 })
 
@@ -97,7 +102,8 @@ class SearchHeader extends React.PureComponent {
   }
 
   render() {
-    const { navigation, editing, numberResults, editedSearchString, updateEditedSearchString } = this.props
+    const { navigation, editing, numberResults, editedSearchString,
+            updateEditedSearchString, displaySettings } = this.props
 
     const { searchString, versionId } = navigation.state.params
     const { abbr, languageId } = getVersionInfo(versionId)
@@ -168,7 +174,12 @@ class SearchHeader extends React.PureComponent {
             {`  `}
             <Text style={styles.versionAbbr}>{abbr}</Text>
           </Title>
-          <Subtitle style={styles.subtitle}>
+          <Subtitle
+            style={[
+              styles.subtitle,
+              displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+            ]}
+          >
             {
               numberResults === false
                 ? i18n("Searching...")
@@ -189,4 +200,12 @@ class SearchHeader extends React.PureComponent {
   }
 }
 
-export default SearchHeader
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(SearchHeader)
