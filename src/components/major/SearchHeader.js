@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     ...(RTL ? { textAlign: 'right' } : {}),
   },
   contrast: {
-    color: 'black',
+    color: Platform.OS === 'ios' ? 'black' : 'white',
   },
 })
 
