@@ -36,6 +36,9 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: DIVIDER_COLOR,
   },
+  contrast: {
+    backgroundColor: '#333333',
+  },
 })
 
 class ReadContent extends React.PureComponent {
@@ -302,7 +305,7 @@ class ReadContent extends React.PureComponent {
   ]
 
   render() {
-    const { passage, recentPassages, recentSearches } = this.props
+    const { passage, recentPassages, recentSearches, displaySettings } = this.props
     const { ref, versionId, parallelVersionId } = passage
     const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse,
             selectedTextContent, selectedTapX, selectedTapY } = this.state
@@ -343,7 +346,12 @@ class ReadContent extends React.PureComponent {
           />
           {!!parallelVersionId &&
             <React.Fragment>
-              <View style={styles.divider} />
+              <View
+                style={[
+                  styles.divider,
+                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                ]}
+              />
               <ReadText
                 key={`${parallelVersionId} ${pageRef.bookId} ${pageRef.chapter}`}
                 passageRef={pageRef}
@@ -407,11 +415,12 @@ class ReadContent extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches, displaySettings }) => ({
   passage,
   passageScrollY,
   recentPassages,
   recentSearches,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
