@@ -16,6 +16,7 @@ const {
 // const cachedSizes = {}
 
 export const isIPhoneX = nativeBasePlatformVariables.isIphoneX
+export const iPhoneXInset = nativeBasePlatformVariables.Inset
 export const getToolbarHeight = () => nativeBasePlatformVariables.toolbarHeight
 
 export const isPhoneSize = () => {

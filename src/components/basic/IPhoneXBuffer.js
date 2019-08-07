@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
-import { isIPhoneX } from "../../utils/toolbox.js"
+import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 
 const {
 //   PASSAGE_CHOOSER_HEIGHT,
@@ -13,11 +13,11 @@ const {
 
 const styles = StyleSheet.create({
   iphoneXBuffer: {
-    height: nativeBasePlatformVariables.Inset['portrait'].bottomInset,
+    height: iPhoneXInset['portrait'].bottomInset,
     backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
   },
   extraSpace: {
-    height: nativeBasePlatformVariables.Inset['portrait'].bottomInset + 10,
+    height: iPhoneXInset['portrait'].bottomInset + 10,
   },
 })
 

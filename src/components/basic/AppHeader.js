@@ -5,8 +5,7 @@ import { Platform, StyleSheet, View, StatusBar } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
-import { getToolbarHeight, isIPhoneX } from '../../utils/toolbox.js'
+import { getToolbarHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox.js'
 
 import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
@@ -36,8 +35,8 @@ const styles = StyleSheet.create({
         : (
           isIPhoneX
             ? {
-              paddingTop: nativeBasePlatformVariables.Inset['portrait'].topInset * -1,
-              height: nativeBasePlatformVariables.Inset['portrait'].bottomInset,
+              paddingTop: iPhoneXInset['portrait'].topInset * -1,
+              height: iPhoneXInset['portrait'].bottomInset,
             }
             : {}
         )
