@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '100%',
   },
+  copyrightLine: {
+    marginBottom: 15,
+  },
   copyright: {
     lineHeight: 24,
   },
@@ -36,7 +39,16 @@ class VersionInfo extends React.Component {
         <Content>
           <Body style={styles.body}>
             <View style={styles.view}>
-              <Text style={styles.copyright}>{copyright}</Text>
+              {copyright.split(/\n/g).map((copyrightLine, idx) => (
+                <View
+                  key={idx}
+                  style={styles.copyrightLine}
+                >
+                  <Text style={styles.copyright}>
+                    {copyrightLine}
+                  </Text>
+                </View>
+              ))}
             </View>
           </Body>
         </Content>
