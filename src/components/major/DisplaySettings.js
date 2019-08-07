@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
   },
   slider: {
-    ...(Platform.OS === 'android' ? { width: 220 } : { width: 200 }),
+    width: Platform.OS === 'android' ? 220 : 200,
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
     ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
