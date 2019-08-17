@@ -2,6 +2,8 @@ import React from "react"
 import Constants from "expo-constants"
 import { Header } from "native-base"
 import { Platform, StyleSheet, View, StatusBar } from "react-native"
+import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
 
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { getToolbarHeight, isIPhoneX } from '../../utils/toolbox.js'
@@ -58,6 +60,12 @@ const styles = StyleSheet.create({
         )
     ),
   },
+  lowLightToolbar: {
+    backgroundColor: 'rgba(54, 50, 50, 1)',
+  },
+  lowLightStatusBar: {
+    backgroundColor: 'rgba(54, 50, 50, 1)', // status bar doesn't seem to be doing anything...?
+  },
 })
 
 class AppHeader extends React.Component {
@@ -66,7 +74,7 @@ class AppHeader extends React.Component {
   // Thus, this component is a hack to force it to render properly.
 
   render() {
-    const { hide, hideStatusBar, ...headerParams } = this.props
+    const { hide, displaySettings, hideStatusBar, ...headerParams } = this.props
 
     const style = {}
 
@@ -80,15 +88,17 @@ class AppHeader extends React.Component {
           <IPhoneXBuffer />
         }
         <StatusBar
-          backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
+          //backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
           translucent={true}
           animated={!hideStatusBar}
           hidden={hideStatusBar && !isIPhoneX}
+          style={ displaySettings.theme === 'low-light' ? styles.lowLightStatusBar : null }
         />
         <Header
           {...headerParams}
           style={[
             styles.header,
+            displaySettings.theme === 'low-light' ? styles.lowLightToolbar : null,
             (hideStatusBar ? styles.noStatusBarSpace : null),
             style,
           ]}
@@ -100,4 +110,12 @@ class AppHeader extends React.Component {
   }
 }
 
-export default AppHeader
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(AppHeader)

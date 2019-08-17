@@ -32,6 +32,9 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     height: '100%',
   },
+  lowLightPage: {
+    backgroundColor: 'black',
+  },
   divider: {
     height: 1,
     backgroundColor: DIVIDER_COLOR,
@@ -302,12 +305,14 @@ class ReadContent extends React.PureComponent {
   ]
 
   render() {
-    const { passage, recentPassages, recentSearches } = this.props
+    const { passage, recentPassages, recentSearches, displaySettings } = this.props
     const { ref, versionId, parallelVersionId } = passage
     const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse,
             selectedTextContent, selectedTapX, selectedTapY } = this.state
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
+
+    const { theme } = displaySettings
 
     const { width, height } = Dimensions.get('window')
 
@@ -317,7 +322,10 @@ class ReadContent extends React.PureComponent {
       return (
         <View
           key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-          style={styles.page}
+          style={[
+            styles.page,
+            (theme === 'low-light' ? styles.lowLightPage : null ),
+          ]}
         >
           <ReadText
             key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
@@ -407,11 +415,12 @@ class ReadContent extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches, displaySettings }) => ({
   passage,
   passageScrollY,
   recentPassages,
   recentSearches,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

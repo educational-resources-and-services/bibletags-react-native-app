@@ -93,8 +93,32 @@ const textStyles = StyleSheet.create({
   sc: {
     // fontVariant: ["small-caps"],
   },
+})
+
+const textStylesContrast = StyleSheet.create({
   contrast: {
     color: 'black',
+  },
+})
+
+const textStylesLowLight = StyleSheet.create({
+  mt: {
+    color: 'rgba(250, 251, 252, .98)',
+  },
+  ms: {
+    color: 'rgba(250, 251, 252, .98)',
+  },
+  s1: {
+    color: 'rgba(250, 251, 252, .98)',
+  },
+  s2: {
+    color: 'rgba(250, 251, 252, .98)',
+  },
+  d: {
+    color: 'rgba(250, 251, 252, .98)',
+  },
+  p: {
+    color: 'rgba(250, 251, 252, .98)',
   },
 })
 
@@ -254,7 +278,8 @@ class ReadText extends React.PureComponent {
       const styles = [
         wrapInView && isRTL(languageId) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
-        theme === 'high-contrast' ? textStyles.contrast : null,
+        theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
+        theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,
         fontSize && { fontSize },
         fontFamily && { fontFamily },
         (selectedVerse !== null && (

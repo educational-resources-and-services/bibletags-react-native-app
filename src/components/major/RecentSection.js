@@ -35,7 +35,9 @@ const styles = StyleSheet.create({
 class RecentSection extends React.PureComponent {
 
   render() {
-    const { passage, history, recentPassages, recentSearches, navigation } = this.props
+    const { passage, history, recentPassages, recentSearches, navigation, displaySettings } = this.props
+
+    const {theme } = displaySettings
 
     if(recentPassages.length + recentSearches.length === 1) return null
 
@@ -98,11 +100,12 @@ class RecentSection extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, history, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, history, recentPassages, recentSearches, displaySettings }) => ({
   passage,
   history,
   recentPassages,
   recentSearches,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
