@@ -50,7 +50,9 @@ class RecentRef extends React.PureComponent {
   }
 
   render() {
-    const { passageRef, selected } = this.props
+    const { passageRef, selected, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     const text = getPassageStr({
       refs: [ passageRef ],
@@ -61,7 +63,13 @@ class RecentRef extends React.PureComponent {
       <RecentBookmark
         selected={selected}
         text={text}
-        backgroundColor={selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR}
+        backgroundColor={
+          theme === 'low-light' 
+            ?
+              'rgba(237, 237, 237, 1)'
+            : 
+              (selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR)
+        }
         discard={this.discard}
         select={this.select}
       />
@@ -69,9 +77,10 @@ class RecentRef extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ history, recentPassages }) => ({
+const mapStateToProps = ({ history, recentPassages, displaySettings }) => ({
   history,
   recentPassages,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

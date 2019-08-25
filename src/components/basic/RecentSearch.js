@@ -36,12 +36,14 @@ class RecentSearch extends React.PureComponent {
   }
 
   render() {
-    const { searchString } = this.props
+    const { searchString, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     return (
       <RecentBookmark
         text={searchString}
-        backgroundColor={RECENT_SEARCH_BACKGROUND_COLOR}
+        backgroundColor={theme === 'low-light' ? 'rgba(237, 237, 237, 1)' : RECENT_SEARCH_BACKGROUND_COLOR}
         discard={this.discard}
         select={this.select}
       />
@@ -49,7 +51,8 @@ class RecentSearch extends React.PureComponent {
   }
 }
 
-const mapStateToProps = () => ({
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
   // recentSearches,
 })
 
