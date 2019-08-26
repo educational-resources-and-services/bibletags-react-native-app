@@ -63,9 +63,6 @@ const styles = StyleSheet.create({
   lowLightToolbar: {
     backgroundColor: 'rgba(54, 50, 50, 1)',
   },
-  lowLightStatusBar: {
-    backgroundColor: 'rgba(54, 50, 50, 1)', // status bar doesn't seem to be doing anything...?
-  },
 })
 
 class AppHeader extends React.Component {
@@ -88,11 +85,12 @@ class AppHeader extends React.Component {
           <IPhoneXBuffer />
         }
         <StatusBar
-          //backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
+          backgroundColor={ANDROID_STATUS_BAR_COLOR}
+          barStyle={displaySettings.theme === 'low-light' ? 'default' : 'default'}
+          //backgroundColor and barStyle still do not seem to be working
           translucent={true}
           animated={!hideStatusBar}
           hidden={hideStatusBar && !isIPhoneX}
-          style={ displaySettings.theme === 'low-light' ? styles.lowLightStatusBar : null }
         />
         <Header
           {...headerParams}

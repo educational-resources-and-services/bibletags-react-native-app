@@ -66,7 +66,7 @@ class RecentRef extends React.PureComponent {
         backgroundColor={
           theme === 'low-light' 
             ?
-              'rgba(237, 237, 237, 1)'
+              (selected ? 'rgba(237, 237, 237, .5)' : 'rgba(237, 237, 237, 1)')
             : 
               (selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR)
         }

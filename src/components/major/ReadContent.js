@@ -324,7 +324,7 @@ class ReadContent extends React.PureComponent {
           key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
           style={[
             styles.page,
-            (theme === 'low-light' ? styles.lowLightPage : null ),
+            (theme === 'low-light' ? styles.lowLightPage : null),
           ]}
         >
           <ReadText

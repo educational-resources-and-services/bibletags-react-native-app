@@ -43,7 +43,13 @@ class RecentSearch extends React.PureComponent {
     return (
       <RecentBookmark
         text={searchString}
-        backgroundColor={theme === 'low-light' ? 'rgba(237, 237, 237, 1)' : RECENT_SEARCH_BACKGROUND_COLOR}
+        backgroundColor={
+          theme === 'low-light'
+            ?
+              'rgba(237, 237, 237, 1)'
+            :
+              RECENT_SEARCH_BACKGROUND_COLOR
+        }
         discard={this.discard}
         select={this.select}
       />

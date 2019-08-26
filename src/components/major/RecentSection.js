@@ -43,7 +43,7 @@ class RecentSection extends React.PureComponent {
   render() {
     const { passage, history, recentPassages, recentSearches, navigation, displaySettings } = this.props
 
-    const {theme } = displaySettings
+    const { theme } = displaySettings
 
     if(recentPassages.length + recentSearches.length === 1) return null
 
@@ -60,7 +60,7 @@ class RecentSection extends React.PureComponent {
             key={idx}
             style={[
               styles.faderLine,
-              (theme === 'low-light' ? styles.faderLineLowLight : null ),
+              (theme === 'low-light' ? styles.faderLineLowLight : null),
               {
                 opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
               },
@@ -70,7 +70,7 @@ class RecentSection extends React.PureComponent {
         <View
           style={[
             styles.main,
-            (theme === 'low-light' ? styles.mainLowLight : null ),
+            (theme === 'low-light' ? styles.mainLowLight : null),
           ]}
         >
           <View style={styles.refs}>
