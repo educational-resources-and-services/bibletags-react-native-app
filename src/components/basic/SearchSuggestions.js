@@ -17,7 +17,7 @@ const getSearchKey = ({ searchString, versionId }) => `${versionId}:${searchStri
 class SearchSuggestions extends React.PureComponent {
 
   render() {
-    const { history, editedSearchString, setEditing, updateEditedSearchString, navigation } = this.props
+    const { history, editedSearchString, setEditing, updateEditedSearchString, navigation, displaySettings } = this.props
     const { searchString="" } = navigation.state.params
 
     const searchKeys = []
@@ -61,8 +61,9 @@ class SearchSuggestions extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ history }) => ({
+const mapStateToProps = ({ history, displaySettings }) => ({
   history,
+  displaySettings,
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({

@@ -2,6 +2,8 @@ import React from "react"
 import { Content, Button, Icon } from "native-base"
 import { StyleSheet, ScrollView, View } from "react-native"
 import Constants from "expo-constants"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 
 import ChooserVersion from "../basic/ChooserVersion"
 
@@ -30,12 +32,15 @@ const styles = StyleSheet.create({
     opacity: .75,
     marginRight: 30,
   },
+  lowLight: {
+    color: 'white',
+  },
 })
 
 class VersionChooser extends React.PureComponent {
 
   render() {
-    const { versionIds, selectedVersionId, backgroundColor, update, goVersions } = this.props
+    const { versionIds, selectedVersionId, backgroundColor, update, goVersions, displaySettings } = this.props
 
     return (
       <ScrollView
@@ -61,7 +66,10 @@ class VersionChooser extends React.PureComponent {
           >
             <Icon
               name="information-circle-outline"
-              style={styles.info}
+              style={[
+                styles.info,
+                displaySettings.theme === 'low-light' ? styles.lowLight : null,
+              ]}
             />
           </Button>
         </View>
@@ -70,4 +78,12 @@ class VersionChooser extends React.PureComponent {
   }
 }
 
-export default VersionChooser
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setRef,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(VersionChooser)

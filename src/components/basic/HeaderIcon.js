@@ -40,8 +40,7 @@ class HeaderIcon extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, displaySettings }) => ({
-  passage,
+const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
 })
 

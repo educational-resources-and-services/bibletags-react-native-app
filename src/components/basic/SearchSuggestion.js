@@ -38,6 +38,17 @@ const styles = StyleSheet.create({
   contrast: {
     color: 'black',
   },
+  listItem: {
+    marginLeft: 0,
+    paddingLeft: 16,
+  },
+  listItemLowLight: {
+    borderBottomColor: 'rgba(176, 176, 181, 1)',
+    backgroundColor: 'black',
+  },
+  lowLight: {
+    color: 'white',
+  },
 })
 
 class SearchSuggestion extends React.PureComponent {
@@ -66,12 +77,20 @@ class SearchSuggestion extends React.PureComponent {
 
     return (
       <ListItem
+        style={[
+          styles.listItem,
+          displaySettings.theme === 'low-light' ? styles.listItemLowLight: null
+        ]}
         button={true}
         onPress={this.goSearch}
       >
         <Body>
           <View>
-            <Text style={styles.searchString}>
+            <Text 
+              style={[
+                styles.searchString,
+                displaySettings.theme === 'low-light' ? styles.lowLight : null,
+              ]}>
               {RTL ? `\u2067`: `\u2066`}
               {i18n("“{{searchString}}”", {
                 searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
@@ -80,21 +99,29 @@ class SearchSuggestion extends React.PureComponent {
               <Text style={styles.versionAbbr}>{abbr}</Text>
             </Text>
           </View>
-          <View style={styles.secondLine}
+          <View 
+            style={[
+              styles.secondLine,
+              displaySettings.theme === 'low-light' ? styles.lowLight : null,
+            ]}
           >
             <View style={styles.subtitleView}>
               <Text
-              style={[
-                styles.subtitle,
-                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-              ]}
+                style={[
+                  styles.subtitle,
+                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
+                ]}
             >
               {i18n("{{num_results}} result(s)", { num_results: numberResults })}
             </Text>
             </View>
             <View>
               <RelativeTime
-                style={styles.time}
+                style={[
+                  styles.time,
+                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
+                ]}
                 time={lastViewTime}
               />
             </View>

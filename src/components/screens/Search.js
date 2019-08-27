@@ -42,6 +42,9 @@ const styles = StyleSheet.create({
   searchResults: {
     paddingBottom: 20,
   },
+  searchLowLight: {
+    backgroundColor: 'black',
+  },
 })
 
 class Search extends React.Component {
@@ -246,7 +249,7 @@ class Search extends React.Component {
 
   render() {
 
-    const { navigation } = this.props
+    const { navigation, displaySettings } = this.props
     const { editing, searchedString, searchedVersionId, searchResults,
             languageId, isOriginal, versionAbbr, selectedLoc, editedSearchString } = this.state
 
@@ -274,11 +277,11 @@ class Search extends React.Component {
             versionIds={ALL_VERSIONS}
             update={this.updateVersion}
             selectedVersionId={versionId}
-            backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+            backgroundColor={displaySettings.theme === 'low-light' ? 'rgba(64, 62, 62, 1)' : VERSION_CHOOSER_BACKGROUND_COLOR}
             goVersions={this.goVersions}
           />
         }
-        <Content>
+        <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : null}>
           {editing &&
             <SearchSuggestions
               editedSearchString={editedSearchString}
@@ -311,8 +314,9 @@ class Search extends React.Component {
   }
 }
 
-const mapStateToProps = ({ passage }) => ({
+const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,
+  displaySettings,
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
