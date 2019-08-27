@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
   },
   lowLightToolbar: {
     backgroundColor: 'rgba(54, 50, 50, 1)',
+    borderBottomColor: 'rgba(82, 78, 78, 1)',
   },
 })
 

@@ -64,7 +64,7 @@ class ChooserVersion extends React.PureComponent {
         ]}
       >
         <Text
-        style={[
+          style={[
             styles.versionText,
             (displaySettings.theme === 'low-light'
               ?
