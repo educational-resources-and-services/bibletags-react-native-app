@@ -122,7 +122,7 @@ class RecentBookmark extends React.PureComponent {
   })
 
   render() {
-    const { selected, text, backgroundColor, displaySettings } = this.props
+    const { selected, text, style, displaySettings } = this.props
     const { beingTouched, dragY } = this.state
 
     const { theme } = displaySettings
@@ -132,7 +132,7 @@ class RecentBookmark extends React.PureComponent {
         {...this.panResponder.panHandlers}
         style={[
           styles.bookmark,
-          { backgroundColor },
+          style,
           (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
           (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
           (selected ? styles.bookmarkSelected : null),

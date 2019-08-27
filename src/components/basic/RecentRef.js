@@ -1,4 +1,5 @@
 import React from "react"
+import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -12,6 +13,21 @@ const {
   RECENT_REF_BACKGROUND_COLOR,
   RECENT_REF_SELECTED_BACKGROUND_COLOR,
 } = Constants.manifest.extra
+
+const styles = StyleSheet.create({
+  recentRef: {
+    backgroundColor: RECENT_REF_BACKGROUND_COLOR,
+  },
+  recentRefLowLight: {
+    backgroundColor: 'rgba(237, 237, 237, 1)',
+  },
+  recentRefSelected: {
+    backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
+  },
+  recentRefSelectedLowLight: {
+    backgroundColor: 'rgba(237, 237, 237, .5)',
+  },
+})
 
 class RecentRef extends React.PureComponent {
 
@@ -63,12 +79,12 @@ class RecentRef extends React.PureComponent {
       <RecentBookmark
         selected={selected}
         text={text}
-        backgroundColor={
+        style={
           theme === 'low-light' 
             ?
-              (selected ? 'rgba(237, 237, 237, .5)' : 'rgba(237, 237, 237, 1)')
+              (selected ? styles.recentRefSelectedLowLight : styles.recentRefSelected)
             : 
-              (selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR)
+              (selected ? styles.recentRefLowLight : styles.recentRef)
         }
         discard={this.discard}
         select={this.select}

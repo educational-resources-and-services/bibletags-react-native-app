@@ -1,4 +1,5 @@
 import React from "react"
+import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -12,6 +13,15 @@ import { removeRecentSearch } from "../../redux/actions.js"
 const {
   RECENT_SEARCH_BACKGROUND_COLOR,
 } = Constants.manifest.extra
+
+const styles = StyleSheet.create({
+  textBackground: {
+    backgroundColor: RECENT_SEARCH_BACKGROUND_COLOR,
+  },
+  textBackgroundLowLight: {
+    backgroundColor: 'rgba(237, 237, 237, 1)',
+  },
+})
 
 class RecentSearch extends React.PureComponent {
 
@@ -43,12 +53,12 @@ class RecentSearch extends React.PureComponent {
     return (
       <RecentBookmark
         text={searchString}
-        backgroundColor={
+        style={
           theme === 'low-light'
             ?
-              'rgba(237, 237, 237, 1)'
+              styles.textBackgroundLowLight
             :
-              RECENT_SEARCH_BACKGROUND_COLOR
+              styles.textBackground
         }
         discard={this.discard}
         select={this.select}
