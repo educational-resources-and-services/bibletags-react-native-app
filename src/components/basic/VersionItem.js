@@ -1,4 +1,6 @@
 import React from "react"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, View, Text } from "native-base"
 
@@ -28,6 +30,9 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
+  listItemLowLight: {
+    color: 'white',
+  },
 })
 
 class VersionItem extends React.PureComponent {
@@ -45,7 +50,9 @@ class VersionItem extends React.PureComponent {
   }
 
   render() {
-    const { versionId } = this.props
+    const { versionId, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     const { name, abbr } = getVersionInfo(versionId)
 
@@ -55,17 +62,37 @@ class VersionItem extends React.PureComponent {
         onPress={this.goVersionInfo}
         style={styles.listItem}
       >
-        <View style={styles.abbr}>
-          <Text style={styles.abbrText}>
+      <View style={styles.abbr}>
+        <Text
+          style={[
+            styles.abbrText,
+            displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+          ]}
+        >
             {abbr}
           </Text> 
         </View>
         <Body>
-          <Text style={styles.versionName}>{name}</Text> 
+          <Text
+            style={[
+              styles.versionName,
+              displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+            ]}
+          >
+            {name}
+          </Text> 
         </Body>
       </ListItem>
     )
   }
 }
 
-export default VersionItem
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setTheme,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(VersionItem)

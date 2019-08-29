@@ -1,5 +1,7 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Container, Content, Body, Text } from "native-base"
 
 import { getVersionInfo } from "../../utils/toolbox"
@@ -22,7 +24,7 @@ const styles = StyleSheet.create({
 class VersionInfo extends React.Component {
 
   render() {
-    const { navigation } = this.props
+    const { navigation, displaySettings } = this.props
     const { versionId } = navigation.state.params || {}
 
     const { name, copyright } = getVersionInfo(versionId)
@@ -45,4 +47,12 @@ class VersionInfo extends React.Component {
   }
 }
 
-export default VersionInfo
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setTheme,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(VersionInfo)
