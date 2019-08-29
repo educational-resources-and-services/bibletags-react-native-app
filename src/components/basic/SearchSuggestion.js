@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
   },
   listItemLowLight: {
-    borderBottomColor: 'rgba(176, 176, 181, 1)',
+    borderBottomColor: 'rgba(139, 139, 143, 1)',
     backgroundColor: 'black',
   },
   lowLight: {
