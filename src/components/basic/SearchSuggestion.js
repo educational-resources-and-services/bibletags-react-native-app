@@ -46,8 +46,14 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(139, 139, 143, 1)',
     backgroundColor: 'black',
   },
-  lowLight: {
+  searchStringLowLight: {
     color: 'white',
+  },
+  subtitleLowLight: {
+    color: 'rgba(145, 145, 145, 1)',
+  },
+  timeLowLight: {
+    color: 'rgba(217, 217, 217, 1)',
   },
 })
 
@@ -89,7 +95,7 @@ class SearchSuggestion extends React.PureComponent {
             <Text 
               style={[
                 styles.searchString,
-                displaySettings.theme === 'low-light' ? styles.lowLight : null,
+                displaySettings.theme === 'low-light' ? styles.searchStringLowLight : null,
               ]}>
               {RTL ? `\u2067`: `\u2066`}
               {i18n("“{{searchString}}”", {
@@ -102,7 +108,6 @@ class SearchSuggestion extends React.PureComponent {
           <View 
             style={[
               styles.secondLine,
-              displaySettings.theme === 'low-light' ? styles.lowLight : null,
             ]}
           >
             <View style={styles.subtitleView}>
@@ -110,7 +115,7 @@ class SearchSuggestion extends React.PureComponent {
                 style={[
                   styles.subtitle,
                   displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
+                  displaySettings.theme === 'low-light' ? styles.subtitleLowLight : null,
                 ]}
             >
               {i18n("{{num_results}} result(s)", { num_results: numberResults })}
@@ -120,7 +125,7 @@ class SearchSuggestion extends React.PureComponent {
               <RelativeTime
                 style={[
                   styles.time,
-                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
+                  displaySettings.theme === 'low-light' ? styles.timeLowLight : null,
                 ]}
                 time={lastViewTime}
               />
