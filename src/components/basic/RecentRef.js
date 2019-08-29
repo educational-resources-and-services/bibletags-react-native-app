@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
     backgroundColor: RECENT_REF_BACKGROUND_COLOR,
   },
   recentRefLowLight: {
-    backgroundColor: 'rgba(237, 237, 237, 1)',
+    backgroundColor: 'rgba(138, 138, 138, 1)',
   },
   recentRefSelected: {
     backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
   },
   recentRefSelectedLowLight: {
-    backgroundColor: 'rgba(237, 237, 237, .5)',
+    backgroundColor: 'rgba(237, 237, 237, 1)',
   },
 })
 
@@ -82,9 +82,9 @@ class RecentRef extends React.PureComponent {
         style={
           theme === 'low-light' 
             ?
-              (selected ? styles.recentRefSelectedLowLight : styles.recentRefSelected)
+              (selected ? styles.recentRefSelectedLowLight : styles.recentRefLowLight)
             : 
-              (selected ? styles.recentRefLowLight : styles.recentRef)
+              (selected ? styles.recentRefSelected : styles.recentRef)
         }
         discard={this.discard}
         select={this.select}

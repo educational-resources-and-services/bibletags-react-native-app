@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     backgroundColor: RECENT_SEARCH_BACKGROUND_COLOR,
   },
   textBackgroundLowLight: {
-    backgroundColor: 'rgba(237, 237, 237, 1)',
+    backgroundColor: 'rgba(103, 178, 245, 1)',
   },
 })
 
