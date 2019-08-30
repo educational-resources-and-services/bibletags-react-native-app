@@ -19,6 +19,10 @@ const styles = StyleSheet.create({
   view: {
     width: '100%',
   },
+  lowLight: {
+    backgroundColor: 'black',
+    color: 'white',
+  },
 })
 
 class VersionInfo extends React.Component {
@@ -27,18 +31,31 @@ class VersionInfo extends React.Component {
     const { navigation, displaySettings } = this.props
     const { versionId } = navigation.state.params || {}
 
+    const { theme } = displaySettings
+
     const { name, copyright } = getVersionInfo(versionId)
 
     return (
-      <Container>
+      <Container style={displaySettings.theme === 'low-light' ? styles.lowLight: null}>
         <BasicHeader
           navigation={navigation}
           title={name}
         />
         <Content>
-          <Body style={styles.body}>
-            <View style={styles.view}>
-              <Text style={styles.copyright}>{copyright}</Text>
+          <Body style={[
+            styles.body,
+            displaySettings.theme === 'low-light' ? styles.lowLight: null,
+            ]}
+          >
+            <View style={styles.view}
+            >
+              <Text style={[
+                styles.copyright,
+                displaySettings.theme === 'low-light' ? styles.lowLight: null,
+              ]}
+              >
+                {copyright}
+              </Text>
             </View>
           </Body>
         </Content>
