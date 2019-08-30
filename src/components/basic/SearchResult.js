@@ -44,13 +44,22 @@ const textStyles = StyleSheet.create({
   selected: {
     color: SEARCH_RESULT_SELECTED_COLOR,
   },
+  selectedLowLight: {
+    color: 'white',
+  },
   reference: {
     textAlign: 'right',
     color: SEARCH_RESULT_REFERENCE_COLOR,
     fontWeight: 'bold',
   },
+  referenceLowLight: {
+    color: 'rgba(217, 217, 217,1)',
+  },
   match: {
     color: SEARCH_RESULT_MATCH_COLOR,
+  },
+  matchLowLight: {
+    color: 'rgba(245, 42, 42, 1)',
   },
   rtl: {
     writingDirection: 'rtl',
@@ -103,7 +112,7 @@ class SearchResult extends React.PureComponent {
   getJSXFromPieces = ({ pieces }) => {
     const { searchString, displaySettings } = this.props
 
-    const { textSize } = displaySettings
+    const { textSize, theme } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
 
     return pieces.map((piece, idx) => {
@@ -143,7 +152,12 @@ class SearchResult extends React.PureComponent {
             key={`${idx}-${idx2}`}
             style={[
               ...styles,
-              (isMatch ? textStyles.match : null),
+              (isMatch 
+              ? 
+                (theme === 'low-light' ? textStyles.matchLowLight : textStyles.match)
+              :
+                null
+              ),
             ]}
           >
             {children
@@ -231,7 +245,7 @@ class SearchResult extends React.PureComponent {
             selected, selectTapY, onTouchStart, onTouchEnd } = this.props
 
     const { width, height } = Dimensions.get('window')
-    const { textSize } = displaySettings
+    const { textSize, theme } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
     const fontFamily = getValidFontName({ font: this.getFont() })
 
@@ -250,7 +264,11 @@ class SearchResult extends React.PureComponent {
         <Text
           style={[
             textStyles.reference,
-            selected ? textStyles.selected : null,
+            theme === 'low-light' 
+              ?
+                (selected ? textStyles.selectedLowLight : textStyles.referenceLowLight)
+              : 
+                (selected ? textStyles.selected : null),
             (isRTL(languageId) === RTL ? textStyles.leftAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
@@ -266,7 +284,11 @@ class SearchResult extends React.PureComponent {
           style={[
             textStyles.verse,
             displaySettings.theme === 'high-contrast' ? textStyles.contrast : null,
-            selected ? textStyles.selected : null,
+            theme === 'low-light' 
+              ?
+                (selected ? textStyles.selectedLowLight : null)
+              : 
+                (selected ? textStyles.selected : null),
             (isRTL(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },

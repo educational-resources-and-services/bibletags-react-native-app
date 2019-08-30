@@ -15,6 +15,9 @@ const styles = StyleSheet.create({
   title: {
     ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
   },
+  titleLowLight: {
+    color: 'rgba(240, 240, 240, 1)',
+  },
   subtitle: {
     ...(Platform.OS !== 'android' ? {} : {
       color: 'rgba(255, 255, 255, .65)',
@@ -108,6 +111,7 @@ class SearchHeader extends React.PureComponent {
     const { searchString, versionId } = navigation.state.params
     const { abbr, languageId } = getVersionInfo(versionId)
 
+    const { theme } = displaySettings
     const { width } = Dimensions.get('window')
     const maxTitleWidth = width - 120
 
@@ -165,6 +169,7 @@ class SearchHeader extends React.PureComponent {
         <Body>
           <Title style={[
             styles.title,
+            theme === 'low-light' ? styles.titleLowLight : null,
             { width: maxTitleWidth },
           ]}>
             {RTL ? `\u2067`: `\u2066`}
