@@ -38,6 +38,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
   },
+  refChooserLowLight: {
+    backgroundColor: 'black',
+  },
   spacerBeforeFirstBook: {
     height: SPACER_BEFORE_FIRST_BOOK,
   },
@@ -45,6 +48,9 @@ const styles = StyleSheet.create({
     // borderRightWidth: 1,
     // borderRightColor: DIVIDER_COLOR,
     backgroundColor: BOOK_CHOOSER_BACKGROUND_COLOR,
+  },
+  bookListLowLight: {
+    backgroundColor: 'rgba(48, 48, 48, 1)',
   },
   chapterList: {
     flex: 1,
@@ -285,7 +291,7 @@ class PassageChooser extends React.PureComponent {
   onChaptersContentSizeChange = (x, chapterChooserScrollHeight) => this.setState({ chapterChooserScrollHeight })
 
   render() {
-    const { showing, paddingBottom, hidePassageChooser, passage, mode, goVersions } = this.props
+    const { showing, paddingBottom, hidePassageChooser, passage, mode, goVersions, displaySettings } = this.props
     const { chapter } = this.state
 
     // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
@@ -303,7 +309,13 @@ class PassageChooser extends React.PureComponent {
             versionIds={PRIMARY_VERSIONS}
             update={this.updateVersion}
             selectedVersionId={passage.versionId}
-            backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+            backgroundColor={
+              displaySettings.theme === 'low-light' 
+              ? 
+                'rgba(48, 48, 48, 1)'
+              : 
+                VERSION_CHOOSER_BACKGROUND_COLOR
+            }
             goVersions={goVersions}
           />
         }
@@ -312,12 +324,28 @@ class PassageChooser extends React.PureComponent {
             versionIds={SECONDARY_VERSIONS}
             update={this.updateParallelVersion}
             selectedVersionId={passage.parallelVersionId}
-            backgroundColor={PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR}
+            backgroundColor={
+              displaySettings.theme === 'low-light' 
+              ? 
+                'rgba(79, 79, 79, 1)'
+              : 
+              PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
+            }
             goVersions={goVersions}
           />
         }
-        <View style={styles.refChooser}>
-          <View style={styles.bookList}>
+        <View
+          style={[
+              styles.refChooser,
+              (displaySettings.theme === 'low-light' ? styles.refChooserLowLight : null),
+          ]}
+        >
+          <View 
+            style={[
+              styles.bookList,
+              (displaySettings.theme === 'low-light' ? styles.bookListLowLight : null),
+            ]}
+          >
             <FlatList
               data={this.getBookIds()}
               extraData={this.state}
@@ -359,6 +387,7 @@ class PassageChooser extends React.PureComponent {
 
 const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,
+  displaySettings,
   mode: displaySettings.mode,
 })
 

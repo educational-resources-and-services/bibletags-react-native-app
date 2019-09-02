@@ -1,4 +1,6 @@
 import React from "react"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
 
@@ -25,6 +27,15 @@ const styles = StyleSheet.create({
   chapterTextSelected: {
     color: CHOOSER_SELECTED_TEXT_COLOR,
   },
+  chapterSelectedLowLight: {
+    backgroundColor: 'white',
+  },
+  chapterTextSelectedLowLight: {
+    color: 'black',
+  },
+  chapterTextLowLight: {
+    color: 'white',
+  },
 })
 
 class ChooserChapter extends React.PureComponent {
@@ -36,7 +47,7 @@ class ChooserChapter extends React.PureComponent {
   }
 
   render() {
-    const { chapter, selected } = this.props
+    const { chapter, selected, displaySettings } = this.props
 
     return (
       <TouchableHighlight
@@ -44,13 +55,23 @@ class ChooserChapter extends React.PureComponent {
         onPress={this.onPress}
         style={[
           styles.chapter,
-          (selected ? styles.chapterSelected : null),
+          (selected 
+            ?
+              (displaySettings.theme === 'low-light' ? styles.chapterSelectedLowLight : styles.chapterSelected)
+            :
+              null
+          ),
         ]}
       >
         <Text
           style={[
             styles.chapterText,
-            (selected ? styles.chapterTextSelected : null),
+            (displaySettings.theme === 'low-light' 
+              ?
+                (selected ? styles.chapterTextSelectedLowLight : styles.chapterTextLowLight)
+              :
+                (selected ? styles.chapterTextSelected : null)
+            ),
           ]}
         >{i18nNumber({ num: chapter, type: 'chapter' })}</Text>
       </TouchableHighlight>
@@ -58,4 +79,12 @@ class ChooserChapter extends React.PureComponent {
   }
 }
 
-export default ChooserChapter
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+  // recordSearch,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(ChooserChapter)
