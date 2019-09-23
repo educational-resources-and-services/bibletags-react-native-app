@@ -13,6 +13,9 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '100%',
   },
+  copyrightLine: {
+    marginBottom: 15,
+  },
   copyright: {
     lineHeight: 24,
   },
@@ -42,20 +45,27 @@ class VersionInfo extends React.Component {
           title={name}
         />
         <Content>
-          <Body style={[
-            styles.body,
-            displaySettings.theme === 'low-light' ? styles.lowLight: null,
-          ]}
+          <Body
+            style={[
+              styles.body,
+              displaySettings.theme === 'low-light' ? styles.lowLight: null,
+            ]}
           >
-            <View style={styles.view}
-            >
-              <Text style={[
-                styles.copyright,
-                displaySettings.theme === 'low-light' ? styles.lowLight: null,
-              ]}
-              >
-                {copyright}
-              </Text>
+            <View style={styles.view}>
+              {copyright.split(/\n/g).map((copyrightLine, idx) => (
+                <View
+                  key={idx}
+                  style={styles.copyrightLine}
+                >
+                  <Text style={[
+                    styles.copyright,
+                    displaySettings.theme === 'low-light' ? styles.lowLight: null,
+                  ]}
+                  >
+                    {copyrightLine}
+                  </Text>
+                </View>
+              ))}
             </View>
           </Body>
         </Content>

@@ -5,8 +5,7 @@ import { Platform, StyleSheet, View, StatusBar } from "react-native"
 import { connect } from "react-redux"
 import { bindActionCreators } from "redux"
 
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
-import { getToolbarHeight, isIPhoneX } from '../../utils/toolbox.js'
+import { getToolbarHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox.js'
 
 import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
@@ -36,8 +35,8 @@ const styles = StyleSheet.create({
         : (
           isIPhoneX
             ? {
-              paddingTop: nativeBasePlatformVariables.Inset['portrait'].topInset * -1,
-              height: nativeBasePlatformVariables.Inset['portrait'].bottomInset,
+              paddingTop: iPhoneXInset['portrait'].topInset * -1,
+              height: iPhoneXInset['portrait'].bottomInset,
             }
             : {}
         )
@@ -64,6 +63,24 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(54, 50, 50, 1)',
     borderBottomColor: 'rgba(82, 78, 78, 1)',
   },
+  headerContrast: {
+    ...(
+      Platform.OS === 'android'
+        ? {
+          backgroundColor: '#222222',
+        }
+        : {}
+    ),
+  },
+  statusBarContrast: {
+    ...(
+      Platform.OS === 'android'
+        ? {
+          backgroundColor: 'black',
+        }
+        : {}
+    ),
+  },
 })
 
 class AppHeader extends React.Component {
@@ -72,7 +89,7 @@ class AppHeader extends React.Component {
   // Thus, this component is a hack to force it to render properly.
 
   render() {
-    const { hide, displaySettings, hideStatusBar, ...headerParams } = this.props
+    const { hide, hideStatusBar, displaySettings, ...headerParams } = this.props
 
     const style = {}
 
@@ -81,7 +98,12 @@ class AppHeader extends React.Component {
     }
 
     return (
-      <View style={!hide && styles.container}>
+      <View
+        style={[
+          !hide ? styles.container : null,
+          displaySettings.theme === 'high-contrast' ? styles.statusBarContrast : null,
+        ]}
+      >
         {(!hideStatusBar && isIPhoneX) &&
           <IPhoneXBuffer />
         }
@@ -97,7 +119,13 @@ class AppHeader extends React.Component {
           {...headerParams}
           style={[
             styles.header,
-            displaySettings.theme === 'low-light' ? styles.headerLowLight : null,
+            displaySettings.theme === 'high-contrast'
+              ? styles.headerContrast
+              : (
+                displaySettings.theme === 'low-light'
+                  ? styles.headerLowLight
+                  : null
+              ),
             (hideStatusBar ? styles.noStatusBarSpace : null),
             style,
           ]}

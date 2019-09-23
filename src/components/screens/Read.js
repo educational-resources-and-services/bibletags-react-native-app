@@ -4,9 +4,8 @@ import { StyleSheet, View, Dimensions, AppState, StatusBar,
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 // import i18n from "../../utils/i18n.js"
-import { unmountTimeouts, debounce, isIPhoneX } from "../../utils/toolbox.js"
+import { unmountTimeouts, debounce, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
@@ -120,7 +119,7 @@ class Read extends React.Component {
         </View>
         <RevealContainer
           revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-          immediateAdjustment={hideStatusBar ? (isIPhoneX ? nativeBasePlatformVariables.Inset['portrait'].bottomInset : 20) : 0}
+          immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
         >
           <ReadHeader
             navigation={navigation}

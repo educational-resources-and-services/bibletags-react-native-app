@@ -7,8 +7,6 @@ import { connect } from "react-redux"
 // import i18n from "../../utils/i18n.js"
 import { executeSql, isRTL, getVersionInfo, getCopyVerseText } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
-import RecentRef from '../basic/RecentRef'
-import RecentSearch from '../basic/RecentSearch'
 import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'

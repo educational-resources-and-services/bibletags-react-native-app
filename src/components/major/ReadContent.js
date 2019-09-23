@@ -39,6 +39,9 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: DIVIDER_COLOR,
   },
+  contrast: {
+    backgroundColor: '#333333',
+  },
 })
 
 class ReadContent extends React.PureComponent {
@@ -351,7 +354,12 @@ class ReadContent extends React.PureComponent {
           />
           {!!parallelVersionId &&
             <React.Fragment>
-              <View style={styles.divider} />
+              <View
+                style={[
+                  styles.divider,
+                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                ]}
+              />
               <ReadText
                 key={`${parallelVersionId} ${pageRef.bookId} ${pageRef.chapter}`}
                 passageRef={pageRef}

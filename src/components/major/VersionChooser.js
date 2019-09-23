@@ -50,6 +50,7 @@ class VersionChooser extends React.PureComponent {
           { backgroundColor },
         ]}
         contentContainerStyle={styles.contentContainer}
+        keyboardShouldPersistTaps="always"
       >
         <View style={styles.content}>
           {versionIds.map(versionId => (

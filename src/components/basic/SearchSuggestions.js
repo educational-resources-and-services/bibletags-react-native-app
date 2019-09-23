@@ -36,9 +36,9 @@ class SearchSuggestions extends React.PureComponent {
 
     const normalizedEditedSearchString = editedSearchString.toLowerCase().trim()
     if(normalizedEditedSearchString && searchString !== normalizedEditedSearchString) {
-      const editedSearchStringWords = normalizedEditedSearchString.split(i18n(" ", {}, "word separator"))
+      const editedSearchStringWords = normalizedEditedSearchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
       searchHistory = searchHistory.filter(({ searchString }) => {
-        const searchStringWords = searchString.split(i18n(" ", {}, "word separator"))
+        const searchStringWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
         return editedSearchStringWords.every(word => searchStringWords.some(w => w.indexOf(word) === 0))
       })
     }

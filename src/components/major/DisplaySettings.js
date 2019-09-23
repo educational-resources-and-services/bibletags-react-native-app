@@ -7,7 +7,7 @@ import { connect } from "react-redux"
 
 import { RTL } from "../../../language.js"
 import i18n from "../../utils/i18n.js"
-import { getToolbarHeight } from "../../utils/toolbox.js"
+import { getToolbarHeight, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 import { bibleFontList } from "../../utils/bibleFonts.js"
 
 import BackFunction from '../basic/BackFunction'
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   },
   options: {
     position: 'absolute',
-    top: getToolbarHeight() + (StatusBar.currentHeight || 0) - 2,
+    top: getToolbarHeight() + (StatusBar.currentHeight || 0) + (isIPhoneX ? iPhoneXInset['portrait'].topInset + 2 : -2),
     right: 1,
     minWidth: 230,
     paddingBottom: 15,
