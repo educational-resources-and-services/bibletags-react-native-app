@@ -329,7 +329,7 @@ class PassageChooser extends React.PureComponent {
               ? 
                 'rgba(79, 79, 79, 1)'
               : 
-              PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
+                PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
             }
             goVersions={goVersions}
           />

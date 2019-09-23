@@ -45,7 +45,7 @@ class VersionInfo extends React.Component {
           <Body style={[
             styles.body,
             displaySettings.theme === 'low-light' ? styles.lowLight: null,
-            ]}
+          ]}
           >
             <View style={styles.view}
             >

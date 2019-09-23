@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
         )
     ),
   },
-  lowLightToolbar: {
+  headerLowLight: {
     backgroundColor: 'rgba(54, 50, 50, 1)',
     borderBottomColor: 'rgba(82, 78, 78, 1)',
   },
@@ -97,7 +97,7 @@ class AppHeader extends React.Component {
           {...headerParams}
           style={[
             styles.header,
-            displaySettings.theme === 'low-light' ? styles.lowLightToolbar : null,
+            displaySettings.theme === 'low-light' ? styles.headerLowLight : null,
             (hideStatusBar ? styles.noStatusBarSpace : null),
             style,
           ]}
