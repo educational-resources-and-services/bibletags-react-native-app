@@ -16,11 +16,17 @@ const styles = StyleSheet.create({
     height: 3,
     backgroundColor: 'white',
   },
+  faderLineLowLight: {
+    backgroundColor: 'black',
+  },
   main: {
     backgroundColor: 'white',
     flex: 1,
     flexDirection: 'row',
     height: 75,
+  },
+  mainLowLight: {
+    backgroundColor: 'black',
   },
   refs: {
     marginLeft: 30,
@@ -35,7 +41,9 @@ const styles = StyleSheet.create({
 class RecentSection extends React.PureComponent {
 
   render() {
-    const { passage, history, recentPassages, recentSearches, navigation } = this.props
+    const { passage, history, recentPassages, recentSearches, navigation, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     if(recentPassages.length + recentSearches.length === 1) return null
 
@@ -52,13 +60,19 @@ class RecentSection extends React.PureComponent {
             key={idx}
             style={[
               styles.faderLine,
+              (theme === 'low-light' ? styles.faderLineLowLight : null),
               {
                 opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
               },
             ]}
           />
         ))}
-        <View style={styles.main}>
+        <View
+          style={[
+            styles.main,
+            (theme === 'low-light' ? styles.mainLowLight : null),
+          ]}
+        >
           <View style={styles.refs}>
             {recentPassages.map(historyIndex => {
               const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
@@ -98,11 +112,12 @@ class RecentSection extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ passage, history, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, history, recentPassages, recentSearches, displaySettings }) => ({
   passage,
   history,
   recentPassages,
   recentSearches,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

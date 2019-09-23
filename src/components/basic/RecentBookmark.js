@@ -45,6 +45,9 @@ const styles = StyleSheet.create({
     textAlign: RTL ? 'left' : 'right',
     fontSize: 12,
   },
+  lowLight: {
+    color: 'black',
+  },
   contrast: {
     backgroundColor: '#444444',
   },
@@ -119,15 +122,17 @@ class RecentBookmark extends React.PureComponent {
   })
 
   render() {
-    const { selected, text, backgroundColor, displaySettings } = this.props
+    const { selected, text, style, displaySettings } = this.props
     const { beingTouched, dragY } = this.state
+
+    const { theme } = displaySettings
 
     return (
       <View
         {...this.panResponder.panHandlers}
         style={[
           styles.bookmark,
-          { backgroundColor },
+          style,
           (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
           (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
           (selected ? styles.bookmarkSelected : null),
@@ -143,8 +148,10 @@ class RecentBookmark extends React.PureComponent {
         <View style={styles.bookmarkTextContainer}>
           <Text
             numberOfLines={1}
-            style={styles.bookmarkText}
-          >
+            style={[
+              styles.bookmarkText,
+              (theme === 'low-light' ? styles.lowLight : null ),
+            ]}>
             {text}
           </Text>
         </View>

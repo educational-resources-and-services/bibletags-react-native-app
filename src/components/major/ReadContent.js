@@ -32,6 +32,9 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     height: '100%',
   },
+  lowLightPage: {
+    backgroundColor: 'black',
+  },
   divider: {
     height: 1,
     backgroundColor: DIVIDER_COLOR,
@@ -312,6 +315,8 @@ class ReadContent extends React.PureComponent {
 
     const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
+    const { theme } = displaySettings
+
     const { width, height } = Dimensions.get('window')
 
     const getPage = direction => {
@@ -320,7 +325,10 @@ class ReadContent extends React.PureComponent {
       return (
         <View
           key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-          style={styles.page}
+          style={[
+            styles.page,
+            (theme === 'low-light' ? styles.lowLightPage : null),
+          ]}
         >
           <ReadText
             key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}

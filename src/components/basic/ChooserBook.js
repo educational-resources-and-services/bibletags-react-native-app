@@ -1,4 +1,6 @@
 import React from "react"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
 
@@ -23,8 +25,17 @@ const styles = StyleSheet.create({
   bookSelected: {
     backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
   },
+  bookSelectedLowLight: {
+    backgroundColor: 'white',
+  },
   bookTextSelected: {
     color: CHOOSER_SELECTED_TEXT_COLOR,
+  },
+  bookTextSelectedLowLight: {
+    color: 'black',
+  },
+  bookTextLowLight: {
+    color: 'white',
   },
 })
 
@@ -37,7 +48,7 @@ class ChooserBook extends React.PureComponent {
   }
 
   render() {
-    const { bookId, selected } = this.props
+    const { bookId, selected, displaySettings } = this.props
 
     return (
       <TouchableHighlight
@@ -45,13 +56,23 @@ class ChooserBook extends React.PureComponent {
         onPress={this.onPress}
         style={[
           styles.book,
-          (selected ? styles.bookSelected : null),
+          (selected 
+            ?
+              (displaySettings.theme === 'low-light' ? styles.bookSelectedLowLight : styles.bookSelected)
+            :
+              null
+          ),
         ]}
       >
         <Text
           style={[
             styles.bookText,
-            (selected ? styles.bookTextSelected : null),
+            (displaySettings.theme === 'low-light' 
+              ?
+                (selected ? styles.bookTextSelectedLowLight : styles.bookTextLowLight)
+              :
+                (selected ? styles.bookTextSelected : null)
+            ),
           ]}
         >{getBibleBookName(bookId)}</Text>
       </TouchableHighlight>
@@ -59,4 +80,12 @@ class ChooserBook extends React.PureComponent {
   }
 }
 
-export default ChooserBook
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = (dispatch, x) => bindActionCreators({
+  // recordSearch,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(ChooserBook)

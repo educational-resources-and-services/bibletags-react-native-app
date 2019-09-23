@@ -48,6 +48,12 @@ const styles = StyleSheet.create({
   contrast: {
     color: Platform.OS === 'ios' ? 'black' : 'white',
   },
+  lowLight: {
+    color: 'rgba(162, 162, 168, 1)',
+  },
+  lowLightTitle: {
+    color: 'rgba(242, 242, 242, 1)',
+  },
   titles: {
     paddingRight: 34,
   },
@@ -124,7 +130,12 @@ class ReadHeader extends React.PureComponent {
             onPressIn={showPassageChooser}
           >
             <View style={styles.titles}>
-              <Title style={styles.title}>
+              <Title 
+                style={[
+                  styles.title,
+                  displaySettings.theme === 'low-light' ? styles.lowLightTitle : null,
+                ]}
+              >
                 {getPassageStr({
                   refs: [
                     passage.ref,
@@ -135,6 +146,7 @@ class ReadHeader extends React.PureComponent {
                 style={[
                   styles.subtitle,
                   displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
                 ]}
               >
                 {`${RTL ? `\u2067` : `\u2066`}${versionsText}`}
@@ -144,6 +156,7 @@ class ReadHeader extends React.PureComponent {
                 style={[
                   styles.dropdownIcon,
                   displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
                 ]}
               />
             </View>

@@ -1,4 +1,6 @@
 import React from "react"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { StyleSheet, Dimensions, Platform } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
 
@@ -11,6 +13,9 @@ const styles = StyleSheet.create({
   title: {
     ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
   },
+  lowLight: {
+    color: 'rgba(224, 224, 224, 1)',
+  },
 })
 
 class BasicHeader extends React.PureComponent {
@@ -22,7 +27,9 @@ class BasicHeader extends React.PureComponent {
   }
 
   render() {
-    const { title } = this.props
+    const { title, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     const { width } = Dimensions.get('window')
     const maxTitleWidth = width - 120
@@ -41,6 +48,7 @@ class BasicHeader extends React.PureComponent {
           <Title style={[
             styles.title,
             { width: maxTitleWidth },
+            displaySettings.theme === 'low-light' ? styles.lowLight: null,
           ]}>
             {title}
           </Title>
@@ -51,4 +59,12 @@ class BasicHeader extends React.PureComponent {
   }
 }
 
-export default BasicHeader
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setTheme,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(BasicHeader)

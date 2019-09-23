@@ -2,8 +2,8 @@ import React from "react"
 import Constants from "expo-constants"
 import { Header } from "native-base"
 import { Platform, StyleSheet, View, StatusBar } from "react-native"
-import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { bindActionCreators } from "redux"
 
 import { getToolbarHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox.js'
 
@@ -59,20 +59,24 @@ const styles = StyleSheet.create({
         )
     ),
   },
-  contrastStatusBar: {
-    ...(
-      Platform.OS === 'android'
-        ? {
-          backgroundColor: 'black',
-        }
-        : {}
-    ),
+  headerLowLight: {
+    backgroundColor: 'rgba(54, 50, 50, 1)',
+    borderBottomColor: 'rgba(82, 78, 78, 1)',
   },
-  contrast: {
+  headerContrast: {
     ...(
       Platform.OS === 'android'
         ? {
           backgroundColor: '#222222',
+        }
+        : {}
+    ),
+  },
+  statusBarContrast: {
+    ...(
+      Platform.OS === 'android'
+        ? {
+          backgroundColor: 'black',
         }
         : {}
     ),
@@ -97,14 +101,16 @@ class AppHeader extends React.Component {
       <View
         style={[
           !hide ? styles.container : null,
-          displaySettings.theme === 'high-contrast' ? styles.contrastStatusBar : null,
+          displaySettings.theme === 'high-contrast' ? styles.statusBarContrast : null,
         ]}
       >
         {(!hideStatusBar && isIPhoneX) &&
           <IPhoneXBuffer />
         }
         <StatusBar
-          // backgroundColor={ANDROID_STATUS_BAR_COLOR}  // This does not seem to work
+          backgroundColor={ANDROID_STATUS_BAR_COLOR}
+          barStyle={displaySettings.theme === 'low-light' ? 'default' : 'default'}
+          //backgroundColor and barStyle still do not seem to be working
           translucent={true}
           animated={!hideStatusBar}
           hidden={hideStatusBar && !isIPhoneX}
@@ -113,7 +119,13 @@ class AppHeader extends React.Component {
           {...headerParams}
           style={[
             styles.header,
-            displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+            displaySettings.theme === 'high-contrast'
+              ? styles.headerContrast
+              : (
+                displaySettings.theme === 'low-light'
+                  ? styles.headerLowLight
+                  : null
+              ),
             (hideStatusBar ? styles.noStatusBarSpace : null),
             style,
           ]}

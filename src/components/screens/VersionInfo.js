@@ -1,5 +1,7 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Container, Content, Body, Text } from "native-base"
 
 import { getVersionInfo } from "../../utils/toolbox"
@@ -20,31 +22,46 @@ const styles = StyleSheet.create({
   view: {
     width: '100%',
   },
+  lowLight: {
+    backgroundColor: 'black',
+    color: 'white',
+  },
 })
 
 class VersionInfo extends React.Component {
 
   render() {
-    const { navigation } = this.props
+    const { navigation, displaySettings } = this.props
     const { versionId } = navigation.state.params || {}
+
+    const { theme } = displaySettings
 
     const { name, copyright } = getVersionInfo(versionId)
 
     return (
-      <Container>
+      <Container style={displaySettings.theme === 'low-light' ? styles.lowLight: null}>
         <BasicHeader
           navigation={navigation}
           title={name}
         />
         <Content>
-          <Body style={styles.body}>
+          <Body
+            style={[
+              styles.body,
+              displaySettings.theme === 'low-light' ? styles.lowLight: null,
+            ]}
+          >
             <View style={styles.view}>
               {copyright.split(/\n/g).map((copyrightLine, idx) => (
                 <View
                   key={idx}
                   style={styles.copyrightLine}
                 >
-                  <Text style={styles.copyright}>
+                  <Text style={[
+                    styles.copyright,
+                    displaySettings.theme === 'low-light' ? styles.lowLight: null,
+                  ]}
+                  >
                     {copyrightLine}
                   </Text>
                 </View>
@@ -57,4 +74,12 @@ class VersionInfo extends React.Component {
   }
 }
 
-export default VersionInfo
+const mapStateToProps = ({ displaySettings }) => ({
+  displaySettings,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+  // setTheme,
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(VersionInfo)

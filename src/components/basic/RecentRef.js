@@ -1,4 +1,5 @@
 import React from "react"
+import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -12,6 +13,21 @@ const {
   RECENT_REF_BACKGROUND_COLOR,
   RECENT_REF_SELECTED_BACKGROUND_COLOR,
 } = Constants.manifest.extra
+
+const styles = StyleSheet.create({
+  recentRef: {
+    backgroundColor: RECENT_REF_BACKGROUND_COLOR,
+  },
+  recentRefLowLight: {
+    backgroundColor: 'rgba(138, 138, 138, 1)',
+  },
+  recentRefSelected: {
+    backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
+  },
+  recentRefSelectedLowLight: {
+    backgroundColor: 'rgba(237, 237, 237, 1)',
+  },
+})
 
 class RecentRef extends React.PureComponent {
 
@@ -50,7 +66,9 @@ class RecentRef extends React.PureComponent {
   }
 
   render() {
-    const { passageRef, selected } = this.props
+    const { passageRef, selected, displaySettings } = this.props
+
+    const { theme } = displaySettings
 
     const text = getPassageStr({
       refs: [ passageRef ],
@@ -61,7 +79,13 @@ class RecentRef extends React.PureComponent {
       <RecentBookmark
         selected={selected}
         text={text}
-        backgroundColor={selected ? RECENT_REF_SELECTED_BACKGROUND_COLOR : RECENT_REF_BACKGROUND_COLOR}
+        style={
+          theme === 'low-light' 
+            ?
+              (selected ? styles.recentRefSelectedLowLight : styles.recentRefLowLight)
+            : 
+              (selected ? styles.recentRefSelected : styles.recentRef)
+        }
         discard={this.discard}
         select={this.select}
       />
@@ -69,9 +93,10 @@ class RecentRef extends React.PureComponent {
   }
 }
 
-const mapStateToProps = ({ history, recentPassages }) => ({
+const mapStateToProps = ({ history, recentPassages, displaySettings }) => ({
   history,
   recentPassages,
+  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
