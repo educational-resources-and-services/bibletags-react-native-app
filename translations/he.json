@@ -1,7 +1,7 @@
 {
 	"Okay": "בסדר",
 	"{{verse}} ({{passage_reference}} {{version}})": "{{verse}} ({{passage_reference}} {{version}})",
-	"Bible version information": "אודות גרסאות התנ״ך",
+	"Bible version information": "זכויות יוצרים",
 	"No results found.": "אין תוצאות.",
 	"“{{searchString}}”": "“{{searchString}}”",
 	"Searching...": "מחפש...",
@@ -22,7 +22,7 @@
 	"Cancel": "לבטל",
 	"Theme": "סגנון",
 	"Display options": "אפשרויות תצוגה",
-	"Parallel mode": "מצב מקביל",
+	"Parallel mode": "מסך מפוצל",
 	"Text size": "גודל הטקסט",
 	"Line spacing": "מרווח בין שורות",
 	"Theme: {{theme}}": "סגנון: {{theme}}",
@@ -31,7 +31,7 @@
 		"word separator": " "
 	},
 	"Read": "לקרוא",
-	"Rate this app": "דרג את האפליקציה הזו",
+	"Rate this app": "דרג את האפליקציה",
 	"Genesis": "בראשית",
 	"Exodus": "שמות",
 	"Leviticus": "ויקרא",
@@ -190,6 +190,6 @@
 	},
 	"{{book}} {{start_chapter}}:{{start_verse}}–{{end_chapter}}:{{end_verse}}": "{{book}} {{start_chapter}}{{start_verse}}–{{end_chapter}}{{end_verse}}",
 	"{{book}} {{chapter}}:{{start_verse}}–{{end_verse}}": "{{book}} {{chapter}}{{start_verse}}–{{end_verse}}",
-	"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}}{{verse}}",
+	"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}} {{verse}}",
 	"Search": "לחפש"
 }
