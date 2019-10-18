@@ -285,7 +285,25 @@ class ReadText extends React.PureComponent {
 
     let textAlreadyDisplayedInThisView = false
 
-    return pieces.map((piece, idx) => {
+    const simplifiedPieces = []
+    pieces.forEach(piece => {
+      const { tag, text } = piece
+      const previousPiece = simplifiedPieces.slice(-1)[0]
+
+      if(
+        previousPiece
+        && (!tag || tag === 'w')
+        && (!previousPiece.tag || previousPiece.tag === 'w')
+        && text
+        && previousPiece.text
+      ) {
+        previousPiece.text += text
+      } else {
+        simplifiedPieces.push({ ...piece })
+      }
+    })
+
+    return simplifiedPieces.map((piece, idx) => {
       let { type, tag, text, content, children } = piece
 
       if(!children && !text && !content) return null
@@ -298,7 +316,7 @@ class ReadText extends React.PureComponent {
       const verse = /^(?:ms|mt|s[0-9])$/.test(tag) ? null : this.verse
 
       if([ "v", "vp" ].includes(tag) && content) {
-        const nextPiece = pieces[idx+1] || {}
+        const nextPiece = simplifiedPieces[idx+1] || {}
         if(tag === "v" && nextPiece.tag === "vp") return null
         content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
       }
