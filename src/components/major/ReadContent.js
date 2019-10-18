@@ -223,8 +223,11 @@ class ReadContent extends React.PureComponent {
   onPrimaryLoaded = () => {
     const { passageScrollY } = this.props
 
-    this.primaryRef.scrollTo({ y: passageScrollY, animated: false })
     this.primaryScrollY = passageScrollY
+    setTimeout(
+      // this was not firing without the setTimeout
+      () => this.primaryRef.scrollTo({ y: this.primaryScrollY, animated: false })
+    )
 
     this.setUpParallelScroll()
 
@@ -262,6 +265,8 @@ class ReadContent extends React.PureComponent {
         this.setContentOffset()
         return
       }
+
+      this.primaryScrollY = 0
 
       debounce(
         setRef,
@@ -351,6 +356,7 @@ class ReadContent extends React.PureComponent {
             onLoaded={!direction ? this.onPrimaryLoaded : null}
             onVerseTap={!direction ? this.onPrimaryVerseTap : null}
             setRef={!direction ? this.setPrimaryRef : null}
+            isVisible={!direction}
           />
           {!!parallelVersionId &&
             <React.Fragment>
@@ -381,6 +387,7 @@ class ReadContent extends React.PureComponent {
                 onLoaded={!direction ? this.onSecondaryLoaded : null}
                 onVerseTap={!direction ? this.onSecondaryVerseTap : null}
                 setRef={!direction ? this.setSecondaryRef : null}
+                isVisible={!direction}
               />
             </React.Fragment>
           }

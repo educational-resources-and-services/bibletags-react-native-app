@@ -160,6 +160,49 @@ class ReadText extends React.PureComponent {
     this.getText()
   }
 
+  componentDidUpdate() {
+    const { isVisible } = this.props
+
+    if(isVisible !== this.previousIsVisible) {
+
+      this.previousIsVisible = isVisible
+
+      // The following line (and related methods) is needed for adjusting numbers
+      // to keep the scroll in parallel, WHEN next/previous chapter has been
+      // swiped.
+      this.fireOnContentSizeChange()
+  
+      if(!isVisible && this.ref) {
+        this.ref.scrollTo({ y: 0, animated: false })
+      }
+
+    }
+  }
+
+  fireOnContentSizeChange = () => {
+    const { onContentSizeChange } = this.props
+    if(onContentSizeChange && this.contentSizeParams) {
+      onContentSizeChange(...this.contentSizeParams)
+    }
+  }
+
+  onContentSizeChange = (...params) => {
+    this.contentSizeParams = params
+    this.fireOnContentSizeChange()
+  }
+
+  setUpSetRef = () => {
+    const { setRef } = this.props
+
+    if(setRef !== this.previousSetRef) {
+      this.previousSetRef = setRef
+      this.setRef = ref => {
+        this.ref = ref
+        setRef && setRef(ref)
+      }
+    }
+  }
+
   getText = async () => {
     const { versionId, passageRef, onLoaded } = this.props
     const { bookId, chapter } = passageRef
@@ -324,7 +367,7 @@ class ReadText extends React.PureComponent {
   }
 
   render() {
-    const { setRef, onScroll, onTouchStart, onTouchEnd, onLayout, onContentSizeChange } = this.props
+    const { onScroll, onTouchStart, onTouchEnd, onLayout } = this.props
     const { pieces } = this.state
 
     if(!pieces) {
@@ -332,6 +375,8 @@ class ReadText extends React.PureComponent {
         <View style={viewStyles.viewContainer} />
       )
     }
+
+    this.setUpSetRef()
 
     return (
       <ScrollView
@@ -341,8 +386,8 @@ class ReadText extends React.PureComponent {
         onTouchEnd={onTouchEnd}
         onScroll={onScroll}
         onLayout={onLayout}
-        onContentSizeChange={onContentSizeChange}
-        ref={setRef}
+        onContentSizeChange={this.onContentSizeChange}
+        ref={this.setRef}
       >
         <View style={viewStyles.content}>
           {this.getJSX()}
