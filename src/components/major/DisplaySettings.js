@@ -215,7 +215,11 @@ class DisplaySettings extends React.PureComponent {
                   true: INPUT_HIGHLIGHT_SECONDARY_COLOR,
                 }}
                 ios_backgroundColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
-                thumbColor={INPUT_HIGHLIGHT_COLOR}
+                thumbColor=
+                  {mode === 'parallel'
+                    ? INPUT_HIGHLIGHT_COLOR
+                    : INPUT_HIGHLIGHT_SECONDARY_COLOR
+                  }
                 value={mode === 'parallel'}
               />
               <Text>{i18n("Parallel mode")}</Text>
