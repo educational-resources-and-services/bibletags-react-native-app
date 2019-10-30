@@ -1,10 +1,10 @@
 import React from "react"
-import { StyleSheet, View } from "react-native"
+import { StyleSheet, View, Linking } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Container, Content, Body, Text } from "native-base"
 
-import { getVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, replaceWithJSX } from "../../utils/toolbox"
 
 import BasicHeader from "../major/BasicHeader"
 
@@ -25,6 +25,10 @@ const styles = StyleSheet.create({
   lowLight: {
     backgroundColor: 'black',
     color: 'white',
+  },
+  link: {
+    color: 'blue',
+    textDecorationLine: 'underline',
   },
 })
 
@@ -62,7 +66,14 @@ class VersionInfo extends React.Component {
                     displaySettings.theme === 'low-light' ? styles.lowLight: null,
                   ]}
                   >
-                    {copyrightLine}
+                    {replaceWithJSX(copyrightLine, '<a href="([^"]+)">([^<]+)<\/a>', (x, href, linkText) => (
+                      <Text
+                        style={styles.link}
+                        onPress={() => Linking.openURL(href)}
+                      >
+                        {linkText}
+                      </Text>
+                    ))}
                   </Text>
                 </View>
               ))}

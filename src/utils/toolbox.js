@@ -1,3 +1,4 @@
+import React from "react"
 import { Dimensions, NetInfo } from "react-native"
 import Constants from "expo-constants"
 import { SQLite } from 'expo-sqlite'
@@ -298,4 +299,28 @@ export const stripHebrew = hebrewString => {
     .replace(wordPartDividerRegex, '')
     .replace(wordDividerRegex, ' ')
     .toLowerCase()
+}
+
+export const replaceWithJSX = (text, regexStr, getReplacement) => {
+  let idx = 0
+
+  return (
+    text
+      .split(new RegExp(`(${regexStr.replace(/\(([^\?])/g, '(?:')})`, 'g'))
+      .map(piece => {
+
+        const matchInfo = piece.match(new RegExp(`^${regexStr}$`))
+
+        if(matchInfo) {
+          return (
+            <React.Fragment key={idx}>
+              {getReplacement(...matchInfo)}
+            </React.Fragment>
+          )
+        }
+
+        return piece
+      })
+  )
+
 }
