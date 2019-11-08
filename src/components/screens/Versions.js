@@ -44,7 +44,7 @@ class Versions extends React.Component {
     const { theme } = displaySettings
 
     return (
-      <Container style={theme === 'low-light' ? styles.containerLowLight : null}>
+      <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
         <BasicHeader
           navigation={navigation}
           title={i18n("Bible version information")}

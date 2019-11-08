@@ -43,7 +43,7 @@ class VersionInfo extends React.Component {
     const { name, copyright } = getVersionInfo(versionId)
 
     return (
-      <Container style={displaySettings.theme === 'low-light' ? styles.lowLight: null}>
+      <Container style={displaySettings.theme === 'low-light' ? styles.lowLight: {}}>
         <BasicHeader
           navigation={navigation}
           title={name}

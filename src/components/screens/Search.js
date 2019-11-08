@@ -268,7 +268,7 @@ class Search extends React.Component {
             goVersions={this.goVersions}
           />
         }
-        <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : null}>
+        <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : {}}>
           {editing &&
             <SearchSuggestions
               editedSearchString={editedSearchString}
