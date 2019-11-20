@@ -19,6 +19,9 @@ const styles = StyleSheet.create({
   copyright: {
     lineHeight: 24,
   },
+  copyrightRTL: {
+    writingDirection: 'rtl',
+  },
   view: {
     width: '100%',
   },
@@ -64,6 +67,7 @@ class VersionInfo extends React.Component {
                   <Text style={[
                     styles.copyright,
                     displaySettings.theme === 'low-light' ? styles.lowLight: null,
+                    (copyrightLine.replace(/[^א-ת]/g, '').length > copyrightLine.length/2) ? styles.copyrightRTL : null,
                   ]}
                   >
                     {replaceWithJSX(copyrightLine, '<a href="([^"]+)">([^<]+)<\/a>', (x, href, linkText) => (
