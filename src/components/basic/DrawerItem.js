@@ -54,6 +54,8 @@ class DrawerItem extends React.PureComponent {
 
     switch(type) {
       case 'rate': {
+        if(!StoreReview.hasAction()) return null
+
         typeText = i18n("Rate this app")
         typeAction = StoreReview.requestReview
         break

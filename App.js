@@ -118,6 +118,8 @@ export default class App extends React.Component {
   }
 
   requestRating = async () => {
+    if(!StoreReview.hasAction()) return
+
     const numUserOpensKey = `numUserOpens`
     const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
 
