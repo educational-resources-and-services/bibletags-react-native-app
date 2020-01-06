@@ -1,7 +1,7 @@
 import React from "react"
 import Constants from "expo-constants"
 import * as Font from "expo-font"
-import { AppLoading, StoreReview } from "expo"
+import { AppLoading, StoreReview, Updates } from "expo"
 import { Root } from "native-base"
 
 import { AsyncStorage, I18nManager } from "react-native"
@@ -29,8 +29,6 @@ const {
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
-
-I18nManager.forceRTL(RTL)
 
 const patchMiddleware = store => next => action => {
   const result = next(action)
@@ -98,10 +96,30 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    this.requestRating()
+    this.componentDidMountAsync()
+  }
+
+  componentDidMountAsync = async () => {
+    if(await this.fixRTL() === 'reload') return
+    await this.requestRating()
+  }
+
+  fixRTL = async () => {
+    const alreadyFixedRTLKey = `fixedRTL`
+    const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
+
+    if(!!I18nManager.isRTL !== !!RTL && !alreadyFixedRTL) {
+      I18nManager.forceRTL(RTL)
+      I18nManager.allowRTL(RTL)
+      await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
+      Updates.reload()
+      return 'reload'
+    }
   }
 
   requestRating = async () => {
+    if(!StoreReview.hasAction()) return
+
     const numUserOpensKey = `numUserOpens`
     const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
 
