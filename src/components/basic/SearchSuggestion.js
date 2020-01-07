@@ -1,12 +1,11 @@
 import React from "react"
-import { View, StyleSheet, Text } from "react-native"
-import { ListItem, Body, Right } from "native-base"
+import { View, StyleSheet, Text, I18nManager } from "react-native"
+import { ListItem, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
-import { RTL } from "../../../language.js"
-import i18n from "../../utils/i18n.js"
+import { debounce, getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { i18n } from "inline-i18n"
 
 import RelativeTime from "./RelativeTime"
 
@@ -97,9 +96,9 @@ class SearchSuggestion extends React.PureComponent {
                 styles.searchString,
                 displaySettings.theme === 'low-light' ? styles.searchStringLowLight : null,
               ]}>
-              {RTL ? `\u2067`: `\u2066`}
+              {I18nManager.isRTL ? `\u2067`: `\u2066`}
               {i18n("“{{searchString}}”", {
-                searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
+                searchString: isRTLText(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
               })}
               {`  `}
               <Text style={styles.versionAbbr}>{abbr}</Text>

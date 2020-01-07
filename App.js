@@ -3,6 +3,7 @@ import Constants from "expo-constants"
 import * as Font from "expo-font"
 import { AppLoading, StoreReview, Updates } from "expo"
 import { Root } from "native-base"
+import * as Localization from "expo-localization"
 
 import { AsyncStorage, I18nManager } from "react-native"
 import { createStore, compose, applyMiddleware } from "redux"
@@ -20,8 +21,8 @@ import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
-import { RTL } from "./language.js"
-import i18n, { i18nNumber } from "./src/utils/i18n.js"
+import { i18nSetup, i18n, i18nNumber, isRTL } from "inline-i18n"
+import { translations, languageOptions } from "./language"
 
 const {
   NUM_OPENS_FOR_RATING_REQUEST=0,
@@ -72,6 +73,10 @@ export default class App extends React.Component {
 
   setUp = async () => {
 
+    await this.setLocale()
+
+    if(await this.fixRTL() === 'reload') return
+
     await Promise.all([
       Font.loadAsync({
         Roboto: require('native-base/Fonts/Roboto.ttf'),
@@ -100,17 +105,33 @@ export default class App extends React.Component {
   }
 
   componentDidMountAsync = async () => {
-    if(await this.fixRTL() === 'reload') return
     await this.requestRating()
+  }
+
+  setLocale = async () => {
+    const localeOptions = languageOptions.map(({ locale }) => locale)
+    const deviceLocale = Localization.locale.split('-')[0]
+
+    i18nSetup({
+      locales: [
+        await AsyncStorage.getItem(`uiLocale`)
+        || (
+          localeOptions.includes(deviceLocale)
+          ? deviceLocale
+          : localeOptions[0]
+        )
+      ],
+      translations,
+    })
   }
 
   fixRTL = async () => {
     const alreadyFixedRTLKey = `fixedRTL`
     const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
 
-    if(!!I18nManager.isRTL !== !!RTL && !alreadyFixedRTL) {
-      I18nManager.forceRTL(RTL)
-      I18nManager.allowRTL(RTL)
+    if(!!I18nManager.isRTL !== !!isRTL() && !alreadyFixedRTL) {
+      I18nManager.forceRTL(isRTL())
+      I18nManager.allowRTL(isRTL())
       await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
       Updates.reload()
       return 'reload'

@@ -4,7 +4,6 @@ import { List } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import i18n from "../../utils/i18n.js"
 import SearchSuggestion from "./SearchSuggestion"
 
 const MAX_SEARCH_RESULTS = 15

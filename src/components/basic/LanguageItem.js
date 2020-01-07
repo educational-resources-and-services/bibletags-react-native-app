@@ -1,10 +1,16 @@
 import React from "react"
 import { bindActionCreators } from "redux"
+import { Updates } from "expo"
+import Constants from "expo-constants"
 import { connect } from "react-redux"
-import { Image, StyleSheet, Linking } from "react-native"
-import { ListItem, Body, View, Text } from "native-base"
+import { AsyncStorage, StyleSheet } from "react-native"
+import { ListItem, Body, Text } from "native-base"
 
-import { debounce, getVersionInfo } from "../../utils/toolbox"
+import { getLocale } from "inline-i18n"
+
+const {
+  INPUT_HIGHLIGHT_COLOR,
+} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   abbr: {
@@ -32,53 +38,46 @@ const styles = StyleSheet.create({
   listItemLowLight: {
     color: 'white',
   },
+  selected: {
+    fontWeight: 'bold',
+    color: INPUT_HIGHLIGHT_COLOR,
+  },
 })
 
-class VersionItem extends React.PureComponent {
+class LanguageItem extends React.PureComponent {
 
-  goVersionInfo = event => {
-    const { navigation, versionId } = this.props
+  goChangeLanguage = async event => {
+    const { locale, navigation } = this.props
 
-    debounce(
-      navigation.navigate,
-      "VersionInfo",
-      {
-        versionId,
-      }
-    )
+    navigation.goBack()
+
+    if(getLocale() !== locale) {
+      await AsyncStorage.setItem(`uiLocale`, locale)
+      await AsyncStorage.removeItem(`fixedRTL`)
+      Updates.reload()
+    }
   }
 
   render() {
-    const { versionId, displaySettings } = this.props
+    const { label, locale, displaySettings } = this.props
 
-    const { theme } = displaySettings
-
-    const { name, abbr } = getVersionInfo(versionId)
+    const selected = getLocale() === locale
 
     return (
       <ListItem
         button={true}
-        onPress={this.goVersionInfo}
+        onPress={this.goChangeLanguage}
         style={styles.listItem}
       >
-        <View style={styles.abbr}>
-          <Text
-            style={[
-              styles.abbrText,
-              displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
-            ]}
-          >
-            {abbr}
-          </Text> 
-        </View>
         <Body>
           <Text
             style={[
               styles.versionName,
               displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+              selected ? styles.selected : null,
             ]}
           >
-            {name}
+            {label}
           </Text> 
         </Body>
       </ListItem>
@@ -94,4 +93,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setTheme,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(VersionItem)
+export default connect(mapStateToProps, matchDispatchToProps)(LanguageItem)

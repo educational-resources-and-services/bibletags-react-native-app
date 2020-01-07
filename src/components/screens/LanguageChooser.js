@@ -1,22 +1,14 @@
 import React from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import Constants from "expo-constants"
-import { StyleSheet, View } from "react-native"
-import { Container, Content, Body, Text, List } from "native-base"
+import { StyleSheet } from "react-native"
+import { Container, Content, Body, List } from "native-base"
 
 import { i18n } from "inline-i18n"
-import { getVersionInfo } from "../../utils/toolbox"
 
 import BasicHeader from "../major/BasicHeader"
-import VersionItem from "../basic/VersionItem"
-
-const {
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
-} = Constants.manifest.extra
-
-const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
+import LanguageItem from "../basic/LanguageItem"
+import { languageOptions } from "../../../language"
 
 const styles = StyleSheet.create({
   containerLowLight: {
@@ -36,7 +28,7 @@ const styles = StyleSheet.create({
   },
 })
 
-class Versions extends React.Component {
+class LanguageChooser extends React.Component {
 
   render() {
     const { navigation, displaySettings } = this.props
@@ -47,7 +39,7 @@ class Versions extends React.Component {
       <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
         <BasicHeader
           navigation={navigation}
-          title={i18n("Bible version information")}
+          title={i18n("Change app language")}
         />
         <Content>
           <Body
@@ -57,11 +49,12 @@ class Versions extends React.Component {
             ]}
           >
             <List style={styles.list}>
-              {ALL_VERSIONS.map(versionId => (
-                <VersionItem
-                  key={versionId}
+              {languageOptions.map(({ locale, label }) => (
+                <LanguageItem
+                  key={locale}
                   navigation={navigation}
-                  versionId={versionId}
+                  locale={locale}
+                  label={label}
                 />
               ))}
             </List>
@@ -80,4 +73,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setTheme,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(Versions)
+export default connect(mapStateToProps, matchDispatchToProps)(LanguageChooser)

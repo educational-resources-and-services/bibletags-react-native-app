@@ -6,6 +6,7 @@ import HomeNavigator from "./Home.js"
 import Search from "../components/screens/Search"
 import VerseFocus from "../components/screens/VerseFocus"
 import Versions from "../components/screens/Versions"
+import LanguageChooser from "../components/screens/LanguageChooser"
 import VersionInfo from "../components/screens/VersionInfo"
 import ErrorMessage from "../components/screens/ErrorMessage"
 
@@ -27,6 +28,7 @@ const GlobalNavigator = createStackNavigator(
     Search: { screen: Search, ...noHeader },
     VerseFocus: { screen: VerseFocus, ...noHeader },
     Versions: { screen: Versions, ...noHeader },
+    LanguageChooser: { screen: LanguageChooser, ...noHeader },
     VersionInfo: { screen: VersionInfo, ...noHeader },
     ErrorMessage: { screen: ErrorMessage, ...noHeader },
   },

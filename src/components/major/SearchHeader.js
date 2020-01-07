@@ -1,12 +1,11 @@
 import React from "react"
-import { StyleSheet, Text, Dimensions, Platform } from "react-native"
+import { StyleSheet, Text, Dimensions, Platform, I18nManager } from "react-native"
 import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce, getVersionInfo, isRTL } from '../../utils/toolbox.js'
-import i18n from "../../utils/i18n.js"
-import { RTL } from "../../../language.js"
+import { debounce, getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { i18n } from "inline-i18n"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -46,7 +45,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   input: {
-    ...(RTL ? { textAlign: 'right' } : {}),
+    ...(I18nManager.isRTL ? { textAlign: 'right' } : {}),
   },
   contrast: {
     color: Platform.OS === 'ios' ? 'black' : 'white',
@@ -123,7 +122,7 @@ class SearchHeader extends React.PureComponent {
               transparent
               onPress={this.onBackPress}
             >
-              <HeaderIcon name={RTL ? "arrow-forward" : "arrow-back"} />
+              <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
             </Button>
           </Left>
           <Item>
@@ -163,7 +162,7 @@ class SearchHeader extends React.PureComponent {
             transparent
             onPress={this.onBackPress}
           >
-            <HeaderIcon name={RTL ? "arrow-forward" : "arrow-back"} />
+            <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
           </Button>
         </Left>
         <Body>
@@ -172,9 +171,9 @@ class SearchHeader extends React.PureComponent {
             theme === 'low-light' ? styles.titleLowLight : null,
             { width: maxTitleWidth },
           ]}>
-            {RTL ? `\u2067`: `\u2066`}
+            {I18nManager.isRTL ? `\u2067`: `\u2066`}
             {i18n("“{{searchString}}”", {
-              searchString: isRTL(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
+              searchString: isRTLText(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
             })}
             {`  `}
             <Text style={styles.versionAbbr}>{abbr}</Text>

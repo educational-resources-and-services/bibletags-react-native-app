@@ -1,10 +1,8 @@
 import React from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { StyleSheet, Dimensions, Platform } from "react-native"
+import { StyleSheet, Dimensions, Platform, I18nManager } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
-
-import { RTL } from "../../../language.js"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -41,7 +39,7 @@ class BasicHeader extends React.PureComponent {
             transparent
             onPress={this.onBackPress}
           >
-            <HeaderIcon name={RTL ? "arrow-forward" : "arrow-back"} />
+            <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
           </Button>
         </Left>
         <Body>

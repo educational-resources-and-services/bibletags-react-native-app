@@ -4,7 +4,6 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import i18n from "../../utils/i18n.js"
 import { debounce } from "../../utils/toolbox.js"
 import RecentBookmark from "./RecentBookmark"
 

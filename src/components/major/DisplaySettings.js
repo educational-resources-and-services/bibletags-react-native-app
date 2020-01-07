@@ -1,12 +1,11 @@
 import React from "react"
 import { Card, CardItem, Icon, Text, View, Switch, Body, ActionSheet } from "native-base"
-import { StyleSheet, TouchableWithoutFeedback, Platform, Slider, StatusBar } from "react-native"
+import { StyleSheet, TouchableWithoutFeedback, Platform, Slider, StatusBar, I18nManager } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { RTL } from "../../../language.js"
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { getToolbarHeight, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 import { bibleFontList } from "../../utils/bibleFonts.js"
 
@@ -40,14 +39,14 @@ const styles = StyleSheet.create({
   switch: {
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
     marginRight: 10,
-    ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
+    ...(Platform.OS === 'android' && I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
   sliderText: {
     width: '100%',
     textAlign: 'left',
   },
   dropdownIcon: {
-    marginLeft: RTL ? -10 : 10,
+    marginLeft: I18nManager.isRTL ? -10 : 10,
     fontSize: 20,
     ...(Platform.OS === 'ios' ? { color: '#bbbbbb' } : {}),
   },
@@ -55,7 +54,7 @@ const styles = StyleSheet.create({
     width: Platform.OS === 'android' ? 220 : 200,
     height: 30,
     ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
-    ...(Platform.OS === 'android' && RTL ? { transform: [{ scaleX: -1 }] } : {}),
+    ...(Platform.OS === 'android' && I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {}),
   },
   contrast: {
     color: 'black',

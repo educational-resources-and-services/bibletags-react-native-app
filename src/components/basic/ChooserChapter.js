@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
 
-import { i18nNumber } from "../../utils/i18n.js"
+import { i18nNumber } from "inline-i18n"
 
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
@@ -73,7 +73,7 @@ class ChooserChapter extends React.PureComponent {
                 (selected ? styles.chapterTextSelected : null)
             ),
           ]}
-        >{i18nNumber({ num: chapter, type: 'chapter' })}</Text>
+        >{i18nNumber({ num: chapter, type: 'formal' })}</Text>
       </TouchableHighlight>
     )
   }

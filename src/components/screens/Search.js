@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { logEvent } from '../../utils/analytics'
 import { stripHebrew, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"

@@ -1,14 +1,13 @@
 import React from "react"
 import Constants from "expo-constants"
-import { View, StyleSheet, Text, Dimensions, Clipboard } from "react-native"
+import { View, StyleSheet, Text, Dimensions, Clipboard, I18nManager } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { RTL } from "../../../language.js"
-import { isRTL, getCopyVerseText, stripHebrew } from '../../utils/toolbox.js'
+import { isRTLText, getCopyVerseText, stripHebrew } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
 import { getPassageStr } from "bibletags-ui-helper"
 import TapOptions from "./TapOptions"
@@ -262,7 +261,7 @@ class SearchResult extends React.PureComponent {
                 (selected ? textStyles.selectedLowLight : textStyles.referenceLowLight)
               : 
                 (selected ? textStyles.selected : null),
-            (isRTL(languageId) === RTL ? textStyles.leftAlign : null),
+            (isRTLText(languageId) === I18nManager.isRTL ? textStyles.leftAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
             },
@@ -282,7 +281,7 @@ class SearchResult extends React.PureComponent {
                 (selected ? textStyles.selectedLowLight : null)
               : 
                 (selected ? textStyles.selected : null),
-            (isRTL(languageId) ? textStyles.rtl : null),
+            (isRTLText(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
           ]}

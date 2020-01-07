@@ -3,7 +3,7 @@ import { Updates } from "expo"
 import { StyleSheet, View } from "react-native"
 import { Container, Content, Body, Text } from "native-base"
 
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { setUpTimeout, unmountTimeouts } from "../../utils/toolbox.js"
 
 import ErrorMessageHeader from "../major/ErrorMessageHeader"

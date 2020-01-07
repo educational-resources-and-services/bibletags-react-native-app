@@ -6,7 +6,7 @@ import nativeBasePlatformVariables from 'native-base/src/theme/variables/platfor
 import { getPassageStr } from "bibletags-ui-helper"
 // import { Toast } from "native-base"
 
-import i18n from "./i18n.js"
+import { i18n } from "inline-i18n"
 import bibleVersions from '../../versions.js'
 import { getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 
@@ -197,7 +197,7 @@ export const getVersionInfo = versionId => {
   return versionInfo
 }
 
-export const isRTL = languageId => (
+export const isRTLText = languageId => (
   [
     'heb',
     'yid',

@@ -5,7 +5,7 @@ import { connect } from "react-redux"
 import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
 import { Container, Content, Text, List, View } from "native-base"
 
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { isConnected } from "../../utils/toolbox.js"
 import menuItems from '../../../menu.js'
 import DrawerItem from '../basic/DrawerItem'

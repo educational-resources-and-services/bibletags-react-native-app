@@ -4,8 +4,7 @@ import { View, ScrollView, Text, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-// import i18n from "../../utils/i18n.js"
-import { executeSql, isRTL, getVersionInfo, getCopyVerseText } from '../../utils/toolbox.js'
+import { executeSql, isRTLText, getVersionInfo, getCopyVerseText } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
@@ -335,7 +334,7 @@ class ReadText extends React.PureComponent {
       })
 
       const styles = [
-        wrapInView && isRTL(languageId) && textStyles.rtl,
+        wrapInView && isRTLText(languageId) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
         theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
         theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,

@@ -3,8 +3,8 @@ import { StoreReview } from "expo"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
-import i18n from "../../utils/i18n.js"
-import { debounce, isConnected } from "../../utils/toolbox.js"
+import { i18n, getLocale } from "inline-i18n"
+import { debounce } from "../../utils/toolbox.js"
 
 const styles = StyleSheet.create({
   image: {
@@ -24,6 +24,15 @@ const styles = StyleSheet.create({
 })
 
 class DrawerItem extends React.PureComponent {
+
+  changeLanguage = () => {
+    const { navigation } = this.props
+
+    debounce(
+      navigation.navigate,
+      "LanguageChooser",
+    )
+  }
 
   goVersions = () => {
     const { navigation } = this.props
@@ -53,6 +62,11 @@ class DrawerItem extends React.PureComponent {
     let typeAction, typeText
 
     switch(type) {
+      case 'language': {
+        typeText = i18n("Change app language")
+        typeAction = this.changeLanguage
+        break
+      }
       case 'rate': {
         if(!StoreReview.hasAction()) return null
 
@@ -67,6 +81,8 @@ class DrawerItem extends React.PureComponent {
       }
     }
 
+    const localizedText = (text && text[getLocale()])
+
     return (
       <ListItem
         {...((onPress || typeAction || href)
@@ -79,8 +95,8 @@ class DrawerItem extends React.PureComponent {
         style={styles.listItem}
       >
         <Body>
-          {!!(text || typeText) &&
-            <Text style={styles.text}>{text || typeText}</Text> 
+          {!!(localizedText || typeText) &&
+            <Text style={styles.text}>{localizedText || typeText}</Text> 
           }
           {!!image &&
             <Image

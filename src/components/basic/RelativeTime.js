@@ -1,6 +1,7 @@
 import React from 'react'
 import { Text } from "react-native"
 import moment from 'moment'
+import { getLocale } from 'inline-i18n'
 
 class RelativeTime extends React.PureComponent {
 
@@ -9,7 +10,9 @@ class RelativeTime extends React.PureComponent {
 
     const fourHoursDifference = 1000 * 60 * 60 * 4
     let timeString
-    
+
+    moment.locale(getLocale())
+
     if(Math.abs(Date.now() - time) < fourHoursDifference) {
       timeString = moment(time).fromNow()
     } else {

@@ -1,11 +1,10 @@
 import React from "react"
-import { StyleSheet, View, Platform, TouchableOpacity } from "react-native"
+import { StyleSheet, View, Platform, TouchableOpacity, I18nManager } from "react-native"
 import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { RTL } from "../../../language.js"
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 import { getPassageStr } from "bibletags-ui-helper"
 
@@ -99,7 +98,7 @@ class ReadHeader extends React.PureComponent {
       getVersionInfo(passage.parallelVersionId || null).abbr,
     ]
       .filter(val => val)
-      .join(i18n(", ", {}, "list separator"))
+      .join(i18n(", ", "list separator", {}))
       .toUpperCase()
 
     return (
@@ -149,7 +148,7 @@ class ReadHeader extends React.PureComponent {
                   displaySettings.theme === 'low-light' ? styles.lowLight : null,
                 ]}
               >
-                {`${RTL ? `\u2067` : `\u2066`}${versionsText}`}
+                {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
               </Subtitle>
               <Icon
                 name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}

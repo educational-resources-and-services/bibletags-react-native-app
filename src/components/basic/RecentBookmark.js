@@ -1,9 +1,7 @@
 import React from "react"
-import { Text, View, StyleSheet, PanResponder } from "react-native"
+import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
-import { RTL } from '../../../language.js'
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
@@ -33,7 +31,7 @@ const styles = StyleSheet.create({
         translateX: -26,
       },
       {
-        translateY: RTL ? 17.5 : -17.5,
+        translateY: I18nManager.isRTL ? 17.5 : -17.5,
       },
     ],
     width: 60,
@@ -42,7 +40,7 @@ const styles = StyleSheet.create({
   bookmarkText: {
     color: 'white',
     lineHeight: 25,
-    textAlign: RTL ? 'left' : 'right',
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 12,
   },
   lowLight: {

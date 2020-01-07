@@ -1,10 +1,9 @@
 import React from "react"
 import { StyleSheet, View, Dimensions, AppState, StatusBar,
-         TouchableWithoutFeedback, Platform } from "react-native"
+         TouchableWithoutFeedback } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 
-// import i18n from "../../utils/i18n.js"
 import { unmountTimeouts, debounce, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 
 import ReadHeader from "../major/ReadHeader"

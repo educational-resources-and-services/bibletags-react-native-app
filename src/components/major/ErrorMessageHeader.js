@@ -2,7 +2,7 @@ import React from "react"
 import { StyleSheet, Platform } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
 
-import i18n from "../../utils/i18n.js"
+import { i18n } from "inline-i18n"
 import { isPhoneSize } from '../../utils/toolbox.js'
 
 import AppHeader from "../basic/AppHeader"
