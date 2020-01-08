@@ -41,6 +41,9 @@ const styles = StyleSheet.create({
   contrast: {
     backgroundColor: '#333333',
   },
+  toastText: {
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
 })
 
 class ReadContent extends React.PureComponent {
@@ -304,6 +307,7 @@ class ReadContent extends React.PureComponent {
         Clipboard.setString(selectedTextContent)
         Toast.show({
           text: i18n("Verse copied to clipboard"),
+          textStyle: styles.toastText,
           duration: 1700,
         })
         this.clearSelection()

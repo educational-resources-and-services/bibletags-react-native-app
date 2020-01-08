@@ -27,6 +27,9 @@ const viewStyles = StyleSheet.create({
     padding: 20,
     paddingBottom: 0,
   },
+  toastText: {
+    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
+  },
   // sup: {
   //   position: "relative",
   //   top: "-0.3em",
@@ -217,6 +220,7 @@ class SearchResult extends React.PureComponent {
         Clipboard.setString(copyTextContent)
         Toast.show({
           text: i18n("Verse copied to clipboard"),
+          textStyle: viewStyles.toastText,
           duration: 1700,
         })
 
