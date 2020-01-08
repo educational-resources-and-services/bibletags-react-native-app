@@ -1,12 +1,12 @@
 import React from "react"
-import { Dimensions, NetInfo } from "react-native"
+import { Dimensions, NetInfo, I18nManager, AsyncStorage } from "react-native"
 import Constants from "expo-constants"
 import { SQLite } from 'expo-sqlite'
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { getPassageStr } from "bibletags-ui-helper"
 // import { Toast } from "native-base"
 
-import { i18n } from "inline-i18n"
+import { i18n, isRTL } from "inline-i18n"
 import bibleVersions from '../../versions.js'
 import { getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 
@@ -323,4 +323,17 @@ export const replaceWithJSX = (text, regexStr, getReplacement) => {
       })
   )
 
+}
+
+export const fixRTL = async locale => {
+  const alreadyFixedRTLKey = `fixedRTL`
+  const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
+  const i18nIsRTL = isRTL(locale)
+
+  if(!!I18nManager.isRTL !== i18nIsRTL && !alreadyFixedRTL) {
+    I18nManager.forceRTL(i18nIsRTL)
+    I18nManager.allowRTL(i18nIsRTL)
+    await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
+    return 'reload'
+  }
 }

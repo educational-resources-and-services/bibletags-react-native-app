@@ -23,6 +23,7 @@ import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
 import { i18nSetup, i18n, i18nNumber, isRTL } from "inline-i18n"
 import { translations, languageOptions } from "./language"
+import { fixRTL } from "./src/utils/toolbox"
 
 const {
   NUM_OPENS_FOR_RATING_REQUEST=0,
@@ -75,7 +76,10 @@ export default class App extends React.Component {
 
     await this.setLocale()
 
-    if(await this.fixRTL() === 'reload') return
+    if(await fixRTL() === 'reload') {
+      Updates.reloadFromCache()
+      return
+    }
 
     await Promise.all([
       Font.loadAsync({
@@ -123,19 +127,6 @@ export default class App extends React.Component {
       ],
       translations,
     })
-  }
-
-  fixRTL = async () => {
-    const alreadyFixedRTLKey = `fixedRTL`
-    const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
-
-    if(!!I18nManager.isRTL !== !!isRTL() && !alreadyFixedRTL) {
-      I18nManager.forceRTL(isRTL())
-      I18nManager.allowRTL(isRTL())
-      await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
-      Updates.reload()
-      return 'reload'
-    }
   }
 
   requestRating = async () => {

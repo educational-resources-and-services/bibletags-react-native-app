@@ -7,6 +7,7 @@ import { AsyncStorage, StyleSheet } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
 import { getLocale } from "inline-i18n"
+import { fixRTL } from "../../utils/toolbox"
 
 const {
   INPUT_HIGHLIGHT_COLOR,
@@ -54,7 +55,8 @@ class LanguageItem extends React.PureComponent {
     if(getLocale() !== locale) {
       await AsyncStorage.setItem(`uiLocale`, locale)
       await AsyncStorage.removeItem(`fixedRTL`)
-      Updates.reload()
+      await fixRTL(locale)
+      Updates.reloadFromCache()
     }
   }
 
