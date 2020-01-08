@@ -6,8 +6,9 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import { i18n } from "inline-i18n"
-import { debounce, getVersionInfo } from "../../utils/toolbox.js"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
+import { debounce, getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering, getCorrespondingRefs } from 'bibletags-versification/src/versification'
+
 import ReadText from './ReadText'
 import TapOptions from '../basic/TapOptions'
 
@@ -330,6 +331,38 @@ class ReadContent extends React.PureComponent {
     const getPage = direction => {
       const pageRef = adjacentRefs[direction] || ref
 
+      let correspondingRefs = [ pageRef ]
+      
+      if(parallelVersionId) {
+        const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
+
+        if(versionId !== originalVersionInfo.versionId) {
+          correspondingRefs = getCorrespondingRefs({
+            baseVersion: {
+              info: getVersionInfo(versionId),
+              ref: {
+                ...pageRef,
+                verse: 1,
+              },
+            },
+            lookupVersionInfo: originalVersionInfo,
+          }) || correspondingRefs
+        }
+
+        if(parallelVersionId !== originalVersionInfo.versionId) {
+          correspondingRefs = getCorrespondingRefs({
+            baseVersion: {
+              info: originalVersionInfo,
+              ref: correspondingRefs[0],
+            },
+            lookupVersionInfo: getVersionInfo(parallelVersionId),
+          }) || correspondingRefs
+        }
+
+      }
+
+      const parallelPageRef = correspondingRefs[0]
+
       return (
         <View
           key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
@@ -370,8 +403,8 @@ class ReadContent extends React.PureComponent {
                 ]}
               />
               <ReadText
-                key={`${parallelVersionId} ${pageRef.bookId} ${pageRef.chapter}`}
-                passageRef={pageRef}
+                key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
+                passageRef={parallelPageRef}
                 versionId={parallelVersionId}
                 selectedVerse={
                   selectedSection === 'secondary'

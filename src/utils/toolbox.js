@@ -337,3 +337,10 @@ export const fixRTL = async locale => {
     return 'reload'
   }
 }
+
+const originalVersionInfoByTestament = {
+  old: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && partialScope === 'ot'))[0],
+  new: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && partialScope === 'nt'))[0],
+}
+
+export const getOriginalVersionInfo = bookId => originalVersionInfoByTestament[bookId <= 39 ? 'old' : 'new']
