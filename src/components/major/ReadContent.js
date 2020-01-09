@@ -332,9 +332,9 @@ class ReadContent extends React.PureComponent {
       const pageRef = adjacentRefs[direction] || ref
 
       let correspondingRefs = [ pageRef ]
+      const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
       
-      if(parallelVersionId) {
-        const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
+      if(parallelVersionId && originalVersionInfo) {
 
         if(versionId !== originalVersionInfo.versionId) {
           correspondingRefs = getCorrespondingRefs({
