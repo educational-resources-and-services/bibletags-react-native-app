@@ -57,7 +57,9 @@ class DrawerItem extends React.PureComponent {
   }
 
   render() {
-    const { text, image, imageWidth, imageHeight, onPress, type, href } = this.props
+    const { text, image, imageWidth, imageHeight, onPress, type, href, locales } = this.props
+
+    if(locales && !locales.includes(getLocale())) return null
 
     let typeAction, typeText
 
@@ -81,8 +83,6 @@ class DrawerItem extends React.PureComponent {
       }
     }
 
-    const localizedText = (text && text[getLocale()])
-
     return (
       <ListItem
         {...((onPress || typeAction || href)
@@ -95,8 +95,8 @@ class DrawerItem extends React.PureComponent {
         style={styles.listItem}
       >
         <Body>
-          {!!(localizedText || typeText) &&
-            <Text style={styles.text}>{localizedText || typeText}</Text> 
+          {!!(text || typeText) &&
+            <Text style={styles.text}>{text || typeText}</Text> 
           }
           {!!image &&
             <Image
