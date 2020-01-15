@@ -136,7 +136,9 @@ export default class App extends React.Component {
     const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
 
     if(numUserOpens === NUM_OPENS_FOR_RATING_REQUEST) {
-      StoreReview.requestReview()
+      // try {
+      //   StoreReview.requestReview()
+      // } catch(e) {}
     }
 
     await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)

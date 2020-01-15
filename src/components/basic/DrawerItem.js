@@ -44,7 +44,11 @@ class DrawerItem extends React.PureComponent {
   }
 
   goToURL = event => {
-    const { href } = this.props
+    let { type, href } = this.props
+
+    if(type === 'rate') {
+      href = StoreReview.storeUrl()
+    }
 
     if(!href) return
 
@@ -70,10 +74,8 @@ class DrawerItem extends React.PureComponent {
         break
       }
       case 'rate': {
-        if(!StoreReview.hasAction()) return null
-
         typeText = i18n("Rate this app")
-        typeAction = StoreReview.requestReview
+        typeAction = this.goToURL
         break
       }
       case 'versions': {
