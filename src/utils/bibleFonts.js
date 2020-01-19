@@ -13,7 +13,7 @@ export const bibleFontList = bibleFonts.map(({ name }) => name)
 
 export const bibleFontLoads = {
   'original-heb': require(`../../assets/fonts/OriginalHebrewFont.ttf`),
-  // 'original-grk': require(`../../assets/fonts/OriginalGreekFont.ttf`),
+  'original-grk': require(`../../assets/fonts/OriginalGreekFont.ttf`),
   ...(
     bibleFonts
       .reduce(
