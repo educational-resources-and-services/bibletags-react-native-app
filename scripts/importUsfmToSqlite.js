@@ -163,7 +163,10 @@ const doubleSpacesRegex = /  +/g
 
   try {
 
-    const [ folder, version, tenant ] = JSON.parse(process.env.npm_config_argv).remain
+    const params = JSON.parse(process.env.npm_config_argv).remain
+    const tenant = params.pop()
+    const version = params.pop()
+    const folders = params
     
     versionsDir = `./tenants/${tenant}/assets/versions`
 
@@ -192,106 +195,111 @@ const doubleSpacesRegex = /  +/g
       for(const verse of verses) insert.run(verse)
     })
 
-    // loop through all files, parse them and do the inserts
-    const files = fs.readdirSync(folder)
+    // loop through folders
+    for(let folder of folders) {
 
-    for(let file of files) {
-      if(!file.match(/\.u?sfm$/i)) continue
+      // loop through all files, parse them and do the inserts
+      const files = fs.readdirSync(folder)
 
-      const input = fs.createReadStream(`${folder}/${file}`)
-      let bookId, chapter
-      const verses = []
-      let lastVerse = 0
-      let goesWithNextVsText = []
+      for(let file of files) {
+        if(!file.match(/\.u?sfm$/i)) continue
 
-      for await (const line of readLines({ input })) {
+        const input = fs.createReadStream(`${folder}/${file}`)
+        let bookId, chapter
+        const verses = []
+        let lastVerse = 0
+        let goesWithNextVsText = []
 
-        if(!bookId) {
+        for await (const line of readLines({ input })) {
 
-          while(!line.match(bookIdRegex)) continue
-          
-          const bookAbbr = line.replace(bookIdRegex, '$1')
-          bookId = bookAbbrs.indexOf(bookAbbr)
-    
-          if(bookId < 1) break
-    
-          console.log(`Importing ${bookAbbr}...`)
-          continue
+          if(!bookId) {
 
-        }
+            while(!line.match(bookIdRegex)) continue
+            
+            const bookAbbr = line.replace(bookIdRegex, '$1')
+            bookId = bookAbbrs.indexOf(bookAbbr)
+      
+            if(bookId < 1) break
+      
+            console.log(`Importing ${bookAbbr}...`)
+            continue
 
-        if(line === '') continue
-        if(irrelevantLinesRegex.test(line)) continue
-
-        // get chapter
-        if(chapterRegex.test(line)) {
-          chapter = line.replace(chapterRegex, '$1')
-        }
-
-        // get tags which connect to verse text to follow
-        if(
-          majorTitleRegex.test(line)
-          || majorSectionRegex.test(line)
-          || sectionRegex.test(line)
-          || chapterRegex.test(line)
-          || chapterCharacterRegex.test(line)
-          || psalmTitleRegex.test(line)
-          || paragraphRegex.test(line)
-        ) {
-          goesWithNextVsText.push(line)
-          continue
-        }
-
-        // get verse
-        if(verseRegex.test(line)) {
-
-          const verse = line.replace(verseRegex, '$1')
-          if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-            console.log(`Non-consecutive verses: ${lastVerse} > ${verse}`)
           }
-          lastVerse = parseInt(verse, 10)
 
-          verses.push({
-            loc: getLocFromRef({ bookId, chapter, verse }),
-            usfm: [
-              ...goesWithNextVsText,
-              line,
-            ],
-            bookOrdering: versionsWithHebrewOrdering.includes(version) ? hebrewOrderingOfBookIds.indexOf(bookId) + 1 : bookId,
-          })
+          if(line === '') continue
+          if(irrelevantLinesRegex.test(line)) continue
+
+          // get chapter
+          if(chapterRegex.test(line)) {
+            chapter = line.replace(chapterRegex, '$1')
+          }
+
+          // get tags which connect to verse text to follow
+          if(
+            majorTitleRegex.test(line)
+            || majorSectionRegex.test(line)
+            || sectionRegex.test(line)
+            || chapterRegex.test(line)
+            || chapterCharacterRegex.test(line)
+            || psalmTitleRegex.test(line)
+            || paragraphRegex.test(line)
+          ) {
+            goesWithNextVsText.push(line)
+            continue
+          }
+
+          // get verse
+          if(verseRegex.test(line)) {
+
+            const verse = line.replace(verseRegex, '$1')
+            if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
+              console.log(`Non-consecutive verses: ${lastVerse} > ${verse}`)
+            }
+            lastVerse = parseInt(verse, 10)
+
+            verses.push({
+              loc: getLocFromRef({ bookId, chapter, verse }),
+              usfm: [
+                ...goesWithNextVsText,
+                line,
+              ],
+              bookOrdering: versionsWithHebrewOrdering.includes(version) ? hebrewOrderingOfBookIds.indexOf(bookId) + 1 : bookId,
+            })
+            goesWithNextVsText = []
+            continue
+          }
+
+          // add on verse text
+          verses[verses.length - 1].usfm = [
+            ...verses[verses.length - 1].usfm,
+            ...goesWithNextVsText,
+            line,
+          ]
           goesWithNextVsText = []
-          continue
+
         }
 
-        // add on verse text
-        verses[verses.length - 1].usfm = [
-          ...verses[verses.length - 1].usfm,
-          ...goesWithNextVsText,
-          line,
-        ]
-        goesWithNextVsText = []
+        verses.forEach(verse => {
+          verse.usfm = verse.usfm.join("\n")
+          verse.search = verse.usfm
+            .replace(wordRegex, '$1')
+            .replace(extraBiblicalRegex, '')
+            .replace(allTagsRegex, '')
+            .replace(hebrewCantillationRegex, '')
+            .replace(hebrewVowelsRegex, '')
+            .replace(wordPartDividerRegex, '')
+            .replace(wordDividerRegex, ' ')
+            .replace(newlinesRegex, ' ')
+            .replace(doubleSpacesRegex, ' ')
+            .trim()
+        })
+
+        // console.log(verses.slice(0,5))
+        insertMany(verses)
+
+        console.log(`  ...inserted ${verses.length} verses.`)
 
       }
-
-      verses.forEach(verse => {
-        verse.usfm = verse.usfm.join("\n")
-        verse.search = verse.usfm
-          .replace(wordRegex, '$1')
-          .replace(extraBiblicalRegex, '')
-          .replace(allTagsRegex, '')
-          .replace(hebrewCantillationRegex, '')
-          .replace(hebrewVowelsRegex, '')
-          .replace(wordPartDividerRegex, '')
-          .replace(wordDividerRegex, ' ')
-          .replace(newlinesRegex, ' ')
-          .replace(doubleSpacesRegex, ' ')
-          .trim()
-      })
-
-      // console.log(verses.slice(0,5))
-      insertMany(verses)
-
-      console.log(`  ...inserted ${verses.length} verses.`)
 
     }
 
@@ -300,8 +308,9 @@ const doubleSpacesRegex = /  +/g
   } catch(err) {
 
     const logSyntax = () => {
-      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files versionId tenant\``)
-      console.log(`Example: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\`\n`)
+      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files [optional/path/to/second/directory/of/usfm/files] versionId tenant\``)
+      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\`\n`)
+      console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/uhb ../../versions/ugnt original bibletags\`\n`)
     }
 
     switch(err.message.split(',')[0]) {
