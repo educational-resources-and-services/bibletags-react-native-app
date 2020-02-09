@@ -197,13 +197,15 @@ export const getVersionInfo = versionId => {
   return versionInfo
 }
 
+export const getTextLanguageId = ({ languageId, bookId }) => (
+  languageId === `heb+grk`
+    ? (bookId <= 39 ? 'heb' : 'grk')
+    : languageId
+)
+
 export const getTextFont = ({ font, isOriginal, languageId, bookId, tag }) => (
   (isOriginal && tag !== "v")
-    ? (
-      languageId === 'heb+grk'
-        ? `original-${bookId <= 39 ? `heb` : `grk`}`
-        : `original-${languageId}`
-    )
+    ? `original-${getTextLanguageId({ languageId, bookId })}`
     : font
 )
 
@@ -360,3 +362,30 @@ const originalVersionInfoByTestament = {
 }
 
 export const getOriginalVersionInfo = bookId => originalVersionInfoByTestament[bookId <= 39 ? 'old' : 'new']
+
+export const adjustFontSize = ({ fontSize, isOriginal, languageId, bookId }) => (
+  isOriginal
+    ? (
+      (
+        {
+          grk: 1.2, // The Greek font renders small, thus make this adjustment
+        }[getTextLanguageId({ languageId, bookId })]
+        || 1
+      ) * fontSize
+    )
+    : fontSize
+)
+
+export const adjustLineHeight = ({ lineHeight, isOriginal, languageId, bookId }) => (
+  isOriginal
+    ? (
+      (
+        {
+          grk: .85, // Given our font size adjustment above
+          heb: 1.25, // The Hebrew font renders tight, thus make this adjustment
+        }[getTextLanguageId({ languageId, bookId })]
+        || 1
+      ) * lineHeight
+    )
+    : lineHeight
+)

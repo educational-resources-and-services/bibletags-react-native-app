@@ -4,7 +4,8 @@ import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont } from '../../utils/toolbox.js'
+import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
+         adjustFontSize, adjustLineHeight } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
@@ -279,10 +280,10 @@ class ReadText extends React.PureComponent {
     const { displaySettings, selectedVerse, passageRef } = this.props
     const { languageId, isOriginal } = this.state
 
-    const { font, textSize, lineSpacing, theme } = displaySettings
-    const baseFontSize = DEFAULT_FONT_SIZE * textSize
-    const lineHeight = baseFontSize * lineSpacing
     const { bookId } = passageRef
+    const { font, textSize, lineSpacing, theme } = displaySettings
+    const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
+    const lineHeight = adjustLineHeight({ lineHeight: baseFontSize * lineSpacing, isOriginal, languageId, bookId })
 
     let textAlreadyDisplayedInThisView = false
 

@@ -5,7 +5,7 @@ import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { isRTLText, getCopyVerseText, stripHebrew, getTextFont } from '../../utils/toolbox.js'
+import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
@@ -113,11 +113,12 @@ class SearchResult extends React.PureComponent {
   }
 
   getJSXFromPieces = ({ pieces }) => {
-    const { searchString, displaySettings } = this.props
+    const { searchString, displaySettings, languageId, isOriginal, result } = this.props
 
+    const { bookId } = getRefFromLoc(result.loc)
     const { textSize, lineSpacing, theme } = displaySettings
-    const baseFontSize = DEFAULT_FONT_SIZE * textSize
-    const lineHeight = baseFontSize * lineSpacing
+    const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
+    const lineHeight = adjustLineHeight({ lineHeight: baseFontSize * lineSpacing, isOriginal, languageId, bookId })
     const searchWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
@@ -240,18 +241,18 @@ class SearchResult extends React.PureComponent {
   }
 
   render() {
-    const { result, languageId, displaySettings,
+    const { result, languageId, isOriginal, displaySettings,
             selected, selectTapY, onTouchStart, onTouchEnd } = this.props
-
-    const { width, height } = Dimensions.get('window')
-    const { textSize, lineSpacing, theme } = displaySettings
-    const fontSize = DEFAULT_FONT_SIZE * textSize
-    const lineHeight = fontSize * lineSpacing
-    const fontFamily = getValidFontName({ font: this.getFont() })
 
     const { pieces, loc } = result
     const ref = getRefFromLoc(loc)
     const { bookId } = ref
+        
+    const { width, height } = Dimensions.get('window')
+    const { textSize, lineSpacing, theme } = displaySettings
+    const fontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
+    const lineHeight = adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
+    const fontFamily = getValidFontName({ font: this.getFont() })
 
     const passageStr = getPassageStr({
       refs: [
