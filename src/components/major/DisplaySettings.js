@@ -226,7 +226,7 @@ class DisplaySettings extends React.PureComponent {
               <Text>{i18n("Line spacing")}</Text>
               <Slider
                 minimumValue={1}
-                maximumValue={2.5}
+                maximumValue={3}
                 value={lineSpacing}
                 onValueChange={this.setLineSpacing}
                 style={styles.slider}
