@@ -154,7 +154,7 @@ export const executeSql = async ({ versionId, statement, args, statements, remov
     )
   })
 
-  if(versionInfo.isOriginal && versionInfo.languageId === 'heb') {
+  if(versionInfo.isOriginal && ['heb', 'heb+grk'].includes(versionInfo.languageId)) {
     resultSets.forEach(resultSet => {
       try {
         const { rows: { _array: verses } } = resultSet
