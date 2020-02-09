@@ -90,9 +90,9 @@ class DisplaySettings extends React.PureComponent {
     }
   }
 
-  clearSetTextSizeTimeoutVars = () => {
-    delete this.setTextSizeTimeoutFunc
-    delete this.setTextSizeWaitTimeout
+  clearSetTimeoutVars = () => {
+    delete this.setTimeoutFunc
+    delete this.setWaitTimeout
   }
 
   setTextSize = textSize => {
@@ -100,23 +100,35 @@ class DisplaySettings extends React.PureComponent {
 
     // throttle because otherwise iOS gets slow
 
-    if(this.setTextSizeTimeoutFunc) {
-      this.setTextSizeTimeoutFunc = () => {
-        this.clearSetTextSizeTimeoutVars()
+    if(this.setTimeoutFunc) {
+      this.setTimeoutFunc = () => {
+        this.clearSetTimeoutVars()
         setTextSize({ textSize })
       }
       return
     }
 
     setTextSize({ textSize })
-    this.setTextSizeTimeoutFunc = this.clearSetTextSizeTimeoutVars
-    this.setTextSizeWaitTimeout = setTimeout(() => this.setTextSizeTimeoutFunc(), SET_TEXT_SIZE_THROTTLE_MS)
+    this.setTimeoutFunc = this.clearSetTimeoutVars
+    this.setWaitTimeout = setTimeout(() => this.setTimeoutFunc(), SET_TEXT_SIZE_THROTTLE_MS)
   }
 
   setLineSpacing = lineSpacing => {
     const { setLineSpacing } = this.props
 
+    // throttle because otherwise iOS gets slow
+
+    if(this.setTimeoutFunc) {
+      this.setTimeoutFunc = () => {
+        this.clearSetTimeoutVars()
+        setLineSpacing({ lineSpacing })
+      }
+      return
+    }
+
     setLineSpacing({ lineSpacing })
+    this.setTimeoutFunc = this.clearSetTimeoutVars
+    this.setWaitTimeout = setTimeout(() => this.setTimeoutFunc(), SET_TEXT_SIZE_THROTTLE_MS)
   }
 
   selectFont = () => {
@@ -209,12 +221,12 @@ class DisplaySettings extends React.PureComponent {
               />
             </Body>
           </CardItem>
-          {/* <CardItem>
+          <CardItem>
             <Body>
               <Text>{i18n("Line spacing")}</Text>
               <Slider
                 minimumValue={1}
-                maximumValue={4}
+                maximumValue={2.5}
                 value={lineSpacing}
                 onValueChange={this.setLineSpacing}
                 style={styles.slider}
@@ -223,7 +235,7 @@ class DisplaySettings extends React.PureComponent {
                 thumbTintColor={INPUT_HIGHLIGHT_COLOR}
               />
             </Body>
-          </CardItem> */}
+          </CardItem>
           <CardItem button
             onPress={this.selectTheme}
           >

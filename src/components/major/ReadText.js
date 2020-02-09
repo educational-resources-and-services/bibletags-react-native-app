@@ -1,6 +1,6 @@
 import React from "react"
 import Constants from "expo-constants"
-import { View, ScrollView, Text, StyleSheet } from "react-native"
+import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -279,8 +279,9 @@ class ReadText extends React.PureComponent {
     const { displaySettings, selectedVerse } = this.props
     const { languageId, isOriginal } = this.state
 
-    const { font, textSize, theme } = displaySettings
+    const { font, textSize, lineSpacing, theme } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
+    const lineHeight = baseFontSize * lineSpacing
 
     let textAlreadyDisplayedInThisView = false
 
@@ -326,14 +327,15 @@ class ReadText extends React.PureComponent {
       const italic = italicStyles.includes(tag)
       const light = lightStyles.includes(tag)
       const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-      const fontFamily = (wrapInView || bold || italic || light) && getValidFontName({
-        font: isOriginal ? `original-${languageId}` : font,
+      const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
+        font: (isOriginal && tag !== "v") ? `original-${languageId}` : font,
         bold,
         italic,
         light,
       })
 
       const styles = [
+        { lineHeight },
         wrapInView && isRTLText(languageId) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
         theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,

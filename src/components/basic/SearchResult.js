@@ -114,8 +114,9 @@ class SearchResult extends React.PureComponent {
   getJSXFromPieces = ({ pieces }) => {
     const { searchString, displaySettings } = this.props
 
-    const { textSize, theme } = displaySettings
+    const { textSize, lineSpacing, theme } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
+    const lineHeight = baseFontSize * lineSpacing
     const searchWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
@@ -139,6 +140,7 @@ class SearchResult extends React.PureComponent {
         getStyle({ tag, styles: textStyles }),
         fontSize && { fontSize },
         fontFamily && { fontFamily },
+        { lineHeight },
       ].filter(s => s)
 
       const getPartOfPiece = (text, idx2) => {
@@ -241,8 +243,9 @@ class SearchResult extends React.PureComponent {
             selected, selectTapY, onTouchStart, onTouchEnd } = this.props
 
     const { width, height } = Dimensions.get('window')
-    const { textSize, theme } = displaySettings
+    const { textSize, lineSpacing, theme } = displaySettings
     const fontSize = DEFAULT_FONT_SIZE * textSize
+    const lineHeight = fontSize * lineSpacing
     const fontFamily = getValidFontName({ font: this.getFont() })
 
     const { pieces, loc } = result
@@ -268,6 +271,7 @@ class SearchResult extends React.PureComponent {
             (isRTLText(languageId) === I18nManager.isRTL ? textStyles.leftAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
+              lineHeight: Math.max(fontSize * .65, 12) * lineSpacing,
             },
           ]}
           onTouchStart={onTouchStart}
@@ -288,6 +292,7 @@ class SearchResult extends React.PureComponent {
             (isRTLText(languageId) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
+            { lineHeight },
           ]}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
