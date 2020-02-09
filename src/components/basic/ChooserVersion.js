@@ -1,5 +1,6 @@
 import React from "react"
-import { Text, StyleSheet, TouchableHighlight } from "react-native"
+import { Icon } from "native-base"
+import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -36,6 +37,15 @@ const styles = StyleSheet.create({
   versionTextLowLight: {
     color: 'white',
   },
+  versionTextContainer: {
+    flexDirection: 'row',
+  },
+  closeIcon: {
+    fontSize: 15,
+    color: 'rgba(255,255,255,.5)',
+    lineHeight: 40,
+    marginLeft: 10,
+  },
 })
 
 class ChooserVersion extends React.PureComponent {
@@ -47,7 +57,7 @@ class ChooserVersion extends React.PureComponent {
   }
 
   render() {
-    const { versionId, selected, displaySettings } = this.props
+    const { versionId, selected, showCloseIcon, displaySettings } = this.props
 
     return (
       <TouchableHighlight
@@ -63,17 +73,28 @@ class ChooserVersion extends React.PureComponent {
           ),
         ]}
       >
-        <Text
-          style={[
-            styles.versionText,
-            (displaySettings.theme === 'low-light'
-              ?
-                (selected ? styles.versionTextSelectedLowLight : styles.versionTextLowLight)
-              :
-                (selected ? styles.versionTextSelected : null)
-            ),
-          ]}
-        >{getVersionInfo(versionId).abbr}</Text>
+        <View style={styles.versionTextContainer}>
+          <Text
+            style={[
+              styles.versionText,
+              (displaySettings.theme === 'low-light'
+                ?
+                  (selected ? styles.versionTextSelectedLowLight : styles.versionTextLowLight)
+                :
+                  (selected ? styles.versionTextSelected : null)
+              ),
+            ]}
+          >{getVersionInfo(versionId).abbr}</Text>
+          {!!showCloseIcon &&
+            <Icon
+              name="md-close"
+              style={[
+                styles.closeIcon,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+              ]}
+            />
+          }
+        </View>
       </TouchableHighlight>
     )
   }

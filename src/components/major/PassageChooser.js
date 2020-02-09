@@ -6,13 +6,14 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
 import { getVersionInfo, setUpTimeout, unmountTimeouts } from "../../utils/toolbox"
+import { i18n } from "inline-i18n"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
 import BackFunction from "../basic/BackFunction"
 
-import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions.js"
+import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
 
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
@@ -21,6 +22,7 @@ const {
   SECONDARY_VERSIONS,
   VERSION_CHOOSER_BACKGROUND_COLOR,
   PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR,
+  PARALLEL_LABEL_VERSION_CHOOSER_BACKGROUND_COLOR,
   CHOOSER_BOOK_LINE_HEIGHT,
 } = Constants.manifest.extra
 
@@ -58,6 +60,26 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     flexDirection: 'row',
     padding: 5,
+  },
+  versionChooserContainer: {
+    flexDirection: 'row',
+  },
+  parallelLabelContainer: {
+    backgroundColor: PARALLEL_LABEL_VERSION_CHOOSER_BACKGROUND_COLOR,
+    width: 20,
+  },
+  parallelLabel: {
+    position: 'absolute',
+    transform: [
+      { translateX: -15 },
+      { translateY: 15 },
+      { rotate: '-90deg' },
+    ],
+    fontSize: 10,
+    width: 50,
+    lineHeight: 20,
+    textAlign: 'center',
+    color: 'white',
   },
 })
 
@@ -170,8 +192,9 @@ class PassageChooser extends React.PureComponent {
   }
 
   updateParallelVersion = parallelVersionId => {
-    const { setVersionId, setParallelVersionId, hidePassageChooser, passage } = this.props
+    const { setVersionId, setParallelVersionId, setMode, hidePassageChooser, passage } = this.props
 
+    setMode({ mode: 'parallel' })
     setParallelVersionId({ parallelVersionId })
 
     if(parallelVersionId === passage.versionId && PRIMARY_VERSIONS.length > 1) {
@@ -188,6 +211,13 @@ class PassageChooser extends React.PureComponent {
       })
     }
 
+    hidePassageChooser()
+  }
+
+  closeParallelMode = () => {
+    const { hidePassageChooser, setMode } = this.props
+    
+    setMode({ mode: 'basic' })
     hidePassageChooser()
   }
 
@@ -298,7 +328,6 @@ class PassageChooser extends React.PureComponent {
     // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
     // const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
     // const showVersionChooser = PRIMARY_VERSIONS.length > 1
-    const showParallelVersionChooser = mode === 'parallel'
     const showVersionChooser = true
 
     return (
@@ -319,11 +348,22 @@ class PassageChooser extends React.PureComponent {
             goVersions={goVersions}
           />
         }
-        {showParallelVersionChooser &&
+        <View style={styles.versionChooserContainer}>
+          <View style={styles.parallelLabelContainer}>
+            <Text
+              style={[
+                  styles.parallelLabel,
+                  (displaySettings.theme === 'low-light' ? styles.parallelLabelLight : null),
+              ]}
+              numberOfLines={1}
+            >
+              {i18n("Parallel")}
+            </Text>
+          </View>
           <VersionChooser
             versionIds={SECONDARY_VERSIONS}
             update={this.updateParallelVersion}
-            selectedVersionId={passage.parallelVersionId}
+            selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
             backgroundColor={
               displaySettings.theme === 'low-light' 
               ? 
@@ -332,8 +372,9 @@ class PassageChooser extends React.PureComponent {
                 PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
             }
             goVersions={goVersions}
+            closeParallelMode={mode === 'parallel' ? this.closeParallelMode : null}
           />
-        }
+        </View>
         <View
           style={[
               styles.refChooser,
@@ -395,6 +436,7 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
   setVersionId,
   setParallelVersionId,
+  setMode,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(PassageChooser)

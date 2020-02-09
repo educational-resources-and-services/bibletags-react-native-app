@@ -11,7 +11,7 @@ import { bibleFontList } from "../../utils/bibleFonts.js"
 
 import BackFunction from '../basic/BackFunction'
 
-import { setMode, setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
+import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
 
 const {
   INPUT_HIGHLIGHT_COLOR,
@@ -36,11 +36,11 @@ const styles = StyleSheet.create({
   header: {
     fontWeight: 'bold',
   },
-  switch: {
-    ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
-    marginRight: 10,
-    ...(Platform.OS === 'android' && I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {}),
-  },
+  // switch: {
+  //   ...(Platform.OS === 'android' ? { marginLeft: -10 } : {}),
+  //   marginRight: 10,
+  //   ...(Platform.OS === 'android' && I18nManager.isRTL ? { transform: [{ scaleX: -1 }] } : {}),
+  // },
   sliderText: {
     width: '100%',
     textAlign: 'left',
@@ -88,15 +88,6 @@ class DisplaySettings extends React.PureComponent {
       textSize,
       lineSpacing,
     }
-  }
-
-  toggleParallelMode = () => {
-    const { setMode, displaySettings } = this.props
-    const { mode } = displaySettings
-
-    setMode({
-      mode: mode === 'parallel' ? 'basic' : 'parallel',
-    })
   }
 
   clearSetTextSizeTimeoutVars = () => {
@@ -203,24 +194,6 @@ class DisplaySettings extends React.PureComponent {
               {i18n("Display options")}
             </Text>
           </CardItem>
-          <TouchableWithoutFeedback
-            onPress={this.toggleParallelMode}
-          >
-            <CardItem>
-              <Switch
-                onValueChange={this.toggleParallelMode}
-                style={styles.switch}
-                trackColor={{
-                  true: INPUT_HIGHLIGHT_COLOR,
-                  false: INPUT_HIGHLIGHT_SECONDARY_COLOR,
-                }}
-                ios_backgroundColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
-                thumbColor={'white'}
-                value={mode === 'parallel'}
-              />
-              <Text>{i18n("Parallel mode")}</Text>
-            </CardItem>
-          </TouchableWithoutFeedback>
           <CardItem>
             <Body>
               <Text style={styles.sliderText}>{i18n("Text size")}</Text>
@@ -290,7 +263,6 @@ const mapStateToProps = ({ displaySettings }) => ({
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
-  setMode,
   setTextSize,
   setLineSpacing,
   setFont,

@@ -7,6 +7,8 @@ import { connect } from "react-redux"
 
 import ChooserVersion from "../basic/ChooserVersion"
 
+import { setMode } from "../../redux/actions.js"
+
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
 } = Constants.manifest.extra
@@ -40,7 +42,7 @@ const styles = StyleSheet.create({
 class VersionChooser extends React.PureComponent {
 
   render() {
-    const { versionIds, selectedVersionId, backgroundColor, update, goVersions, displaySettings } = this.props
+    const { versionIds, selectedVersionId, backgroundColor, update, goVersions, closeParallelMode, displaySettings } = this.props
 
     return (
       <ScrollView
@@ -53,14 +55,19 @@ class VersionChooser extends React.PureComponent {
         keyboardShouldPersistTaps="always"
       >
         <View style={styles.content}>
-          {versionIds.map(versionId => (
-            <ChooserVersion
-              key={versionId}
-              versionId={versionId}
-              selected={versionId === selectedVersionId}
-              onPress={update}
-            />
-          ))}
+          {versionIds.map(versionId => {
+            const showCloseIcon = versionId === selectedVersionId && closeParallelMode
+
+            return (
+              <ChooserVersion
+                key={versionId}
+                versionId={versionId}
+                selected={versionId === selectedVersionId}
+                onPress={showCloseIcon ? closeParallelMode : update}
+                showCloseIcon={showCloseIcon}
+              />
+            )
+          })}
           <Button
             transparent
             onPress={goVersions}
@@ -84,7 +91,7 @@ const mapStateToProps = ({ displaySettings }) => ({
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
-  // setRef,
+  setMode,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(VersionChooser)
