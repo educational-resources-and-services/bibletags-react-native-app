@@ -26,7 +26,7 @@
     "@react-native-community/netinfo": "4.6.0",
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "^8.0.0",
-    "better-sqlite3": "5.4.0",
+    "better-sqlite3": "5.4.3",
     "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#513d8b4f13a7cda12fbdd8301b857196a906db53",
     "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#17e87515d6933edbbcf8b969fa30499ca539f4a9",
     "expo": "^36.0.0",
