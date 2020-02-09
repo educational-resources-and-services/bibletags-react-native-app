@@ -1,5 +1,5 @@
 import React from "react"
-import { StoreReview } from "expo"
+import * as StoreReview from 'expo-store-review'
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 

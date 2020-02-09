@@ -2,7 +2,8 @@ import React from "react"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Image, StyleSheet, NetInfo, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
+import { Image, StyleSheet, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
+import NetInfo from '@react-native-community/netinfo'
 import { Container, Content, Text, List, View } from "native-base"
 
 import { i18n } from "inline-i18n"

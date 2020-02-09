@@ -1,7 +1,8 @@
 import React from "react"
-import { Dimensions, NetInfo, I18nManager, AsyncStorage } from "react-native"
+import { Dimensions, I18nManager, AsyncStorage } from "react-native"
+import NetInfo from '@react-native-community/netinfo'
 import Constants from "expo-constants"
-import { SQLite } from 'expo-sqlite'
+import * as SQLite from 'expo-sqlite'
 import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { getPassageStr } from "bibletags-ui-helper"
 // import { Toast } from "native-base"
@@ -88,7 +89,7 @@ export const isConnected = () => new Promise(resolve => {
       isConnectedResolveFunctions = []
     }
 
-    netInfoIsConnectedFetch = NetInfo.isConnected.fetch()
+    netInfoIsConnectedFetch = NetInfo.fetch()
       .then(doResolves)
       .catch(() => doResolves(false))
   }
