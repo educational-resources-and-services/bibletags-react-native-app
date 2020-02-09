@@ -197,20 +197,36 @@ export const getVersionInfo = versionId => {
   return versionInfo
 }
 
-export const isRTLText = languageId => (
-  [
-    'heb',
-    'yid',
-    'ara',
-    'per',
-    'fas',
-    'urd',
-    'pus',
-    'syc',
-    'syr',
-    'sam',
-    'snd',
-  ].includes(languageId)
+export const getTextFont = ({ font, isOriginal, languageId, bookId, tag }) => (
+  (isOriginal && tag !== "v")
+    ? (
+      languageId === 'heb+grk'
+        ? `original-${bookId <= 39 ? `heb` : `grk`}`
+        : `original-${languageId}`
+    )
+    : font
+)
+
+export const isRTLText = ({ languageId, bookId, searchString }) => (
+  languageId === 'heb+grk'
+    ? (
+      bookId
+        ? bookId <= 39 ? true : false
+        : /^[\u0590-\u05FF ]*$/g.test(searchString)
+    )
+    : [
+      'heb',
+      'yid',
+      'ara',
+      'per',
+      'fas',
+      'urd',
+      'pus',
+      'syc',
+      'syr',
+      'sam',
+      'snd',
+    ].includes(languageId)
 )
 
 export const refsMatch = (ref1={}, ref2={}) => `${ref1.bookId}:${ref1.chapter}` === `${ref2.bookId}:${ref2.chapter}`
@@ -286,7 +302,7 @@ export const getCopyVerseText = ({ pieces, ref, versionAbbr }) => {
   })
 }
 
-export const stripHebrew = hebrewString => {
+export const stripHebrew = (hebrewString="") => {
   // See scripts/importUsfmToSqlite.js for the same variables
   const hebrewCantillationRegex = /[\u0591-\u05AF\u05BD\u05BF\u05C0\u05C5\u05C7]/g
   const hebrewVowelsRegex = /[\u05B0-\u05BC\u05C1\u05C2\u05C4]/g
@@ -339,8 +355,8 @@ export const fixRTL = async locale => {
 }
 
 const originalVersionInfoByTestament = {
-  old: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && partialScope === 'ot'))[0],
-  new: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && partialScope === 'nt'))[0],
+  old: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && (!partialScope || partialScope === 'ot')))[0],
+  new: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && (!partialScope || partialScope === 'nt')))[0],
 }
 
 export const getOriginalVersionInfo = bookId => originalVersionInfoByTestament[bookId <= 39 ? 'old' : 'new']

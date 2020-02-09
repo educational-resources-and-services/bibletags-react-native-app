@@ -98,7 +98,7 @@ class SearchSuggestion extends React.PureComponent {
               ]}>
               {I18nManager.isRTL ? `\u2067`: `\u2066`}
               {i18n("“{{searchString}}”", {
-                searchString: isRTLText(languageId) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
+                searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
               })}
               {`  `}
               <Text style={styles.versionAbbr}>{abbr}</Text>

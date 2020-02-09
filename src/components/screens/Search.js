@@ -238,7 +238,7 @@ class Search extends React.Component {
 
     const { navigation, displaySettings } = this.props
     const { editing, searchedString, searchedVersionId, searchResults,
-            languageId, isOriginal, versionAbbr, selectedLoc, editedSearchString } = this.state
+            selectedLoc, editedSearchString } = this.state
 
     const { searchString, versionId } = navigation.state.params
 

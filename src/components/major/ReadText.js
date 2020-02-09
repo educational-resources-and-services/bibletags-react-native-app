@@ -4,7 +4,7 @@ import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { executeSql, isRTLText, getVersionInfo, getCopyVerseText } from '../../utils/toolbox.js'
+import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
@@ -276,12 +276,13 @@ class ReadText extends React.PureComponent {
   }
 
   getJSXFromPieces = ({ pieces }) => {
-    const { displaySettings, selectedVerse } = this.props
+    const { displaySettings, selectedVerse, passageRef } = this.props
     const { languageId, isOriginal } = this.state
 
     const { font, textSize, lineSpacing, theme } = displaySettings
     const baseFontSize = DEFAULT_FONT_SIZE * textSize
     const lineHeight = baseFontSize * lineSpacing
+    const { bookId } = passageRef
 
     let textAlreadyDisplayedInThisView = false
 
@@ -328,7 +329,7 @@ class ReadText extends React.PureComponent {
       const light = lightStyles.includes(tag)
       const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
       const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
-        font: (isOriginal && tag !== "v") ? `original-${languageId}` : font,
+        font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
         bold,
         italic,
         light,
@@ -336,7 +337,7 @@ class ReadText extends React.PureComponent {
 
       const styles = [
         { lineHeight },
-        wrapInView && isRTLText(languageId) && textStyles.rtl,
+        wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
         theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
         theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,

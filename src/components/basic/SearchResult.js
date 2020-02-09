@@ -5,7 +5,7 @@ import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { isRTLText, getCopyVerseText, stripHebrew } from '../../utils/toolbox.js'
+import { isRTLText, getCopyVerseText, stripHebrew, getTextFont } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
@@ -105,10 +105,11 @@ const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 class SearchResult extends React.PureComponent {
 
   getFont = () => {
-    const { displaySettings, languageId, isOriginal } = this.props
+    const { result, displaySettings, languageId, isOriginal } = this.props
     const { font } = displaySettings
+    const { bookId } = getRefFromLoc(result.loc)
 
-    return isOriginal ? `original-${languageId}` : font
+    return getTextFont({ font, isOriginal, languageId, bookId })
   }
 
   getJSXFromPieces = ({ pieces }) => {
@@ -249,10 +250,12 @@ class SearchResult extends React.PureComponent {
     const fontFamily = getValidFontName({ font: this.getFont() })
 
     const { pieces, loc } = result
+    const ref = getRefFromLoc(loc)
+    const { bookId } = ref
 
     const passageStr = getPassageStr({
       refs: [
-        getRefFromLoc(loc),
+        ref,
       ],
     })
 
@@ -268,7 +271,7 @@ class SearchResult extends React.PureComponent {
                 (selected ? textStyles.selectedLowLight : textStyles.referenceLowLight)
               : 
                 (selected ? textStyles.selected : null),
-            (isRTLText(languageId) === I18nManager.isRTL ? textStyles.leftAlign : null),
+            (isRTLText({ languageId, bookId }) === I18nManager.isRTL ? textStyles.leftAlign : null),
             {
               fontSize: Math.max(fontSize * .65, 12),
               lineHeight: Math.max(fontSize * .65, 12) * lineSpacing,
@@ -289,7 +292,7 @@ class SearchResult extends React.PureComponent {
                 (selected ? textStyles.selectedLowLight : null)
               : 
                 (selected ? textStyles.selected : null),
-            (isRTLText(languageId) ? textStyles.rtl : null),
+            (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
             { fontSize },
             { fontFamily },
             { lineHeight },
