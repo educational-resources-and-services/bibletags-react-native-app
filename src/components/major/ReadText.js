@@ -283,7 +283,6 @@ class ReadText extends React.PureComponent {
     const { bookId } = passageRef
     const { font, textSize, lineSpacing, theme } = displaySettings
     const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
-    const lineHeight = adjustLineHeight({ lineHeight: baseFontSize * lineSpacing, isOriginal, languageId, bookId })
 
     let textAlreadyDisplayedInThisView = false
 
@@ -329,6 +328,7 @@ class ReadText extends React.PureComponent {
       const italic = italicStyles.includes(tag)
       const light = lightStyles.includes(tag)
       const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
+      const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
       const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
         font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
         bold,
@@ -337,12 +337,12 @@ class ReadText extends React.PureComponent {
       })
 
       const styles = [
-        { lineHeight },
         wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
         getStyle({ tag, styles: textStyles }),
         theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
         theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,
         fontSize && { fontSize },
+        lineHeight && { lineHeight },
         fontFamily && { fontFamily },
         (selectedVerse !== null && (
           verse === selectedVerse

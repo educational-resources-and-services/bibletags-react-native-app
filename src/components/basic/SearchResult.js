@@ -118,7 +118,6 @@ class SearchResult extends React.PureComponent {
     const { bookId } = getRefFromLoc(result.loc)
     const { textSize, lineSpacing, theme } = displaySettings
     const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
-    const lineHeight = adjustLineHeight({ lineHeight: baseFontSize * lineSpacing, isOriginal, languageId, bookId })
     const searchWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
@@ -131,6 +130,7 @@ class SearchResult extends React.PureComponent {
       const italic = italicStyles.includes(tag)
       const light = lightStyles.includes(tag)
       const fontSize = fontSizeStyleFactors[tag] && baseFontSize * (fontSizeStyleFactors[tag] || 1)
+      const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
       const fontFamily = (bold || italic || light) && getValidFontName({
         font: this.getFont(),
         bold,
@@ -141,8 +141,8 @@ class SearchResult extends React.PureComponent {
       const styles = [
         getStyle({ tag, styles: textStyles }),
         fontSize && { fontSize },
+        lineHeight && { lineHeight },
         fontFamily && { fontFamily },
-        { lineHeight },
       ].filter(s => s)
 
       const getPartOfPiece = (text, idx2) => {
@@ -295,8 +295,8 @@ class SearchResult extends React.PureComponent {
                 (selected ? textStyles.selected : null),
             (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
             { fontSize },
-            { fontFamily },
             { lineHeight },
+            { fontFamily },
           ]}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
