@@ -62,11 +62,11 @@ class Drawer extends React.Component {
 
   componentDidMount() {
     isConnected().then(this.setOfflineStatus)
-    NetInfo.addEventListener('connectionChange', this.setOfflineStatus)
+    NetInfo.addEventListener(this.setOfflineStatus)
   }
 
   componentWillUnmount() {
-    NetInfo.removeEventListener('connectionChange', this.setOfflineStatus)
+    NetInfo.removeEventListener(this.setOfflineStatus)
   }
 
   setOfflineStatus = connectionInfo => {
