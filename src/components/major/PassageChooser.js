@@ -264,7 +264,7 @@ class PassageChooser extends React.PureComponent {
     const { bookId } = this.state
 
     return (
-      <React.Fragment>
+      <>
         {index === 0 &&
           <View style={styles.spacerBeforeFirstBook} />
         }
@@ -280,7 +280,7 @@ class PassageChooser extends React.PureComponent {
             }}
           />
         }
-      </React.Fragment>
+      </>
     )
   }
 

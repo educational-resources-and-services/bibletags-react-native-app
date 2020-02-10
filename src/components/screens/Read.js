@@ -104,7 +104,7 @@ class Read extends React.Component {
     const hideStatusBar = showingPassageChooser
 
     return (
-      <React.Fragment>
+      <>
         <View
           style={styles.passageChooserContainer}
         >
@@ -148,7 +148,7 @@ class Read extends React.Component {
             </TouchableWithoutFeedback>
           }
         </RevealContainer>
-      </React.Fragment>
+      </>
     )
   }
 }

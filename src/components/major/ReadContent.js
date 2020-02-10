@@ -395,7 +395,7 @@ class ReadContent extends React.PureComponent {
             isVisible={!direction}
           />
           {!!parallelVersionId &&
-            <React.Fragment>
+            <>
               <View
                 style={[
                   styles.divider,
@@ -425,14 +425,14 @@ class ReadContent extends React.PureComponent {
                 setRef={!direction ? this.setSecondaryRef : null}
                 isVisible={!direction}
               />
-            </React.Fragment>
+            </>
           }
         </View>
       )
     }
 
     return (
-      <React.Fragment>
+      <>
         <ScrollView
           style={[
             styles.container,
@@ -461,7 +461,7 @@ class ReadContent extends React.PureComponent {
             topY={selectedTapY < 150 ? (selectedTapY + 40) : null}
           />
         }
-      </React.Fragment>
+      </>
     )
   }
 }

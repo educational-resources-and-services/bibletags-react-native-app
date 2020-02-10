@@ -192,7 +192,7 @@ class DisplaySettings extends React.PureComponent {
     let currentFontLabel = bibleFontList.includes(font) ? font : bibleFontList[0]
 
     return (
-      <React.Fragment>
+      <>
         <BackFunction func={hideDisplaySettings} />
         <TouchableWithoutFeedback
           style={styles.cover}
@@ -265,7 +265,7 @@ class DisplaySettings extends React.PureComponent {
             />
           </CardItem>
         </Card>
-      </React.Fragment>
+      </>
     )
   }
 }
