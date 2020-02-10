@@ -34,7 +34,7 @@ const Read = ({ navigation }) => {
   const [ showingDisplaySettings, setShowingDisplaySettings ] = useState(false)
   const [ showingPassageChooser, setShowingPassageChooser ] = useState(false)
 
-  const { width, height } = useDimensions().window
+  const { height } = useDimensions().window
 
   useEffect(
     () => {
@@ -93,7 +93,6 @@ const Read = ({ navigation }) => {
           showPassageChooser={showPassageChooser}
           showingPassageChooser={showingPassageChooser}
           hideStatusBar={hideStatusBar}
-          width={width}  // By sending this as a prop, I force a rerender
         />
         {showingDisplaySettings &&
           <DisplaySettings

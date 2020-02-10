@@ -6,6 +6,7 @@ import { connect } from "react-redux"
 import { bindActionCreators } from "redux"
 
 import { getToolbarHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox.js'
+import { useDimensions } from 'react-native-hooks'
 
 import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
@@ -83,58 +84,65 @@ const styles = StyleSheet.create({
   },
 })
 
-class AppHeader extends React.Component {
+const AppHeader = ({
+  hide,
+  hideStatusBar,
+  children,
+
+  displaySettings,
+
+  ...headerParams
+}) => {
 
   // There is a bug by which the backgroundColor in the header does not get set on load.
   // Thus, this component is a hack to force it to render properly.
 
-  render() {
-    const { hide, hideStatusBar, displaySettings, ...headerParams } = this.props
+  useDimensions()  // This forces a rerender whenever the dimensions change
 
-    const style = {}
+  const style = {}
 
-    if(hide) {
-      style.top = getToolbarHeight() * -1
-    }
+  if(hide) {
+    style.top = getToolbarHeight() * -1
+  }
 
-    return (
-      <View
+  return (
+    <View
+      style={[
+        !hide ? styles.container : null,
+        displaySettings.theme === 'high-contrast' ? styles.statusBarContrast : null,
+      ]}
+    >
+      {(!hideStatusBar && isIPhoneX) &&
+        <IPhoneXBuffer />
+      }
+      <StatusBar
+        backgroundColor={ANDROID_STATUS_BAR_COLOR}
+        barStyle={displaySettings.theme === 'low-light' ? 'default' : 'default'}
+        //backgroundColor and barStyle still do not seem to be working
+        translucent={true}
+        animated={!hideStatusBar}
+        hidden={hideStatusBar && !isIPhoneX}
+      />
+      <Header
+        {...headerParams}
         style={[
-          !hide ? styles.container : null,
-          displaySettings.theme === 'high-contrast' ? styles.statusBarContrast : null,
+          styles.header,
+          displaySettings.theme === 'high-contrast'
+            ? styles.headerContrast
+            : (
+              displaySettings.theme === 'low-light'
+                ? styles.headerLowLight
+                : null
+            ),
+          (hideStatusBar ? styles.noStatusBarSpace : null),
+          style,
         ]}
       >
-        {(!hideStatusBar && isIPhoneX) &&
-          <IPhoneXBuffer />
-        }
-        <StatusBar
-          backgroundColor={ANDROID_STATUS_BAR_COLOR}
-          barStyle={displaySettings.theme === 'low-light' ? 'default' : 'default'}
-          //backgroundColor and barStyle still do not seem to be working
-          translucent={true}
-          animated={!hideStatusBar}
-          hidden={hideStatusBar && !isIPhoneX}
-        />
-        <Header
-          {...headerParams}
-          style={[
-            styles.header,
-            displaySettings.theme === 'high-contrast'
-              ? styles.headerContrast
-              : (
-                displaySettings.theme === 'low-light'
-                  ? styles.headerLowLight
-                  : null
-              ),
-            (hideStatusBar ? styles.noStatusBarSpace : null),
-            style,
-          ]}
-        >
-          {this.props.children}
-        </Header>
-      </View>
-    )
-  }
+        {children}
+      </Header>
+    </View>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({

@@ -9,7 +9,6 @@ import { i18n } from "inline-i18n"
 import { logEvent } from '../../utils/analytics'
 import { stripHebrew, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
-import { useDimensions } from 'react-native-hooks'
 
 import SearchResult from '../basic/SearchResult'
 import SearchSuggestions from '../basic/SearchSuggestions'
@@ -61,8 +60,6 @@ const Search = ({
 }) => {
 
   const { editOnOpen, searchString, versionId } = navigation.state.params
-
-  const { width } = useDimensions().window
 
   const [ searchState, setSearchState ] = useState({
     searchedString: null,
@@ -236,7 +233,6 @@ const Search = ({
         numberResults={numberResults}
         editedSearchString={editedSearchString}
         updateEditedSearchString={updateEditedSearchString}
-        width={width}  // By sending this as a prop, I force a rerender
       />
       {editing &&
         <VersionChooser

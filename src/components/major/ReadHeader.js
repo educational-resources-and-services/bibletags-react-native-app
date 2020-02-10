@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { StyleSheet, View, Platform, TouchableOpacity, I18nManager } from "react-native"
 import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
 import { bindActionCreators } from "redux"
@@ -7,6 +7,7 @@ import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 import { getPassageStr } from "bibletags-ui-helper"
+import { useDimensions } from 'react-native-hooks'
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -66,118 +67,120 @@ const styles = StyleSheet.create({
   },
 })
 
-class ReadHeader extends React.PureComponent {
+const ReadHeader = ({
+  navigation,
 
-  openDrawer = () => {
-    const { navigation } = this.props
+  toggleShowOptions,
+  showPassageChooser,
+  showingPassageChooser,
+  hideStatusBar,
+  
+  passage,
+  displaySettings,
+}) => {
 
-    debounce(navigation.openDrawer)
-  }
+  let { width } = useDimensions().window
+  width -= (leftIconsWidth + rightIconsWidth)
 
-  goSearch = () => {
-    const { navigation, passage } = this.props
+  const goSearch = useCallback(
+    () => {
+      debounce(
+        navigation.navigate,
+        "Search",
+        {
+          editOnOpen: true,
+          versionId: passage.versionId,
+        }
+      )
+    },
+    [ navigation, passage ],
+  )
 
-    debounce(
-      navigation.navigate,
-      "Search",
-      {
-        editOnOpen: true,
-        versionId: passage.versionId,
-      }
-    )
-  }
+  const versionsText = [
+    getVersionInfo(passage.versionId).abbr,
+    getVersionInfo(passage.parallelVersionId || null).abbr,
+  ]
+    .filter(val => val)
+    .join(i18n(", ", "list separator", {}))
+    .toUpperCase()
 
-  render() {
-    let { passage, toggleShowOptions, showPassageChooser, displaySettings,
-          showingPassageChooser, hideStatusBar, width } = this.props
+  return (
+    <AppHeader
+      hideStatusBar={hideStatusBar}
+    >
+      <Left>
+        <Button
+          transparent
+          onPressIn={navigation.openDrawer}
+        >
+          <HeaderIcon name="menu" />
+        </Button>
+      </Left>
+      <Body style={[
+        styles.body,
+        (
+          isPhoneSize()
+            ? {
+              width,
+              minWidth: width,
+              maxWidth: width,
+            }
+            : {}
+        ),
+      ]}>
+        <TouchableOpacity
+          onPressIn={showPassageChooser}
+        >
+          <View style={styles.titles}>
+            <Title 
+              style={[
+                styles.title,
+                displaySettings.theme === 'low-light' ? styles.lowLightTitle : null,
+              ]}
+            >
+              {getPassageStr({
+                refs: [
+                  passage.ref,
+                ],
+              })}
+            </Title>
+            <Subtitle
+              style={[
+                styles.subtitle,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                displaySettings.theme === 'low-light' ? styles.lowLight : null,
+              ]}
+            >
+              {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
+            </Subtitle>
+            <Icon
+              name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
+              style={[
+                styles.dropdownIcon,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                displaySettings.theme === 'low-light' ? styles.lowLight : null,
+              ]}
+            />
+          </View>
+        </TouchableOpacity>
+      </Body>
+      <Right>
+        <Button
+          transparent
+          onPressIn={goSearch}
+        >
+          <HeaderIcon name="search" />
+        </Button>
+        <Button
+          transparent
+          onPressIn={toggleShowOptions}
+        >
+          <HeaderIcon name="more" />
+        </Button>
+      </Right>
+    </AppHeader>
+  )
 
-    width -= (leftIconsWidth + rightIconsWidth)
-
-    const versionsText = [
-      getVersionInfo(passage.versionId).abbr,
-      getVersionInfo(passage.parallelVersionId || null).abbr,
-    ]
-      .filter(val => val)
-      .join(i18n(", ", "list separator", {}))
-      .toUpperCase()
-
-    return (
-      <AppHeader
-        hideStatusBar={hideStatusBar}
-      >
-        <Left>
-          <Button
-            transparent
-            onPressIn={this.openDrawer}
-          >
-            <HeaderIcon name="menu" />
-          </Button>
-        </Left>
-        <Body style={[
-          styles.body,
-          (
-            isPhoneSize()
-              ? {
-                width,
-                minWidth: width,
-                maxWidth: width,
-              }
-              : {}
-          ),
-        ]}>
-          <TouchableOpacity
-            onPressIn={showPassageChooser}
-          >
-            <View style={styles.titles}>
-              <Title 
-                style={[
-                  styles.title,
-                  displaySettings.theme === 'low-light' ? styles.lowLightTitle : null,
-                ]}
-              >
-                {getPassageStr({
-                  refs: [
-                    passage.ref,
-                  ],
-                })}
-              </Title>
-              <Subtitle
-                style={[
-                  styles.subtitle,
-                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
-                ]}
-              >
-                {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
-              </Subtitle>
-              <Icon
-                name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-                style={[
-                  styles.dropdownIcon,
-                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                  displaySettings.theme === 'low-light' ? styles.lowLight : null,
-                ]}
-              />
-            </View>
-          </TouchableOpacity>
-        </Body>
-        <Right>
-          <Button
-            transparent
-            onPressIn={this.goSearch}
-          >
-            <HeaderIcon name="search" />
-          </Button>
-          <Button
-            transparent
-            onPressIn={toggleShowOptions}
-          >
-            <HeaderIcon name="more" />
-          </Button>
-        </Right>
-      </AppHeader>
-    )
-  }
 }
 
 const mapStateToProps = ({ passage, displaySettings }) => ({
