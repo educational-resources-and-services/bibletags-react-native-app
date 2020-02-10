@@ -35,58 +35,58 @@ const styles = StyleSheet.create({
   },
 })
 
-class VersionInfo extends React.Component {
+const VersionInfo = ({
+  navigation,
 
-  render() {
-    const { navigation, displaySettings } = this.props
-    const { versionId } = navigation.state.params || {}
+  displaySettings,
+}) => {
 
-    const { theme } = displaySettings
+  const { versionId } = navigation.state.params || {}
+  const { theme } = displaySettings
+  const { name, copyright } = getVersionInfo(versionId)
 
-    const { name, copyright } = getVersionInfo(versionId)
-
-    return (
-      <Container style={displaySettings.theme === 'low-light' ? styles.lowLight: {}}>
-        <BasicHeader
-          navigation={navigation}
-          title={name}
-        />
-        <Content>
-          <Body
-            style={[
-              styles.body,
-              displaySettings.theme === 'low-light' ? styles.lowLight: null,
-            ]}
-          >
-            <View style={styles.view}>
-              {copyright.split(/\n/g).map((copyrightLine, idx) => (
-                <View
-                  key={idx}
-                  style={styles.copyrightLine}
+  return (
+    <Container style={theme === 'low-light' ? styles.lowLight: {}}>
+      <BasicHeader
+        navigation={navigation}
+        title={name}
+      />
+      <Content>
+        <Body
+          style={[
+            styles.body,
+            theme === 'low-light' ? styles.lowLight: null,
+          ]}
+        >
+          <View style={styles.view}>
+            {copyright.split(/\n/g).map((copyrightLine, idx) => (
+              <View
+                key={idx}
+                style={styles.copyrightLine}
+              >
+                <Text style={[
+                  styles.copyright,
+                  theme === 'low-light' ? styles.lowLight: null,
+                  (copyrightLine.replace(/[^א-ת]/g, '').length > copyrightLine.length/2) ? styles.copyrightRTL : null,
+                ]}
                 >
-                  <Text style={[
-                    styles.copyright,
-                    displaySettings.theme === 'low-light' ? styles.lowLight: null,
-                    (copyrightLine.replace(/[^א-ת]/g, '').length > copyrightLine.length/2) ? styles.copyrightRTL : null,
-                  ]}
-                  >
-                    {replaceWithJSX(copyrightLine, '<a href="([^"]+)">([^<]+)<\/a>', (x, href, linkText) => (
-                      <Text
-                        style={styles.link}
-                        onPress={() => Linking.openURL(href)}
-                      >
-                        {linkText}
-                      </Text>
-                    ))}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </Body>
-        </Content>
-      </Container>
-    )
-  }
+                  {replaceWithJSX(copyrightLine, '<a href="([^"]+)">([^<]+)<\/a>', (x, href, linkText) => (
+                    <Text
+                      style={styles.link}
+                      onPress={() => Linking.openURL(href)}
+                    >
+                      {linkText}
+                    </Text>
+                  ))}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </Body>
+      </Content>
+    </Container>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
