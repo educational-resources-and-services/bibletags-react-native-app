@@ -1,10 +1,10 @@
-import React from "react"
-import { StyleSheet, View, Dimensions, AppState, StatusBar,
-         TouchableWithoutFeedback } from "react-native"
+import React, { useState, useEffect, useCallback } from "react"
+import { StyleSheet, View, StatusBar, TouchableWithoutFeedback } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 
-import { unmountTimeouts, debounce, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
+import { debounce, isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
+import { useDimensions } from 'react-native-hooks'
 
 import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
@@ -29,128 +29,95 @@ const styles = StyleSheet.create({
   },
 })
 
-class Read extends React.Component {
+const Read = ({ navigation }) => {
 
-  state = {
-    showingDisplaySettings: false,
-    showingPassageChooser: false,
-    translateYAnimation: 0,
-    currentAppState: 'active',
-  }
+  const [ showingDisplaySettings, setShowingDisplaySettings ] = useState(false)
+  const [ showingPassageChooser, setShowingPassageChooser ] = useState(false)
 
-  componentDidMount() {
-    AppState.addEventListener('change', this.handleAppStateChange)
-    activateKeepAwake()
-  }
+  const { width, height } = useDimensions().window
 
-  componentWillUnmount = () => {
-    AppState.removeEventListener('change', this.handleAppStateChange)
-    unmountTimeouts.bind(this)()
-    deactivateKeepAwake()
-  }
+  useEffect(
+    () => {
+      activateKeepAwake()
+      return deactivateKeepAwake
+    },
+    [],
+  )
 
-  handleAppStateChange = currentAppState => {
-    this.setState({
-      currentAppState,
-    })
-  }
+  const toggleShowOptions = useCallback(
+    () => setShowingDisplaySettings(!showingDisplaySettings),
+    [ showingDisplaySettings ],
+  )
 
-  toggleShowOptions = () => {
-    const { showingDisplaySettings } = this.state
-
-    this.setState({ showingDisplaySettings: !showingDisplaySettings })
-  }
-
-  toggleShowPassageChooser = () => {
-    const { showingPassageChooser } = this.state
-
-    this.setState({ showingPassageChooser: !showingPassageChooser })
-  }
+  const hidePassageChooser = useCallback(() => setShowingPassageChooser(false), [])
+  const showPassageChooser = useCallback(() => setShowingPassageChooser(true), [])
   
-  hidePassageChooser = () => {
-    const { showingPassageChooser } = this.state
+  const hideDisplaySettings = useCallback(() => setShowingDisplaySettings(false), [])
 
-    if(showingPassageChooser) this.toggleShowPassageChooser()
-  }
-  
-  showPassageChooser = () => {
-    const { showingPassageChooser } = this.state
+  const goVersions = useCallback(
+    () => {
+      hidePassageChooser()
 
-    if(!showingPassageChooser) this.toggleShowPassageChooser()
-  }
-  
-  hideDisplaySettings = () => this.setState({ showingDisplaySettings: false })
+      debounce(
+        navigation.navigate,
+        "Versions",
+      )
+    },
+    [ navigation ],
+  )
 
-  goVersions = () => {
-    const { navigation } = this.props
+  const statusBarHeight = StatusBar.currentHeight || 0
+  const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
+  const hideStatusBar = showingPassageChooser
 
-    this.hidePassageChooser()
-
-    debounce(
-      navigation.navigate,
-      "Versions",
-    )
-  }
-
-  render() {
-
-    const { navigation } = this.props
-    const { showingDisplaySettings, showingPassageChooser, currentAppState } = this.state
-
-    const { width, height } = Dimensions.get('window')
-
-    const statusBarHeight = StatusBar.currentHeight || 0
-    const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
-    const hideStatusBar = showingPassageChooser
-
-    return (
-      <>
-        <View
-          style={styles.passageChooserContainer}
-        >
-          <IPhoneXBuffer extraSpace={true} />
-          <PassageChooser
-            hidePassageChooser={this.hidePassageChooser}
-            paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
-            showing={showingPassageChooser}
-            goVersions={this.goVersions}
+  return (
+    <>
+      <View
+        style={styles.passageChooserContainer}
+      >
+        <IPhoneXBuffer extraSpace={true} />
+        <PassageChooser
+          hidePassageChooser={hidePassageChooser}
+          paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
+          showing={showingPassageChooser}
+          goVersions={goVersions}
+        />
+      </View>
+      <RevealContainer
+        revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
+        immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
+      >
+        <ReadHeader
+          navigation={navigation}
+          toggleShowOptions={toggleShowOptions}
+          showPassageChooser={showPassageChooser}
+          showingPassageChooser={showingPassageChooser}
+          hideStatusBar={hideStatusBar}
+          width={width}  // By sending this as a prop, I force a rerender
+        />
+        {showingDisplaySettings &&
+          <DisplaySettings
+            hideDisplaySettings={hideDisplaySettings}
           />
-        </View>
-        <RevealContainer
-          revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-          immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
-        >
-          <ReadHeader
-            navigation={navigation}
-            toggleShowOptions={this.toggleShowOptions}
-            showPassageChooser={this.showPassageChooser}
-            showingPassageChooser={showingPassageChooser}
-            hideStatusBar={hideStatusBar}
-            width={width}  // By sending this as a prop, I force a rerender
-          />
-          {showingDisplaySettings &&
-            <DisplaySettings
-              hideDisplaySettings={this.hideDisplaySettings}
-            />
-          }
-          <ReadContent />
-          <RecentSection
-            navigation={navigation}
-          />
-          {!!showingPassageChooser &&
-            <TouchableWithoutFeedback
+        }
+        <ReadContent />
+        <RecentSection
+          navigation={navigation}
+        />
+        {!!showingPassageChooser &&
+          <TouchableWithoutFeedback
+            style={styles.invisibleCover}
+            onPressIn={hidePassageChooser}
+          >
+            <View
               style={styles.invisibleCover}
-              onPressIn={this.hidePassageChooser}
-            >
-              <View
-                style={styles.invisibleCover}
-              />
-            </TouchableWithoutFeedback>
-          }
-        </RevealContainer>
-      </>
-    )
-  }
+            />
+          </TouchableWithoutFeedback>
+        }
+      </RevealContainer>
+    </>
+  )
+
 }
 
 export default Read
