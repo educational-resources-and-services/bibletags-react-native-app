@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
 
 const LanguageChooser = ({
   navigation,
+
   displaySettings,
 }) => {
 

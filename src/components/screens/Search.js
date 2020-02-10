@@ -1,5 +1,5 @@
-import React from "react"
-import { StyleSheet, View, Text, Dimensions, FlatList } from "react-native"
+import React, { useState, useEffect, useCallback, useRef } from "react"
+import { StyleSheet, View, Text, FlatList } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -9,10 +9,10 @@ import { i18n } from "inline-i18n"
 import { logEvent } from '../../utils/analytics'
 import { stripHebrew, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
+import { useDimensions } from 'react-native-hooks'
 
 import SearchResult from '../basic/SearchResult'
 import SearchSuggestions from '../basic/SearchSuggestions'
-import BackFunction from '../basic/BackFunction'
 import FullScreenSpin from '../basic/FullScreenSpin'
 import SearchHeader from '../major/SearchHeader'
 import VersionChooser from '../major/VersionChooser'
@@ -47,262 +47,240 @@ const styles = StyleSheet.create({
   },
 })
 
-class Search extends React.Component {
-
-  constructor(props) {
-    super(props)
-
-    const { navigation } = props
-    const { editOnOpen, searchString } = navigation.state.params
-
-    this.state = {
-      editing: !!editOnOpen,
-      searchedString: null,
-      searchedVersionId: null,
-      searchResults: null,
-      editedSearchString: searchString || "",
-      languageId: 'eng',
-      isOriginal: false,
-      versionAbbr: '',
-      selectedLoc: null,
-      selectTapY: 0,
-    }
-  }
-
-  // componentDidMount() {
-  //   AppState.addEventListener('change', this.handleAppStateChange)
-  // }
-
-  // componentWillUnmount = () => {
-  //   AppState.removeEventListener('change', this.handleAppStateChange)
-  //   unmountTimeouts.bind(this)()
-  // }
-
-  // handleAppStateChange = currentAppState => {
-  //   this.setState({
-  //     currentAppState,
-  //   })
-  // }
-
-
-  componentDidMount() {
-    this.performSearch()
-  }
-
-  componentDidUpdate() {
-    this.performSearch()
-  }
-
-  performSearch = async () => {
-    const { navigation, passage, recordSearch } = this.props
-    const { searchedString, searchedVersionId } = this.state
-    const { searchString, versionId } = navigation.state.params
-
-    if(!searchString) return
-    if(searchString === searchedString && versionId === searchedVersionId) return
-
-    // analytics
-    const eventName = `Search`
-    const properties = {
-      SearchString: searchString,
-      VersionId: versionId,
-    }
-    logEvent({ eventName, properties })
-
-    const limit = `LIMIT ${MAX_RESULTS}`
-    const order = `ORDER BY bookOrdering, loc`
-
-    const { rows: { _array: verses } } = await executeSql({
-      versionId,
-      statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} ${limit}`,
-      args: [
-        `% ${escapeLike(searchString)} %`,
-      ],
-      removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-      removeWordPartDivisions: true,
-    })
-
-    const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
-
-    const searchResults = verses.map(({ usfm, loc }) => ({
-      loc,
-      pieces: getPiecesFromUSFM({
-        usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
-        inlineMarkersOnly: true,
-        wordDividerRegex,
-      }),
-    }))
-
-    this.setState({
-      searchedString: searchString,
-      searchedVersionId: versionId,
-      searchResults,
-      languageId,
-      isOriginal,
-      versionAbbr: abbr,
-    })
-
-    if(searchResults.length > 0) {
-      recordSearch({
-        searchString,
-        versionId,
-        numberResults: searchResults.length,
-      })
-    }
-  }
-
-  setEditing = editing => this.setState({ editing })
-
-  updateVersion = versionId => {
-    const { navigation } = this.props
-
-    debounce(
-      navigation.setParams,
-      {
-        ...navigation.state.params,
-        versionId,
-      },
-    )
-  }
-
-  goVersions = () => {
-    const { navigation } = this.props
-
-    debounce(
-      navigation.navigate,
-      "Versions",
-    )
-  }
-
-  clearSelection = () => {
-    this.setState({
-      selectedLoc: null,
-      selectTapY: 0,
-    })
-  }
-
-  onTouchStart = () => {
-    const { selectedLoc } = this.state
-
-    if(selectedLoc) {
-      this.clearSelection()
-      this.skipVerseTap = true
-    }
-  }
-
-  onTouchEnd = () => delete this.skipVerseTap
-
-  selectLoc = ({ loc, pageY }) => {
-    if(this.skipVerseTap) return
-
-    this.setState({
-      selectedLoc: loc,
-      selectTapY: pageY,
-    })
-  }
-
-  updateEditedSearchString = searchString => {
-    this.setState({
-      editedSearchString: stripHebrew(searchString),  // Needs to be modified to be version-specific
-    })
-  }
-
-  renderItem = ({ item, index }) => {
-    const { navigation } = this.props
-    const { searchedString, languageId, isOriginal,
-            versionAbbr, selectedLoc, selectTapY } = this.state
-
-    const selected = item.loc === selectedLoc
-
-    return (
-      <SearchResult
-        result={item}
-        searchString={searchedString}
-        languageId={languageId}
-        isOriginal={isOriginal}
-        versionAbbr={versionAbbr}
-        selected={selected}
-        selectTapY={selected ? selectTapY : null}
-        navigation={navigation}
-        onTouchStart={this.onTouchStart}
-        onTouchEnd={this.onTouchEnd}
-        onSelect={this.selectLoc}
-        unselect={this.clearSelection}
-      />
-    )
-  }
-
-  keyExtractor = item => item.loc
-
-  render() {
-
-    const { navigation, displaySettings } = this.props
-    const { editing, searchedString, searchedVersionId, searchResults,
-            selectedLoc, editedSearchString } = this.state
-
-    const { searchString, versionId } = navigation.state.params
-
-    const { width } = Dimensions.get('window')
-    const searchDone = searchString === searchedString && versionId === searchedVersionId
-
-    let numberResults = searchDone && searchResults.length
-    if(numberResults === MAX_RESULTS) numberResults += '+'
-
-    return (
-      <Container>
-        <SearchHeader
-          editing={editing}
-          navigation={navigation}
-          setEditing={this.setEditing}
-          numberResults={numberResults}
-          editedSearchString={editedSearchString}
-          updateEditedSearchString={this.updateEditedSearchString}
-          width={width}  // By sending this as a prop, I force a rerender
-        />
-        {editing &&
-          <VersionChooser
-            versionIds={ALL_VERSIONS}
-            update={this.updateVersion}
-            selectedVersionId={versionId}
-            backgroundColor={displaySettings.theme === 'low-light' ? 'rgba(64, 62, 62, 1)' : VERSION_CHOOSER_BACKGROUND_COLOR}
-            goVersions={this.goVersions}
-          />
-        }
-        <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : {}}>
-          {editing &&
-            <SearchSuggestions
-              editedSearchString={editedSearchString}
-              updateEditedSearchString={this.updateEditedSearchString}
-              setEditing={this.setEditing}
-              navigation={navigation}
-            />
-          }
-          {!editing && searchDone && searchResults.length === 0 &&
-            <View style={styles.messageContainer}>
-              <Text style={styles.message}>
-                {i18n("No results found.")}
-              </Text>
-            </View>
-          }
-          {!editing && searchDone && searchResults.length > 0 &&
-            <View style={styles.searchResults}>
-              <FlatList
-                data={searchResults}
-                renderItem={this.renderItem}
-                keyExtractor={this.keyExtractor}
-                extraData={selectedLoc}
-              />
-            </View>
-          }
-        </Content>
-        {!editing && !searchDone && <FullScreenSpin />}
-      </Container>
-    )
-  }
+const defaultTapState = {
+  selectedLoc: null,
+  selectTapY: 0,
 }
 
-const mapStateToProps = ({ passage, displaySettings }) => ({
-  passage,
+const Search = ({
+  navigation,
+
+  displaySettings,
+
+  recordSearch,
+}) => {
+
+  const { editOnOpen, searchString, versionId } = navigation.state.params
+
+  const { width } = useDimensions().window
+
+  const [ searchState, setSearchState ] = useState({
+    searchedString: null,
+    searchedVersionId: null,
+    searchResults: null,
+    languageId: 'eng',
+    isOriginal: false,
+    versionAbbr: '',
+  })
+
+  const [ tapState, setTapState ] = useState(defaultTapState)
+  const { selectedLoc, selectTapY } = tapState
+
+  const [ editing, setEditing ] = useState(!!editOnOpen)
+  const [ editedSearchString, setEditedSearchString ] = useState(searchString || "")
+
+  const skipVerseTap = useRef(false)
+
+  useEffect(
+    () => {
+      (async () => {
+
+        const { searchedString, searchedVersionId } = searchState
+
+        if(!searchString) return
+        if(searchString === searchedString && versionId === searchedVersionId) return
+
+        // analytics
+        const eventName = `Search`
+        const properties = {
+          SearchString: searchString,
+          VersionId: versionId,
+        }
+        logEvent({ eventName, properties })
+
+        const limit = `LIMIT ${MAX_RESULTS}`
+        const order = `ORDER BY bookOrdering, loc`
+
+        const { rows: { _array: verses } } = await executeSql({
+          versionId,
+          statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} ${limit}`,
+          args: [
+            `% ${escapeLike(searchString)} %`,
+          ],
+          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
+          removeWordPartDivisions: true,
+        })
+
+        const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
+
+        const searchResults = verses.map(({ usfm, loc }) => ({
+          loc,
+          pieces: getPiecesFromUSFM({
+            usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+            inlineMarkersOnly: true,
+            wordDividerRegex,
+          }),
+        }))
+
+        setSearchState({
+          searchedString: searchString,
+          searchedVersionId: versionId,
+          searchResults,
+          languageId,
+          isOriginal,
+          versionAbbr: abbr,
+        })
+
+        if(searchResults.length > 0) {
+          recordSearch({
+            searchString,
+            versionId,
+            numberResults: searchResults.length,
+          })
+        }
+
+      })()
+    }
+  )
+
+  const updateVersion = useCallback(
+    versionId => {
+      debounce(
+        navigation.setParams,
+        {
+          ...navigation.state.params,
+          versionId,
+        },
+      )
+    },
+    [ navigation ],
+  )
+
+  const goVersions = useCallback(
+    () => {
+      debounce(
+        navigation.navigate,
+        "Versions",
+      )
+    },
+    [ navigation ],
+  )
+
+
+  const updateEditedSearchString = useCallback(
+    searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific
+    [],
+  )
+
+  const renderItem = useCallback(
+    ({ item, index }) => {
+      const { searchedString, languageId, isOriginal, versionAbbr } = searchState
+
+      const selected = item.loc === selectedLoc
+
+      const clearSelection = () => setTapState(defaultTapState)
+
+      const onTouchStart = () => {
+        if(selectedLoc) {
+          clearSelection()
+          skipVerseTap.current = true
+        }
+      }
+    
+      const onTouchEnd = () => skipVerseTap.current = false
+    
+      const selectLoc = ({ loc, pageY }) => {
+        if(skipVerseTap.current) return
+  
+        setTapState({
+          selectedLoc: loc,
+          selectTapY: pageY,
+        })
+      }
+
+      return (
+        <SearchResult
+          result={item}
+          searchString={searchedString}
+          languageId={languageId}
+          isOriginal={isOriginal}
+          versionAbbr={versionAbbr}
+          selected={selected}
+          selectTapY={selected ? selectTapY : null}
+          navigation={navigation}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+          onSelect={selectLoc}
+          unselect={clearSelection}
+        />
+      )
+    },
+    [ navigation, searchState, selectedLoc, selectTapY ],
+  )
+
+  const keyExtractor = useCallback(item => item.loc, [])
+
+  const { searchedString, searchedVersionId, searchResults } = searchState
+
+  const searchDone = searchString === searchedString && versionId === searchedVersionId
+
+  let numberResults = searchDone && searchResults.length
+  if(numberResults === MAX_RESULTS) numberResults += '+'
+
+  return (
+    <Container>
+      <SearchHeader
+        editing={editing}
+        navigation={navigation}
+        setEditing={setEditing}
+        numberResults={numberResults}
+        editedSearchString={editedSearchString}
+        updateEditedSearchString={updateEditedSearchString}
+        width={width}  // By sending this as a prop, I force a rerender
+      />
+      {editing &&
+        <VersionChooser
+          versionIds={ALL_VERSIONS}
+          update={updateVersion}
+          selectedVersionId={versionId}
+          backgroundColor={displaySettings.theme === 'low-light' ? 'rgba(64, 62, 62, 1)' : VERSION_CHOOSER_BACKGROUND_COLOR}
+          goVersions={goVersions}
+        />
+      }
+      <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : {}}>
+        {editing &&
+          <SearchSuggestions
+            editedSearchString={editedSearchString}
+            updateEditedSearchString={updateEditedSearchString}
+            setEditing={setEditing}
+            navigation={navigation}
+          />
+        }
+        {!editing && searchDone && searchResults.length === 0 &&
+          <View style={styles.messageContainer}>
+            <Text style={styles.message}>
+              {i18n("No results found.")}
+            </Text>
+          </View>
+        }
+        {!editing && searchDone && searchResults.length > 0 &&
+          <View style={styles.searchResults}>
+            <FlatList
+              data={searchResults}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              extraData={selectedLoc}
+            />
+          </View>
+        }
+      </Content>
+      {!editing && !searchDone && <FullScreenSpin />}
+    </Container>
+  )
+
+}
+
+const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
 })
 
