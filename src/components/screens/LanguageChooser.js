@@ -28,41 +28,41 @@ const styles = StyleSheet.create({
   },
 })
 
-class LanguageChooser extends React.Component {
+const LanguageChooser = ({
+  navigation,
+  displaySettings,
+}) => {
 
-  render() {
-    const { navigation, displaySettings } = this.props
+  const { theme } = displaySettings
 
-    const { theme } = displaySettings
+  return (
+    <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
+      <BasicHeader
+        navigation={navigation}
+        title={i18n("Change app language")}
+      />
+      <Content>
+        <Body
+          style={[
+            styles.body,
+            (theme === 'low-light' ? styles.bodyLowLight : null),
+          ]}
+        >
+          <List style={styles.list}>
+            {languageOptions.map(({ locale, label }) => (
+              <LanguageItem
+                key={locale}
+                navigation={navigation}
+                locale={locale}
+                label={label}
+              />
+            ))}
+          </List>
+        </Body>
+      </Content>
+    </Container>
+  )
 
-    return (
-      <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
-        <BasicHeader
-          navigation={navigation}
-          title={i18n("Change app language")}
-        />
-        <Content>
-          <Body
-            style={[
-              styles.body,
-              (theme === 'low-light' ? styles.bodyLowLight : null),
-            ]}
-          >
-            <List style={styles.list}>
-              {languageOptions.map(({ locale, label }) => (
-                <LanguageItem
-                  key={locale}
-                  navigation={navigation}
-                  locale={locale}
-                  label={label}
-                />
-              ))}
-            </List>
-          </Body>
-        </Content>
-      </Container>
-    )
-  }
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
