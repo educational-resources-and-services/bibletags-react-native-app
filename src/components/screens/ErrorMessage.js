@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { Updates } from "expo"
 import { StyleSheet, View } from "react-native"
 import { Container, Content, Body, Text } from "native-base"

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { StyleSheet, Platform } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
 
@@ -14,37 +14,34 @@ const styles = StyleSheet.create({
   },
 })
 
-class ErrorMessageHeader extends React.PureComponent {
+const ErrorMessageHeader = React.memo(({ navigation }) => {
 
-  onBackPress = () => {
-    const { navigation } = this.props
-    
-    navigation.goBack()
-  }
+  const onBackPress = useCallback(
+    () => navigation.goBack(),
+    [ navigation ],
+  )
 
-  render() {
-    const { navigation } = this.props
-    const { title, critical } = navigation.state.params || {}
-    
-    return (
-      <AppHeader>
-        <Left>
-          {!critical &&
-            <Button
-              transparent
-              onPress={this.onBackPress}
-            >
-              <HeaderIcon name="arrow-back" />
-            </Button>
-          }
-        </Left>
-        <Body>
-          <Title style={styles.title}>{title || i18n("Error")}</Title>
-        </Body>
-        <Right />
-      </AppHeader>
-    )
-  }
-}
+  const { title, critical } = navigation.state.params || {}
+  
+  return (
+    <AppHeader>
+      <Left>
+        {!critical &&
+          <Button
+            transparent
+            onPress={onBackPress}
+          >
+            <HeaderIcon name="arrow-back" />
+          </Button>
+        }
+      </Left>
+      <Body>
+        <Title style={styles.title}>{title || i18n("Error")}</Title>
+      </Body>
+      <Right />
+    </AppHeader>
+  )
+
+})
 
 export default ErrorMessageHeader
