@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { StyleSheet, Dimensions, Platform, I18nManager } from "react-native"
@@ -16,46 +16,47 @@ const styles = StyleSheet.create({
   },
 })
 
-class BasicHeader extends React.PureComponent {
+const BasicHeader = React.memo(({
+  navigation,
+  title,
 
-  onBackPress = () => {
-    const { navigation } = this.props
-    
-    navigation.goBack()
-  }
+  displaySettings,
+}) => {
 
-  render() {
-    const { title, displaySettings } = this.props
+  const onBackPress = useCallback(
+    () => navigation.goBack(),
+    [ navigation ],
+  )
 
-    const { theme } = displaySettings
+  const { theme } = displaySettings
 
-    const { width } = Dimensions.get('window')
-    const maxTitleWidth = width - 120
+  const { width } = Dimensions.get('window')
+  const maxTitleWidth = width - 120
 
-    return (
-      <AppHeader>
-        <Left>
-          <Button
-            transparent
-            onPress={this.onBackPress}
-          >
-            <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
-          </Button>
-        </Left>
-        <Body>
-          <Title style={[
-            styles.title,
-            { width: maxTitleWidth },
-            displaySettings.theme === 'low-light' ? styles.lowLight: null,
-          ]}>
-            {title}
-          </Title>
-        </Body>
-        <Right />
-      </AppHeader>
-    )
-  }
-}
+  return (
+    <AppHeader>
+      <Left>
+        <Button
+          transparent
+          onPress={onBackPress}
+        >
+          <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
+        </Button>
+      </Left>
+      <Body>
+        <Title style={[
+          styles.title,
+          { width: maxTitleWidth },
+          theme === 'low-light' ? styles.lowLight: null,
+        ]}>
+          {title}
+        </Title>
+      </Body>
+      <Right />
+    </AppHeader>
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
