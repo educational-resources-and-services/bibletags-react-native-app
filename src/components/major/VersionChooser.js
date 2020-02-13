@@ -7,8 +7,6 @@ import { connect } from "react-redux"
 
 import ChooserVersion from "../basic/ChooserVersion"
 
-import { setMode } from "../../redux/actions.js"
-
 const {
   CHOOSER_SELECTED_BACKGROUND_COLOR,
 } = Constants.manifest.extra
@@ -39,59 +37,65 @@ const styles = StyleSheet.create({
   },
 })
 
-class VersionChooser extends React.PureComponent {
+const VersionChooser = React.memo(({
+  versionIds,
+  selectedVersionId,
+  backgroundColor,
+  update,
+  goVersions,
+  closeParallelMode,
 
-  render() {
-    const { versionIds, selectedVersionId, backgroundColor, update, goVersions, closeParallelMode, displaySettings } = this.props
+  displaySettings,
+}) => {
 
-    return (
-      <ScrollView
-        horizontal={true}
-        style={[
-          styles.container,
-          { backgroundColor },
-        ]}
-        contentContainerStyle={styles.contentContainer}
-        keyboardShouldPersistTaps="always"
-      >
-        <View style={styles.content}>
-          {versionIds.map(versionId => {
-            const showCloseIcon = versionId === selectedVersionId && closeParallelMode
+  return (
+    <ScrollView
+      horizontal={true}
+      style={[
+        styles.container,
+        { backgroundColor },
+      ]}
+      contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="always"
+    >
+      <View style={styles.content}>
+        {versionIds.map(versionId => {
+          const showCloseIcon = versionId === selectedVersionId && closeParallelMode
 
-            return (
-              <ChooserVersion
-                key={versionId}
-                versionId={versionId}
-                selected={versionId === selectedVersionId}
-                onPress={showCloseIcon ? closeParallelMode : update}
-                showCloseIcon={showCloseIcon}
-              />
-            )
-          })}
-          <Button
-            transparent
-            onPress={goVersions}
-          >
-            <Icon
-              name="information-circle-outline"
-              style={[
-                styles.info,
-                displaySettings.theme === 'low-light' ? styles.lowLight : null,
-              ]}
+          return (
+            <ChooserVersion
+              key={versionId}
+              versionId={versionId}
+              selected={versionId === selectedVersionId}
+              onPress={showCloseIcon ? closeParallelMode : update}
+              showCloseIcon={showCloseIcon}
             />
-          </Button>
-        </View>
-      </ScrollView>
-    )
-  }
-}
+          )
+        })}
+        <Button
+          transparent
+          onPress={goVersions}
+        >
+          <Icon
+            name="information-circle-outline"
+            style={[
+              styles.info,
+              displaySettings.theme === 'low-light' ? styles.lowLight : null,
+            ]}
+          />
+        </Button>
+      </View>
+    </ScrollView>
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
-  setMode,
+  // setMode,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(VersionChooser)
