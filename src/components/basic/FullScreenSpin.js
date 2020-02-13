@@ -19,28 +19,26 @@ const styles = StyleSheet.create({
   },
 })
 
-class FullScreenSpin extends React.PureComponent {
-  render() {
-    const { style, text, percentage } = this.props
-
-    return (
-      <View style={[
-        styles.spinnerContainer,
-        style,
-      ]}>
-        <View style={styles.spacer} />
-        {!!text &&
-          <View style={styles.textContainer}>
-            <Text>{text}</Text>
-          </View>
-        }
-        <Spin
-          percentage={percentage}
-        />
-        <View style={styles.spacer} />
+const FullScreenSpin = React.memo(({
+  style,
+  text,
+  percentage,
+}) => (
+  <View style={[
+    styles.spinnerContainer,
+    style,
+  ]}>
+    <View style={styles.spacer} />
+    {!!text &&
+      <View style={styles.textContainer}>
+        <Text>{text}</Text>
       </View>
-    )
-  }
-}
+    }
+    <Spin
+      percentage={percentage}
+    />
+    <View style={styles.spacer} />
+  </View>
+))
 
 export default FullScreenSpin
