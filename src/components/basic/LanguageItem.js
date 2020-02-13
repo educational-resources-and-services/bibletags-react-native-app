@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { Updates } from "expo"
 import Constants from "expo-constants"
@@ -45,46 +45,50 @@ const styles = StyleSheet.create({
   },
 })
 
-class LanguageItem extends React.PureComponent {
+const LanguageItem = ({
+  navigation,
+  locale,
+  label,
 
-  goChangeLanguage = async event => {
-    const { locale, navigation } = this.props
+  displaySettings,
+}) => {
 
-    navigation.goBack()
+  const goChangeLanguage = useCallback(
+    async event => {
+      navigation.goBack()
 
-    if(getLocale() !== locale) {
-      await AsyncStorage.setItem(`uiLocale`, locale)
-      await AsyncStorage.removeItem(`fixedRTL`)
-      await fixRTL(locale)
-      Updates.reloadFromCache()
-    }
-  }
+      if(getLocale() !== locale) {
+        await AsyncStorage.setItem(`uiLocale`, locale)
+        await AsyncStorage.removeItem(`fixedRTL`)
+        await fixRTL(locale)
+        Updates.reloadFromCache()
+      }
+    },
+    [ locale, navigation ],
+  )
 
-  render() {
-    const { label, locale, displaySettings } = this.props
+  const selected = getLocale() === locale
 
-    const selected = getLocale() === locale
+  return (
+    <ListItem
+      button={true}
+      onPress={goChangeLanguage}
+      style={styles.listItem}
+    >
+      <Body>
+        <Text
+          style={[
+            styles.versionName,
+            displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+            selected ? styles.selected : null,
+          ]}
+        >
+          {label}
+        </Text> 
+      </Body>
+    </ListItem>
+  )
 
-    return (
-      <ListItem
-        button={true}
-        onPress={this.goChangeLanguage}
-        style={styles.listItem}
-      >
-        <Body>
-          <Text
-            style={[
-              styles.versionName,
-              displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
-              selected ? styles.selected : null,
-            ]}
-          >
-            {label}
-          </Text> 
-        </Body>
-      </ListItem>
-    )
-  }
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
