@@ -38,79 +38,84 @@ const styles = StyleSheet.create({
   },
 })
 
-class RecentSection extends React.PureComponent {
+const RecentSection = React.memo(({
+  navigation,
 
-  render() {
-    const { passage, history, recentPassages, recentSearches, navigation, displaySettings } = this.props
+  passage,
+  history,
+  recentPassages,
+  recentSearches,
+  displaySettings,
+}) => {
 
-    const { theme } = displaySettings
+  const { theme } = displaySettings
 
-    if(recentPassages.length + recentSearches.length === 1) return null
+  if(recentPassages.length + recentSearches.length === 1) return null
 
-    const numFaderLines = 15
+  const numFaderLines = 15
 
-    return (
+  return (
+    <View
+      style={[
+        styles.container,
+      ]}
+    >
+      {Array(numFaderLines).fill(0).map((x, idx) => (
+        <View
+          key={idx}
+          style={[
+            styles.faderLine,
+            (theme === 'low-light' ? styles.faderLineLowLight : null),
+            {
+              opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
+            },
+          ]}
+        />
+      ))}
       <View
         style={[
-          styles.container,
+          styles.main,
+          (theme === 'low-light' ? styles.mainLowLight : null),
         ]}
       >
-        {Array(numFaderLines).fill(0).map((x, idx) => (
-          <View
-            key={idx}
-            style={[
-              styles.faderLine,
-              (theme === 'low-light' ? styles.faderLineLowLight : null),
-              {
-                opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
-              },
-            ]}
-          />
-        ))}
-        <View
-          style={[
-            styles.main,
-            (theme === 'low-light' ? styles.mainLowLight : null),
-          ]}
-        >
-          <View style={styles.refs}>
-            {recentPassages.map(historyIndex => {
-              const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
+        <View style={styles.refs}>
+          {recentPassages.map(historyIndex => {
+            const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
 
-              if(!passageRef) return null  // just in case
+            if(!passageRef) return null  // just in case
 
-              return (
-                <RecentRef
-                  key={`${passageRef.bookId} ${passageRef.chapter}`}
-                  passageRef={passageRef}
-                  selected={historyIndex === 'current'}
-                />
-              )
-            })}
-          </View>
-          <View style={styles.searches}>
-            {recentSearches.map(historyIndex => {
-              const recentSearch = history[historyIndex]
+            return (
+              <RecentRef
+                key={`${passageRef.bookId} ${passageRef.chapter}`}
+                passageRef={passageRef}
+                selected={historyIndex === 'current'}
+              />
+            )
+          })}
+        </View>
+        <View style={styles.searches}>
+          {recentSearches.map(historyIndex => {
+            const recentSearch = history[historyIndex]
 
-              if(!recentSearch) return null  // just in case
+            if(!recentSearch) return null  // just in case
 
-              const { searchString, versionId } = recentSearch
+            const { searchString, versionId } = recentSearch
 
-              return (
-                <RecentSearch
-                  key={`${searchString} ${versionId}`}
-                  searchString={searchString}
-                  versionId={versionId}
-                  navigation={navigation}
-                />
-              )
-            })}
-          </View>
+            return (
+              <RecentSearch
+                key={`${searchString} ${versionId}`}
+                searchString={searchString}
+                versionId={versionId}
+                navigation={navigation}
+              />
+            )
+          })}
         </View>
       </View>
-    )
-  }
-}
+    </View>
+  )
+
+})
 
 const mapStateToProps = ({ passage, history, recentPassages, recentSearches, displaySettings }) => ({
   passage,
