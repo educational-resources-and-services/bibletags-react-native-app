@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ChooserBook = ({
+const ChooserBook = React.memo(({
   bookId,
   selected,
   onPress,
@@ -80,7 +80,7 @@ const ChooserBook = ({
     </TouchableHighlight>
   )
 
-}
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,

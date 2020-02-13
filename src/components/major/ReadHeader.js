@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ReadHeader = ({
+const ReadHeader = React.memo(({
   navigation,
 
   toggleShowOptions,
@@ -181,7 +181,7 @@ const ReadHeader = ({
     </AppHeader>
   )
 
-}
+})
 
 const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,

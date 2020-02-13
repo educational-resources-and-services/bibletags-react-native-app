@@ -76,7 +76,7 @@ const themeOptions = [
   },
 ]
 
-const DisplaySettings = ({
+const DisplaySettings = React.memo(({
   hideDisplaySettings,
 
   displaySettings,
@@ -234,7 +234,7 @@ const DisplaySettings = ({
     </>
   )
 
-}
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,

@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ChooserVersion = ({
+const ChooserVersion = React.memo(({
   versionId,
   onPress,
   selected,
@@ -101,7 +101,7 @@ const ChooserVersion = ({
     </TouchableHighlight>
   )
 
-}
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,

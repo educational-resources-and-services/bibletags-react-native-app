@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const DrawerItem = ({
+const DrawerItem = React.memo(({
   navigation,
   type,
   href,
@@ -126,6 +126,6 @@ const DrawerItem = ({
     </ListItem>
   )
 
-}
+})
 
 export default DrawerItem
