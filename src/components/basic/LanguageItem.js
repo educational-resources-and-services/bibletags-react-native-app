@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const LanguageItem = ({
+const LanguageItem = React.memo(({
   navigation,
   locale,
   label,
@@ -89,7 +89,7 @@ const LanguageItem = ({
     </ListItem>
   )
 
-}
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
