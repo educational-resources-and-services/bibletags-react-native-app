@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
@@ -39,45 +39,47 @@ const styles = StyleSheet.create({
   },
 })
 
-class ChooserBook extends React.PureComponent {
+const ChooserBook = ({
+  bookId,
+  selected,
+  onPress,
 
-  onPress = () => {
-    const { onPress, bookId } = this.props
+  displaySettings,
+}) => {
 
-    onPress(bookId)
-  }
+  const goPress = useCallback(
+    () => onPress(bookId),
+    [ onPress, bookId ],
+  )
 
-  render() {
-    const { bookId, selected, displaySettings } = this.props
-
-    return (
-      <TouchableHighlight
-        underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
-        onPress={this.onPress}
+  return (
+    <TouchableHighlight
+      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      onPress={goPress}
+      style={[
+        styles.book,
+        (selected 
+          ?
+            (displaySettings.theme === 'low-light' ? styles.bookSelectedLowLight : styles.bookSelected)
+          :
+            null
+        ),
+      ]}
+    >
+      <Text
         style={[
-          styles.book,
-          (selected 
+          styles.bookText,
+          (displaySettings.theme === 'low-light' 
             ?
-              (displaySettings.theme === 'low-light' ? styles.bookSelectedLowLight : styles.bookSelected)
+              (selected ? styles.bookTextSelectedLowLight : styles.bookTextLowLight)
             :
-              null
+              (selected ? styles.bookTextSelected : null)
           ),
         ]}
-      >
-        <Text
-          style={[
-            styles.bookText,
-            (displaySettings.theme === 'low-light' 
-              ?
-                (selected ? styles.bookTextSelectedLowLight : styles.bookTextLowLight)
-              :
-                (selected ? styles.bookTextSelected : null)
-            ),
-          ]}
-        >{getBibleBookName(bookId)}</Text>
-      </TouchableHighlight>
-    )
-  }
+      >{getBibleBookName(bookId)}</Text>
+    </TouchableHighlight>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
