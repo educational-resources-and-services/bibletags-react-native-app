@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { Icon } from "native-base"
 import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
@@ -48,56 +48,59 @@ const styles = StyleSheet.create({
   },
 })
 
-class ChooserVersion extends React.PureComponent {
+const ChooserVersion = ({
+  versionId,
+  onPress,
+  selected,
+  showCloseIcon,
 
-  onPress = () => {
-    const { onPress, versionId } = this.props
+  displaySettings,
+}) => {
 
-    onPress(versionId)
-  }
+  const goPress = useCallback(
+    () => onPress(versionId),
+    [ onPress, versionId ],
+  )
 
-  render() {
-    const { versionId, selected, showCloseIcon, displaySettings } = this.props
-
-    return (
-      <TouchableHighlight
-        underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
-        onPress={this.onPress}
-        style={[
-          styles.version,
-          (displaySettings.theme === 'low-light'
-            ?
-              (selected ? styles.versionSelectedLowLight : null)
-            :
-              (selected ? styles.versionSelected : null)
-          ),
-        ]}
-      >
-        <View style={styles.versionTextContainer}>
-          <Text
+  return (
+    <TouchableHighlight
+      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      onPress={goPress}
+      style={[
+        styles.version,
+        (displaySettings.theme === 'low-light'
+          ?
+            (selected ? styles.versionSelectedLowLight : null)
+          :
+            (selected ? styles.versionSelected : null)
+        ),
+      ]}
+    >
+      <View style={styles.versionTextContainer}>
+        <Text
+          style={[
+            styles.versionText,
+            (displaySettings.theme === 'low-light'
+              ?
+                (selected ? styles.versionTextSelectedLowLight : styles.versionTextLowLight)
+              :
+                (selected ? styles.versionTextSelected : null)
+            ),
+          ]}
+        >{getVersionInfo(versionId).abbr}</Text>
+        {!!showCloseIcon &&
+          <Icon
+            name="md-close"
             style={[
-              styles.versionText,
-              (displaySettings.theme === 'low-light'
-                ?
-                  (selected ? styles.versionTextSelectedLowLight : styles.versionTextLowLight)
-                :
-                  (selected ? styles.versionTextSelected : null)
-              ),
+              styles.closeIcon,
+              displaySettings.theme === 'high-contrast' ? styles.contrast : null,
             ]}
-          >{getVersionInfo(versionId).abbr}</Text>
-          {!!showCloseIcon &&
-            <Icon
-              name="md-close"
-              style={[
-                styles.closeIcon,
-                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-              ]}
-            />
-          }
-        </View>
-      </TouchableHighlight>
-    )
-  }
+          />
+        }
+      </View>
+    </TouchableHighlight>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
