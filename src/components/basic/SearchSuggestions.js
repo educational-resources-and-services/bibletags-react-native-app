@@ -13,52 +13,57 @@ const MAX_SEARCH_RESULTS = 15
 
 const getSearchKey = ({ searchString, versionId }) => `${versionId}:${searchString}`
 
-class SearchSuggestions extends React.PureComponent {
+const SearchSuggestions = React.memo(({
+  navigation,
+  editedSearchString,
+  setEditing,
+  updateEditedSearchString,
 
-  render() {
-    const { history, editedSearchString, setEditing, updateEditedSearchString, navigation } = this.props
-    const { searchString="" } = navigation.state.params
+  history,
+}) => {
 
-    const searchKeys = []
-    let searchHistory = history.filter(search => {
-      if(search.type !== 'search') return false
-      
-      const searchKey = getSearchKey(search)
+  const { searchString="" } = navigation.state.params
 
-      if(searchKeys.includes(searchKey)) {
-        return false
-      } else {
-        searchKeys.push(searchKey)
-        return true
-      }
-    })
+  const searchKeys = []
+  let searchHistory = history.filter(search => {
+    if(search.type !== 'search') return false
+    
+    const searchKey = getSearchKey(search)
 
-    const normalizedEditedSearchString = editedSearchString.toLowerCase().trim()
-    if(normalizedEditedSearchString && searchString !== normalizedEditedSearchString) {
-      const editedSearchStringWords = normalizedEditedSearchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
-      searchHistory = searchHistory.filter(({ searchString }) => {
-        const searchStringWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
-        return editedSearchStringWords.every(word => searchStringWords.some(w => w.indexOf(word) === 0))
-      })
+    if(searchKeys.includes(searchKey)) {
+      return false
+    } else {
+      searchKeys.push(searchKey)
+      return true
     }
+  })
 
-    searchHistory = searchHistory.slice(0, MAX_SEARCH_RESULTS)
-
-    return (
-      <List>
-        {searchHistory.map(search => (
-          <SearchSuggestion
-            key={getSearchKey(search)}
-            navigation={navigation}
-            setEditing={setEditing}
-            updateEditedSearchString={updateEditedSearchString}
-            {...search}
-          />
-        ))}
-      </List>
-    )
+  const normalizedEditedSearchString = editedSearchString.toLowerCase().trim()
+  if(normalizedEditedSearchString && searchString !== normalizedEditedSearchString) {
+    const editedSearchStringWords = normalizedEditedSearchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
+    searchHistory = searchHistory.filter(({ searchString }) => {
+      const searchStringWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
+      return editedSearchStringWords.every(word => searchStringWords.some(w => w.indexOf(word) === 0))
+    })
   }
-}
+
+  searchHistory = searchHistory.slice(0, MAX_SEARCH_RESULTS)
+
+  return (
+    <List>
+      {searchHistory.map(search => (
+        <SearchSuggestion
+          key={getSearchKey(search)}
+          navigation={navigation}
+          setEditing={setEditing}
+          updateEditedSearchString={updateEditedSearchString}
+          {...search}
+        />
+      ))}
+    </List>
+  )
+
+})
 
 const mapStateToProps = ({ history }) => ({
   history,
