@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
@@ -29,69 +29,75 @@ const styles = StyleSheet.create({
   },
 })
 
-class RecentRef extends React.PureComponent {
+const RecentRef = React.memo(({
+  passageRef,
+  selected,
 
-  discard = () => {
-    const { passageRef: ref, selected, history, recentPassages,
-            setRef, removeRecentPassage } = this.props
+  history,
+  recentPassages,
+  displaySettings,
 
-    if(selected) {
+  setRef,
+  removeRecentPassage,
+}) => {
 
-      let ref = {
-        bookId: 1,
-        chapter: 1,
-        scrollY: 0,
-      }
+  const discard = useCallback(
+    () => {
+      if(selected) {
 
-      if(recentPassages.length > 1) {
-        history.some((passage, index) => {
-          if(recentPassages.includes(index)) {
-            ref = passage.ref
-            return true
-          }
-        })
-      }
-
-      setRef({ ref })
-    }
-
-    removeRecentPassage({ ref })
-
-  }
-
-  select = () => {
-    const { passageRef: ref, setRef } = this.props
-
-    setRef({ ref })
-  }
-
-  render() {
-    const { passageRef, selected, displaySettings } = this.props
-
-    const { theme } = displaySettings
-
-    const text = getPassageStr({
-      refs: [ passageRef ],
-      abbreviated: true,
-    })
-
-    return (
-      <RecentBookmark
-        selected={selected}
-        text={text}
-        style={
-          theme === 'low-light' 
-            ?
-              (selected ? styles.recentRefSelectedLowLight : styles.recentRefLowLight)
-            : 
-              (selected ? styles.recentRefSelected : styles.recentRef)
+        let ref = {
+          bookId: 1,
+          chapter: 1,
+          scrollY: 0,
         }
-        discard={this.discard}
-        select={this.select}
-      />
-    )
-  }
-}
+
+        if(recentPassages.length > 1) {
+          history.some((passage, index) => {
+            if(recentPassages.includes(index)) {
+              ref = passage.ref
+              return true
+            }
+          })
+        }
+
+        setRef({ ref })
+      }
+
+      removeRecentPassage({ ref: passageRef })
+
+    },
+    [ passageRef, selected, history, recentPassages ],
+  )
+
+  const select = useCallback(
+    () => setRef({ ref: passageRef }),
+    [ passageRef ],
+  )
+
+  const { theme } = displaySettings
+
+  const text = getPassageStr({
+    refs: [ passageRef ],
+    abbreviated: true,
+  })
+
+  return (
+    <RecentBookmark
+      selected={selected}
+      text={text}
+      style={
+        theme === 'low-light' 
+          ?
+            (selected ? styles.recentRefSelectedLowLight : styles.recentRefLowLight)
+          : 
+            (selected ? styles.recentRefSelected : styles.recentRef)
+      }
+      discard={discard}
+      select={select}
+    />
+  )
+
+})
 
 const mapStateToProps = ({ history, recentPassages, displaySettings }) => ({
   history,

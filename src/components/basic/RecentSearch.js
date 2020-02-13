@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
@@ -22,49 +22,54 @@ const styles = StyleSheet.create({
   },
 })
 
-class RecentSearch extends React.PureComponent {
+const RecentSearch = React.memo(({
+  navigation,
+  searchString,
+  versionId,
 
-  discard = () => {
-    const { searchString, removeRecentSearch } = this.props
+  displaySettings,
 
-    removeRecentSearch({ searchString })
-  }
+  removeRecentSearch,
+}) => {
 
-  select = () => {
-    const { navigation, searchString, versionId } = this.props
+  const discard = useCallback(
+    () => removeRecentSearch({ searchString }),
+    [ searchString ],
+  )
 
-    debounce(
-      navigation.navigate,
-      "Search",
-      {
-        editOnOpen: false,
-        searchString,
-        versionId,
-      }
-    )
-  }
-
-  render() {
-    const { searchString, displaySettings } = this.props
-
-    const { theme } = displaySettings
-
-    return (
-      <RecentBookmark
-        text={searchString}
-        style={
-          theme === 'low-light'
-            ?
-              styles.textBackgroundLowLight
-            :
-              styles.textBackground
+  const select = useCallback(
+    () => {
+      debounce(
+        navigation.navigate,
+        "Search",
+        {
+          editOnOpen: false,
+          searchString,
+          versionId,
         }
-        discard={this.discard}
-        select={this.select}
-      />
-    )
-  }
-}
+      )
+    },
+    [ navigation, searchString, versionId ],
+  )
+
+  const { theme } = displaySettings
+
+  return (
+    <RecentBookmark
+      text={searchString}
+      style={
+        theme === 'low-light'
+          ?
+            styles.textBackgroundLowLight
+          :
+            styles.textBackground
+      }
+      discard={discard}
+      select={select}
+    />
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
