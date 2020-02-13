@@ -1,14 +1,15 @@
-import React from "react"
+import React, { useCallback } from "react"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Image, StyleSheet, Linking, Dimensions, StatusBar, TouchableOpacity } from "react-native"
-import NetInfo from '@react-native-community/netinfo'
+import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity } from "react-native"
 import { Container, Content, Text, List, View } from "native-base"
 
 import { i18n } from "inline-i18n"
-import { isConnected } from "../../utils/toolbox.js"
 import menuItems from '../../../menu.js'
+import useNetwork from "../../hooks/useNetwork"
+import { useDimensions } from 'react-native-hooks'
+
 import DrawerItem from '../basic/DrawerItem'
 
 const {
@@ -54,96 +55,78 @@ const styles = StyleSheet.create({
   },
 })
 
-class Drawer extends React.Component {
+const Drawer = ({
+  navigation,
 
-  state = {
-    offline: false,
-  }
+  displaySettings,
+}) => {
 
-  componentDidMount() {
-    isConnected().then(this.setOfflineStatus)
-    NetInfo.addEventListener(this.setOfflineStatus)
-  }
+  const { online } = useNetwork()
+  const { height } = useDimensions().window
 
-  componentWillUnmount() {
-    NetInfo.removeEventListener(this.setOfflineStatus)
-  }
-
-  setOfflineStatus = connectionInfo => {
-    this.setState({ offline: connectionInfo.type === 'none' })
-  }
-
-  // goToRead = () => {
-  //   const { navigation } = this.props
-
-  //   debounce(navigation.navigate, "Read")
-  // }
-
-  goToBibleTagsMarketingSite = () => {
-    Linking.openURL("https://bibletags.org").catch(err => {
-      console.log('ERROR: Request to open URL failed.', err)
-      navigation.navigate("ErrorMessage", {
-        message: i18n("Your device is not allowing us to open this link."),
+  const goToBibleTagsMarketingSite = useCallback(
+    () => {
+      Linking.openURL("https://bibletags.org").catch(err => {
+        console.log('ERROR: Request to open URL failed.', err)
+        navigation.navigate("ErrorMessage", {
+          message: i18n("Your device is not allowing us to open this link."),
+        })
       })
-    })
-  }
+    },
+    [ navigation ],
+  )
 
-  render() {
-    const { navigation, displaySettings } = this.props
-    const { offline } = this.state
+  const minHeight = height - (StatusBar.currentHeight || 0)
 
-    const { height } = Dimensions.get('window')
-    const minHeight = height - (StatusBar.currentHeight || 0)
-
-    return (
-      <Container>
-        <Content>
-          <View style={{ minHeight }}>
-            <Image
-              source={require('../../../assets/images/drawer.png')}
-              style={styles.image}
-            />
-            <List style={styles.list}>
-              {menuItems.map((menuItem, idx) => (
-                <DrawerItem
-                  key={idx}
-                  offline={offline}
-                  navigation={navigation}
-                  {...menuItem}
-                />
-              ))}
-            </List>
-            {!!LINK_TO_BIBLE_TAGS_MARKETING_SITE &&
-              <TouchableOpacity
-                onPress={this.goToBibleTagsMarketingSite}
-              >
-                <View style={styles.createdByContainer}>
+  return (
+    <Container>
+      <Content>
+        <View style={{ minHeight }}>
+          <Image
+            source={require('../../../assets/images/drawer.png')}
+            style={styles.image}
+          />
+          <List style={styles.list}>
+            {menuItems.map((menuItem, idx) => (
+              <DrawerItem
+                key={idx}
+                offline={!online}
+                navigation={navigation}
+                {...menuItem}
+              />
+            ))}
+          </List>
+          {!!LINK_TO_BIBLE_TAGS_MARKETING_SITE &&
+            <TouchableOpacity
+              onPress={goToBibleTagsMarketingSite}
+            >
+              <View style={styles.createdByContainer}>
+                <Text
+                  style={[
+                    styles.createdBy,
+                    displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                  ]}
+                >
+                  {i18n("Powered by Bible Tags")}
+                </Text>
+                {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
                   <Text
                     style={[
-                      styles.createdBy,
+                      styles.launchYour,
                       displaySettings.theme === 'high-contrast' ? styles.contrast : null,
                     ]}
                   >
-                    {i18n("Powered by Bible Tags")}
+                    {i18n("Open source Bible apps")}
                   </Text>
-                  {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
-                    <Text
-                      style={[
-                        styles.launchYour,
-                        displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                      ]}
-                    >
-                      {i18n("Open source Bible apps")}
-                    </Text>
-                  }
-                </View>
-              </TouchableOpacity>
-            }
-          </View>
-        </Content>
-      </Container>
-    )
-  }
+                }
+              </View>
+            </TouchableOpacity>
+          }
+        </View>
+      </Content>
+    </Container>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
