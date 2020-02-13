@@ -37,6 +37,7 @@
     "expo-keep-awake": "~8.0.0",
     "expo-localization": "~8.0.0",
     "expo-sqlite": "~8.0.0",
+    "expo-store-review": "~2.0.0",
     "find-in-files": "0.5.0",
     "inline-i18n": "github:educational-resources-and-services/inline-i18n#beddb5c27699468712680760c677d4f0f80b8597",
     "moment": "2.24.0",
@@ -44,14 +45,16 @@
     "react": "16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.1.tar.gz",
     "react-native-gesture-handler": "~1.5.0",
+    "react-native-hooks": "^0.9.0",
     "react-native-progress": "3.6.0",
     "react-native-reanimated": "~1.4.0",
+    "react-native-simple-side-menu": "github:educational-resources-and-services/react-native-simple-side-menu#62c83cf8babaeb2ce66af6e2d62d8968b7b6974a",
     "react-navigation": "3.9.1",
     "react-redux": "6.0.1",
+    "react-router-native": "^5.1.2",
     "reduce-reducers": "1.0.4",
     "redux": "4.0.1",
     "redux-devtools": "3.5.0",
-    "redux-persist": "5.10.0",
-    "expo-store-review": "~2.0.0"
+    "redux-persist": "5.10.0"
   }
 }

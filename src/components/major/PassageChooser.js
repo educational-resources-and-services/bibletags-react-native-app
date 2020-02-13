@@ -1,19 +1,25 @@
-import React from "react"
-import { Button, Text, View } from "native-base"
+import React, { useState, useCallback, useEffect, useRef } from "react"
+import { Text, View } from "native-base"
 import { StyleSheet, ScrollView, FlatList } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
-import { getVersionInfo, setUpTimeout, unmountTimeouts } from "../../utils/toolbox"
+import { getVersionInfo } from "../../utils/toolbox"
 import { i18n } from "inline-i18n"
+import useBack from "../../hooks/useBack"
+import useSetTimeout from "../../hooks/useSetTimeout"
+import useMemoObject from "../../hooks/useMemoObject"
+import useInstanceValue from '../../hooks/useInstanceValue'
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
-import BackFunction from "../basic/BackFunction"
 
 import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
+
+const bookIdsPerVersion = {}
+const numChaptersPerVersionAndBook = {}
 
 const {
   BOOK_CHOOSER_BACKGROUND_COLOR,
@@ -83,187 +89,190 @@ const styles = StyleSheet.create({
   },
 })
 
-class PassageChooser extends React.PureComponent {
+const PassageChooser = ({
+  showing,
+  paddingBottom,
+  hidePassageChooser,
+  goVersions,
 
-  state = {
-    bookChooserHeight: 0,
-    chapterChooserHeight: 0,
-    chapterChooserScrollHeight: 0,
-  }
+  passage,
+  displaySettings,
+  mode,
 
-  static getDerivedStateFromProps(props, state) {
-    const { showing, passage } = props
-    const stateUpdate = { showing }
+  setRef,
+  setVersionId,
+  setParallelVersionId,
+  setMode,
+}) => {
 
-    if(showing && !state.showing) {
-      stateUpdate.bookId = passage.ref.bookId
-      stateUpdate.chapter = passage.ref.chapter
-    }
+  useBack(showing && hidePassageChooser)
 
-    return stateUpdate
-  }
+  const [ bookId, setBookId ] = useState()
+  const [ chapter, setChapter ] = useState()
+  const [ bookChooserHeight, setBookChooserHeight ] = useState(0)
+  const [ chapterChooserHeight, setChapterChooserHeight ] = useState(0)
+  const [ chapterChooserScrollHeight, setChapterChooserScrollHeight ] = useState(0)
 
-  componentDidMount() {
-    this.scrollToChosen()
-  }
+  const bookChooserRef = useRef()
+  const chapterChooserRef = useRef()
 
-  componentDidUpdate(prevProps) {
-    const { passage } = this.props
+  const [ setScrollTimeout ] = useSetTimeout()
 
-    if(prevProps.passage !== passage) {
-      this.scrollToChosen()
-    }
-  }
+  useEffect(
+    () => {
+      if(showing) {
+        setBookId(passage.ref.bookId)
+        setChapter(passage.ref.chapter)
+      }
+    }, 
+    [ showing ],
+  )
 
-  componentWillUnmount = unmountTimeouts
+  useEffect(
+    () => {
+      // Put them in a timeout so that it doesn't jump when user is tapping a chooser change.
+      setScrollTimeout(() => {
+        scrollToChosenBook()()
+        scrollToChosenChapter()()
+      }, 500)
+    }, 
+    [ passage ],
+  )
 
-  scrollToChosen = () => {
-    // Put them in a timeout so that it doesn't jump when user is tapping a chooser change.
-    setUpTimeout(() => {
-      this.scrollToChosenBook()
-      this.scrollToChosenChapter()
-    }, 500, this)
-  }
-
-  scrollToChosenBook = () => {
-    const { passage, paddingBottom } = this.props
-    const { bookChooserHeight } = this.state
+  const scrollToChosenBook = useInstanceValue(() => {
     const { bookId } = passage.ref
 
-    let index = this.getBookIds().indexOf(bookId)
+    let index = getBookIds().indexOf(bookId)
     if(index === -1) index = 0
-    const maxScroll = CHOOSER_BOOK_LINE_HEIGHT * this.getBookIds().length - (bookChooserHeight - paddingBottom)
+    const maxScroll = CHOOSER_BOOK_LINE_HEIGHT * getBookIds().length - (bookChooserHeight - paddingBottom)
     const scrollAtIndex = CHOOSER_BOOK_LINE_HEIGHT * index
     const minOffset = scrollAtIndex - maxScroll
 
-    this.bookChooserRef.scrollToIndex({
+    bookChooserRef.current.scrollToIndex({
       animated: false,
       index,
       viewPosition: 0,
       viewOffset: Math.max(CHOOSER_BOOK_LINE_HEIGHT * Math.min(2.5, index), minOffset),
     })
-  }
+  })
 
-  scrollToChosenChapter = () => {
-    const { passage } = this.props
-    const { chapterChooserHeight, chapterChooserScrollHeight } = this.state
-    
+  const scrollToChosenChapter = useInstanceValue(() => {
     const { chapter } = passage.ref
     const maxScroll = chapterChooserScrollHeight - chapterChooserHeight
-    const numChapters = this.getNumChapters()
-    
+    const numChapters = getNumChapters()
+
     if(maxScroll <= 0) return
     
     if(chapter <= NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) {
-      this.chapterChooserRef.scrollTo({ y: 0, animated: false })
+      chapterChooserRef.current.scrollTo({ y: 0, animated: false })
 
     } else if(chapter >= numChapters - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) {
-      this.chapterChooserRef.scrollTo({ y: maxScroll, animated: false })
+      chapterChooserRef.current.scrollTo({ y: maxScroll, animated: false })
 
     } else {
-      this.chapterChooserRef.scrollTo({
-        y: ((chapter - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) / (this.getNumChapters() - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL*2)) * maxScroll,
+      chapterChooserRef.current.scrollTo({
+        y: ((chapter - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) / (getNumChapters() - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL*2)) * maxScroll,
         animated: false,
       })
     }
 
-  }
+  })
 
-  updateVersion = versionId => {
-    const { setVersionId, setParallelVersionId, hidePassageChooser, passage } = this.props
+  const updateVersion = useCallback(
+    versionId => {
+      setVersionId({ versionId })
 
-    setVersionId({ versionId })
+      if(versionId === passage.parallelVersionId && SECONDARY_VERSIONS.length > 1) {
+        setParallelVersionId({
+          parallelVersionId: (
+            SECONDARY_VERSIONS.includes(passage.versionId)
+              ? passage.versionId
+              : SECONDARY_VERSIONS[
+                SECONDARY_VERSIONS[0] !== versionId
+                  ? 0
+                  : 1
+              ]
+          ),
+        })
+      }
 
-    if(versionId === passage.parallelVersionId && SECONDARY_VERSIONS.length > 1) {
-      setParallelVersionId({
-        parallelVersionId: (
-          SECONDARY_VERSIONS.includes(passage.versionId)
-            ? passage.versionId
-            : SECONDARY_VERSIONS[
-              SECONDARY_VERSIONS[0] !== versionId
-                ? 0
-                : 1
-            ]
-        ),
+      hidePassageChooser()
+    },
+    [ setVersionId, setParallelVersionId, hidePassageChooser, passage ],
+  )
+
+  const updateParallelVersion = useCallback(
+    parallelVersionId => {
+      setMode({ mode: 'parallel' })
+      setParallelVersionId({ parallelVersionId })
+
+      if(parallelVersionId === passage.versionId && PRIMARY_VERSIONS.length > 1) {
+        setVersionId({
+          versionId: (
+            PRIMARY_VERSIONS.includes(passage.parallelVersionId)
+              ? passage.parallelVersionId
+              : PRIMARY_VERSIONS[
+                PRIMARY_VERSIONS[0] !== parallelVersionId
+                  ? 0
+                  : 1
+              ]
+          ),
+        })
+      }
+
+      hidePassageChooser()
+    },
+    [ setVersionId, setParallelVersionId, setMode, hidePassageChooser, passage ],
+  )
+
+  const closeParallelMode = useCallback(
+    () => {
+      setMode({ mode: 'basic' })
+      hidePassageChooser()
+    },
+    [ hidePassageChooser, setMode ],
+  )
+
+  const updateChapter = useCallback(
+    chapter => {
+      setChapter(chapter)
+
+      setRef({
+        ref: {
+          bookId,
+          chapter,
+          scrollY: 0,
+        },
       })
-    }
 
-    hidePassageChooser()
-  }
-
-  updateParallelVersion = parallelVersionId => {
-    const { setVersionId, setParallelVersionId, setMode, hidePassageChooser, passage } = this.props
-
-    setMode({ mode: 'parallel' })
-    setParallelVersionId({ parallelVersionId })
-
-    if(parallelVersionId === passage.versionId && PRIMARY_VERSIONS.length > 1) {
-      setVersionId({
-        versionId: (
-          PRIMARY_VERSIONS.includes(passage.parallelVersionId)
-            ? passage.parallelVersionId
-            : PRIMARY_VERSIONS[
-              PRIMARY_VERSIONS[0] !== parallelVersionId
-                ? 0
-                : 1
-            ]
-        ),
-      })
-    }
-
-    hidePassageChooser()
-  }
-
-  closeParallelMode = () => {
-    const { hidePassageChooser, setMode } = this.props
-    
-    setMode({ mode: 'basic' })
-    hidePassageChooser()
-  }
-
-  updateChapter = chapter => {
-    const { setRef, hidePassageChooser } = this.props
-    const { bookId } = this.state
-
-    this.setState({ chapter })
-
-    setRef({
-      ref: {
-        bookId,
-        chapter,
-        scrollY: 0,
-      },
-    })
-
-    hidePassageChooser()
-  }
+      hidePassageChooser()
+    },
+    [ setRef, hidePassageChooser, bookId ],
+  )
   
-  updateBook = bookId => this.setState({ bookId, chapter: null })
+  const updateBook = useCallback(
+    bookId => {
+      setBookId(bookId)
+      setChapter(null)
+    },
+    [],
+  )
 
-  bookIdsPerVersion = {}
-
-  getBookIds = () => {
-    const { passage } = this.props
+  const getBookIds = () => {
     const { versionId } = passage
 
-    if(!this.bookIdsPerVersion[versionId]) {
-
+    if(!bookIdsPerVersion[versionId]) {
       const versionInfo = getVersionInfo(versionId)
-
-      this.bookIdsPerVersion[versionId] = getBookIdListWithCorrectOrdering({ versionInfo })
-
+      bookIdsPerVersion[versionId] = getBookIdListWithCorrectOrdering({ versionInfo })
     }
-    
-    return this.bookIdsPerVersion[versionId]
+
+    return bookIdsPerVersion[versionId]
   }
 
-  keyExtractor = bookId => bookId.toString()
+  const keyExtractor = useCallback(bookId => bookId.toString(), [])
 
-  renderItem = ({ item, index }) => {
-    const { paddingBottom } = this.props
-    const { bookId } = this.state
-
-    return (
+  const renderItem = useCallback(
+    ({ item, index }) => (
       <>
         {index === 0 &&
           <View style={styles.spacerBeforeFirstBook} />
@@ -271,9 +280,9 @@ class PassageChooser extends React.PureComponent {
         <ChooserBook
           bookId={item}
           selected={item === bookId}
-          onPress={this.updateBook}
+          onPress={updateBook}
         />
-        {index === this.getBookIds().length - 1 &&
+        {index === getBookIds().length - 1 &&
           <View
             style={{
               paddingBottom,
@@ -281,149 +290,147 @@ class PassageChooser extends React.PureComponent {
           />
         }
       </>
-    )
-  }
+    ),
+    [ paddingBottom, bookId ],
+  )
 
-  getItemLayout = (data, index) => ({
-    length: CHOOSER_BOOK_LINE_HEIGHT,
-    offset: CHOOSER_BOOK_LINE_HEIGHT * index + SPACER_BEFORE_FIRST_BOOK,
-    index,
-  })
-
-  numChaptersPerVersionAndBook = {}
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: CHOOSER_BOOK_LINE_HEIGHT,
+      offset: CHOOSER_BOOK_LINE_HEIGHT * index + SPACER_BEFORE_FIRST_BOOK,
+      index,
+    }),
+    [],
+  )
 
   getNumChapters = () => {
-    const { passage } = this.props
-    const { bookId } = this.state
     const { versionId } = passage
-
     const key = `${versionId}:${bookId}`
 
-    if(!this.numChaptersPerVersionAndBook[key]) {
-
+    if(!numChaptersPerVersionAndBook[key]) {
       const versionInfo = getVersionInfo(versionId)
-
-      this.numChaptersPerVersionAndBook[key] = getNumberOfChapters({
+      numChaptersPerVersionAndBook[key] = getNumberOfChapters({
         versionInfo,
         bookId,
       }) || 0
-
     }
     
-    return this.numChaptersPerVersionAndBook[key]
+    return numChaptersPerVersionAndBook[key]
   }
 
-  setBookChooserRef = ref => this.bookChooserRef = ref
-  setChapterChooserRef = ref => this.chapterChooserRef = ref
+  const onBooksLayout = useCallback(({ nativeEvent: { layout: { height: bookChooserHeight }}}) => setBookChooserHeight(bookChooserHeight), [])
+  const onChaptersLayout = useCallback(({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => setChapterChooserHeight(chapterChooserHeight), [])
+  const onChaptersContentSizeChange = useCallback((x, chapterChooserScrollHeight) => setChapterChooserScrollHeight(chapterChooserScrollHeight), [])
 
-  onBooksLayout = ({ nativeEvent: { layout: { height: bookChooserHeight }}}) => this.setState({ bookChooserHeight })
-  onChaptersLayout = ({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => this.setState({ chapterChooserHeight })
-  onChaptersContentSizeChange = (x, chapterChooserScrollHeight) => this.setState({ chapterChooserScrollHeight })
 
-  render() {
-    const { showing, paddingBottom, hidePassageChooser, passage, mode, goVersions, displaySettings } = this.props
-    const { chapter } = this.state
+  const extraData = useMemoObject({
+    bookId,
+    chapter,
+    bookChooserHeight,
+    chapterChooserHeight,
+    chapterChooserScrollHeight,
+    paddingBottom,
+  })
 
-    // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
-    // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
-    // const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
-    // const showVersionChooser = PRIMARY_VERSIONS.length > 1
-    const showVersionChooser = true
+  // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
+  // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
+  // const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
+  // const showVersionChooser = PRIMARY_VERSIONS.length > 1
+  const showVersionChooser = true
 
-    return (
-      <View style={styles.container}>
-        {showing && <BackFunction func={hidePassageChooser} />}
-        {showVersionChooser &&
-          <VersionChooser
-            versionIds={PRIMARY_VERSIONS}
-            update={this.updateVersion}
-            selectedVersionId={passage.versionId}
-            backgroundColor={
-              displaySettings.theme === 'low-light' 
-              ? 
-                'rgba(48, 48, 48, 1)'
-              : 
-                VERSION_CHOOSER_BACKGROUND_COLOR
-            }
-            goVersions={goVersions}
-          />
-        }
-        <View style={styles.versionChooserContainer}>
-          <View style={styles.parallelLabelContainer}>
-            <Text
-              style={[
-                  styles.parallelLabel,
-                  (displaySettings.theme === 'low-light' ? styles.parallelLabelLight : null),
-              ]}
-              numberOfLines={1}
-            >
-              {i18n("Parallel")}
-            </Text>
-          </View>
-          <VersionChooser
-            versionIds={SECONDARY_VERSIONS}
-            update={this.updateParallelVersion}
-            selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
-            backgroundColor={
-              displaySettings.theme === 'low-light' 
-              ? 
-                'rgba(79, 79, 79, 1)'
-              : 
-                PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
-            }
-            goVersions={goVersions}
-            closeParallelMode={mode === 'parallel' ? this.closeParallelMode : null}
-          />
+  return (
+    <View style={styles.container}>
+      {showVersionChooser &&
+        <VersionChooser
+          versionIds={PRIMARY_VERSIONS}
+          update={updateVersion}
+          selectedVersionId={passage.versionId}
+          backgroundColor={
+            displaySettings.theme === 'low-light' 
+            ? 
+              'rgba(48, 48, 48, 1)'
+            : 
+              VERSION_CHOOSER_BACKGROUND_COLOR
+          }
+          goVersions={goVersions}
+        />
+      }
+      <View style={styles.versionChooserContainer}>
+        <View style={styles.parallelLabelContainer}>
+          <Text
+            style={[
+                styles.parallelLabel,
+                (displaySettings.theme === 'low-light' ? styles.parallelLabelLight : null),
+            ]}
+            numberOfLines={1}
+          >
+            {i18n("Parallel")}
+          </Text>
         </View>
+        <VersionChooser
+          versionIds={SECONDARY_VERSIONS}
+          update={updateParallelVersion}
+          selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
+          backgroundColor={
+            displaySettings.theme === 'low-light' 
+            ? 
+              'rgba(79, 79, 79, 1)'
+            : 
+              PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
+          }
+          goVersions={goVersions}
+          closeParallelMode={mode === 'parallel' ? closeParallelMode : null}
+        />
+      </View>
+      <View
+        style={[
+            styles.refChooser,
+            (displaySettings.theme === 'low-light' ? styles.refChooserLowLight : null),
+        ]}
+      >
         <View
           style={[
-              styles.refChooser,
-              (displaySettings.theme === 'low-light' ? styles.refChooserLowLight : null),
+            styles.bookList,
+            (displaySettings.theme === 'low-light' ? styles.bookListLowLight : null),
           ]}
         >
-          <View 
+          <FlatList
+            data={getBookIds()}
+            extraData={extraData}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            getItemLayout={getItemLayout}
+            ref={bookChooserRef}
+            onLayout={onBooksLayout}
+          />
+        </View>
+        <ScrollView
+          ref={chapterChooserRef}
+          onContentSizeChange={onChaptersContentSizeChange}
+          onLayout={onChaptersLayout}
+        >
+          <View
             style={[
-              styles.bookList,
-              (displaySettings.theme === 'low-light' ? styles.bookListLowLight : null),
+              styles.chapterList,
+              {
+                paddingBottom,
+              },
             ]}
           >
-            <FlatList
-              data={this.getBookIds()}
-              extraData={this.state}
-              keyExtractor={this.keyExtractor}
-              renderItem={this.renderItem}
-              getItemLayout={this.getItemLayout}
-              ref={this.setBookChooserRef}
-              onLayout={this.onBooksLayout}
-            />
+            {Array(getNumChapters()).fill(0).map((x, idx) => (
+              <ChooserChapter
+                key={idx+1}
+                chapter={idx+1}
+                selected={idx+1 === chapter}
+                onPress={updateChapter}
+              />
+            ))}
           </View>
-          <ScrollView
-            ref={this.setChapterChooserRef}
-            onContentSizeChange={this.onChaptersContentSizeChange}
-            onLayout={this.onChaptersLayout}
-          >
-            <View
-              style={[
-                styles.chapterList,
-                {
-                  paddingBottom,
-                },
-              ]}
-            >
-              {Array(this.getNumChapters()).fill(0).map((x, idx) => (
-                <ChooserChapter
-                  key={idx+1}
-                  chapter={idx+1}
-                  selected={idx+1 === chapter}
-                  onPress={this.updateChapter}
-                />
-              ))}
-            </View>
-          </ScrollView>
-        </View>
+        </ScrollView>
       </View>
-    )
-  }
+    </View>
+  )
+
 }
 
 const mapStateToProps = ({ passage, displaySettings }) => ({

@@ -5,7 +5,6 @@ import { StyleSheet, View, Text } from "react-native"
 // import { connect } from "react-redux"
 import { Container, Content } from "native-base"
 
-// import BackFunction from '../basic/BackFunction'
 // import FullScreenSpin from '../basic/FullScreenSpin'
 
 // const {
