@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useCallback, useMemo } from "react"
 import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -59,104 +59,105 @@ const isCancelled = ({ dx, dy }) => (
   && Math.abs(dx) >= MINIMUM_CANCEL_AMOUNT
 )
 
-class RecentBookmark extends React.PureComponent {
+const RecentBookmark = React.memo(({
+  selected,
+  text,
+  style,
+  discard,
+  select,
 
-  state = {
-    beingTouched: false,
-    dragY: 0,
-  }
+  displaySettings,
+}) => {
 
-  cancelTouchVisual = () => {
-    this.setState({
-      beingTouched: false,
-      dragY: 0,
-    })
-  }
+  const [ beingTouched, setBeingTouched ] = useState(false)
+  const [ dragY, setDragY ] = useState(false)
 
-  panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: (evt, gestureState) => true,
-    onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
-    onMoveShouldSetPanResponder: (evt, gestureState) => true,
-    onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
+  const cancelTouchVisual = useCallback(
+    () => {
+      setBeingTouched(false)
+      setDragY(0)
+    },
+    [],
+  )
 
-    onPanResponderGrant: (evt, gestureState) => this.setState({ beingTouched: true }),
-    onPanResponderMove: (evt, gestureState) => {
-      const { selected } = this.props
+  const panResponder = useMemo(
+    () => PanResponder.create({
+      onStartShouldSetPanResponder: (evt, gestureState) => true,
+      onStartShouldSetPanResponderCapture: (evt, gestureState) => true,
+      onMoveShouldSetPanResponder: (evt, gestureState) => true,
+      onMoveShouldSetPanResponderCapture: (evt, gestureState) => true,
 
-      if(isCancelled(gestureState)) {
-        this.cancelTouchVisual()
-      } else {
-        this.setState({
-          beingTouched: true,
-          dragY: Math.max(
+      onPanResponderGrant: (evt, gestureState) => setBeingTouched(true),
+      onPanResponderMove: (evt, gestureState) => {
+        if(isCancelled(gestureState)) {
+          cancelTouchVisual()
+        } else {
+          setBeingTouched(true)
+          setDragY(Math.max(
             gestureState.dy - (selected ? EXTRA_SELECTED_BOOKMARK_HEIGHT : 0),
             selected ? EXTRA_SELECTED_BOOKMARK_HEIGHT * -1 : MAXIMUM_SWIPE_UP_AMOUNT * -1,
-          ),
-        })
-      }
-    },
+          ))
+        }
+      },
 
-    onPanResponderTerminationRequest: (evt, gestureState) => true,
-    onPanResponderRelease: (evt, gestureState) => {
-      const { selected, discard, select } = this.props
+      onPanResponderTerminationRequest: (evt, gestureState) => true,
+      onPanResponderRelease: (evt, gestureState) => {
 
-      if(isCancelled(gestureState)) {
-        console.log('passage change cancelled')
+        if(isCancelled(gestureState)) {
+          console.log('passage change cancelled')
 
-      } else if(gestureState.dy >= MINIMUM_SWIPE_DOWN_AMOUNT) {
+        } else if(gestureState.dy >= MINIMUM_SWIPE_DOWN_AMOUNT) {
 
-        discard()
+          discard()
 
-      } else if(!selected) {
+        } else if(!selected) {
 
-        select()
+          select()
 
-      }
+        }
 
-      this.cancelTouchVisual()
+        cancelTouchVisual()
 
-    },
-    onPanResponderTerminate: this.cancelTouchVisual
-  })
+      },
+      onPanResponderTerminate: cancelTouchVisual
+    }),
+    [ selected, discard, select, cancelTouchVisual ],
+  )
 
-  render() {
-    const { selected, text, style, displaySettings } = this.props
-    const { beingTouched, dragY } = this.state
+  const { theme } = displaySettings
 
-    const { theme } = displaySettings
-
-    return (
-      <View
-        {...this.panResponder.panHandlers}
-        style={[
-          styles.bookmark,
-          style,
-          (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
-          (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
-          (selected ? styles.bookmarkSelected : null),
-          (beingTouched ? styles.bookmarkBeingTouched : null),
-          (beingTouched
-            ? {
-              bottom: (dragY * -1) - 12,
-            }
-            : null
-          ),
-        ]}
-      >
-        <View style={styles.bookmarkTextContainer}>
-          <Text
-            numberOfLines={1}
-            style={[
-              styles.bookmarkText,
-              (theme === 'low-light' ? styles.lowLight : null ),
-            ]}>
-            {text}
-          </Text>
-        </View>
+  return (
+    <View
+      {...panResponder.panHandlers}
+      style={[
+        styles.bookmark,
+        style,
+        (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
+        (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
+        (selected ? styles.bookmarkSelected : null),
+        (beingTouched ? styles.bookmarkBeingTouched : null),
+        (beingTouched
+          ? {
+            bottom: (dragY * -1) - 12,
+          }
+          : null
+        ),
+      ]}
+    >
+      <View style={styles.bookmarkTextContainer}>
+        <Text
+          numberOfLines={1}
+          style={[
+            styles.bookmarkText,
+            (theme === 'low-light' ? styles.lowLight : null ),
+          ]}>
+          {text}
+        </Text>
       </View>
-    )
-  }
-}
+    </View>
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings
