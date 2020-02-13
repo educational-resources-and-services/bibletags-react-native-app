@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { View, StyleSheet, Text, I18nManager } from "react-native"
 import { ListItem, Body } from "native-base"
 import { bindActionCreators } from "redux"
@@ -56,85 +56,93 @@ const styles = StyleSheet.create({
   },
 })
 
-class SearchSuggestion extends React.PureComponent {
+const SearchSuggestion = React.memo(({
+  navigation,
+  searchString,
+  versionId,
+  lastViewTime,
+  numberResults,
+  setEditing,
+  updateEditedSearchString,
 
-  goSearch = () => {
-    const { navigation, searchString, versionId, setEditing, updateEditedSearchString } = this.props
+  displaySettings,
+}) => {
 
-    updateEditedSearchString(searchString)
-    setEditing(false)
+  const goSearch = useCallback(
+    () => {
+      updateEditedSearchString(searchString)
+      setEditing(false)
 
-    debounce(
-      navigation.setParams,
-      {
-        ...navigation.state.params,
-        searchString,
-        versionId,
-        editOnOpen: false,
-      },
-    )
-  }
+      debounce(
+        navigation.setParams,
+        {
+          ...navigation.state.params,
+          searchString,
+          versionId,
+          editOnOpen: false,
+        },
+      )
+    },
+    [ navigation, searchString, versionId, setEditing, updateEditedSearchString ],
+  )
 
-  render() {
-    const { searchString, versionId, lastViewTime, numberResults, displaySettings } = this.props
+  const { abbr, languageId } = getVersionInfo(versionId)
 
-    const { abbr, languageId } = getVersionInfo(versionId)
-
-    return (
-      <ListItem
-        style={[
-          styles.listItem,
-          displaySettings.theme === 'low-light' ? styles.listItemLowLight: null
-        ]}
-        button={true}
-        onPress={this.goSearch}
-      >
-        <Body>
-          <View>
-            <Text 
-              style={[
-                styles.searchString,
-                displaySettings.theme === 'low-light' ? styles.searchStringLowLight : null,
-              ]}>
-              {I18nManager.isRTL ? `\u2067`: `\u2066`}
-              {i18n("“{{searchString}}”", {
-                searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
-              })}
-              {`  `}
-              <Text style={styles.versionAbbr}>{abbr}</Text>
-            </Text>
-          </View>
-          <View 
+  return (
+    <ListItem
+      style={[
+        styles.listItem,
+        displaySettings.theme === 'low-light' ? styles.listItemLowLight: null
+      ]}
+      button={true}
+      onPress={goSearch}
+    >
+      <Body>
+        <View>
+          <Text 
             style={[
-              styles.secondLine,
-            ]}
+              styles.searchString,
+              displaySettings.theme === 'low-light' ? styles.searchStringLowLight : null,
+            ]}>
+            {I18nManager.isRTL ? `\u2067`: `\u2066`}
+            {i18n("“{{searchString}}”", {
+              searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
+            })}
+            {`  `}
+            <Text style={styles.versionAbbr}>{abbr}</Text>
+          </Text>
+        </View>
+        <View 
+          style={[
+            styles.secondLine,
+          ]}
+        >
+          <View style={styles.subtitleView}>
+            <Text
+              style={[
+                styles.subtitle,
+                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
+                displaySettings.theme === 'low-light' ? styles.subtitleLowLight : null,
+              ]}
           >
-            <View style={styles.subtitleView}>
-              <Text
-                style={[
-                  styles.subtitle,
-                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                  displaySettings.theme === 'low-light' ? styles.subtitleLowLight : null,
-                ]}
-            >
-              {i18n("{{num_results}} result(s)", { num_results: numberResults })}
-            </Text>
-            </View>
-            <View>
-              <RelativeTime
-                style={[
-                  styles.time,
-                  displaySettings.theme === 'low-light' ? styles.timeLowLight : null,
-                ]}
-                time={lastViewTime}
-              />
-            </View>
+            {i18n("{{num_results}} result(s)", { num_results: numberResults })}
+          </Text>
           </View>
-        </Body>
-      </ListItem>
-    )
-  }
-}
+          <View>
+            <RelativeTime
+              style={[
+                styles.time,
+                displaySettings.theme === 'low-light' ? styles.timeLowLight : null,
+              ]}
+              time={lastViewTime}
+            />
+          </View>
+        </View>
+      </Body>
+    </ListItem>
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
