@@ -15,30 +15,30 @@ const styles = StyleSheet.create({
   },
 })
 
-class HeaderIcon extends React.PureComponent {
-  render() {
-    const { style={}, displaySettings, ...otherProps } = this.props
+const HeaderIcon = React.memo(({
+  style={},
 
-    return (
-      <Icon
-        {...otherProps}
-        style={[
-          {
-            ...style,
-            ...(
-              Platform.OS === 'ios'
-                ? {
-                  color: IOS_HEADER_ICON_COLOR,
-                }
-                : {}
-            ),
-          },
-          displaySettings.theme === 'low-light' ? styles.lowLight : null,
-        ]}
-      />
-    )
-  }
-}
+  displaySettings,
+
+  ...otherProps
+}) => (
+  <Icon
+    {...otherProps}
+    style={[
+      {
+        ...style,
+        ...(
+          Platform.OS === 'ios'
+            ? {
+              color: IOS_HEADER_ICON_COLOR,
+            }
+            : {}
+        ),
+      },
+      displaySettings.theme === 'low-light' ? styles.lowLight : null,
+    ]}
+  />
+))
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
