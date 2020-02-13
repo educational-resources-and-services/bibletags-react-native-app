@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
@@ -38,45 +38,47 @@ const styles = StyleSheet.create({
   },
 })
 
-class ChooserChapter extends React.PureComponent {
+const ChooserChapter = ({
+  chapter,
+  onPress,
+  selected,
 
-  onPress = () => {
-    const { onPress, chapter } = this.props
+  displaySettings,
+}) => {
 
-    onPress(chapter)
-  }
+  const goPress = useCallback(
+    () => onPress(chapter),
+    [ onPress, chapter ],
+  )
 
-  render() {
-    const { chapter, selected, displaySettings } = this.props
-
-    return (
-      <TouchableHighlight
-        underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
-        onPress={this.onPress}
+  return (
+    <TouchableHighlight
+      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      onPress={goPress}
+      style={[
+        styles.chapter,
+        (selected 
+          ?
+            (displaySettings.theme === 'low-light' ? styles.chapterSelectedLowLight : styles.chapterSelected)
+          :
+            null
+        ),
+      ]}
+    >
+      <Text
         style={[
-          styles.chapter,
-          (selected 
+          styles.chapterText,
+          (displaySettings.theme === 'low-light' 
             ?
-              (displaySettings.theme === 'low-light' ? styles.chapterSelectedLowLight : styles.chapterSelected)
+              (selected ? styles.chapterTextSelectedLowLight : styles.chapterTextLowLight)
             :
-              null
+              (selected ? styles.chapterTextSelected : null)
           ),
         ]}
-      >
-        <Text
-          style={[
-            styles.chapterText,
-            (displaySettings.theme === 'low-light' 
-              ?
-                (selected ? styles.chapterTextSelectedLowLight : styles.chapterTextLowLight)
-              :
-                (selected ? styles.chapterTextSelected : null)
-            ),
-          ]}
-        >{i18nNumber({ num: chapter, type: 'formal' })}</Text>
-      </TouchableHighlight>
-    )
-  }
+      >{i18nNumber({ num: chapter, type: 'formal' })}</Text>
+    </TouchableHighlight>
+  )
+
 }
 
 const mapStateToProps = ({ displaySettings }) => ({
