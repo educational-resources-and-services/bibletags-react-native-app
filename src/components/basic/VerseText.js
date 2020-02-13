@@ -1,27 +1,30 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { Text } from "react-native"
 
-class VerseText extends React.PureComponent {
+const VerseText = React.memo(({
+  style,
+  verseNumber,
+  onPress,
+  children,
+}) => {
 
-  onPress = ({ nativeEvent }) => {
-    const { verseNumber, onPress } = this.props
-    const { pageX, pageY } = nativeEvent
+  const goPress = useCallback(
+    ({ nativeEvent }) => {
+      const { pageX, pageY } = nativeEvent
+      onPress({ selectedVerse: verseNumber, pageX, pageY })
+    },
+    [],
+  )
 
-    onPress({ selectedVerse: verseNumber, pageX, pageY })
-  }
-
-  render() {
-    const { style, children } = this.props
-
-    return (
-      <Text
-        style={style}
-        onPress={this.onPress}
-      >
-        {children}
-      </Text>
-    )
-  }
-}
+  return (
+    <Text
+      style={style}
+      onPress={goPress}
+    >
+      {children}
+    </Text>
+  )
+ 
+})
 
 export default VerseText
