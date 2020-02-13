@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { StyleSheet, Animated } from 'react-native'
 import { Container } from "native-base"
 
@@ -14,71 +14,55 @@ const styles = StyleSheet.create({
 
 const AnimatedContainer = Animated.createAnimatedComponent(Container)
 
-class RevealContainer extends React.Component {
+const RevealContainer = ({
+  revealAmount,
+  immediateAdjustment,
+  style,
+  children,
+}) => {
 
-  constructor(props) {
-    super(props)
+  const translateYAnimation = useRef(new Animated.Value(revealAmount || 0)).current
+  const scaleAnimation = useRef(new Animated.Value(revealAmount ? .95 : 1)).current
 
-    const revealAmount = props.revealAmount || 0
-
-    this.state = {
-      translateYAnimation: new Animated.Value(revealAmount),
-      scaleAnimation: new Animated.Value(revealAmount ? .95 : 1),
-      revealAmount,
-    }
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    const revealAmount = props.revealAmount || 0
-
-    if(state.revealAmount !== revealAmount) {
-
+  useEffect(
+    () => {
       Animated.parallel([
         Animated.timing(
-          state.translateYAnimation,
+          translateYAnimation,
           {
             toValue: revealAmount,
             duration: 200,
           }
         ),
         Animated.timing(
-          state.scaleAnimation,
+          scaleAnimation,
           {
             toValue: revealAmount ? .95 : 1,
             duration: 200,
           }
         ),
       ]).start()
-  
-      return {
-        revealAmount,
-      }
-    }
+    },
+    [ revealAmount ],
+  )
 
-    return null
-  }
+  return (
+    <AnimatedContainer
+      style={[
+        styles.animatedContainer,
+        style,
+        {
+          marginTop: immediateAdjustment,
+          top: translateYAnimation,
+          scaleX: scaleAnimation,
+          scaleY: scaleAnimation,
+        },
+      ]}
+    >
+      {children}
+    </AnimatedContainer>
+  )
 
-  render() {
-    let { immediateAdjustment, style, children } = this.props
-    let { translateYAnimation, scaleAnimation } = this.state
-
-    return (
-      <AnimatedContainer
-        style={[
-          styles.animatedContainer,
-          style,
-          {
-            marginTop: immediateAdjustment,
-            top: translateYAnimation,
-            scaleX: scaleAnimation,
-            scaleY: scaleAnimation,
-          },
-        ]}
-      >
-        {children}
-      </AnimatedContainer>
-    );
-  }
 }
 
 export default RevealContainer
