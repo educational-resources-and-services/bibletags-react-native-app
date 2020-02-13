@@ -1,7 +1,7 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Image, StyleSheet, Linking } from "react-native"
+import { StyleSheet } from "react-native"
 import { ListItem, Body, View, Text } from "native-base"
 
 import { debounce, getVersionInfo } from "../../utils/toolbox"
@@ -34,57 +34,60 @@ const styles = StyleSheet.create({
   },
 })
 
-class VersionItem extends React.PureComponent {
+const VersionItem = React.memo(({
+  navigation,
+  versionId,
 
-  goVersionInfo = event => {
-    const { navigation, versionId } = this.props
+  displaySettings,
+}) => {
 
-    debounce(
-      navigation.navigate,
-      "VersionInfo",
-      {
-        versionId,
-      }
-    )
-  }
+  const goVersionInfo = useCallback(
+    event => {
+      debounce(
+        navigation.navigate,
+        "VersionInfo",
+        {
+          versionId,
+        }
+      )
+    },
+    [ navigation, versionId ],
+  )
 
-  render() {
-    const { versionId, displaySettings } = this.props
+  const { theme } = displaySettings
 
-    const { theme } = displaySettings
+  const { name, abbr } = getVersionInfo(versionId)
 
-    const { name, abbr } = getVersionInfo(versionId)
+  return (
+    <ListItem
+      button={true}
+      onPress={goVersionInfo}
+      style={styles.listItem}
+    >
+      <View style={styles.abbr}>
+        <Text
+          style={[
+            styles.abbrText,
+            displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+          ]}
+        >
+          {abbr}
+        </Text> 
+      </View>
+      <Body>
+        <Text
+          style={[
+            styles.versionName,
+            displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
+          ]}
+        >
+          {name}
+        </Text> 
+      </Body>
+    </ListItem>
+  )
 
-    return (
-      <ListItem
-        button={true}
-        onPress={this.goVersionInfo}
-        style={styles.listItem}
-      >
-        <View style={styles.abbr}>
-          <Text
-            style={[
-              styles.abbrText,
-              displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
-            ]}
-          >
-            {abbr}
-          </Text> 
-        </View>
-        <Body>
-          <Text
-            style={[
-              styles.versionName,
-              displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
-            ]}
-          >
-            {name}
-          </Text> 
-        </Body>
-      </ListItem>
-    )
-  }
-}
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
