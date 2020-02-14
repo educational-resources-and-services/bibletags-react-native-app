@@ -1,6 +1,6 @@
-import React from "react"
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import Constants from "expo-constants"
-import { ScrollView, View, StyleSheet, Dimensions, Clipboard, Platform, I18nManager } from "react-native"
+import { ScrollView, View, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -8,6 +8,7 @@ import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { debounce, getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering, getCorrespondingRefs } from 'bibletags-versification/src/versification'
+import { useDimensions } from 'react-native-hooks'
 
 import ReadText from './ReadText'
 import TapOptions from '../basic/TapOptions'
@@ -47,424 +48,440 @@ const styles = StyleSheet.create({
   },
 })
 
-class ReadContent extends React.PureComponent {
+const ReadContent = React.memo(({
+  passage,
+  passageScrollY,
+  recentPassages,
+  recentSearches,
+  displaySettings,
 
-  state = {}
+  setRef,
+  setVersionId,
+  setParallelVersionId,
+  setPassageScroll,
+}) => {
 
-  static getDerivedStateFromProps(props, state) {
-    const { passage } = props
-    const { ref, versionId, parallelVersionId } = passage
-    const statePassage = state.passage || {}
+  const { ref, versionId, parallelVersionId } = passage
 
-    if(passage === state.passage) return null
+  const [ selectedInfo, setSelectedInfo ] = useState({})
+  const [ statePassage, setStatePassage ] = useState(passage)
+  const [ primaryLoaded, setPrimaryLoaded ] = useState(false)
+  const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
 
+  const { selectedSection, selectedVerse, selectedTextContent, selectedTapX, selectedTapY } = selectedInfo
+
+  const containerRef = useRef()
+  const scrollController = useRef('primary')
+  const skipVerseTap = useRef(false)
+  const primaryScrollY = useRef(0)
+  const primaryRef = useRef()
+  const secondaryRef = useRef()
+  const primaryContentHeight = useRef(0)
+  const secondaryContentHeight = useRef(0)
+  const primaryHeight = useRef(0)
+  const secondaryHeight = useRef(0)
+
+  const { width, height } = useDimensions().window
+
+  if(passage !== statePassage) {
     const refChanged = ref !== statePassage.ref
     const primaryChanged = versionId !== statePassage.versionId
     const secondaryChanged = parallelVersionId !== statePassage.parallelVersionId
 
-    const versionInfo = getVersionInfo(versionId)
-    const bookIdsWithCorrectOrdering = getBookIdListWithCorrectOrdering({ versionInfo })
-    const { bookId } = ref
+    setStatePassage(passage)
+    setPrimaryLoaded(primaryLoaded && !refChanged && !primaryChanged)
+    setSecondaryLoaded(secondaryLoaded && !refChanged && !secondaryChanged)
+    setSelectedInfo({})
+  }
 
-    const numChapters = getNumberOfChapters({
-      versionInfo,
-      bookId,
-    }) || 0
+  const adjacentRefs = useMemo(
+    () => {
+      const versionInfo = getVersionInfo(versionId)
+      const { bookId } = ref
+      const bookIdsWithCorrectOrdering = getBookIdListWithCorrectOrdering({ versionInfo })
 
-    let previous = {
-      ...ref,
-      chapter: ref.chapter - 1,
-    }
-
-    let next = {
-      ...ref,
-      chapter: ref.chapter + 1,
-    }
-
-    if(ref.chapter <= 1) {
-      const previousBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) - 1 ]
-      const numChaptersPreviousBook = getNumberOfChapters({
+      const numChapters = getNumberOfChapters({
         versionInfo,
-        bookId: previousBookId,
+        bookId,
       }) || 0
 
-      previous = {
-        ...previous,
-        chapter: numChaptersPreviousBook,
-        bookId: previousBookId,
+      let previous = {
+        ...ref,
+        chapter: ref.chapter - 1,
       }
-    }
 
-    if(ref.chapter >= numChapters) {
-      const nextBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) + 1 ]
-
-      next = {
-        ...next,
-        chapter: 1,
-        bookId: nextBookId,
+      let next = {
+        ...ref,
+        chapter: ref.chapter + 1,
       }
-    }
 
-    const adjacentRefs = (
-      !refChanged
-        ? state.adjacentRefs
-        : {
-          previous,
-          next,
-        }
-    )
+      if(ref.chapter <= 1) {
+        const previousBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) - 1 ]
+        const numChaptersPreviousBook = getNumberOfChapters({
+          versionInfo,
+          bookId: previousBookId,
+        }) || 0
 
-    return {
-      primaryLoaded: !!(state.primaryLoaded && !refChanged && !primaryChanged),
-      secondaryLoaded: !!(state.secondaryLoaded && !refChanged && !secondaryChanged),
-      passage,
-      adjacentRefs,
-      selectedVerse: null,
-      selectedSection: null,
-      selectedTextContent: '',
-      selectedTapX: 0,
-      selectedTapY: 0,
-    }
-  }
-
-  componentDidMount() {
-    const { passage, setVersionId, setParallelVersionId } = this.props
-    const { versionId, parallelVersionId } = passage
-
-    // in the event that a version has been removed...
-
-    if(!PRIMARY_VERSIONS.includes(versionId)) {
-      setVersionId({ versionId: PRIMARY_VERSIONS[0] })
-    }
-
-    if(parallelVersionId && !SECONDARY_VERSIONS.includes(parallelVersionId)) {
-      setParallelVersionId({ parallelVersionId: SECONDARY_VERSIONS[0] })
-    }
-  }
-
-  setUpParallelScroll = () => {
-
-    this.onPrimaryTouchStart()
-    this.onPrimaryScroll({
-      nativeEvent: {
-        contentOffset: {
-          y: this.primaryScrollY,
+        previous = {
+          ...previous,
+          chapter: numChaptersPreviousBook,
+          bookId: previousBookId,
         }
       }
-    })
-  }
 
-  hasParallel = () => !!this.props.passage.parallelVersionId
+      if(ref.chapter >= numChapters) {
+        const nextBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) + 1 ]
 
-  getScrollFactor = () => {
-    const primaryMaxScroll = Math.max(this.primaryContentHeight - this.primaryHeight, 0)
-    const secondaryMaxScroll = Math.max(this.secondaryContentHeight - this.secondaryHeight, 0)
-
-    return primaryMaxScroll / secondaryMaxScroll
-  }
-
-  clearSelection = () => {
-    this.setState({
-      selectedSection: null,
-      selectedVerse: null,
-      selectedTextContent: '',
-    })
-  }
-
-  onPrimaryTouchStart = () => this.onTouchStart('primary')
-  onSecondaryTouchStart = () => this.onTouchStart('secondary')
-
-  onTouchStart = scrollController => {
-    const { selectedSection } = this.state
-
-    this.scrollController = scrollController
-
-    if(selectedSection) {
-      this.clearSelection()
-      this.skipVerseTap = true
-    }
-  }
-
-  onTouchEnd = () => delete this.skipVerseTap
-
-  primaryScrollY = 0
-
-  onPrimaryScroll = ({ nativeEvent }) => {
-    const { setPassageScroll } = this.props
-    this.primaryScrollY = nativeEvent.contentOffset.y
-
-    setPassageScroll({
-      y: this.primaryScrollY,
-    })
-
-    if(!this.secondaryRef) return
-    if(this.scrollController !== 'primary') return
-    if(!this.hasParallel()) return
-
-    const y = this.primaryScrollY / this.getScrollFactor()
-    this.secondaryRef.scrollTo({ y, animated: false })
-  }
-
-  onSecondaryScroll = ({ nativeEvent }) => {
-    if(!this.primaryRef) return
-    if(this.scrollController !== 'secondary') return
-    if(!this.hasParallel()) return
-
-    const y = nativeEvent.contentOffset.y * this.getScrollFactor()
-    this.primaryRef.scrollTo({ y, animated: false })
-  }
-
-  onPrimaryLayout = ({ nativeEvent }) => this.primaryHeight = nativeEvent.layout.height
-  onSecondaryLayout = ({ nativeEvent }) => this.secondaryHeight = nativeEvent.layout.height
-
-  onPrimaryContentSizeChange = (contentWidth, contentHeight) => this.primaryContentHeight = contentHeight
-  onSecondaryContentSizeChange = (contentWidth, contentHeight) => {
-    this.secondaryContentHeight = contentHeight
-    this.setUpParallelScroll()
-  }
-
-  onPrimaryLoaded = () => {
-    const { passageScrollY } = this.props
-
-    this.primaryScrollY = passageScrollY
-    setTimeout(
-      // this was not firing without the setTimeout
-      () => this.primaryRef.scrollTo({ y: this.primaryScrollY, animated: false })
-    )
-
-    this.setUpParallelScroll()
-
-    this.setState({ primaryLoaded: true })
-  }
-
-  onSecondaryLoaded = () => this.setState({ secondaryLoaded: true })
-
-  setPrimaryRef = ref => this.primaryRef = ref
-  setSecondaryRef = ref => this.secondaryRef = ref
-
-  setRef = ref => {
-    this.ref = ref
-    setTimeout(this.setContentOffset)
-  }
-
-  setContentOffset = () => {
-    const { width } = Dimensions.get('window')
-    this.ref.scrollTo({ x: width, animated: false })
-  }
-
-  onPageSwipeEnd = ({ nativeEvent }) => {
-    const { setRef } = this.props
-    const { adjacentRefs } = this.state
-
-    const { x } = nativeEvent.contentOffset
-    const { width } = Dimensions.get('window')
-
-    if(x !== width) {
-      let goPrev = x < width
-      if(Platform.OS === 'android' && I18nManager.isRTL) goPrev = !goPrev
-      const ref = adjacentRefs[ goPrev ? 'previous' : 'next' ]
-
-      if(!ref.bookId) {
-        this.setContentOffset()
-        return
+        next = {
+          ...next,
+          chapter: 1,
+          bookId: nextBookId,
+        }
       }
 
-      this.primaryScrollY = 0
-
-      debounce(
-        setRef,
-        {
-          ref,
-          wasSwipe: true,
-        },
-      )
-      this.setContentOffset()
-    }
-  }
-
-
-  onPrimaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'primary', ...params })
-  onSecondaryVerseTap = ({ ...params }) => this.onVerseTap({ selectedSection: 'secondary', ...params })
-
-  onVerseTap = ({ selectedSection, selectedVerse, selectedTextContent, pageX, pageY }) => {
-    if(this.skipVerseTap) return
-    if(selectedVerse == null) return
-
-    this.setState({
-      selectedSection,
-      selectedVerse,
-      selectedTextContent,
-      selectedTapX: pageX,
-      selectedTapY: pageY,
-    })
-  }
-
-  tapOptions = [
-    {
-      label: i18n("Copy"),
-      action: () => {
-        const { selectedTextContent } = this.state
-
-        Clipboard.setString(selectedTextContent)
-        Toast.show({
-          text: i18n("Verse copied to clipboard"),
-          textStyle: styles.toastText,
-          duration: 1700,
-        })
-        this.clearSelection()
+      return {
+        previous,
+        next,
       }
     },
-  ]
+    [ ref ],
+  )
 
-  render() {
-    const { passage, recentPassages, recentSearches, displaySettings } = this.props
-    const { ref, versionId, parallelVersionId } = passage
-    const { primaryLoaded, secondaryLoaded, adjacentRefs, selectedSection, selectedVerse,
-            selectedTextContent, selectedTapX, selectedTapY } = this.state
+  useEffect(
+    () => {
+      // in the event that a version has been removed...
 
-    const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
-
-    const { theme } = displaySettings
-
-    const { width, height } = Dimensions.get('window')
-
-    const getPage = direction => {
-      const pageRef = adjacentRefs[direction] || ref
-
-      let correspondingRefs = [ pageRef ]
-      const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
-      
-      if(parallelVersionId && originalVersionInfo) {
-
-        if(versionId !== originalVersionInfo.versionId) {
-          correspondingRefs = getCorrespondingRefs({
-            baseVersion: {
-              info: getVersionInfo(versionId),
-              ref: {
-                ...pageRef,
-                verse: 1,
-              },
-            },
-            lookupVersionInfo: originalVersionInfo,
-          }) || correspondingRefs
-        }
-
-        if(parallelVersionId !== originalVersionInfo.versionId) {
-          correspondingRefs = getCorrespondingRefs({
-            baseVersion: {
-              info: originalVersionInfo,
-              ref: correspondingRefs[0],
-            },
-            lookupVersionInfo: getVersionInfo(parallelVersionId),
-          }) || correspondingRefs
-        }
-
+      if(!PRIMARY_VERSIONS.includes(versionId)) {
+        setVersionId({ versionId: PRIMARY_VERSIONS[0] })
       }
 
-      const parallelPageRef = correspondingRefs[0]
+      if(parallelVersionId && !SECONDARY_VERSIONS.includes(parallelVersionId)) {
+        setParallelVersionId({ parallelVersionId: SECONDARY_VERSIONS[0] })
+      }
+    }
+    ,[],
+  )
 
-      return (
-        <View
-          key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-          style={[
-            styles.page,
-            (theme === 'low-light' ? styles.lowLightPage : null),
-          ]}
-        >
-          <ReadText
-            key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-            passageRef={pageRef}
-            versionId={versionId}
-            selectedVerse={
-              selectedSection === 'primary'
-                ? selectedVerse
-                : (
-                  selectedSection === 'secondary'
-                    ? -1
-                    : null
-                )
-            }
-            onTouchStart={!direction ? this.onPrimaryTouchStart : null}
-            onTouchEnd={!direction ? this.onTouchEnd : null}
-            onScroll={!direction ? this.onPrimaryScroll : null}
-            onLayout={!direction ? this.onPrimaryLayout : null}
-            onContentSizeChange={!direction ? this.onPrimaryContentSizeChange : null}
-            onLoaded={!direction ? this.onPrimaryLoaded : null}
-            onVerseTap={!direction ? this.onPrimaryVerseTap : null}
-            setRef={!direction ? this.setPrimaryRef : null}
-            isVisible={!direction}
-          />
-          {!!parallelVersionId &&
-            <>
-              <View
-                style={[
-                  styles.divider,
-                  displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                ]}
-              />
-              <ReadText
-                key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
-                passageRef={parallelPageRef}
-                versionId={parallelVersionId}
-                selectedVerse={
-                  selectedSection === 'secondary'
-                    ? selectedVerse
-                    : (
-                      selectedSection === 'primary'
-                        ? -1
-                        : null
-                    )
-                }
-                onTouchStart={!direction ? this.onSecondaryTouchStart : null}
-                onTouchEnd={!direction ? this.onTouchEnd : null}
-                onScroll={!direction ? this.onSecondaryScroll : null}
-                onLayout={!direction ? this.onSecondaryLayout : null}
-                onContentSizeChange={!direction ? this.onSecondaryContentSizeChange : null}
-                onLoaded={!direction ? this.onSecondaryLoaded : null}
-                onVerseTap={!direction ? this.onSecondaryVerseTap : null}
-                setRef={!direction ? this.setSecondaryRef : null}
-                isVisible={!direction}
-              />
-            </>
+  const onTouchStart = useCallback(
+    scrollCntrlr => {
+      scrollController.current = scrollCntrlr
+
+      if(selectedSection) {
+        setSelectedInfo({})
+        skipVerseTap.current = true
+      }
+    },
+    [ selectedSection ],
+  )
+
+  const onTouchEnd = useCallback(() => skipVerseTap.current = undefined, [])
+
+  const onPrimaryTouchStart = useCallback(() => onTouchStart('primary'), [ onTouchStart ])
+  const onSecondaryTouchStart = useCallback(() => onTouchStart('secondary'), [ onTouchStart ])
+
+  const onPrimaryLayout = useCallback(({ nativeEvent }) => primaryHeight.current = nativeEvent.layout.height, [])
+  const onSecondaryLayout = useCallback(({ nativeEvent }) => secondaryHeight.current = nativeEvent.layout.height, [])
+
+  const onPrimaryContentSizeChange = useCallback((contentWidth, contentHeight) => primaryContentHeight.current = contentHeight, [])
+  const onSecondaryContentSizeChange = useCallback(
+    (contentWidth, contentHeight) => {
+      secondaryContentHeight.current = contentHeight
+      setUpParallelScroll()
+    },
+    [ setUpParallelScroll ],
+  )
+
+  const getScrollFactor = useCallback(
+    () => {
+      const primaryMaxScroll = Math.max(primaryContentHeight.current - primaryHeight.current, 0)
+      const secondaryMaxScroll = Math.max(secondaryContentHeight.current - secondaryHeight.current, 0)
+
+      return primaryMaxScroll / secondaryMaxScroll
+    },
+    [],
+  )
+
+  const onPrimaryScroll = useCallback(
+    ({ nativeEvent }) => {
+      primaryScrollY.current = nativeEvent.contentOffset.y
+
+      setPassageScroll({
+        y: primaryScrollY.current,
+      })
+
+      if(!secondaryRef.current) return
+      if(scrollController.current !== 'primary') return
+      if(!parallelVersionId) return
+
+      const y = primaryScrollY.current / getScrollFactor()
+      secondaryRef.current.scrollTo({ y, animated: false })
+    }
+    ,
+    [ setPassageScroll, !parallelVersionId, getScrollFactor ],
+  )
+
+  const onSecondaryScroll = useCallback(
+    ({ nativeEvent }) => {
+      if(!primaryRef.current) return
+      if(scrollController.current !== 'secondary') return
+      if(!parallelVersionId) return
+
+      const y = nativeEvent.contentOffset.y * getScrollFactor()
+      primaryRef.current.scrollTo({ y, animated: false })
+    },
+    [ !parallelVersionId, getScrollFactor ],
+  )
+
+  const setUpParallelScroll = useCallback(
+    () => {
+      onPrimaryTouchStart()
+      onPrimaryScroll({
+        nativeEvent: {
+          contentOffset: {
+            y: primaryScrollY.current,
           }
-        </View>
-      )
+        }
+      })
+    },
+    [ onPrimaryTouchStart, onPrimaryScroll ],
+  )
+
+  const onPrimaryLoaded = useCallback(
+    () => {
+      primaryScrollY.current = passageScrollY
+      const doInitialScroll = () => primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
+
+      doInitialScroll
+      setTimeout(doInitialScroll)  // may not fire without the setTimeout
+
+      setUpParallelScroll()
+      setPrimaryLoaded(true)
+    },
+    [ passageScrollY, setUpParallelScroll ],
+  )
+
+  const onSecondaryLoaded = useCallback(() => setSecondaryLoaded(true), [])
+
+  const setPrimaryRef = useCallback(ref => primaryRef.current = ref, [])
+  const setSecondaryRef = useCallback(ref => secondaryRef.current = ref, [])
+
+  const setContainerRef = ref => {
+    containerRef.current = ref
+    setTimeout(setContentOffset)
+  }
+
+  const setContentOffset = useCallback(
+    () => containerRef.current.scrollTo({ x: width, animated: false }),
+    [ width ],
+  )
+
+  const onPageSwipeEnd = useCallback(
+    ({ nativeEvent }) => {
+      const { x } = nativeEvent.contentOffset
+
+      if(x !== width) {
+        let goPrev = x < width
+        if(Platform.OS === 'android' && I18nManager.isRTL) goPrev = !goPrev
+        const ref = adjacentRefs[ goPrev ? 'previous' : 'next' ]
+
+        if(!ref.bookId) {
+          setContentOffset()
+          return
+        }
+
+        primaryScrollY.current = 0
+
+        debounce(
+          setRef,
+          {
+            ref,
+            wasSwipe: true,
+          },
+        )
+        setContentOffset()
+      }
+    },
+    [ setRef, setContentOffset, adjacentRefs ],
+  )
+
+  const onVerseTap = useCallback(
+    ({ selectedSection, selectedVerse, selectedTextContent, pageX, pageY }) => {
+      if(skipVerseTap.current) return
+      if(selectedVerse == null) return
+
+      setSelectedInfo({
+        selectedSection,
+        selectedVerse,
+        selectedTextContent,
+        selectedTapX: pageX,
+        selectedTapY: pageY,
+      })
+    },
+    [],
+  )
+
+  const onPrimaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'primary', ...params }), [ onVerseTap ])
+  const onSecondaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'secondary', ...params }), [ onVerseTap ])
+
+  const tapOptions = useMemo(
+    () => ([
+      {
+        label: i18n("Copy"),
+        action: () => {
+          Clipboard.setString(selectedTextContent)
+          Toast.show({
+            text: i18n("Verse copied to clipboard"),
+            textStyle: styles.toastText,
+            duration: 1700,
+          })
+          setSelectedInfo({})
+        }
+      },
+    ]),
+    [ selectedTextContent ],
+  )
+
+  const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
+
+  const { theme } = displaySettings
+
+  const getPage = direction => {
+    const pageRef = adjacentRefs[direction] || ref
+
+    let correspondingRefs = [ pageRef ]
+    const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
+    
+    if(parallelVersionId && originalVersionInfo) {
+
+      if(versionId !== originalVersionInfo.versionId) {
+        correspondingRefs = getCorrespondingRefs({
+          baseVersion: {
+            info: getVersionInfo(versionId),
+            ref: {
+              ...pageRef,
+              verse: 1,
+            },
+          },
+          lookupVersionInfo: originalVersionInfo,
+        }) || correspondingRefs
+      }
+
+      if(parallelVersionId !== originalVersionInfo.versionId) {
+        correspondingRefs = getCorrespondingRefs({
+          baseVersion: {
+            info: originalVersionInfo,
+            ref: correspondingRefs[0],
+          },
+          lookupVersionInfo: getVersionInfo(parallelVersionId),
+        }) || correspondingRefs
+      }
+
     }
 
+    const parallelPageRef = correspondingRefs[0]
+
     return (
-      <>
-        <ScrollView
-          style={[
-            styles.container,
-            (showingRecentBookmarks ? { marginBottom: 84 } : null),
-          ]}
-          contentContainerStyle={styles.contentContainer}
-          horizontal={true}
-          pagingEnabled={true}
-          showsHorizontalScrollIndicator={false}
-          contentOffset={{ x: width, y: 0 }}
-          ref={this.setRef}
-          onMomentumScrollEnd={this.onPageSwipeEnd}
-          //onContentSizeChange={this.setContentOffset}  // I might need this for device rotation
-        >
-          {[
-            getPage('previous'),
-            getPage(),
-            getPage('next'),
-          ]}
-        </ScrollView>
-        {!!selectedSection &&
-          <TapOptions
-            options={this.tapOptions}
-            centerX={selectedTapX}
-            bottomY={selectedTapY >= 150 ? (height - selectedTapY + 20) : null}
-            topY={selectedTapY < 150 ? (selectedTapY + 40) : null}
-          />
+      <View
+        key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
+        style={[
+          styles.page,
+          (theme === 'low-light' ? styles.lowLightPage : null),
+        ]}
+      >
+        <ReadText
+          key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
+          passageRef={pageRef}
+          versionId={versionId}
+          selectedVerse={
+            selectedSection === 'primary'
+              ? selectedVerse
+              : (
+                selectedSection === 'secondary'
+                  ? -1
+                  : null
+              )
+          }
+          onTouchStart={!direction ? onPrimaryTouchStart : null}
+          onTouchEnd={!direction ? onTouchEnd : null}
+          onScroll={!direction ? onPrimaryScroll : null}
+          onLayout={!direction ? onPrimaryLayout : null}
+          onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
+          onLoaded={!direction ? onPrimaryLoaded : null}
+          onVerseTap={!direction ? onPrimaryVerseTap : null}
+          setRef={!direction ? setPrimaryRef : null}
+          isVisible={!direction}
+        />
+        {!!parallelVersionId &&
+          <>
+            <View
+              style={[
+                styles.divider,
+                theme === 'high-contrast' ? styles.contrast : null,
+              ]}
+            />
+            <ReadText
+              key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
+              passageRef={parallelPageRef}
+              versionId={parallelVersionId}
+              selectedVerse={
+                selectedSection === 'secondary'
+                  ? selectedVerse
+                  : (
+                    selectedSection === 'primary'
+                      ? -1
+                      : null
+                  )
+              }
+              onTouchStart={!direction ? onSecondaryTouchStart : null}
+              onTouchEnd={!direction ? onTouchEnd : null}
+              onScroll={!direction ? onSecondaryScroll : null}
+              onLayout={!direction ? onSecondaryLayout : null}
+              onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
+              onLoaded={!direction ? onSecondaryLoaded : null}
+              onVerseTap={!direction ? onSecondaryVerseTap : null}
+              setRef={!direction ? setSecondaryRef : null}
+              isVisible={!direction}
+            />
+          </>
         }
-      </>
+      </View>
     )
   }
-}
+
+  return (
+    <>
+      <ScrollView
+        style={[
+          styles.container,
+          (showingRecentBookmarks ? { marginBottom: 84 } : null),
+        ]}
+        contentContainerStyle={styles.contentContainer}
+        horizontal={true}
+        pagingEnabled={true}
+        showsHorizontalScrollIndicator={false}
+        contentOffset={{ x: width, y: 0 }}
+        ref={setContainerRef}
+        onMomentumScrollEnd={onPageSwipeEnd}
+        //onContentSizeChange={setContentOffset}  // I might need this for device rotation
+      >
+        {[
+          getPage('previous'),
+          getPage(),
+          getPage('next'),
+        ]}
+      </ScrollView>
+      {!!selectedSection &&
+        <TapOptions
+          options={tapOptions}
+          centerX={selectedTapX}
+          bottomY={selectedTapY >= 150 ? (height - selectedTapY + 20) : null}
+          topY={selectedTapY < 150 ? (selectedTapY + 40) : null}
+        />
+      }
+    </>
+  )
+
+})
 
 const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches, displaySettings }) => ({
   passage,
