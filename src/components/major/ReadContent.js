@@ -1,22 +1,21 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import Constants from "expo-constants"
-import { ScrollView, View, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
+import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import { i18n } from "inline-i18n"
-import { debounce, getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering, getCorrespondingRefs } from 'bibletags-versification/src/versification'
+import { debounce } from "../../utils/toolbox.js"
 import { useDimensions } from 'react-native-hooks'
+import useAdjacentRefs from '../../hooks/useAdjacentRefs'
 
-import ReadText from './ReadText'
 import TapOptions from '../basic/TapOptions'
+import ReadContentPage from "./ReadContentPage"
 
 import { setRef, setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
 
 const {
-  DIVIDER_COLOR,
   PRIMARY_VERSIONS,
   SECONDARY_VERSIONS,
 } = Constants.manifest.extra
@@ -28,21 +27,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     width: '300%',
   },
-  page: {
-    width: '100%',
-    maxWidth: '100%',
-    height: '100%',
-  },
-  lowLightPage: {
-    backgroundColor: 'black',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: DIVIDER_COLOR,
-  },
-  contrast: {
-    backgroundColor: '#333333',
-  },
   toastText: {
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
@@ -53,7 +37,6 @@ const ReadContent = React.memo(({
   passageScrollY,
   recentPassages,
   recentSearches,
-  displaySettings,
 
   setRef,
   setVersionId,
@@ -94,58 +77,7 @@ const ReadContent = React.memo(({
     setSelectedInfo({})
   }
 
-  const adjacentRefs = useMemo(
-    () => {
-      const versionInfo = getVersionInfo(versionId)
-      const { bookId } = ref
-      const bookIdsWithCorrectOrdering = getBookIdListWithCorrectOrdering({ versionInfo })
-
-      const numChapters = getNumberOfChapters({
-        versionInfo,
-        bookId,
-      }) || 0
-
-      let previous = {
-        ...ref,
-        chapter: ref.chapter - 1,
-      }
-
-      let next = {
-        ...ref,
-        chapter: ref.chapter + 1,
-      }
-
-      if(ref.chapter <= 1) {
-        const previousBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) - 1 ]
-        const numChaptersPreviousBook = getNumberOfChapters({
-          versionInfo,
-          bookId: previousBookId,
-        }) || 0
-
-        previous = {
-          ...previous,
-          chapter: numChaptersPreviousBook,
-          bookId: previousBookId,
-        }
-      }
-
-      if(ref.chapter >= numChapters) {
-        const nextBookId = bookIdsWithCorrectOrdering[ bookIdsWithCorrectOrdering.indexOf(bookId) + 1 ]
-
-        next = {
-          ...next,
-          chapter: 1,
-          bookId: nextBookId,
-        }
-      }
-
-      return {
-        previous,
-        next,
-      }
-    },
-    [ ref ],
-  )
+  const adjacentRefs = useAdjacentRefs(passage)
 
   useEffect(
     () => {
@@ -343,108 +275,35 @@ const ReadContent = React.memo(({
 
   const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
-  const { theme } = displaySettings
-
   const getPage = direction => {
     const pageRef = adjacentRefs[direction] || ref
 
-    let correspondingRefs = [ pageRef ]
-    const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
-    
-    if(parallelVersionId && originalVersionInfo) {
-
-      if(versionId !== originalVersionInfo.versionId) {
-        correspondingRefs = getCorrespondingRefs({
-          baseVersion: {
-            info: getVersionInfo(versionId),
-            ref: {
-              ...pageRef,
-              verse: 1,
-            },
-          },
-          lookupVersionInfo: originalVersionInfo,
-        }) || correspondingRefs
-      }
-
-      if(parallelVersionId !== originalVersionInfo.versionId) {
-        correspondingRefs = getCorrespondingRefs({
-          baseVersion: {
-            info: originalVersionInfo,
-            ref: correspondingRefs[0],
-          },
-          lookupVersionInfo: getVersionInfo(parallelVersionId),
-        }) || correspondingRefs
-      }
-
-    }
-
-    const parallelPageRef = correspondingRefs[0]
-
     return (
-      <View
+      <ReadContentPage
         key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-        style={[
-          styles.page,
-          (theme === 'low-light' ? styles.lowLightPage : null),
-        ]}
-      >
-        <ReadText
-          key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-          passageRef={pageRef}
-          versionId={versionId}
-          selectedVerse={
-            selectedSection === 'primary'
-              ? selectedVerse
-              : (
-                selectedSection === 'secondary'
-                  ? -1
-                  : null
-              )
-          }
-          onTouchStart={!direction ? onPrimaryTouchStart : null}
-          onTouchEnd={!direction ? onTouchEnd : null}
-          onScroll={!direction ? onPrimaryScroll : null}
-          onLayout={!direction ? onPrimaryLayout : null}
-          onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
-          onLoaded={!direction ? onPrimaryLoaded : null}
-          onVerseTap={!direction ? onPrimaryVerseTap : null}
-          setRef={!direction ? setPrimaryRef : null}
-          isVisible={!direction}
-        />
-        {!!parallelVersionId &&
-          <>
-            <View
-              style={[
-                styles.divider,
-                theme === 'high-contrast' ? styles.contrast : null,
-              ]}
-            />
-            <ReadText
-              key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
-              passageRef={parallelPageRef}
-              versionId={parallelVersionId}
-              selectedVerse={
-                selectedSection === 'secondary'
-                  ? selectedVerse
-                  : (
-                    selectedSection === 'primary'
-                      ? -1
-                      : null
-                  )
-              }
-              onTouchStart={!direction ? onSecondaryTouchStart : null}
-              onTouchEnd={!direction ? onTouchEnd : null}
-              onScroll={!direction ? onSecondaryScroll : null}
-              onLayout={!direction ? onSecondaryLayout : null}
-              onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
-              onLoaded={!direction ? onSecondaryLoaded : null}
-              onVerseTap={!direction ? onSecondaryVerseTap : null}
-              setRef={!direction ? setSecondaryRef : null}
-              isVisible={!direction}
-            />
-          </>
-        }
-      </View>
+
+        direction={direction}
+        selectedSection={selectedSection}
+        selectedVerse={selectedVerse}
+        passage={passage}
+        onTouchEnd={onTouchEnd}
+
+        onPrimaryTouchStart={onPrimaryTouchStart}
+        onPrimaryScroll={onPrimaryScroll}
+        onPrimaryLayout={onPrimaryLayout}
+        onPrimaryContentSizeChange={onPrimaryContentSizeChange}
+        onPrimaryLoaded={onPrimaryLoaded}
+        onPrimaryVerseTap={onPrimaryVerseTap}
+        setPrimaryRef={setPrimaryRef}
+
+        onSecondaryTouchStart={onSecondaryTouchStart}
+        onSecondaryScroll={onSecondaryScroll}
+        onSecondaryLayout={onSecondaryLayout}
+        onSecondaryContentSizeChange={onSecondaryContentSizeChange}
+        onSecondaryLoaded={onSecondaryLoaded}
+        onSecondaryVerseTap={onSecondaryVerseTap}
+        setSecondaryRef={setSecondaryRef}
+      />
     )
   }
 
@@ -483,12 +342,11 @@ const ReadContent = React.memo(({
 
 })
 
-const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches, displaySettings }) => ({
+const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches }) => ({
   passage,
   passageScrollY,
   recentPassages,
   recentSearches,
-  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
