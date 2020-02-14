@@ -13,7 +13,7 @@ import useAdjacentRefs from '../../hooks/useAdjacentRefs'
 import TapOptions from '../basic/TapOptions'
 import ReadContentPage from "./ReadContentPage"
 
-import { setRef, setVersionId, setParallelVersionId, setPassageScroll } from "../../redux/actions"
+import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"
 
 const {
   PRIMARY_VERSIONS,
@@ -34,14 +34,12 @@ const styles = StyleSheet.create({
 
 const ReadContent = React.memo(({
   passage,
-  passageScrollY,
   recentPassages,
   recentSearches,
 
   setRef,
   setVersionId,
   setParallelVersionId,
-  setPassageScroll,
 }) => {
 
   const { ref, versionId, parallelVersionId } = passage
@@ -57,12 +55,6 @@ const ReadContent = React.memo(({
   const scrollController = useRef('primary')
   const skipVerseTap = useRef(false)
   const primaryScrollY = useRef(0)
-  const primaryRef = useRef()
-  const secondaryRef = useRef()
-  const primaryContentHeight = useRef(0)
-  const secondaryContentHeight = useRef(0)
-  const primaryHeight = useRef(0)
-  const secondaryHeight = useRef(0)
 
   const { width, height } = useDimensions().window
 
@@ -107,95 +99,6 @@ const ReadContent = React.memo(({
   )
 
   const onTouchEnd = useCallback(() => skipVerseTap.current = undefined, [])
-
-  const onPrimaryTouchStart = useCallback(() => onTouchStart('primary'), [ onTouchStart ])
-  const onSecondaryTouchStart = useCallback(() => onTouchStart('secondary'), [ onTouchStart ])
-
-  const onPrimaryLayout = useCallback(({ nativeEvent }) => primaryHeight.current = nativeEvent.layout.height, [])
-  const onSecondaryLayout = useCallback(({ nativeEvent }) => secondaryHeight.current = nativeEvent.layout.height, [])
-
-  const onPrimaryContentSizeChange = useCallback((contentWidth, contentHeight) => primaryContentHeight.current = contentHeight, [])
-  const onSecondaryContentSizeChange = useCallback(
-    (contentWidth, contentHeight) => {
-      secondaryContentHeight.current = contentHeight
-      setUpParallelScroll()
-    },
-    [ setUpParallelScroll ],
-  )
-
-  const getScrollFactor = useCallback(
-    () => {
-      const primaryMaxScroll = Math.max(primaryContentHeight.current - primaryHeight.current, 0)
-      const secondaryMaxScroll = Math.max(secondaryContentHeight.current - secondaryHeight.current, 0)
-
-      return primaryMaxScroll / secondaryMaxScroll
-    },
-    [],
-  )
-
-  const onPrimaryScroll = useCallback(
-    ({ nativeEvent }) => {
-      primaryScrollY.current = nativeEvent.contentOffset.y
-
-      setPassageScroll({
-        y: primaryScrollY.current,
-      })
-
-      if(!secondaryRef.current) return
-      if(scrollController.current !== 'primary') return
-      if(!parallelVersionId) return
-
-      const y = primaryScrollY.current / getScrollFactor()
-      secondaryRef.current.scrollTo({ y, animated: false })
-    }
-    ,
-    [ setPassageScroll, !parallelVersionId, getScrollFactor ],
-  )
-
-  const onSecondaryScroll = useCallback(
-    ({ nativeEvent }) => {
-      if(!primaryRef.current) return
-      if(scrollController.current !== 'secondary') return
-      if(!parallelVersionId) return
-
-      const y = nativeEvent.contentOffset.y * getScrollFactor()
-      primaryRef.current.scrollTo({ y, animated: false })
-    },
-    [ !parallelVersionId, getScrollFactor ],
-  )
-
-  const setUpParallelScroll = useCallback(
-    () => {
-      onPrimaryTouchStart()
-      onPrimaryScroll({
-        nativeEvent: {
-          contentOffset: {
-            y: primaryScrollY.current,
-          }
-        }
-      })
-    },
-    [ onPrimaryTouchStart, onPrimaryScroll ],
-  )
-
-  const onPrimaryLoaded = useCallback(
-    () => {
-      primaryScrollY.current = passageScrollY
-      const doInitialScroll = () => primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
-
-      doInitialScroll
-      setTimeout(doInitialScroll)  // may not fire without the setTimeout
-
-      setUpParallelScroll()
-      setPrimaryLoaded(true)
-    },
-    [ passageScrollY, setUpParallelScroll ],
-  )
-
-  const onSecondaryLoaded = useCallback(() => setSecondaryLoaded(true), [])
-
-  const setPrimaryRef = useCallback(ref => primaryRef.current = ref, [])
-  const setSecondaryRef = useCallback(ref => secondaryRef.current = ref, [])
 
   const setContainerRef = ref => {
     containerRef.current = ref
@@ -252,9 +155,6 @@ const ReadContent = React.memo(({
     [],
   )
 
-  const onPrimaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'primary', ...params }), [ onVerseTap ])
-  const onSecondaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'secondary', ...params }), [ onVerseTap ])
-
   const tapOptions = useMemo(
     () => ([
       {
@@ -281,28 +181,17 @@ const ReadContent = React.memo(({
     return (
       <ReadContentPage
         key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-
         direction={direction}
+        passage={passage}
         selectedSection={selectedSection}
         selectedVerse={selectedVerse}
-        passage={passage}
         onTouchEnd={onTouchEnd}
-
-        onPrimaryTouchStart={onPrimaryTouchStart}
-        onPrimaryScroll={onPrimaryScroll}
-        onPrimaryLayout={onPrimaryLayout}
-        onPrimaryContentSizeChange={onPrimaryContentSizeChange}
-        onPrimaryLoaded={onPrimaryLoaded}
-        onPrimaryVerseTap={onPrimaryVerseTap}
-        setPrimaryRef={setPrimaryRef}
-
-        onSecondaryTouchStart={onSecondaryTouchStart}
-        onSecondaryScroll={onSecondaryScroll}
-        onSecondaryLayout={onSecondaryLayout}
-        onSecondaryContentSizeChange={onSecondaryContentSizeChange}
-        onSecondaryLoaded={onSecondaryLoaded}
-        onSecondaryVerseTap={onSecondaryVerseTap}
-        setSecondaryRef={setSecondaryRef}
+        onTouchStart={onTouchStart}
+        primaryScrollY={primaryScrollY}
+        scrollController={scrollController}
+        setPrimaryLoaded={setPrimaryLoaded}
+        setSecondaryLoaded={setSecondaryLoaded}
+        onVerseTap={onVerseTap}
       />
     )
   }
@@ -342,9 +231,8 @@ const ReadContent = React.memo(({
 
 })
 
-const mapStateToProps = ({ passage, passageScrollY, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
   passage,
-  passageScrollY,
   recentPassages,
   recentSearches,
 })
@@ -353,7 +241,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
   setVersionId,
   setParallelVersionId,
-  setPassageScroll,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(ReadContent)
