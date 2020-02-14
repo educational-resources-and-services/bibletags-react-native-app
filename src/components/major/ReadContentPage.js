@@ -153,9 +153,6 @@ const ReadContentPage = React.memo(({
 
   const onSecondaryLoaded = useCallback(() => setSecondaryLoaded(true), [])
 
-  const setPrimaryRef = useCallback(ref => primaryRef.current = ref, [])
-  const setSecondaryRef = useCallback(ref => secondaryRef.current = ref, [])
-
   const onPrimaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'primary', ...params }), [ onVerseTap ])
   const onSecondaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'secondary', ...params }), [ onVerseTap ])
 
@@ -220,7 +217,7 @@ const ReadContentPage = React.memo(({
         onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
         onLoaded={!direction ? onPrimaryLoaded : null}
         onVerseTap={!direction ? onPrimaryVerseTap : null}
-        setRef={!direction ? setPrimaryRef : null}
+        forwardRef={!direction ? primaryRef : null}
         isVisible={!direction}
       />
       {!!parallelVersionId &&
@@ -251,7 +248,7 @@ const ReadContentPage = React.memo(({
             onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
             onLoaded={!direction ? onSecondaryLoaded : null}
             onVerseTap={!direction ? onSecondaryVerseTap : null}
-            setRef={!direction ? setSecondaryRef : null}
+            forwardRef={!direction ? secondaryRef : null}
             isVisible={!direction}
           />
         </>

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import Constants from "expo-constants"
 import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
@@ -10,6 +10,7 @@ import { getValidFontName } from "../../utils/bibleFonts.js"
 import VerseText from '../basic/VerseText'
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'
+import useInstanceValue from "../../hooks/useInstanceValue.js"
 
 const {
   DEFAULT_FONT_SIZE,
@@ -148,275 +149,285 @@ const lightStyles = [
 
 const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
-class ReadText extends React.PureComponent {
+const ReadText = React.memo(({
+  versionId,
+  passageRef,
+  selectedVerse,
+  isVisible,
+  forwardRef,
+  onContentSizeChange,
+  onLoaded,
+  onVerseTap,
+  onScroll,
+  onTouchStart,
+  onTouchEnd,
+  onLayout,
 
-  state = {
-    pieces: null,
-    languageId: 'eng',
-    isOriginal: false,
-  }
+  displaySettings,
+}) => {
 
-  componentDidMount() {
-    this.getText()
-  }
+  const [ state, setState ] = useState({})
+  const { pieces, languageId, isOriginal } = state
 
-  componentDidUpdate() {
-    const { isVisible } = this.props
+  const { bookId, chapter } = passageRef
 
-    if(isVisible !== this.previousIsVisible) {
+  const verses = useRef()
+  const contentSizeParams = useRef()
 
-      this.previousIsVisible = isVisible
+  useEffect(
+    () => {
+      if(pieces && onLoaded) {
+        onLoaded()
+      }
+    },
+    [ pieces ],
+  )
 
+  useEffect(
+    () => {
+      (async () => {
+
+        if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
+
+        const { rows: { _array: vss } } = await executeSql({
+          versionId,
+          statement: `SELECT * FROM ${versionId}Verses WHERE loc LIKE ?`,
+          args: [
+            `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
+          ],
+          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
+          removeWordPartDivisions: true,
+        })
+
+        verses.current = vss
+
+        const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
+
+        const pieces = getPiecesFromUSFM({
+          usfm: vss.map(({ usfm }) => usfm).join('\n'),
+          wordDividerRegex,
+        })
+
+        setState({
+          pieces,
+          languageId,
+          isOriginal,
+        })
+
+      })()
+    },
+    [],
+  )
+
+  const fireOnContentSizeChange = useCallback(
+    () => {
+      if(onContentSizeChange && contentSizeParams.current) {
+        onContentSizeChange(...contentSizeParams.current)
+      }
+    },
+    [ onContentSizeChange ],
+  )
+
+  useEffect(
+    () => {
       // The following line (and related methods) is needed for adjusting numbers
       // to keep the scroll in parallel, WHEN next/previous chapter has been
       // swiped.
-      this.fireOnContentSizeChange()
+      fireOnContentSizeChange()
   
-      if(!isVisible && this.ref) {
-        this.ref.scrollTo({ y: 0, animated: false })
+      if(!isVisible && (forwardRef || {}).current) {
+        forwardRef.current.scrollTo({ y: 0, animated: false })
       }
+    },
+    [ isVisible ],
+  )
 
-    }
-  }
+  const goContentSizeChange = useCallback(
+    (...params) => {
+      contentSizeParams.current = params
+      fireOnContentSizeChange()
+    },
+    [ fireOnContentSizeChange ],
+  )
 
-  fireOnContentSizeChange = () => {
-    const { onContentSizeChange } = this.props
-    if(onContentSizeChange && this.contentSizeParams) {
-      onContentSizeChange(...this.contentSizeParams)
-    }
-  }
+  const getOnVerseTap = useInstanceValue(onVerseTap)
 
-  onContentSizeChange = (...params) => {
-    this.contentSizeParams = params
-    this.fireOnContentSizeChange()
-  }
+  const goVerseTap = useCallback(
+    ({ selectedVerse, ...otherParams }) => {
+      if(selectedVerse == null) return
 
-  setUpSetRef = () => {
-    const { setRef } = this.props
-
-    if(setRef !== this.previousSetRef) {
-      this.previousSetRef = setRef
-      this.setRef = ref => {
-        this.ref = ref
-        setRef && setRef(ref)
-      }
-    }
-  }
-
-  getText = async () => {
-    const { versionId, passageRef, onLoaded } = this.props
-    const { bookId, chapter } = passageRef
-
-    if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
-
-    const { rows: { _array: verses } } = await executeSql({
-      versionId,
-      statement: `SELECT * FROM ${versionId}Verses WHERE loc LIKE ?`,
-      args: [
-        `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
-      ],
-      removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-      removeWordPartDivisions: true,
-    })
-
-    this.verses = verses
-
-    const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
-
-    const pieces = getPiecesFromUSFM({
-      usfm: verses.map(({ usfm }) => usfm).join('\n'),
-      wordDividerRegex,
-    })
-
-    this.setState({
-      pieces,
-      languageId,
-      isOriginal,
-    }, onLoaded)
-  }
-
-  onVerseTap = ({ selectedVerse, ...otherParams }) => {
-    const { onVerseTap, versionId, passageRef } = this.props
-    const { bookId, chapter } = passageRef
-
-    if(selectedVerse == null) return
-
-    let verseUsfm
-    this.verses.some(({ loc, usfm }) => {
-      if(loc === `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+selectedVerse).substr(-3)}`) {
-        verseUsfm = usfm
-        return
-      }
-    })
-
-    const { wordDividerRegex, abbr } = getVersionInfo(versionId)
-
-    const pieces = getPiecesFromUSFM({
-      usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
-      inlineMarkersOnly: true,
-      wordDividerRegex,
-    })
-
-    const selectedTextContent = getCopyVerseText({
-      pieces,
-      ref: {
-        ...passageRef,
-        verse: selectedVerse,
-      },
-      versionAbbr: abbr,
-    })
-
-    onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
-  }
-
-  getJSX = () => {
-    const { pieces } = this.state
-
-    delete this.verse
-    return this.getJSXFromPieces({ pieces })
-  }
-
-  getJSXFromPieces = ({ pieces }) => {
-    const { displaySettings, selectedVerse, passageRef } = this.props
-    const { languageId, isOriginal } = this.state
-
-    const { bookId } = passageRef
-    const { font, textSize, lineSpacing, theme } = displaySettings
-    const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
-
-    let textAlreadyDisplayedInThisView = false
-
-    const simplifiedPieces = []
-    pieces.forEach(piece => {
-      const { tag, text } = piece
-      const previousPiece = simplifiedPieces.slice(-1)[0]
-
-      if(
-        previousPiece
-        && (!tag || tag === 'w')
-        && (!previousPiece.tag || previousPiece.tag === 'w')
-        && text
-        && previousPiece.text
-      ) {
-        previousPiece.text += text
-      } else {
-        simplifiedPieces.push({ ...piece })
-      }
-    })
-
-    return simplifiedPieces.map((piece, idx) => {
-      let { type, tag, text, content, children } = piece
-
-      if(!children && !text && !content) return null
-      if([ "c", "cp" ].includes(tag)) return null
-
-      if([ "v" ].includes(tag) && content) {
-        this.verse = parseInt(content, 10)
-      }
-      
-      const verse = /^(?:ms|mt|s[0-9])$/.test(tag) ? null : this.verse
-
-      if([ "v", "vp" ].includes(tag) && content) {
-        const nextPiece = simplifiedPieces[idx+1] || {}
-        if(tag === "v" && nextPiece.tag === "vp") return null
-        content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
-      }
-
-      const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
-
-      const bold = boldStyles.includes(tag)
-      const italic = italicStyles.includes(tag)
-      const light = lightStyles.includes(tag)
-      const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-      const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
-      const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
-        font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
-        bold,
-        italic,
-        light,
+      let verseUsfm
+      verses.current.some(({ loc, usfm }) => {
+        if(loc === `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+selectedVerse).substr(-3)}`) {
+          verseUsfm = usfm
+          return
+        }
       })
 
-      const styles = [
-        wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
-        getStyle({ tag, styles: textStyles }),
-        theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
-        theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,
-        fontSize && { fontSize },
-        lineHeight && { lineHeight },
-        fontFamily && { fontFamily },
-        (selectedVerse !== null && (
-          verse === selectedVerse
-            ? { color: '#000000' }
-            : { color: '#bbbbbb' }
-        )),
-      ].filter(s => s)
+      const { wordDividerRegex, abbr } = getVersionInfo(versionId)
 
-      textAlreadyDisplayedInThisView = true
+      const pieces = getPiecesFromUSFM({
+        usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+        inlineMarkersOnly: true,
+        wordDividerRegex,
+      })
 
-      let component = (
-        <VerseText
-          key={idx}
-          style={styles}
-          onPress={this.onVerseTap}
-          verseNumber={verse}
-        >
-          {children
-            ? this.getJSXFromPieces({
-              pieces: children,
-            })
-            : (text || content)
+      const selectedTextContent = getCopyVerseText({
+        pieces,
+        ref: {
+          ...passageRef,
+          verse: selectedVerse,
+        },
+        versionAbbr: abbr,
+      })
+
+      const onVerseTap = getOnVerseTap()
+      onVerseTap && onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
+    },
+    [ versionId, passageRef ],
+  )
+
+  const getJSX = useCallback(
+    () => {
+      let vs = null
+
+      const getJSXFromPieces = ({ pieces }) => {
+
+        const { font, textSize, lineSpacing, theme } = displaySettings
+        const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
+
+        let textAlreadyDisplayedInThisView = false
+
+        const simplifiedPieces = []
+        pieces.forEach(piece => {
+          const { tag, text } = piece
+          const previousPiece = simplifiedPieces.slice(-1)[0]
+
+          if(
+            previousPiece
+            && (!tag || tag === 'w')
+            && (!previousPiece.tag || previousPiece.tag === 'w')
+            && text
+            && previousPiece.text
+          ) {
+            previousPiece.text += text
+          } else {
+            simplifiedPieces.push({ ...piece })
           }
-        </VerseText>
-      )
+        })
 
-      if(wrapInView) {
-        component = (
-          <View
-            key={idx}
-            style={[
-              getStyle({ tag, styles: viewStyles }),
-            ]}
-          >
-            {component}
-          </View>
-        )
+        return simplifiedPieces.map((piece, idx) => {
+          let { type, tag, text, content, children } = piece
+
+          if(!children && !text && !content) return null
+          if([ "c", "cp" ].includes(tag)) return null
+
+          if([ "v" ].includes(tag) && content) {
+            vs = parseInt(content, 10)
+          }
+          
+          const verse = /^(?:ms|mt|s[0-9])$/.test(tag) ? null : vs
+
+          if([ "v", "vp" ].includes(tag) && content) {
+            const nextPiece = simplifiedPieces[idx+1] || {}
+            if(tag === "v" && nextPiece.tag === "vp") return null
+            content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
+          }
+
+          const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
+
+          const bold = boldStyles.includes(tag)
+          const italic = italicStyles.includes(tag)
+          const light = lightStyles.includes(tag)
+          const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
+          const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
+          const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
+            font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
+            bold,
+            italic,
+            light,
+          })
+
+          const styles = [
+            wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
+            getStyle({ tag, styles: textStyles }),
+            theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
+            theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,
+            fontSize && { fontSize },
+            lineHeight && { lineHeight },
+            fontFamily && { fontFamily },
+            (selectedVerse !== null && (
+              verse === selectedVerse
+                ? { color: '#000000' }
+                : { color: '#bbbbbb' }
+            )),
+          ].filter(s => s)
+
+          textAlreadyDisplayedInThisView = true
+
+          let component = (
+            <VerseText
+              key={idx}
+              style={styles}
+              onPress={goVerseTap}
+              verseNumber={verse}
+            >
+              {children
+                ? getJSXFromPieces({
+                  pieces: children,
+                })
+                : (text || content)
+              }
+            </VerseText>
+          )
+
+          if(wrapInView) {
+            component = (
+              <View
+                key={idx}
+                style={[
+                  getStyle({ tag, styles: viewStyles }),
+                ]}
+              >
+                {component}
+              </View>
+            )
+          }
+
+          return component
+
+        })
       }
 
-      return component
+      return getJSXFromPieces({ pieces })
+    },
+    [ pieces, displaySettings, selectedVerse, bookId, languageId, isOriginal ],
+  )
 
-    })
-  }
-
-  render() {
-    const { onScroll, onTouchStart, onTouchEnd, onLayout } = this.props
-    const { pieces } = this.state
-
-    if(!pieces) {
-      return (
-        <View style={viewStyles.viewContainer} />
-      )
-    }
-
-    this.setUpSetRef()
-
+  if(!pieces) {
     return (
-      <ScrollView
-        style={viewStyles.container}
-        scrollEventThrottle={16}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-        onScroll={onScroll}
-        onLayout={onLayout}
-        onContentSizeChange={this.onContentSizeChange}
-        ref={this.setRef}
-      >
-        <View style={viewStyles.content}>
-          {this.getJSX()}
-        </View>
-      </ScrollView>
+      <View style={viewStyles.viewContainer} />
     )
   }
-}
+
+  return (
+    <ScrollView
+      style={viewStyles.container}
+      scrollEventThrottle={16}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+      onScroll={onScroll}
+      onLayout={onLayout}
+      onContentSizeChange={goContentSizeChange}
+      ref={forwardRef}
+    >
+      <View style={viewStyles.content}>
+        {getJSX()}
+      </View>
+    </ScrollView>
+  )
+
+})
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
