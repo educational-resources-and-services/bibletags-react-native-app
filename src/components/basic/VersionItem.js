@@ -45,7 +45,7 @@ const VersionItem = React.memo(({
 
   const goVersionInfo = useCallback(
     event => {
-      historyPush("/Versions/VersionInfo", {
+      historyPush("/Read/Versions/VersionInfo", {
         versionId,
       })
     },

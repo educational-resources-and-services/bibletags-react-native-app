@@ -41,7 +41,7 @@ const RecentSearch = React.memo(({
 
   const select = useCallback(
     () => {
-      historyPush("/Search", {
+      historyPush("/Read/Search", {
         editOnOpen: false,
         searchString,
         versionId,

@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { StyleSheet, View, StatusBar, TouchableWithoutFeedback, I18nManager } from "react-native"
+import { StyleSheet, View, StatusBar, TouchableWithoutFeedback } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 import { Switch, Route } from "react-router-native"
-// import SideMenu from "react-native-simple-side-menu"  // I have no idea why this won't work
-import SideMenu from "../major/SideMenu"
 
 import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 import { useDimensions } from 'react-native-hooks'
 import useRouterState from "../../hooks/useRouterState"
 
-import Drawer from "../major/Drawer"
-import ErrorMessage from "./ErrorMessage"
-import LanguageChooser from "./LanguageChooser"
 import Search from "./Search"
 import VerseFocus from "./VerseFocus"
 import Versions from "./Versions"
@@ -69,7 +64,7 @@ const Read = () => {
   const goVersions = useCallback(
     () => {
       hidePassageChooser()
-      historyPush("/Versions")
+      historyPush("/Read/Versions")
     },
     [],
   )
@@ -79,64 +74,54 @@ const Read = () => {
   const hideStatusBar = showingPassageChooser
 
   return (
-    <SideMenu
-      open={pathname === '/SideMenu'}
-      onClose={historyGoBack}
-      menu={<Drawer />}
-    >
+    <Switch>
+      <Route path="/Read/Search" component={Search} />
+      <Route path="/Read/VerseFocus" component={VerseFocus} />
+      <Route path="/Read/Versions" component={Versions} />
+      <Route>
 
-      <Switch>
-        <Route path="/ErrorMessage" component={ErrorMessage} />
-        <Route path="/LanguageChooser" component={LanguageChooser} />
-        <Route path="/Search" component={Search} />
-        <Route path="/VerseFocus" component={VerseFocus} />
-        <Route path="/Versions" component={Versions} />
-        <Route>
-
-          <View
-            style={styles.passageChooserContainer}
-          >
-            <IPhoneXBuffer extraSpace={true} />
-            <PassageChooser
-              hidePassageChooser={hidePassageChooser}
-              paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
-              showing={showingPassageChooser}
-              goVersions={goVersions}
+        <View
+          style={styles.passageChooserContainer}
+        >
+          <IPhoneXBuffer extraSpace={true} />
+          <PassageChooser
+            hidePassageChooser={hidePassageChooser}
+            paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
+            showing={showingPassageChooser}
+            goVersions={goVersions}
+          />
+        </View>
+        <RevealContainer
+          revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
+          immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
+        >
+          <ReadHeader
+            toggleShowOptions={toggleShowOptions}
+            showPassageChooser={showPassageChooser}
+            showingPassageChooser={showingPassageChooser}
+            hideStatusBar={hideStatusBar}
+          />
+          {showingDisplaySettings &&
+            <DisplaySettings
+              hideDisplaySettings={hideDisplaySettings}
             />
-          </View>
-          <RevealContainer
-            revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-            immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
-          >
-            <ReadHeader
-              toggleShowOptions={toggleShowOptions}
-              showPassageChooser={showPassageChooser}
-              showingPassageChooser={showingPassageChooser}
-              hideStatusBar={hideStatusBar}
-            />
-            {showingDisplaySettings &&
-              <DisplaySettings
-                hideDisplaySettings={hideDisplaySettings}
-              />
-            }
-            <ReadContent />
-            <RecentSection />
-            {!!showingPassageChooser &&
-              <TouchableWithoutFeedback
+          }
+          <ReadContent />
+          <RecentSection />
+          {!!showingPassageChooser &&
+            <TouchableWithoutFeedback
+              style={styles.invisibleCover}
+              onPressIn={hidePassageChooser}
+            >
+              <View
                 style={styles.invisibleCover}
-                onPressIn={hidePassageChooser}
-              >
-                <View
-                  style={styles.invisibleCover}
-                />
-              </TouchableWithoutFeedback>
-            }
-          </RevealContainer>
+              />
+            </TouchableWithoutFeedback>
+          }
+        </RevealContainer>
 
-        </Route>
-      </Switch>
-
-    </SideMenu>
+      </Route>
+    </Switch>
   )
 
 }

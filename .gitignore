@@ -2,11 +2,13 @@ node_modules/**/*
 .expo/*
 .expo-shared/*
 npm-debug.*
-assets/*
-tenants/*
+/assets/*
+/tenants/*
 /app.json
 /language.js
 /fonts.js
 /menu.js
 /versions.js
+/RouteSwitcher.js
+/tenantComponents/*
 /src/utils/translations/current.json

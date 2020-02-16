@@ -150,7 +150,7 @@ const Search = ({
     [ routerState ],
   )
 
-  const goVersions = useCallback(() => historyPush("/Versions"), [])
+  const goVersions = useCallback(() => historyPush("/Read/Versions"), [])
 
   const updateEditedSearchString = useCallback(
     searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific

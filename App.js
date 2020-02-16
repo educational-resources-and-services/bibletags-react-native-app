@@ -25,7 +25,7 @@ import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
 
-import Read from "./src/components/screens/Read"
+import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher.js"
 
 const {
   NUM_OPENS_FOR_RATING_REQUEST=0,
@@ -147,7 +147,7 @@ const App = () => {
             persistor={persistor} 
             loading={<AppLoading />}
           >
-            <Read />
+            <SideMenuAndRouteSwitcher />
           </PersistGate>
         </Provider>
       </Root>

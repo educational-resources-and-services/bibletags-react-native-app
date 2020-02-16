@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
 
 const DrawerItem = React.memo(({
   type,
+  route,
   href,
   text,
   image,
@@ -37,10 +38,15 @@ const DrawerItem = React.memo(({
   const { historyPush, historyReplace } = useRouterState()
 
   const changeLanguage = useCallback(() => historyReplace("/LanguageChooser"), [])
-  const goVersions = useCallback(() => historyReplace("/Versions"), [])
+  const goVersions = useCallback(() => historyReplace("/Read/Versions"), [])
 
-  const goToURL = useCallback(
+  const go = useCallback(
     event => {
+      if(route) {
+        historyReplace(route)
+        return
+      }
+
       if(type === 'rate') {
         href = StoreReview.storeUrl()
       }
@@ -54,7 +60,7 @@ const DrawerItem = React.memo(({
         })
       })
     },
-    [ type, href ],
+    [ type, href, route ],
   )
 
   if(locales && !locales.includes(getLocale())) return null
@@ -69,7 +75,7 @@ const DrawerItem = React.memo(({
     }
     case 'rate': {
       typeText = i18n("Rate this app")
-      typeAction = goToURL
+      typeAction = go
       break
     }
     case 'versions': {
@@ -81,10 +87,10 @@ const DrawerItem = React.memo(({
 
   return (
     <ListItem
-      {...((onPress || typeAction || href)
+      {...((onPress || typeAction || route || href)
         ? {
           button: true,
-          onPress: onPress || typeAction || goToURL,
+          onPress: onPress || typeAction || go,
         }
         : {}
       )}

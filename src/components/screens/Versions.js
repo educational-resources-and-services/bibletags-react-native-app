@@ -45,7 +45,7 @@ const Versions = ({
 
   return (
     <Switch>
-      <Route path="/Versions/VersionInfo" component={VersionInfo} />
+      <Route path="/Read/Versions/VersionInfo" component={VersionInfo} />
       <Route>
 
         <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
