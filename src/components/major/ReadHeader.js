@@ -5,9 +5,10 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import { i18n } from "inline-i18n"
-import { isPhoneSize, debounce, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
+import { isPhoneSize, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 import { getPassageStr } from "bibletags-ui-helper"
 import { useDimensions } from 'react-native-hooks'
+import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -68,8 +69,6 @@ const styles = StyleSheet.create({
 })
 
 const ReadHeader = React.memo(({
-  navigation,
-
   toggleShowOptions,
   showPassageChooser,
   showingPassageChooser,
@@ -79,22 +78,22 @@ const ReadHeader = React.memo(({
   displaySettings,
 }) => {
 
+  const { historyPush } = useRouterState()
+
   let { width } = useDimensions().window
   width -= (leftIconsWidth + rightIconsWidth)
 
   const goSearch = useCallback(
     () => {
-      debounce(
-        navigation.navigate,
-        "Search",
-        {
-          editOnOpen: true,
-          versionId: passage.versionId,
-        }
-      )
+      historyPush("/Search", {
+        editOnOpen: true,
+        versionId: passage.versionId,
+      })
     },
-    [ navigation, passage ],
+    [ passage ],
   )
+
+  const openSideMenu = useCallback(() => historyPush("/SideMenu"), [])
 
   const versionsText = [
     getVersionInfo(passage.versionId).abbr,
@@ -111,7 +110,7 @@ const ReadHeader = React.memo(({
       <Left>
         <Button
           transparent
-          onPressIn={navigation.openDrawer}
+          onPressIn={openSideMenu}
         >
           <HeaderIcon name="menu" />
         </Button>

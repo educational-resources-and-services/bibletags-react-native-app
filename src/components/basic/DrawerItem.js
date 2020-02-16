@@ -4,7 +4,7 @@ import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem, Body, Text } from "native-base"
 
 import { i18n, getLocale } from "inline-i18n"
-import { debounce } from "../../utils/toolbox.js"
+import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
   image: {
@@ -24,7 +24,6 @@ const styles = StyleSheet.create({
 })
 
 const DrawerItem = React.memo(({
-  navigation,
   type,
   href,
   text,
@@ -35,25 +34,10 @@ const DrawerItem = React.memo(({
   locales,
 }) => {
 
-  const changeLanguage = useCallback(
-    () => {
-      debounce(
-        navigation.navigate,
-        "LanguageChooser",
-      )
-    },
-    [ navigation ],
-  )
+  const { historyPush, historyReplace } = useRouterState()
 
-  const goVersions = useCallback(
-    () => {
-      debounce(
-        navigation.navigate,
-        "Versions",
-      )
-    },
-    [ navigation ],
-  )
+  const changeLanguage = useCallback(() => historyReplace("/LanguageChooser"), [])
+  const goVersions = useCallback(() => historyReplace("/Versions"), [])
 
   const goToURL = useCallback(
     event => {
@@ -65,12 +49,12 @@ const DrawerItem = React.memo(({
 
       Linking.openURL(href).catch(err => {
         console.log('ERROR: Request to open URL failed.', err)
-        navigation.navigate("ErrorMessage", {
+        historyPush("/ErrorMessage", {
           message: i18n("Your device is not allowing us to open this link."),
         })
       })
     },
-    [ type, href, navigation ],
+    [ type, href ],
   )
 
   if(locales && !locales.includes(getLocale())) return null

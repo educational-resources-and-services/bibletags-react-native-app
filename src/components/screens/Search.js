@@ -7,8 +7,9 @@ import { Container, Content } from "native-base"
 
 import { i18n } from "inline-i18n"
 import { logEvent } from '../../utils/analytics'
-import { stripHebrew, executeSql, escapeLike, getVersionInfo, debounce } from "../../utils/toolbox.js"
+import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
+import useRouterState from "../../hooks/useRouterState"
 
 import SearchResult from '../basic/SearchResult'
 import SearchSuggestions from '../basic/SearchSuggestions'
@@ -52,14 +53,13 @@ const defaultTapState = {
 }
 
 const Search = ({
-  navigation,
-
   displaySettings,
 
   recordSearch,
 }) => {
 
-  const { editOnOpen, searchString, versionId } = navigation.state.params
+  const { historyPush, historyReplace, routerState } = useRouterState()
+  const { editOnOpen, searchString, versionId } = routerState
 
   const [ searchState, setSearchState ] = useState({
     searchedString: null,
@@ -142,27 +142,15 @@ const Search = ({
 
   const updateVersion = useCallback(
     versionId => {
-      debounce(
-        navigation.setParams,
-        {
-          ...navigation.state.params,
-          versionId,
-        },
-      )
+      historyReplace(null, {
+        ...routerState,
+        versionId,
+      })
     },
-    [ navigation ],
+    [ routerState ],
   )
 
-  const goVersions = useCallback(
-    () => {
-      debounce(
-        navigation.navigate,
-        "Versions",
-      )
-    },
-    [ navigation ],
-  )
-
+  const goVersions = useCallback(() => historyPush("/Versions"), [])
 
   const updateEditedSearchString = useCallback(
     searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific
@@ -204,7 +192,6 @@ const Search = ({
           versionAbbr={versionAbbr}
           selected={selected}
           selectTapY={selected ? selectTapY : null}
-          navigation={navigation}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           onSelect={selectLoc}
@@ -212,7 +199,7 @@ const Search = ({
         />
       )
     },
-    [ navigation, searchState, selectedLoc, selectTapY ],
+    [ searchState, selectedLoc, selectTapY ],
   )
 
   const keyExtractor = useCallback(item => item.loc, [])
@@ -228,7 +215,6 @@ const Search = ({
     <Container>
       <SearchHeader
         editing={editing}
-        navigation={navigation}
         setEditing={setEditing}
         numberResults={numberResults}
         editedSearchString={editedSearchString}
@@ -249,7 +235,6 @@ const Search = ({
             editedSearchString={editedSearchString}
             updateEditedSearchString={updateEditedSearchString}
             setEditing={setEditing}
-            navigation={navigation}
           />
         }
         {!editing && searchDone && searchResults.length === 0 &&

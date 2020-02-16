@@ -8,6 +8,7 @@ import { ListItem, Body, Text } from "native-base"
 
 import { getLocale } from "inline-i18n"
 import { fixRTL } from "../../utils/toolbox"
+import useRouterState from "../../hooks/useRouterState"
 
 const {
   INPUT_HIGHLIGHT_COLOR,
@@ -46,16 +47,18 @@ const styles = StyleSheet.create({
 })
 
 const LanguageItem = React.memo(({
-  navigation,
   locale,
   label,
 
   displaySettings,
 }) => {
 
+  const { historyGoBack } = useRouterState()
+
   const goChangeLanguage = useCallback(
     async event => {
-      navigation.goBack()
+
+      historyGoBack()
 
       if(getLocale() !== locale) {
         await AsyncStorage.setItem(`uiLocale`, locale)
@@ -64,7 +67,7 @@ const LanguageItem = React.memo(({
         Updates.reloadFromCache()
       }
     },
-    [ locale, navigation ],
+    [ locale ],
   )
 
   const selected = getLocale() === locale

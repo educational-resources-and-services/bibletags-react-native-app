@@ -39,8 +39,6 @@ const styles = StyleSheet.create({
 })
 
 const RecentSection = React.memo(({
-  navigation,
-
   passage,
   history,
   recentPassages,
@@ -106,7 +104,6 @@ const RecentSection = React.memo(({
                 key={`${searchString} ${versionId}`}
                 searchString={searchString}
                 versionId={versionId}
-                navigation={navigation}
               />
             )
           })}

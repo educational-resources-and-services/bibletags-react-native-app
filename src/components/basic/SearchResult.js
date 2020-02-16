@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react"
 import Constants from "expo-constants"
-import { View, StyleSheet, Text, Dimensions, Clipboard, I18nManager } from "react-native"
+import { View, StyleSheet, Text, Clipboard, I18nManager } from "react-native"
 import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -11,6 +11,7 @@ import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
 import { getPassageStr } from "bibletags-ui-helper"
 import { useDimensions } from 'react-native-hooks'
+import useRouterState from "../../hooks/useRouterState"
 
 import TapOptions from "./TapOptions"
 
@@ -105,7 +106,6 @@ const lightStyles = [
 const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
 const SearchResult = React.memo(({
-  navigation,
   result,
   languageId,
   isOriginal,
@@ -122,6 +122,8 @@ const SearchResult = React.memo(({
 
   setRef,
 }) => {
+
+  const { historyGoBack } = useRouterState()
 
   const { font, textSize, lineSpacing, theme } = displaySettings
   const { pieces, loc } = result
@@ -221,7 +223,7 @@ const SearchResult = React.memo(({
       {
         label: i18n("Read"),
         action: () => {
-          navigation.goBack()
+          historyGoBack()
           setRef({ ref })
         }
       },
@@ -242,7 +244,7 @@ const SearchResult = React.memo(({
         }
       },
     ]),
-    [ pieces, ref, versionAbbr, unselect, navigation ],
+    [ pieces, ref, versionAbbr, unselect ],
   )
 
   const onPress = useCallback(

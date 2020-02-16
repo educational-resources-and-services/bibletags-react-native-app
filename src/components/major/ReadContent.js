@@ -6,9 +6,9 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import { i18n } from "inline-i18n"
-import { debounce } from "../../utils/toolbox.js"
 import { useDimensions } from 'react-native-hooks'
 import useAdjacentRefs from '../../hooks/useAdjacentRefs'
+import useSetTimeout from "../../hooks/useSetTimeout"
 
 import TapOptions from '../basic/TapOptions'
 import ReadContentPage from "./ReadContentPage"
@@ -58,6 +58,8 @@ const ReadContent = React.memo(({
 
   const { width, height } = useDimensions().window
 
+  const [ setOffsetTimeout ] = useSetTimeout()
+
   if(passage !== statePassage) {
     const refChanged = ref !== statePassage.ref
     const primaryChanged = versionId !== statePassage.versionId
@@ -102,11 +104,15 @@ const ReadContent = React.memo(({
 
   const setContainerRef = ref => {
     containerRef.current = ref
-    setTimeout(setContentOffset)
+    setOffsetTimeout(setContentOffset)
   }
 
   const setContentOffset = useCallback(
-    () => containerRef.current.scrollTo({ x: width, animated: false }),
+    () => {
+      if(containerRef.current) {
+        containerRef.current.scrollTo({ x: width, animated: false })
+      }
+    },
     [ width ],
   )
 
@@ -126,13 +132,10 @@ const ReadContent = React.memo(({
 
         primaryScrollY.current = 0
 
-        debounce(
-          setRef,
-          {
-            ref,
-            wasSwipe: true,
-          },
-        )
+        setRef({
+          ref,
+          wasSwipe: true,
+        })
         setContentOffset()
       }
     },

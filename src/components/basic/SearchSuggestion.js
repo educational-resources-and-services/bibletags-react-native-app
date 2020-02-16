@@ -4,8 +4,9 @@ import { ListItem, Body } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce, getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
 import { i18n } from "inline-i18n"
+import useRouterState from "../../hooks/useRouterState"
 
 import RelativeTime from "./RelativeTime"
 
@@ -57,7 +58,6 @@ const styles = StyleSheet.create({
 })
 
 const SearchSuggestion = React.memo(({
-  navigation,
   searchString,
   versionId,
   lastViewTime,
@@ -68,22 +68,21 @@ const SearchSuggestion = React.memo(({
   displaySettings,
 }) => {
 
+  const { historyReplace, routerState } = useRouterState()
+
   const goSearch = useCallback(
     () => {
       updateEditedSearchString(searchString)
       setEditing(false)
 
-      debounce(
-        navigation.setParams,
-        {
-          ...navigation.state.params,
-          searchString,
-          versionId,
-          editOnOpen: false,
-        },
-      )
+      historyReplace(null, {
+        ...routerState,
+        searchString,
+        versionId,
+        editOnOpen: false,
+      })
     },
-    [ navigation, searchString, versionId, setEditing, updateEditedSearchString ],
+    [ searchString, versionId, setEditing, updateEditedSearchString, routerState ],
   )
 
   const { abbr, languageId } = getVersionInfo(versionId)

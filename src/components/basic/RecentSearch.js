@@ -4,7 +4,8 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce } from "../../utils/toolbox.js"
+import useRouterState from "../../hooks/useRouterState"
+
 import RecentBookmark from "./RecentBookmark"
 
 import { removeRecentSearch } from "../../redux/actions.js"
@@ -23,7 +24,6 @@ const styles = StyleSheet.create({
 })
 
 const RecentSearch = React.memo(({
-  navigation,
   searchString,
   versionId,
 
@@ -32,6 +32,8 @@ const RecentSearch = React.memo(({
   removeRecentSearch,
 }) => {
 
+  const { historyPush } = useRouterState()
+
   const discard = useCallback(
     () => removeRecentSearch({ searchString }),
     [ searchString ],
@@ -39,17 +41,13 @@ const RecentSearch = React.memo(({
 
   const select = useCallback(
     () => {
-      debounce(
-        navigation.navigate,
-        "Search",
-        {
-          editOnOpen: false,
-          searchString,
-          versionId,
-        }
-      )
+      historyPush("/Search", {
+        editOnOpen: false,
+        searchString,
+        versionId,
+      })
     },
-    [ navigation, searchString, versionId ],
+    [ searchString, versionId ],
   )
 
   const { theme } = displaySettings

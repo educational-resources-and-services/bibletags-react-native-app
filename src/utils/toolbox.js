@@ -26,16 +26,6 @@ export const isPhoneSize = () => {
   return Math.min(width, height) < 500
 }
 
-// The navigate function prevents a double tap from causing double navigation
-let lastDebounce
-export const debounce = (func, ...params) => {
-  if(lastDebounce !== JSON.stringify(params)) {
-    func(...params)
-    lastDebounce = JSON.stringify(params)
-    setTimeout(() => lastDebounce = undefined, 1500)
-  }
-}
-
 let nextIdForTimeout = 1
 const componentTimeouts = {}
 

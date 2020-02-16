@@ -9,6 +9,7 @@ import { i18n } from "inline-i18n"
 import menuItems from '../../../menu.js'
 import useNetwork from "../../hooks/useNetwork"
 import { useDimensions } from 'react-native-hooks'
+import useRouterState from "../../hooks/useRouterState"
 
 import DrawerItem from '../basic/DrawerItem'
 
@@ -56,11 +57,10 @@ const styles = StyleSheet.create({
 })
 
 const Drawer = ({
-  navigation,
-
   displaySettings,
 }) => {
 
+  const { historyPush } = useRouterState()
   const { online } = useNetwork()
   const { height } = useDimensions().window
 
@@ -68,12 +68,12 @@ const Drawer = ({
     () => {
       Linking.openURL("https://bibletags.org").catch(err => {
         console.log('ERROR: Request to open URL failed.', err)
-        navigation.navigate("ErrorMessage", {
+        historyPush("/ErrorMessage", {
           message: i18n("Your device is not allowing us to open this link."),
         })
       })
     },
-    [ navigation ],
+    [],
   )
 
   const minHeight = height - (StatusBar.currentHeight || 0)
@@ -91,7 +91,6 @@ const Drawer = ({
               <DrawerItem
                 key={idx}
                 offline={!online}
-                navigation={navigation}
                 {...menuItem}
               />
             ))}

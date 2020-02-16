@@ -5,10 +5,10 @@ import { StyleSheet } from "react-native"
 import { Container, Content, Body, List } from "native-base"
 
 import { i18n } from "inline-i18n"
+import { languageOptions } from "../../../language"
 
 import BasicHeader from "../major/BasicHeader"
 import LanguageItem from "../basic/LanguageItem"
-import { languageOptions } from "../../../language"
 
 const styles = StyleSheet.create({
   containerLowLight: {
@@ -29,8 +29,6 @@ const styles = StyleSheet.create({
 })
 
 const LanguageChooser = ({
-  navigation,
-
   displaySettings,
 }) => {
 
@@ -39,7 +37,6 @@ const LanguageChooser = ({
   return (
     <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
       <BasicHeader
-        navigation={navigation}
         title={i18n("Change app language")}
       />
       <Content>
@@ -53,7 +50,6 @@ const LanguageChooser = ({
             {languageOptions.map(({ locale, label }) => (
               <LanguageItem
                 key={locale}
-                navigation={navigation}
                 locale={locale}
                 label={label}
               />

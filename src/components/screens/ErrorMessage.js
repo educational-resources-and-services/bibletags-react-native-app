@@ -5,6 +5,7 @@ import { Container, Content, Body, Text } from "native-base"
 
 import { i18n } from "inline-i18n"
 import useSetTimeout from "../../hooks/useSetTimeout"
+import useRouterState from "../../hooks/useRouterState"
 
 import ErrorMessageHeader from "../major/ErrorMessageHeader"
 
@@ -18,10 +19,12 @@ const styles = StyleSheet.create({
   },
 })
 
-const ErrorMessage = ({ navigation }) => {
+const ErrorMessage = () => {
+
+  const { routerState } = useRouterState()
+  const { message, critical } = routerState
 
   const [ setReloadTimeout ] = useSetTimeout()
-  const { message, critical } = navigation.state.params || {}
 
   useEffect(
     () => {
@@ -34,7 +37,7 @@ const ErrorMessage = ({ navigation }) => {
 
   return (
     <Container>
-      <ErrorMessageHeader navigation={navigation} />
+      <ErrorMessageHeader />
       <Content>
         <Body style={styles.body}>
           <View style={styles.view}>

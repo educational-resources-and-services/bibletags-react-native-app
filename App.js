@@ -6,6 +6,7 @@ import * as StoreReview from 'expo-store-review'
 import { Root } from "native-base"
 import * as Localization from "expo-localization"
 
+import { NativeRouter } from "react-router-native"
 import { AsyncStorage } from "react-native"
 import { createStore, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
@@ -16,8 +17,6 @@ import { Ionicons } from '@expo/vector-icons'
 import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n.js"
 import { logEvent } from './src/utils/analytics'
 
-import GlobalNavigator from "./src/navigators/Global.js"
-
 import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
@@ -25,6 +24,8 @@ import importUsfm from "./src/utils/importUsfm.js"
 import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
+
+import Read from "./src/components/screens/Read"
 
 const {
   NUM_OPENS_FOR_RATING_REQUEST=0,
@@ -139,19 +140,18 @@ const App = () => {
   }
 
   return (
-    <Root>
-      <Provider store={store}>
-        <PersistGate 
-          persistor={persistor} 
-          loading={<AppLoading />}
-        >
-          <GlobalNavigator
-            persistenceKey={`NavigationState-${Constants.manifest.version}`}
-            renderLoadingExperimental={() => <AppLoading />}
-          />
-        </PersistGate>
-      </Provider>
-    </Root>
+    <NativeRouter>
+      <Root>
+        <Provider store={store}>
+          <PersistGate 
+            persistor={persistor} 
+            loading={<AppLoading />}
+          >
+            <Read />
+          </PersistGate>
+        </Provider>
+      </Root>
+    </NativeRouter>
   )
 
 }

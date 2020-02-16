@@ -4,7 +4,8 @@ import { connect } from "react-redux"
 import { StyleSheet } from "react-native"
 import { ListItem, Body, View, Text } from "native-base"
 
-import { debounce, getVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo } from "../../utils/toolbox"
+import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
   abbr: {
@@ -35,23 +36,20 @@ const styles = StyleSheet.create({
 })
 
 const VersionItem = React.memo(({
-  navigation,
   versionId,
 
   displaySettings,
 }) => {
 
+  const { historyPush } = useRouterState()
+
   const goVersionInfo = useCallback(
     event => {
-      debounce(
-        navigation.navigate,
-        "VersionInfo",
-        {
-          versionId,
-        }
-      )
+      historyPush("/Versions/VersionInfo", {
+        versionId,
+      })
     },
-    [ navigation, versionId ],
+    [ versionId ],
   )
 
   const { theme } = displaySettings

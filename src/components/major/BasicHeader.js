@@ -1,8 +1,10 @@
-import React, { useCallback } from "react"
+import React from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { StyleSheet, Dimensions, Platform, I18nManager } from "react-native"
 import { Title, Left, Right, Button, Body } from "native-base"
+
+import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -17,16 +19,12 @@ const styles = StyleSheet.create({
 })
 
 const BasicHeader = React.memo(({
-  navigation,
   title,
 
   displaySettings,
 }) => {
 
-  const onBackPress = useCallback(
-    () => navigation.goBack(),
-    [ navigation ],
-  )
+  const { historyGoBack } = useRouterState()
 
   const { theme } = displaySettings
 
@@ -38,7 +36,7 @@ const BasicHeader = React.memo(({
       <Left>
         <Button
           transparent
-          onPress={onBackPress}
+          onPress={historyGoBack}
         >
           <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
         </Button>

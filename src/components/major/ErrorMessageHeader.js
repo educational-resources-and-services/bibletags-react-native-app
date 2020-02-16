@@ -4,6 +4,7 @@ import { Title, Left, Right, Button, Body } from "native-base"
 
 import { i18n } from "inline-i18n"
 import { isPhoneSize } from '../../utils/toolbox.js'
+import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -14,14 +15,10 @@ const styles = StyleSheet.create({
   },
 })
 
-const ErrorMessageHeader = React.memo(({ navigation }) => {
+const ErrorMessageHeader = React.memo(() => {
 
-  const onBackPress = useCallback(
-    () => navigation.goBack(),
-    [ navigation ],
-  )
-
-  const { title, critical } = navigation.state.params || {}
+  const { historyGoBack, routerState } = useRouterState()
+  const { title, critical } = routerState
   
   return (
     <AppHeader>
@@ -29,7 +26,7 @@ const ErrorMessageHeader = React.memo(({ navigation }) => {
         {!critical &&
           <Button
             transparent
-            onPress={onBackPress}
+            onPress={historyGoBack}
           >
             <HeaderIcon name="arrow-back" />
           </Button>

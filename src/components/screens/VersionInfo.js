@@ -5,6 +5,7 @@ import { connect } from "react-redux"
 import { Container, Content, Body, Text } from "native-base"
 
 import { getVersionInfo, replaceWithJSX } from "../../utils/toolbox"
+import useRouterState from "../../hooks/useRouterState"
 
 import BasicHeader from "../major/BasicHeader"
 
@@ -36,19 +37,18 @@ const styles = StyleSheet.create({
 })
 
 const VersionInfo = ({
-  navigation,
-
   displaySettings,
 }) => {
 
-  const { versionId } = navigation.state.params || {}
+  const { routerState } = useRouterState()
+  const { versionId } = routerState
+
   const { theme } = displaySettings
   const { name, copyright } = getVersionInfo(versionId)
 
   return (
     <Container style={theme === 'low-light' ? styles.lowLight: {}}>
       <BasicHeader
-        navigation={navigation}
         title={name}
       />
       <Content>

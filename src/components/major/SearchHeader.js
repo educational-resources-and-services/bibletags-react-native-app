@@ -4,9 +4,10 @@ import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { debounce, getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
 import { i18n } from "inline-i18n"
 import { useDimensions } from 'react-native-hooks'
+import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIcon from "../basic/HeaderIcon"
@@ -54,7 +55,6 @@ const styles = StyleSheet.create({
 })
 
 const SearchHeader = React.memo(({
-  navigation,
   setEditing,
   editedSearchString,
   updateEditedSearchString,
@@ -64,7 +64,8 @@ const SearchHeader = React.memo(({
   displaySettings,
 }) => {
 
-  const { searchString, versionId } = navigation.state.params
+  const { historyReplace, historyGoBack, routerState } = useRouterState()
+  const { searchString, versionId } = routerState
 
   const updateSearchString = useCallback(
     () => {
@@ -77,30 +78,19 @@ const SearchHeader = React.memo(({
 
       setEditing(false)
 
-      debounce(
-        navigation.setParams,
-        {
-          ...navigation.state.params,
-          searchString,
-          editOnOpen: false,
-        },
-      )
+      historyReplace(null, {
+        ...routerState,
+        searchString,
+        editOnOpen: false,
+      })
     },
-    [ navigation, setEditing, editedSearchString ],
-  )
-
-  const onBackPress = useCallback(
-    () => {
-      debounce(navigation.goBack)
-      // debounce(navigation.goBack, navigation.state.params.pageKey)
-    },
-    [ navigation ],
+    [ setEditing, editedSearchString, routerState ],
   )
 
   const onCancel = useCallback(
     () => {
       if(!searchString) {
-        onBackPress()
+        historyGoBack()
         return
       }
 
@@ -108,7 +98,7 @@ const SearchHeader = React.memo(({
 
       updateEditedSearchString(searchString)
     },
-    [ searchString, onBackPress, setEditing, updateEditedSearchString ],
+    [ searchString, setEditing, updateEditedSearchString ],
   )
 
   const editSearchString = useCallback(
@@ -128,7 +118,7 @@ const SearchHeader = React.memo(({
         <Left style={styles.searchBarLeft}>
           <Button
             transparent
-            onPress={onBackPress}
+            onPress={historyGoBack}
           >
             <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
           </Button>
@@ -168,7 +158,7 @@ const SearchHeader = React.memo(({
       <Left style={styles.left}>
         <Button
           transparent
-          onPress={onBackPress}
+          onPress={historyGoBack}
         >
           <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
         </Button>

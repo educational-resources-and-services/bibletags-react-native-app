@@ -1,8 +1,9 @@
 import React from "react"
-import { View, StyleSheet, Text } from "react-native"
 import { List } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+
+import useRouterState from "../../hooks/useRouterState"
 
 import SearchSuggestion from "./SearchSuggestion"
 
@@ -14,7 +15,6 @@ const MAX_SEARCH_RESULTS = 15
 const getSearchKey = ({ searchString, versionId }) => `${versionId}:${searchString}`
 
 const SearchSuggestions = React.memo(({
-  navigation,
   editedSearchString,
   setEditing,
   updateEditedSearchString,
@@ -22,7 +22,8 @@ const SearchSuggestions = React.memo(({
   history,
 }) => {
 
-  const { searchString="" } = navigation.state.params
+  const { routerState } = useRouterState()
+  const { searchString="" } = routerState
 
   const searchKeys = []
   let searchHistory = history.filter(search => {
@@ -54,7 +55,6 @@ const SearchSuggestions = React.memo(({
       {searchHistory.map(search => (
         <SearchSuggestion
           key={getSearchKey(search)}
-          navigation={navigation}
           setEditing={setEditing}
           updateEditedSearchString={updateEditedSearchString}
           {...search}
