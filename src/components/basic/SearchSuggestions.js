@@ -1,5 +1,6 @@
 import React from "react"
-import { List } from "native-base"
+import { StyleSheet } from "react-native"
+import { List } from '@ui-kitten/components'
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -9,8 +10,13 @@ import SearchSuggestion from "./SearchSuggestion"
 
 const MAX_SEARCH_RESULTS = 15
 
-// const styles = StyleSheet.create({
-// })
+const styles = StyleSheet.create({
+  list: {
+    paddingVertical: 10,
+    backgroundColor: 'white',
+    height: '100%',
+  },
+})
 
 const getSearchKey = ({ searchString, versionId }) => `${versionId}:${searchString}`
 
@@ -50,17 +56,21 @@ const SearchSuggestions = React.memo(({
 
   searchHistory = searchHistory.slice(0, MAX_SEARCH_RESULTS)
 
+  const renderItem = ({ item: search }) => (
+    <SearchSuggestion
+      key={getSearchKey(search)}
+      setEditing={setEditing}
+      updateEditedSearchString={updateEditedSearchString}
+      {...search}
+    />
+  )
+
   return (
-    <List>
-      {searchHistory.map(search => (
-        <SearchSuggestion
-          key={getSearchKey(search)}
-          setEditing={setEditing}
-          updateEditedSearchString={updateEditedSearchString}
-          {...search}
-        />
-      ))}
-    </List>
+    <List
+      data={searchHistory}
+      renderItem={renderItem}
+      style={styles.list}
+    />
   )
 
 })

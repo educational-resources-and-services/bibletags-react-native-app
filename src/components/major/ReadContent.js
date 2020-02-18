@@ -1,12 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import Constants from "expo-constants"
 import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
-import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
 import { i18n } from "inline-i18n"
 import { useDimensions } from 'react-native-hooks'
+
 import useAdjacentRefs from '../../hooks/useAdjacentRefs'
 import useSetTimeout from "../../hooks/useSetTimeout"
 
@@ -164,12 +163,11 @@ const ReadContent = React.memo(({
         label: i18n("Copy"),
         action: () => {
           Clipboard.setString(selectedTextContent)
-          Toast.show({
-            text: i18n("Verse copied to clipboard"),
-            textStyle: styles.toastText,
-            duration: 1700,
-          })
-          setSelectedInfo({})
+
+          return {
+            showResult: true,
+            onDone: () => setSelectedInfo({}),
+          }
         }
       },
     ]),
@@ -204,7 +202,7 @@ const ReadContent = React.memo(({
       <ScrollView
         style={[
           styles.container,
-          (showingRecentBookmarks ? { marginBottom: 84 } : null),
+          // (showingRecentBookmarks ? { marginBottom: 84 } : null),
         ]}
         contentContainerStyle={styles.contentContainer}
         horizontal={true}

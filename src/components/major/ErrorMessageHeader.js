@@ -1,17 +1,16 @@
-import React, { useCallback } from "react"
-import { StyleSheet, Platform } from "react-native"
-import { Title, Left, Right, Button, Body } from "native-base"
-
+import React from "react"
+import { StyleSheet, Platform, View, Text } from "react-native"
+import { Button } from '@ui-kitten/components'
 import { i18n } from "inline-i18n"
+
 import { isPhoneSize } from '../../utils/toolbox.js'
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
-import HeaderIcon from "../basic/HeaderIcon"
+import Icon from "../basic/Icon"
 
 const styles = StyleSheet.create({
   title: {
-    ...(Platform.OS === 'ios' && isPhoneSize() ? { marginLeft: -50, left: -20 } : {}),
   },
 })
 
@@ -22,20 +21,22 @@ const ErrorMessageHeader = React.memo(() => {
   
   return (
     <AppHeader>
-      <Left>
+      <View>
         {!critical &&
           <Button
             transparent
             onPress={historyGoBack}
           >
-            <HeaderIcon name="arrow-back" />
+            <Icon name="arrow-back" />
           </Button>
         }
-      </Left>
-      <Body>
-        <Title style={styles.title}>{title || i18n("Error")}</Title>
-      </Body>
-      <Right />
+      </View>
+      <View>
+        <Text style={styles.title}>
+          {title || i18n("Error")}
+        </Text>
+      </View>
+      <View />
     </AppHeader>
   )
 

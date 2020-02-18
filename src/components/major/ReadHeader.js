@@ -1,70 +1,68 @@
 import React, { useCallback } from "react"
-import { StyleSheet, View, Platform, TouchableOpacity, I18nManager } from "react-native"
-import { Title, Subtitle, Left, Icon, Right, Button, Body } from "native-base"
+import { StyleSheet, TouchableOpacity, I18nManager, View, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
 import { i18n } from "inline-i18n"
-import { isPhoneSize, getVersionInfo, getToolbarHeight } from '../../utils/toolbox.js'
 import { getPassageStr } from "bibletags-ui-helper"
-import { useDimensions } from 'react-native-hooks'
+
+import { getVersionInfo } from '../../utils/toolbox.js'
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
-import HeaderIcon from "../basic/HeaderIcon"
-
-const leftIconsWidth = 50
-const rightIconsWidth = 135
+import HeaderIconButton from "../basic/HeaderIconButton"
+import Icon from "../basic/Icon"
 
 const styles = StyleSheet.create({
-  body: {
-    ...(
-      Platform.OS === 'ios' && isPhoneSize() ?
-        {
-          alignItems: 'flex-start',
-          left: (leftIconsWidth - rightIconsWidth) / 2,
-        }
-        : {}
-    ),
-    ...(
-      Platform.OS === 'android' && isPhoneSize() ?
-        {
-          marginLeft: -5,
-          marginRight: -20,
-        }
-        : {}
-    ),
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    minHeight: 40,
+    height: 40,
+    paddingTop: 0,
+    marginTop: 26,
+    marginHorizontal: 15,
+    borderRadius: 4,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: "black",
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    borderBottomWidth: 0,
   },
-  title: {
+  middle: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  passageAndVersion: {
+    paddingRight: 20,
+    lineHeight: 40,
+  },
+  passage: {
     textAlign: 'left',
+    fontSize: 14,
+    fontWeight: '500',
   },
-  subtitle: {
+  version: {
     textAlign: 'left',
     writingDirection: 'ltr',
-    ...(Platform.OS !== 'android' ? {} : {
-      color: 'rgba(255, 255, 255, .65)',
-      fontSize: 13,
-    }),
-  },
-  contrast: {
-    color: Platform.OS === 'ios' ? 'black' : 'white',
-  },
-  lowLight: {
-    color: 'rgba(162, 162, 168, 1)',
-  },
-  lowLightTitle: {
-    color: 'rgba(242, 242, 242, 1)',
-  },
-  titles: {
-    paddingRight: 34,
+    color: 'rgba(0, 0, 0, .65)',
+    fontSize: 11,
   },
   dropdownIcon: {
     position: 'absolute',
-    right: 10,
+    right: 5,
     top: 0,
-    fontSize: Platform.OS === 'ios' ? 18 : 22,
-    lineHeight: getToolbarHeight() - (Platform.OS === 'ios' ? 24 : 0) - 6,  // 24 is the height of the status bar; 6 offsets it toward the top more
-    color: Platform.OS === 'ios' ? '#bbbbbb' : 'rgba(255,255,255,.5)',
+    height: 16,
+    lineHeight: 40,
+    color: '#aaa',
+  },
+  search: {
+    paddingRight: 8,
+  },
+  options: {
+    paddingLeft: 8,
   },
 })
 
@@ -75,13 +73,9 @@ const ReadHeader = React.memo(({
   hideStatusBar,
   
   passage,
-  displaySettings,
 }) => {
 
   const { historyPush } = useRouterState()
-
-  let { width } = useDimensions().window
-  width -= (leftIconsWidth + rightIconsWidth)
 
   const goSearch = useCallback(
     () => {
@@ -93,7 +87,7 @@ const ReadHeader = React.memo(({
     [ passage ],
   )
 
-  const openSideMenu = useCallback(() => historyPush("/SideMenu"), [])
+  const openSideMenu = useCallback(() => historyPush("./SideMenu"), [])
 
   const versionsText = [
     getVersionInfo(passage.versionId).abbr,
@@ -106,85 +100,53 @@ const ReadHeader = React.memo(({
   return (
     <AppHeader
       hideStatusBar={hideStatusBar}
+      style={styles.header}
     >
-      <Left>
-        <Button
-          transparent
-          onPressIn={openSideMenu}
-        >
-          <HeaderIcon name="menu" />
-        </Button>
-      </Left>
-      <Body style={[
-        styles.body,
-        (
-          isPhoneSize()
-            ? {
-              width,
-              minWidth: width,
-              maxWidth: width,
-            }
-            : {}
-        ),
-      ]}>
+      <HeaderIconButton
+        name="md-menu"
+        onPress={openSideMenu}
+      />
+      <View style={styles.middle}>
         <TouchableOpacity
           onPressIn={showPassageChooser}
         >
-          <View style={styles.titles}>
-            <Title 
-              style={[
-                styles.title,
-                displaySettings.theme === 'low-light' ? styles.lowLightTitle : null,
-              ]}
-            >
+          <Text style={styles.passageAndVersion}>
+            <Text style={styles.passage}>
               {getPassageStr({
                 refs: [
                   passage.ref,
                 ],
               })}
-            </Title>
-            <Subtitle
-              style={[
-                styles.subtitle,
-                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                displaySettings.theme === 'low-light' ? styles.lowLight : null,
-              ]}
-            >
+            </Text>
+            {`  `}
+            <Text style={styles.version}>
               {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
-            </Subtitle>
-            <Icon
-              name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-              style={[
-                styles.dropdownIcon,
-                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                displaySettings.theme === 'low-light' ? styles.lowLight : null,
-              ]}
-            />
-          </View>
+            </Text>
+          </Text>
+          <Icon
+            name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
+            style={styles.dropdownIcon}
+          />
         </TouchableOpacity>
-      </Body>
-      <Right>
-        <Button
-          transparent
-          onPressIn={goSearch}
-        >
-          <HeaderIcon name="search" />
-        </Button>
-        <Button
-          transparent
-          onPressIn={toggleShowOptions}
-        >
-          <HeaderIcon name="more" />
-        </Button>
-      </Right>
+      </View>
+      <HeaderIconButton
+        name="md-search"
+        onPress={goSearch}
+        style={styles.search}
+      />
+      <HeaderIconButton
+        name="format-size"
+        pack="materialCommunity"
+        onPress={toggleShowOptions}
+        style={styles.options}
+      />
     </AppHeader>
   )
 
 })
 
-const mapStateToProps = ({ passage, displaySettings }) => ({
+const mapStateToProps = ({ passage }) => ({
   passage,
-  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

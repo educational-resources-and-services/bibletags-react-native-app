@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import { StyleSheet, Animated } from 'react-native'
-import { Container } from "native-base"
+import { Layout } from '@ui-kitten/components'
+
+// import SafeLayout from './SafeLayout'
 
 const styles = StyleSheet.create({
   animatedContainer: {
@@ -12,7 +14,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const AnimatedContainer = Animated.createAnimatedComponent(Container)
+const AnimatedContainer = Animated.createAnimatedComponent(Layout)
 
 const RevealContainer = ({
   revealAmount,

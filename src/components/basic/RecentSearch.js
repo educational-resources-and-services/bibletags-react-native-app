@@ -5,10 +5,9 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import useRouterState from "../../hooks/useRouterState"
+import { removeRecentSearch } from "../../redux/actions.js"
 
 import RecentBookmark from "./RecentBookmark"
-
-import { removeRecentSearch } from "../../redux/actions.js"
 
 const {
   RECENT_SEARCH_BACKGROUND_COLOR,
@@ -18,16 +17,11 @@ const styles = StyleSheet.create({
   textBackground: {
     backgroundColor: RECENT_SEARCH_BACKGROUND_COLOR,
   },
-  textBackgroundLowLight: {
-    backgroundColor: 'rgba(103, 178, 245, 1)',
-  },
 })
 
 const RecentSearch = React.memo(({
   searchString,
   versionId,
-
-  displaySettings,
 
   removeRecentSearch,
 }) => {
@@ -50,18 +44,10 @@ const RecentSearch = React.memo(({
     [ searchString, versionId ],
   )
 
-  const { theme } = displaySettings
-
   return (
     <RecentBookmark
       text={searchString}
-      style={
-        theme === 'low-light'
-          ?
-            styles.textBackgroundLowLight
-          :
-            styles.textBackground
-      }
+      style={styles.textBackground}
       discard={discard}
       select={select}
     />
@@ -69,8 +55,7 @@ const RecentSearch = React.memo(({
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
+const mapStateToProps = () => ({
   // recentSearches,
 })
 

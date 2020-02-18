@@ -1,21 +1,19 @@
 import React, { useCallback, useMemo } from "react"
 import Constants from "expo-constants"
 import { View, StyleSheet, Text, Clipboard, I18nManager } from "react-native"
-import { Toast } from "native-base"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
-import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
-import { getValidFontName } from "../../utils/bibleFonts.js"
 import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
 import { getPassageStr } from "bibletags-ui-helper"
 import { useDimensions } from 'react-native-hooks'
+
+import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
+import { getValidFontName } from "../../utils/bibleFonts.js"
 import useRouterState from "../../hooks/useRouterState"
+import { setRef } from "../../redux/actions.js"
 
 import TapOptions from "./TapOptions"
-
-import { setRef } from "../../redux/actions.js"
 
 const {
   DEFAULT_FONT_SIZE,
@@ -43,28 +41,16 @@ const textStyles = StyleSheet.create({
   verse: {
     color: SEARCH_RESULT_VERSE_COLOR,
   },
-  contrast: {
-    color: 'black',
-  },
   selected: {
     color: SEARCH_RESULT_SELECTED_COLOR,
-  },
-  selectedLowLight: {
-    color: 'white',
   },
   reference: {
     textAlign: 'right',
     color: SEARCH_RESULT_REFERENCE_COLOR,
     fontWeight: 'bold',
   },
-  referenceLowLight: {
-    color: 'rgba(217, 217, 217,1)',
-  },
   match: {
     color: SEARCH_RESULT_MATCH_COLOR,
-  },
-  matchLowLight: {
-    color: 'rgba(245, 42, 42, 1)',
   },
   rtl: {
     writingDirection: 'rtl',
@@ -178,10 +164,7 @@ const SearchResult = React.memo(({
               key={`${idx}-${idx2}`}
               style={[
                 ...styles,
-                (isMatch 
-                  ? (theme === 'low-light' ? textStyles.matchLowLight : textStyles.match)
-                  : null
-                ),
+                (isMatch ? textStyles.match: null),
               ]}
             >
               {children
@@ -234,13 +217,10 @@ const SearchResult = React.memo(({
           
           Clipboard.setString(copyTextContent)
 
-          Toast.show({
-            text: i18n("Verse copied to clipboard"),
-            textStyle: viewStyles.toastText,
-            duration: 1700,
-          })
-
-          unselect()
+          return {
+            showResult: true,
+            onDone: unselect,
+          }
         }
       },
     ]),
@@ -275,11 +255,7 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.reference,
-          (
-            theme === 'low-light'
-              ? (selected ? textStyles.selectedLowLight : textStyles.referenceLowLight)
-              : (selected ? textStyles.selected : null)
-          ),
+          (selected ? textStyles.selected : null),
           (isRTLText({ languageId, bookId }) === I18nManager.isRTL ? textStyles.leftAlign : null),
           {
             fontSize: Math.max(fontSize * .65, 12),
@@ -295,12 +271,7 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.verse,
-          displaySettings.theme === 'high-contrast' ? textStyles.contrast : null,
-          theme === 'low-light'
-            ?
-              (selected ? textStyles.selectedLowLight : null)
-            : 
-              (selected ? textStyles.selected : null),
+          (selected ? textStyles.selected : null),
           (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
           { fontSize },
           { lineHeight },

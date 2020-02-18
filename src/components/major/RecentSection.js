@@ -6,6 +6,9 @@ import { connect } from "react-redux"
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
 
+const bgColor = 'rgba(255, 255, 255, .9)'
+const numFaderLines = 15
+
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
@@ -14,19 +17,13 @@ const styles = StyleSheet.create({
   },
   faderLine: {
     height: 3,
-    backgroundColor: 'white',
-  },
-  faderLineLowLight: {
-    backgroundColor: 'black',
+    backgroundColor: bgColor,
   },
   main: {
-    backgroundColor: 'white',
+    backgroundColor: bgColor,
     flex: 1,
     flexDirection: 'row',
     height: 75,
-  },
-  mainLowLight: {
-    backgroundColor: 'black',
   },
   refs: {
     marginLeft: 30,
@@ -43,14 +40,9 @@ const RecentSection = React.memo(({
   history,
   recentPassages,
   recentSearches,
-  displaySettings,
 }) => {
 
-  const { theme } = displaySettings
-
   if(recentPassages.length + recentSearches.length === 1) return null
-
-  const numFaderLines = 15
 
   return (
     <View
@@ -63,7 +55,6 @@ const RecentSection = React.memo(({
           key={idx}
           style={[
             styles.faderLine,
-            (theme === 'low-light' ? styles.faderLineLowLight : null),
             {
               opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
             },
@@ -71,10 +62,7 @@ const RecentSection = React.memo(({
         />
       ))}
       <View
-        style={[
-          styles.main,
-          (theme === 'low-light' ? styles.mainLowLight : null),
-        ]}
+        style={styles.main}
       >
         <View style={styles.refs}>
           {recentPassages.map(historyIndex => {
@@ -114,12 +102,11 @@ const RecentSection = React.memo(({
 
 })
 
-const mapStateToProps = ({ passage, history, recentPassages, recentSearches, displaySettings }) => ({
+const mapStateToProps = ({ passage, history, recentPassages, recentSearches }) => ({
   passage,
   history,
   recentPassages,
   recentSearches,
-  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

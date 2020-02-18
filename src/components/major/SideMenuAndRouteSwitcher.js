@@ -1,9 +1,9 @@
 import React from "react"
 import { Switch, Route, Redirect } from "react-router-native"
+// import SideMenu from "react-native-simple-side-menu"  // I have no idea why this won't work
 
 import useRouterState from "../../hooks/useRouterState"
 
-// import SideMenu from "react-native-simple-side-menu"  // I have no idea why this won't work
 import SideMenu from "../major/SideMenu"
 import Drawer from "../major/Drawer"
 import Read from "../screens/Read"
@@ -17,7 +17,7 @@ const SideMenuAndRouteSwitcher = () => {
 
   return (
     <SideMenu
-      open={pathname === '/SideMenu'}
+      open={/\/SideMenu(?:#.*)?$/.test(pathname)}
       onClose={historyGoBack}
       menu={<Drawer />}
     >

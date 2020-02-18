@@ -1,17 +1,19 @@
 import React from "react"
-import { View, Text } from "native-base"
-import { StyleSheet } from "react-native"
+import { StyleSheet, View, Text } from "react-native"
 
 import Spin from "./Spin"
 
 const styles = StyleSheet.create({
   spinnerContainer: {
-    ...StyleSheet.absoluteFill,
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
     backgroundColor: 'rgba(255, 255, 255, .8)',
   },
   textContainer: {
-    padding: "10%",
-    paddingTop: 0,
+    padding: 20,
     alignItems: "center",
   },
   spacer: {
@@ -19,7 +21,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const FullScreenSpin = React.memo(({
+const CoverAndSpin = ({
   style,
   text,
   percentage,
@@ -29,16 +31,16 @@ const FullScreenSpin = React.memo(({
     style,
   ]}>
     <View style={styles.spacer} />
+    <Spin
+      percentage={percentage}
+    />
     {!!text &&
       <View style={styles.textContainer}>
         <Text>{text}</Text>
       </View>
     }
-    <Spin
-      percentage={percentage}
-    />
     <View style={styles.spacer} />
   </View>
-))
+)
 
-export default FullScreenSpin
+export default CoverAndSpin

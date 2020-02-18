@@ -1,7 +1,9 @@
-import React from "react"
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from "react-native"
-
+import React, { useState } from "react"
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
 import { useDimensions } from 'react-native-hooks'
+
+import useSetTimeout from "../../hooks/useSetTimeout"
+import Icon from "./Icon"
 
 const MAX_WIDTH_PER_BUTTON = 70
 
@@ -24,6 +26,20 @@ const styles = StyleSheet.create({
   text: {
     color: 'white',
   },
+  invisible: {
+    color: '#333333',
+  },
+  resultIconView: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+  },
+  resultIconText: {
+    textAlign: 'center',
+  },
+  resultIcon: {
+    color: 'white',
+    height: 18,
+  },
 })
 
 const TapOptions = React.memo(({
@@ -33,9 +49,26 @@ const TapOptions = React.memo(({
   topY,
 }) => {
 
+  const [ resultIconProps, setResultIconProps ] = useState()
+
+  const [ setShowResultTimeout ] = useSetTimeout()
+
   const { width } = useDimensions().window
   const MAX_WIDTH = MAX_WIDTH_PER_BUTTON * options.length
   const sideBuffer = MAX_WIDTH/2 + 20
+
+  const doAction = ({ action, index }) => () => {
+    const { showResult, iconName="md-checkmark", iconPack, ms=500, onDone=()=>{} } = action() || {}
+
+    if(showResult) {
+      setResultIconProps({
+        name: iconName,
+        pack: iconPack,
+        index,
+      })
+      onDone && setShowResultTimeout(onDone, ms)
+    }
+  }
 
   return (
     <View
@@ -52,18 +85,33 @@ const TapOptions = React.memo(({
       ]}
     >
       <View style={styles.buttons}>
-        {options.map(({ label, action }) => (
-          <TouchableOpacity
-            onPress={action}
-            key={label}
-          >
-            <View style={styles.button}>
-              <Text style={styles.text}>
-                {label}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {options.map(({ label, action }, index) => {
+
+          const showResult = (resultIconProps || {}).index === index
+
+          return (
+            <TouchableOpacity
+              onPress={!resultIconProps ? doAction({ action, index }) : null}
+              key={label}
+            >
+              <View style={styles.button}>
+                <Text style={showResult ? styles.invisible : styles.text}>
+                  {label}
+                </Text>
+                {showResult &&
+                  <View style={styles.resultIconView}>
+                    <Text style={styles.resultIconText}>
+                      <Icon
+                        style={styles.resultIcon}
+                        {...resultIconProps}
+                      />
+                    </Text>
+                  </View>
+                }
+              </View>
+            </TouchableOpacity>
+          )
+        })}
       </View>
     </View>
   )

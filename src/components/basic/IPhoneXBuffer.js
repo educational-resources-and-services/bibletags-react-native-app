@@ -1,13 +1,12 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
 
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
 import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
 
 const styles = StyleSheet.create({
   iphoneXBuffer: {
     height: iPhoneXInset['portrait'].bottomInset,
-    backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
+    // backgroundColor: nativeBasePlatformVariables.toolbarDefaultBg,
   },
   extraSpace: {
     height: iPhoneXInset['portrait'].bottomInset + 10,

@@ -1,22 +1,21 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
-import { Text, View } from "native-base"
-import { StyleSheet, ScrollView, FlatList } from "react-native"
+import { StyleSheet, ScrollView, FlatList, Text, View } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
-import { getVersionInfo } from "../../utils/toolbox"
 import { i18n } from "inline-i18n"
+
+import { getVersionInfo } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useMemoObject from "../../hooks/useMemoObject"
 import useInstanceValue from '../../hooks/useInstanceValue'
+import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
 import ChooserChapter from "../basic/ChooserChapter"
-
-import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
 
 const bookIdsPerVersion = {}
 const numChaptersPerVersionAndBook = {}
@@ -41,13 +40,9 @@ const styles = StyleSheet.create({
   },
   refChooser: {
     zIndex: 1,
-    display: 'flex',
     flexDirection: 'row',
     flex: 1,
     backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
-  },
-  refChooserLowLight: {
-    backgroundColor: 'black',
   },
   spacerBeforeFirstBook: {
     height: SPACER_BEFORE_FIRST_BOOK,
@@ -57,12 +52,8 @@ const styles = StyleSheet.create({
     // borderRightColor: DIVIDER_COLOR,
     backgroundColor: BOOK_CHOOSER_BACKGROUND_COLOR,
   },
-  bookListLowLight: {
-    backgroundColor: 'rgba(48, 48, 48, 1)',
-  },
   chapterList: {
     flex: 1,
-    display: 'flex',
     flexWrap: 'wrap',
     flexDirection: 'row',
     padding: 5,
@@ -96,7 +87,6 @@ const PassageChooser = ({
   goVersions,
 
   passage,
-  displaySettings,
   mode,
 
   setRef,
@@ -345,23 +335,14 @@ const PassageChooser = ({
           versionIds={PRIMARY_VERSIONS}
           update={updateVersion}
           selectedVersionId={passage.versionId}
-          backgroundColor={
-            displaySettings.theme === 'low-light' 
-            ? 
-              'rgba(48, 48, 48, 1)'
-            : 
-              VERSION_CHOOSER_BACKGROUND_COLOR
-          }
+          backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
           goVersions={goVersions}
         />
       }
       <View style={styles.versionChooserContainer}>
         <View style={styles.parallelLabelContainer}>
           <Text
-            style={[
-                styles.parallelLabel,
-                (displaySettings.theme === 'low-light' ? styles.parallelLabelLight : null),
-            ]}
+            style={styles.parallelLabel}
             numberOfLines={1}
           >
             {i18n("Parallel")}
@@ -371,28 +352,16 @@ const PassageChooser = ({
           versionIds={SECONDARY_VERSIONS}
           update={updateParallelVersion}
           selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
-          backgroundColor={
-            displaySettings.theme === 'low-light' 
-            ? 
-              'rgba(79, 79, 79, 1)'
-            : 
-              PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR
-          }
+          backgroundColor={PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR}
           goVersions={goVersions}
           closeParallelMode={mode === 'parallel' ? closeParallelMode : null}
         />
       </View>
       <View
-        style={[
-            styles.refChooser,
-            (displaySettings.theme === 'low-light' ? styles.refChooserLowLight : null),
-        ]}
+        style={styles.refChooser}
       >
         <View
-          style={[
-            styles.bookList,
-            (displaySettings.theme === 'low-light' ? styles.bookListLowLight : null),
-          ]}
+          style={styles.bookList}
         >
           <FlatList
             data={getBookIds()}
@@ -435,7 +404,6 @@ const PassageChooser = ({
 
 const mapStateToProps = ({ passage, displaySettings }) => ({
   passage,
-  displaySettings,
   mode: displaySettings.mode,
 })
 

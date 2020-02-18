@@ -1,56 +1,64 @@
 import React, { useCallback } from "react"
-import { StyleSheet, Text, Platform, I18nManager } from "react-native"
-import { Title, Subtitle, Left, Right, Button, Body, Item, Input } from "native-base"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
-
-import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { StyleSheet, View, Text, I18nManager } from "react-native"
+import Constants from "expo-constants"
+import { Input } from '@ui-kitten/components'
 import { i18n } from "inline-i18n"
 import { useDimensions } from 'react-native-hooks'
+
+import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
-import HeaderIcon from "../basic/HeaderIcon"
+import HeaderIconButton from "../basic/HeaderIconButton"
+import Icon from "../basic/Icon"
+import VersionChooser from './VersionChooser'
+
+const {
+  PRIMARY_VERSIONS,
+  SECONDARY_VERSIONS,
+} = Constants.manifest.extra
+
+const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
 
 const styles = StyleSheet.create({
-  title: {
-    ...(Platform.OS === 'android' ? { textAlign: "left" } : {}),
-  },
-  titleLowLight: {
-    color: 'rgba(240, 240, 240, 1)',
-  },
-  subtitle: {
-    ...(Platform.OS !== 'android' ? {} : {
-      color: 'rgba(255, 255, 255, .65)',
-      fontSize: 13,
-    }),
-  },
-  left: {
-    width: 46,
-    flex: 0,
-  },
-  right: {
-    width: 46,
-    flex: 0,
-  },
-  searchBarLeft: {
-    flex: 0,
-    marginRight: 10,
-  },
-  searchBarRight: {
-    flex: 0,
-  },
-  searchString: {
+  line1: {
     flexDirection: 'row',
+  },
+  title: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  titleLine1: {
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  titleLine2: {
+    fontSize: 11,
+    fontWeight: '300',
+  },
+  searchIcon: {
+    position: 'absolute',
+    top: 14,
+    left: 13,
+    zIndex: 1,
+    height: 18,
+    
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    flex: 1,
   },
   versionAbbr: {
     fontSize: 12,
+    fontWeight: '400',
   },
   input: {
+    flex: 1,
+    marginTop: 3,
     ...(I18nManager.isRTL ? { textAlign: 'right' } : {}),
   },
-  contrast: {
-    color: Platform.OS === 'ios' ? 'black' : 'white',
+  inputText: {
+    paddingLeft: 20,
   },
 })
 
@@ -60,11 +68,9 @@ const SearchHeader = React.memo(({
   updateEditedSearchString,
   editing,
   numberResults,
-
-  displaySettings,
 }) => {
 
-  const { historyReplace, historyGoBack, routerState } = useRouterState()
+  const { historyPush, historyReplace, historyGoBack, routerState } = useRouterState()
   const { searchString, versionId } = routerState
 
   const updateSearchString = useCallback(
@@ -106,108 +112,101 @@ const SearchHeader = React.memo(({
     [ setEditing ],
   )
 
+  const updateVersion = useCallback(
+    versionId => {
+      historyReplace(null, {
+        ...routerState,
+        versionId,
+      })
+    },
+    [ routerState ],
+  )
+
+  const goVersions = useCallback(() => historyPush("/Read/Versions"), [])
+
   const { abbr, languageId } = getVersionInfo(versionId)
 
-  const { theme } = displaySettings
   const { width } = useDimensions().window
   const maxTitleWidth = width - 120
 
   if(editing) {
     return (
-      <AppHeader searchBar rounded>
-        <Left style={styles.searchBarLeft}>
-          <Button
-            transparent
-            onPress={historyGoBack}
-          >
-            <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
-          </Button>
-        </Left>
-        <Item>
-          <HeaderIcon name="search" />
-          <Input
-            placeholder={i18n("Search")}
-            returnKeyType="search"
-            value={editedSearchString}
-            onChangeText={updateEditedSearchString}
-            onSubmitEditing={updateSearchString}
-            autoCapitalize="none"
-            autoCompleteType="off"
-            autoCorrect={true}
-            enablesReturnKeyAutomatically={true}
-            importantForAutofill="no"
-            autoFocus={true}
-            selectTextOnFocus={true}
-            style={styles.input}
+      <AppHeader>
+        <View>
+          <View style={styles.line1}>
+            <HeaderIconButton
+              name={I18nManager.isRTL ? "md-arrow-forward" : "md-arrow-back"}
+              onPress={historyGoBack}
+            />
+            <View style={styles.searchContainer}>
+              <Icon
+                style={styles.searchIcon}
+                name="md-search"
+              />
+              <Input
+                placeholder={i18n("Search")}
+                returnKeyType="search"
+                value={editedSearchString}
+                onChangeText={updateEditedSearchString}
+                onSubmitEditing={updateSearchString}
+                autoCapitalize="none"
+                autoCompleteType="off"
+                autoCorrect={true}
+                enablesReturnKeyAutomatically={true}
+                importantForAutofill="no"
+                autoFocus={true}
+                selectTextOnFocus={true}
+                style={styles.input}
+                textStyle={styles.inputText}
+              />
+            </View>
+            <HeaderIconButton
+              name="md-close"
+              onPress={onCancel}
+            />
+          </View>
+          <VersionChooser
+            versionIds={ALL_VERSIONS}
+            update={updateVersion}
+            selectedVersionId={versionId}
+            backgroundColor="white"
+            goVersions={goVersions}
           />
-        </Item>
-        <Right style={styles.searchBarRight}>
-          <Button
-            transparent
-            onPress={onCancel}
-          >
-            <HeaderIcon name="close" />
-          </Button>
-        </Right>
+        </View>
       </AppHeader>
     )
   }
 
   return (
     <AppHeader>
-      <Left style={styles.left}>
-        <Button
-          transparent
-          onPress={historyGoBack}
-        >
-          <HeaderIcon name={I18nManager.isRTL ? "arrow-forward" : "arrow-back"} />
-        </Button>
-      </Left>
-      <Body>
-        <Title style={[
-          styles.title,
-          theme === 'low-light' ? styles.titleLowLight : null,
-          { width: maxTitleWidth },
-        ]}>
+      <HeaderIconButton
+        name={I18nManager.isRTL ? "md-arrow-forward" : "md-arrow-back"}
+        onPress={historyGoBack}
+      />
+      <View style={styles.title}>
+        <Text style={styles.titleLine1}>
           {I18nManager.isRTL ? `\u2067`: `\u2066`}
           {i18n("“{{searchString}}”", {
             searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
           })}
           {`  `}
           <Text style={styles.versionAbbr}>{abbr}</Text>
-        </Title>
-        <Subtitle
-          style={[
-            styles.subtitle,
-            theme === 'high-contrast' ? styles.contrast : null,
-          ]}
-        >
+        </Text>
+        <Text style={styles.titleLine2}>
           {
             numberResults === false
               ? i18n("Searching...")
               : i18n("{{num_results}} result(s)", { num_results: numberResults })
           }
-        </Subtitle>
-      </Body>
-      <Right style={styles.right}>
-        <Button
-          transparent
-          onPress={editSearchString}
-        >
-          <HeaderIcon name="search" />
-        </Button>
-      </Right>
+        </Text>
+      </View>
+      <HeaderIconButton
+        name="md-search"
+        onPress={editSearchString}
+      />
     </AppHeader>
   )
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setRef,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(SearchHeader)
+export default SearchHeader

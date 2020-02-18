@@ -3,9 +3,8 @@ import { StyleSheet, View, Text } from "react-native"
 // import Constants from "expo-constants"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
-import { Container, Content } from "native-base"
 
-// import FullScreenSpin from '../basic/FullScreenSpin'
+import SafeLayout from "../basic/SafeLayout"
 
 // const {
 //   SOMETHING
@@ -17,14 +16,12 @@ import { Container, Content } from "native-base"
 const VerseFocus = () => {
 
   return (
-    <Container>
+    <SafeLayout>
       <AppHeader />
-      <Content>
-        <View>
-          <Text>Verse Focus</Text>
-        </View>
-      </Content>
-    </Container>
+      <View>
+        <Text>Verse Focus</Text>
+      </View>
+    </SafeLayout>
   )
 
 }
