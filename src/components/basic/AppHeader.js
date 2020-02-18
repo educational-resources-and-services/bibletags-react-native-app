@@ -8,6 +8,7 @@ import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
 const styles = StyleSheet.create({
   statusBarBackground: {
+    zIndex: 3,
     position: 'absolute',
     top: 0,
     left: 0,
@@ -15,10 +16,8 @@ const styles = StyleSheet.create({
     height: 30,
     backgroundColor: 'rgba(255, 255, 255, .9)',
   },
-  container: {
-    zIndex: 3,
-  },
   header: {
+    zIndex: 3,
     minHeight: 50,
     backgroundColor: 'white',
     flexDirection: 'row',
@@ -49,7 +48,7 @@ const AppHeader = ({
   useDimensions()  // This forces a rerender whenever the dimensions change
 
   return (
-    <View style={styles.container}>
+    <>
       {(!hideStatusBar && isIPhoneX) &&
         <IPhoneXBuffer />
       }
@@ -67,7 +66,7 @@ const AppHeader = ({
       >
         {children}
       </View>
-    </View>
+    </>
   )
 
 }
