@@ -31,6 +31,7 @@
     "better-sqlite3": "5.4.3",
     "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#513d8b4f13a7cda12fbdd8301b857196a906db53",
     "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#17e87515d6933edbbcf8b969fa30499ca539f4a9",
+    "deepmerge": "4.2.2",
     "expo": "^36.0.0",
     "expo-analytics-amplitude": "~8.0.0",
     "expo-asset": "~8.0.0",
