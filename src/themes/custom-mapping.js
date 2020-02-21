@@ -22,8 +22,19 @@ const getComponentSetup = ({ parameters={}, appearance="default", variantGroups=
     }
   }
 
+  const addToParametersAndStates = state => {
+    for(let stateValue in state) {
+      parametersIncludingFromVariantGroups = {
+        ...parametersIncludingFromVariantGroups,
+        ...state[stateValue],
+      }
+
+      addToStates(stateValue)
+    }
+  }
+
   addToStates('none')  // It is unclear why this is needed, but it is.
-  Object.keys(state || {}).forEach(stateValue => addToStates(stateValue))
+  addToParametersAndStates(state)
 
   for(let group in variantGroups) {
     for(let groupValue in variantGroups[group]) {
@@ -35,15 +46,7 @@ const getComponentSetup = ({ parameters={}, appearance="default", variantGroups=
         ...params,
       }
 
-      for(let stateValue in state) {
-        parametersIncludingFromVariantGroups = {
-          ...parametersIncludingFromVariantGroups,
-          ...state[stateValue],
-        }
-
-        addToStates(stateValue)
-      }
-
+      addToParametersAndStates(state)
     }
   }
 
