@@ -1,21 +1,14 @@
 import React from "react"
-import { StyleSheet, View, StatusBar } from "react-native"
+import { StyleSheet, View } from "react-native"
 import { useDimensions } from 'react-native-hooks'
+import { styled } from '@ui-kitten/components'
 
 import { isIPhoneX } from '../../utils/toolbox.js'
 
+import StatusBarWithBackground from './StatusBarWithBackground.js'
 import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
 const styles = StyleSheet.create({
-  statusBarBackground: {
-    zIndex: 3,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 30,
-    backgroundColor: 'rgba(255, 255, 255, .9)',
-  },
   header: {
     zIndex: 3,
     minHeight: 50,
@@ -40,6 +33,8 @@ const AppHeader = ({
   hideStatusBar,
   style,
   children,
+
+  themedStyle,
 }) => {
 
   // There is a bug by which the backgroundColor in the header does not get set on load.
@@ -52,8 +47,7 @@ const AppHeader = ({
       {(!hideStatusBar && isIPhoneX) &&
         <IPhoneXBuffer />
       }
-      <View style={styles.statusBarBackground} />
-      <StatusBar
+      <StatusBarWithBackground
         animated={!hideStatusBar}
         hidden={hideStatusBar && !isIPhoneX}
       />
@@ -71,4 +65,6 @@ const AppHeader = ({
 
 }
 
-export default AppHeader
+AppHeader.styledComponentName = 'AppHeader'
+
+export default styled(AppHeader)

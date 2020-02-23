@@ -120,6 +120,12 @@ const mapping = {
       },
       isCustom: false,
     },
+    {
+      component: 'AppHeader',
+    },
+    {
+      component: 'StatusBarWithBackground',
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
