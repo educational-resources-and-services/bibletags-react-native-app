@@ -122,9 +122,16 @@ const mapping = {
     },
     {
       component: 'AppHeader',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+        borderColor: "color-basic-active-border",
+      },
     },
     {
       component: 'StatusBarWithBackground',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
     },
     ...MAPPING_CUSTOMIZATION,
   ]),

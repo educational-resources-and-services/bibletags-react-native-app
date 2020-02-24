@@ -12,10 +12,8 @@ const styles = StyleSheet.create({
   header: {
     zIndex: 3,
     minHeight: 50,
-    backgroundColor: 'white',
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderColor: 'rgba(0, 0, 0, .1)',
   },
   noStatusBarSpace: {
     ...(
@@ -55,6 +53,7 @@ const AppHeader = ({
         style={[
           styles.header,
           (hideStatusBar ? styles.noStatusBarSpace : null),
+          themedStyle,
           style,
         ]}
       >

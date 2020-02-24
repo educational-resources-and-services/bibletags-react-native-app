@@ -10,7 +10,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 30,
-    backgroundColor: 'rgba(255, 255, 255, .9)',
   }
 })
 
@@ -24,7 +23,13 @@ const StatusBarWithBackground = ({
 
   return (
     <>
-      <View style={styles.background} />
+      <View 
+        style={[
+          styles.background,
+          themedStyle,
+          style,
+        ]}
+      />
       <StatusBar
         animated={animated}
         hidden={hidden}
