@@ -63,7 +63,7 @@ const VersionChooser = React.memo(({
             <ChooserVersion
               key={versionId}
               versionId={versionId}
-              selected={versionId === selectedVersionId}
+              uiStatus={versionId === selectedVersionId ? "selected" : "unselected"}
               onPress={showCloseIcon ? closeParallelMode : update}
               showCloseIcon={showCloseIcon}
             />

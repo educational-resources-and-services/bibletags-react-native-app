@@ -25,7 +25,7 @@ const ChooserChapter = React.memo(({
 
   themedStyle,
 }) => {
-console.log("1")
+
   const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goPress = useCallback(

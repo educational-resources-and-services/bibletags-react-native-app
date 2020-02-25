@@ -157,6 +157,19 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'ChooserVersion',
+      variantGroups: {
+        uiStatus: {
+          unselected: {},
+          selected: {
+            backgroundColor: "background-alternative-color-4",
+            labelColor: "text-alternate-color",
+            iconColor: 'rgba(255,255,255,.5)',
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

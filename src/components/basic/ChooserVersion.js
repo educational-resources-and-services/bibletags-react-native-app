@@ -1,16 +1,12 @@
 import React, { useCallback } from "react"
 import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
-import Constants from "expo-constants"
+import { styled } from '@ui-kitten/components'
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 
 import Icon from "./Icon"
 
-const {
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-  CHOOSER_SELECTED_TEXT_COLOR,
-  CHOOSER_CHOOSING_BACKGROUND_COLOR,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   version: {
@@ -21,18 +17,11 @@ const styles = StyleSheet.create({
   versionText: {
     lineHeight: 40,
   },
-  versionSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
-  },
-  versionTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
-  },
   versionTextContainer: {
     flexDirection: 'row',
   },
   closeIcon: {
     fontSize: 15,
-    color: 'rgba(255,255,255,.5)',
     lineHeight: 40,
     marginLeft: 10,
   },
@@ -43,7 +32,11 @@ const ChooserVersion = React.memo(({
   onPress,
   selected,
   showCloseIcon,
+  style,
+
+  themedStyle,
 }) => {
+  const { baseThemedStyle, labelThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goPress = useCallback(
     () => onPress(versionId),
@@ -52,24 +45,30 @@ const ChooserVersion = React.memo(({
 
   return (
     <TouchableHighlight
-      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      underlayColor={"rgba(0,0,0,.2)"}
       onPress={goPress}
       style={[
         styles.version,
-        (selected ? styles.versionSelected : null),
+        baseThemedStyle,
+        style,
       ]}
     >
       <View style={styles.versionTextContainer}>
         <Text
           style={[
             styles.versionText,
-            (selected ? styles.versionTextSelected : null),
+            labelThemedStyle,
+            style,
           ]}
         >{getVersionInfo(versionId).abbr}</Text>
         {!!showCloseIcon &&
           <Icon
             name="md-close"
-            style={styles.closeIcon}
+            style={[
+              styles.closeIcon,
+              iconThemedStyle,
+              style,
+            ]}
           />
         }
       </View>
@@ -78,4 +77,6 @@ const ChooserVersion = React.memo(({
 
 })
 
-export default ChooserVersion
+ChooserVersion.styledComponentName = 'ChooserVersion'
+
+export default styled(ChooserVersion)
