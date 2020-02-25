@@ -145,6 +145,18 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'ChooserChapter',
+      variantGroups: {
+        uiStatus: {
+          unselected: {},
+          selected: {
+            backgroundColor: "background-alternative-color-4",
+            labelColor: "text-alternate-color",
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

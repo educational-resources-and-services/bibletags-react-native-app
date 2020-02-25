@@ -390,7 +390,7 @@ const PassageChooser = ({
               <ChooserChapter
                 key={idx+1}
                 chapter={idx+1}
-                selected={idx+1 === chapter}
+                uiStatus={idx+1 === chapter ? "selected" : "unselected"}
                 onPress={updateChapter}
               />
             ))}

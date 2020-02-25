@@ -1,13 +1,10 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
-import Constants from "expo-constants"
 import { i18nNumber } from "inline-i18n"
+import { styled } from '@ui-kitten/components'
 
-const {
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-  CHOOSER_SELECTED_TEXT_COLOR,
-  CHOOSER_CHOOSING_BACKGROUND_COLOR,
-} = Constants.manifest.extra
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+
 
 const styles = StyleSheet.create({
   chapter: {
@@ -18,21 +15,18 @@ const styles = StyleSheet.create({
     lineHeight: 42,
     textAlign: 'center',
   },
-  chapterSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
-  },
-  chapterTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
-  },
 })
 
 const ChooserChapter = React.memo(({
   chapter,
   onPress,
-  selected,
-
+  style,
   displaySettings,
+
+  themedStyle,
 }) => {
+console.log("1")
+  const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goPress = useCallback(
     () => onPress(chapter),
@@ -41,17 +35,19 @@ const ChooserChapter = React.memo(({
 
   return (
     <TouchableHighlight
-      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      underlayColor={"rgba(0,0,0,.2)"}
       onPress={goPress}
       style={[
         styles.chapter,
-        (selected ? styles.chapterSelected : null),
+        baseThemedStyle,
+        style,
       ]}
     >
       <Text
         style={[
           styles.chapterText,
-          (selected ? styles.chapterTextSelected : null),
+          labelThemedStyle,
+          style,
         ]}
       >{i18nNumber({ num: chapter, type: 'formal' })}</Text>
     </TouchableHighlight>
@@ -59,4 +55,6 @@ const ChooserChapter = React.memo(({
 
 })
 
-export default ChooserChapter
+ChooserChapter.styledComponentName = 'ChooserChapter'
+
+export default styled(ChooserChapter)
