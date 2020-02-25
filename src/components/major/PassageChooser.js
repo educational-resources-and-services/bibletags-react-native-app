@@ -269,7 +269,7 @@ const PassageChooser = ({
         }
         <ChooserBook
           bookId={item}
-          selected={item === bookId}
+          uiStatus={item === bookId ? "selected" : "unselected"}
           onPress={updateBook}
         />
         {index === getBookIds().length - 1 &&
