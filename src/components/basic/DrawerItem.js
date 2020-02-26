@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
     height: 0,
     paddingBottom: '50%',
     resizeMode: 'cover',
-    backgroundColor: 'white',
   },
   listItem: {
     marginLeft: 0,
