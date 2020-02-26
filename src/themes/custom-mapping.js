@@ -165,9 +165,15 @@ const mapping = {
           selected: {
             backgroundColor: "background-alternative-color-4",
             labelColor: "text-alternate-color",
-            iconColor: 'rgba(255,255,255,.5)',
+            iconColor: "color-basic-control-transparent-600",
           },
         },
+      },
+    },
+    {
+      component: 'CoverAndSpin',
+      parameters: {
+        backgroundColor: "background-basic-color-4",
       },
     },
     ...MAPPING_CUSTOMIZATION,

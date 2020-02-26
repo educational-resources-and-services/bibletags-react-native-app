@@ -1,5 +1,6 @@
 import React from "react"
 import { StyleSheet, View, Text } from "react-native"
+import { styled } from '@ui-kitten/components'
 
 import Spin from "./Spin"
 
@@ -10,7 +11,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(255, 255, 255, .8)',
   },
   textContainer: {
     padding: 20,
@@ -43,4 +43,6 @@ const CoverAndSpin = ({
   </View>
 )
 
-export default CoverAndSpin
+CoverAndSpin.styledComponentName = 'CoverAndSpin'
+
+export default styled(CoverAndSpin)
