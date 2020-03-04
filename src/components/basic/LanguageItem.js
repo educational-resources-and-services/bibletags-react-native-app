@@ -1,6 +1,5 @@
 import React, { useCallback } from "react"
 import { Updates } from "expo"
-import Constants from "expo-constants"
 import { AsyncStorage, StyleSheet } from "react-native"
 import { ListItem } from '@ui-kitten/components'
 import { getLocale } from "inline-i18n"
@@ -8,27 +7,9 @@ import { getLocale } from "inline-i18n"
 import { fixRTL } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
-const {
-  INPUT_HIGHLIGHT_COLOR,
-} = Constants.manifest.extra
-
 const styles = StyleSheet.create({
-  abbr: {
-    width: 60,
-  },
-  abbrText: {
-    fontWeight: 'bold',
-    textAlign: 'left',
-  },
   versionName: {
     textAlign: 'left',
-  },
-  image: {
-    width: '100%',
-    height: 0,
-    paddingBottom: '50%',
-    resizeMode: 'cover',
-    backgroundColor: 'white',
   },
   listItem: {
     marginLeft: 0,
@@ -37,7 +18,7 @@ const styles = StyleSheet.create({
   },
   selected: {
     fontWeight: 'bold',
-    color: INPUT_HIGHLIGHT_COLOR,
+    color: "#b11f30",
   },
 })
 
