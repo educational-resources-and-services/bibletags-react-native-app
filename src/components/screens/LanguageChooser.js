@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet } from "react-native"
 import { List } from '@ui-kitten/components'
-import { i18n } from "inline-i18n"
+import { i18n, getLocale } from "inline-i18n"
 
 import { languageOptions } from "../../../language"
 
@@ -23,6 +23,7 @@ const LanguageChooser = () => {
       key={locale}
       locale={locale}
       label={label}
+      uiStatus={getLocale() === locale ? "selected" : "unselected"}
     />
   )
 

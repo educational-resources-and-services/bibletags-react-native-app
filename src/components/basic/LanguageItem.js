@@ -1,7 +1,8 @@
 import React, { useCallback } from "react"
 import { Updates } from "expo"
 import { AsyncStorage, StyleSheet } from "react-native"
-import { ListItem } from '@ui-kitten/components'
+import { ListItem, styled } from '@ui-kitten/components'
+
 import { getLocale } from "inline-i18n"
 
 import { fixRTL } from "../../utils/toolbox"
@@ -16,15 +17,13 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
-  selected: {
-    fontWeight: 'bold',
-    color: "#b11f30",
-  },
 })
 
 const LanguageItem = React.memo(({
   locale,
   label,
+  style,
+  themedStyle,
 }) => {
 
   const { historyGoBack } = useRouterState()
@@ -44,8 +43,6 @@ const LanguageItem = React.memo(({
     [ locale ],
   )
 
-  const selected = getLocale() === locale
-
   return (
     <ListItem
       title={label}
@@ -53,11 +50,14 @@ const LanguageItem = React.memo(({
       style={styles.listItem}
       titleStyle={[
         styles.versionName,
-        selected ? styles.selected : null,
+        themedStyle,
+        style,
       ]}
     />
   )
 
 })
 
-export default LanguageItem
+LanguageItem.styledComponentName = 'LanguageItem'
+
+export default styled(LanguageItem)

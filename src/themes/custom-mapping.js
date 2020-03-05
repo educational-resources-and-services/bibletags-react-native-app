@@ -176,6 +176,18 @@ const mapping = {
         backgroundColor: "background-basic-color-4",
       },
     },
+    {
+      component: 'LanguageItem',
+      variantGroups: {
+        uiStatus: {
+          unselected: {},
+          selected: {
+            color: "border-danger-color-3",
+            fontWeight: 'bold',
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
