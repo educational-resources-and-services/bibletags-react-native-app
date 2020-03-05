@@ -188,6 +188,12 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'RecentBookmark',
+      parameters: {
+        color: "text-control-color",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

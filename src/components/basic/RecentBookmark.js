@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo } from "react"
 import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { styled } from '@ui-kitten/components'
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
@@ -38,7 +39,6 @@ const styles = StyleSheet.create({
     height: 25,
   },
   bookmarkText: {
-    color: 'white',
     lineHeight: 25,
     textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 12,
@@ -56,6 +56,7 @@ const RecentBookmark = React.memo(({
   style,
   discard,
   select,
+  themedStyle,
 }) => {
 
   const [ beingTouched, setBeingTouched ] = useState(false)
@@ -134,6 +135,8 @@ const RecentBookmark = React.memo(({
           numberOfLines={1}
           style={[
             styles.bookmarkText,
+            style,
+            themedStyle,
           ]}>
           {text}
         </Text>
@@ -143,4 +146,6 @@ const RecentBookmark = React.memo(({
 
 })
 
-export default RecentBookmark
+RecentBookmark.styledComponentName = 'RecentBookmark'
+
+export default styled(RecentBookmark)
