@@ -194,6 +194,19 @@ const mapping = {
         color: "text-control-color",
       },
     },
+    {
+      component: 'RecentRef',
+      variantGroups: {
+        uiStatus: {
+          unselected: {
+            backgroundColor: "background-basic-color-4",
+          },
+          selected: {
+            backgroundColor: "background-alternative-color-4",
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

@@ -75,6 +75,7 @@ const RecentSection = React.memo(({
                 key={`${passageRef.bookId} ${passageRef.chapter}`}
                 passageRef={passageRef}
                 selected={historyIndex === 'current'}
+                uiStatus={historyIndex === 'current' ? 'selected' : 'unselected'}
               />
             )
           })}
