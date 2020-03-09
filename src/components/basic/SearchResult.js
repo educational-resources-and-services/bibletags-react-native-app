@@ -17,10 +17,6 @@ import TapOptions from "./TapOptions"
 
 const {
   DEFAULT_FONT_SIZE,
-  SEARCH_RESULT_REFERENCE_COLOR,
-  SEARCH_RESULT_VERSE_COLOR,
-  SEARCH_RESULT_SELECTED_COLOR,
-  SEARCH_RESULT_MATCH_COLOR,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -39,18 +35,18 @@ const viewStyles = StyleSheet.create({
 
 const textStyles = StyleSheet.create({
   verse: {
-    color: SEARCH_RESULT_VERSE_COLOR,
+    color: "#aaaaaa",
   },
   selected: {
-    color: SEARCH_RESULT_SELECTED_COLOR,
+    color: "#000000",
   },
   reference: {
     textAlign: 'right',
-    color: SEARCH_RESULT_REFERENCE_COLOR,
+    color: "#444444",
     fontWeight: 'bold',
   },
   match: {
-    color: SEARCH_RESULT_MATCH_COLOR,
+    color: "#b11f30",
   },
   rtl: {
     writingDirection: 'rtl',
