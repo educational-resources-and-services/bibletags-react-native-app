@@ -207,6 +207,12 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'RecentSearch',
+      parameters: {
+        backgroundColor: "border-danger-color-3",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

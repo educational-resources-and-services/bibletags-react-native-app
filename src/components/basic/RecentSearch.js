@@ -1,27 +1,20 @@
 import React, { useCallback } from "react"
 import { StyleSheet } from "react-native"
-import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { styled } from '@ui-kitten/components'
 
 import useRouterState from "../../hooks/useRouterState"
 import { removeRecentSearch } from "../../redux/actions.js"
 
 import RecentBookmark from "./RecentBookmark"
 
-const {
-  RECENT_SEARCH_BACKGROUND_COLOR,
-} = Constants.manifest.extra
-
-const styles = StyleSheet.create({
-  textBackground: {
-    backgroundColor: RECENT_SEARCH_BACKGROUND_COLOR,
-  },
-})
 
 const RecentSearch = React.memo(({
   searchString,
   versionId,
+  style,
+  themedStyle,
 
   removeRecentSearch,
 }) => {
@@ -47,7 +40,10 @@ const RecentSearch = React.memo(({
   return (
     <RecentBookmark
       text={searchString}
-      style={styles.textBackground}
+      style={[
+        style,
+        themedStyle,
+      ]}
       discard={discard}
       select={select}
     />
@@ -63,4 +59,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentSearch,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(RecentSearch)
+RecentSearch.styledComponentName = 'RecentSearch'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentSearch))
