@@ -7,7 +7,9 @@ import { i18n } from "inline-i18n"
 import { getRefFromLoc } from 'bibletags-versification/src/versification'
 import { getPassageStr } from "bibletags-ui-helper"
 import { useDimensions } from 'react-native-hooks'
+import { styled } from '@ui-kitten/components'
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
 import useRouterState from "../../hooks/useRouterState"
@@ -34,19 +36,9 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
-  verse: {
-    color: "#aaaaaa",
-  },
-  selected: {
-    color: "#000000",
-  },
   reference: {
     textAlign: 'right',
-    color: "#444444",
     fontWeight: 'bold',
-  },
-  match: {
-    color: "#b11f30",
   },
   rtl: {
     writingDirection: 'rtl',
@@ -99,13 +91,16 @@ const SearchResult = React.memo(({
   onSelect,
   versionAbbr,
   unselect,
+  style,
 
+  themedStyle,
   displaySettings,
 
   setRef,
 }) => {
 
-  const { historyGoBack } = useRouterState()
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ selectedThemedStyle={} ] = altThemedStyleSets
 
   const { font, textSize, lineSpacing, theme } = displaySettings
   const { pieces, loc } = result
@@ -160,7 +155,7 @@ const SearchResult = React.memo(({
               key={`${idx}-${idx2}`}
               style={[
                 ...styles,
-                (isMatch ? textStyles.match: null),
+                (isMatch ? selectedThemedStyle : null),
               ]}
             >
               {children
@@ -251,7 +246,8 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.reference,
-          (selected ? textStyles.selected : null),
+          labelThemedStyle,
+          style,
           (isRTLText({ languageId, bookId }) === I18nManager.isRTL ? textStyles.leftAlign : null),
           {
             fontSize: Math.max(fontSize * .65, 12),
@@ -267,7 +263,8 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.verse,
-          (selected ? textStyles.selected : null),
+          baseThemedStyle,
+          style,
           (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
           { fontSize },
           { lineHeight },
@@ -300,4 +297,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(SearchResult)
+SearchResult.styledComponentName = 'SearchResult'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(SearchResult))

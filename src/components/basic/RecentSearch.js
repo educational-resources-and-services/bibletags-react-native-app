@@ -42,6 +42,7 @@ const RecentSearch = React.memo(({
       text={searchString}
       style={[
         style,
+        
         themedStyle,
       ]}
       discard={discard}

@@ -213,6 +213,23 @@ const mapping = {
         backgroundColor: "border-danger-color-3",
       },
     },
+    {
+      component: 'SearchResult',
+      parameters: {
+        alt0Color: "border-danger-color-3",
+      },
+      variantGroups: {
+        uiStatus: {
+          unselected: {
+            color: "text-hint-color",
+            labelcolor: "border-alternative-color-1",
+          },
+          selected: {
+            color: "border-alternative-color-5",
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

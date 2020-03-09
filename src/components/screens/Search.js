@@ -168,6 +168,7 @@ const Search = ({
           isOriginal={isOriginal}
           versionAbbr={versionAbbr}
           selected={selected}
+          uiStatus={selected ? "selected" : "unselected"}
           selectTapY={selected ? selectTapY : null}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
