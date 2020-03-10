@@ -230,6 +230,12 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'SearchSuggestion',
+      parameters: {
+        color: "color-basic-transparent-focus-border",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

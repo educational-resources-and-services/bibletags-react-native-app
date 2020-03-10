@@ -1,6 +1,7 @@
 import React, { useCallback } from "react"
 import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-native"
 import { i18n } from "inline-i18n"
+import { styled } from '@ui-kitten/components'
 
 import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
 import useRouterState from "../../hooks/useRouterState"
@@ -30,7 +31,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   subtitle: {
-    color: 'rgba(0, 0, 0, .6)',
     fontSize: 13,
     textAlign: 'left',
   },
@@ -46,6 +46,9 @@ const SearchSuggestion = React.memo(({
   numberResults,
   setEditing,
   updateEditedSearchString,
+  style,
+
+  themedStyle,
 }) => {
 
   const { historyReplace, routerState } = useRouterState()
@@ -85,6 +88,11 @@ const SearchSuggestion = React.memo(({
         <View style={styles.subtitleView}>
           <Text
             style={styles.subtitle}
+            style={[
+              styles.subtitle,
+              themedStyle,
+              style,
+            ]}
           >
           {i18n("{{num_results}} result(s)", { num_results: numberResults })}
         </Text>
@@ -101,4 +109,6 @@ const SearchSuggestion = React.memo(({
 
 })
 
-export default SearchSuggestion
+SearchSuggestion.styledComponentName = 'SearchSuggestion'
+
+export default styled(SearchSuggestion)
