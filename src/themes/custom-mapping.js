@@ -242,6 +242,13 @@ const mapping = {
         backgroundColor: "background-basic-color-1",
       },
     },
+    {
+      component: 'Spin',
+      parameters: {
+        color: "border-danger-color-3",
+        backgroundColor: "color-primary-100",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
