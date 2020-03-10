@@ -236,6 +236,12 @@ const mapping = {
         color: "color-basic-transparent-focus-border",
       },
     },
+    {
+      component: 'SearchSuggestions',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
