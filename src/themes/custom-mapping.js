@@ -249,6 +249,13 @@ const mapping = {
         backgroundColor: "color-primary-100",
       },
     },
+    {
+      component: 'TapOptions',
+      parameters: {
+        labelColor: "color-control-default",
+        backgroundColor: "background-alternative-color-1",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
