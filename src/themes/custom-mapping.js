@@ -256,6 +256,16 @@ const mapping = {
         backgroundColor: "background-alternative-color-1",
       },
     },
+    {
+      component: 'DisplaySettings',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+        labelColor: "border-alternative-color-4",
+        alt0minimumTrackTintColor: "border-danger-color-4",
+        alt0maximumTrackTintColor: "color-basic-focus-border",
+        alt0thumbTintColor: "border-danger-color-4",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

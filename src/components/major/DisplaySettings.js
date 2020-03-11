@@ -1,10 +1,11 @@
 import React, { useMemo, useRef } from "react"
-import { Modal, Select } from '@ui-kitten/components'
+import { Modal, Select, styled } from '@ui-kitten/components'
 import { StyleSheet, Platform, Slider, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { bibleFontList } from "../../utils/bibleFonts.js"
 import useBack from "../../hooks/useBack"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
@@ -14,7 +15,6 @@ const THROTTLE_MS = 100
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
     padding: 15,
     elevation: 4,
     shadowOffset: { width: 0, height: 0 },
@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
   selectLabel: {
     fontWeight: 'normal',
     fontSize: 13,
-    color: 'black',
   },
   slider: {
     width: Platform.OS === 'android' ? 220 : 200,
@@ -64,7 +63,9 @@ const themeOptions = [
 
 const DisplaySettings = React.memo(({
   hideDisplaySettings,
+  style,
 
+  themedStyle,
   displaySettings,
 
   setTextSize,
@@ -72,6 +73,9 @@ const DisplaySettings = React.memo(({
   setFont,
   setTheme,
 }) => {
+  
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ selectedThemedStyle={} ] = altThemedStyleSets
 
   const { textSize, lineSpacing, font, theme } = displaySettings
 
@@ -112,7 +116,12 @@ const DisplaySettings = React.memo(({
       onBackdropPress={hideDisplaySettings}
       visible={true}
     >
-      <View style={styles.container}>
+      <View 
+        style={[
+          styles.container,
+          baseThemedStyle,
+          style,
+        ]}>
         <Text style={styles.title}>
           {i18n("Display options")}
         </Text>
@@ -124,9 +133,9 @@ const DisplaySettings = React.memo(({
             value={initialTextSize}
             onValueChange={updateTextSize}
             style={styles.slider}
-            minimumTrackTintColor={"#b11f30"}
-            maximumTrackTintColor={"#c2c2c2"}
-            thumbTintColor={"#b11f30"}
+            minimumTrackTintColor={selectedThemedStyle.minimumTrackTintColor}
+            maximumTrackTintColor={selectedThemedStyle.maximumTrackTintColor}
+            thumbTintColor={selectedThemedStyle.thumbTintColor}
           />
         </View>
         <View style={styles.line}>
@@ -137,15 +146,19 @@ const DisplaySettings = React.memo(({
             value={initialLineSpacing}
             onValueChange={updateLineSpacing}
             style={styles.slider}
-            minimumTrackTintColor={"#b11f30"}
-            maximumTrackTintColor={"#c2c2c2"}
-            thumbTintColor={"#b11f30"}
+            minimumTrackTintColor={selectedThemedStyle.minimumTrackTintColor}
+            maximumTrackTintColor={selectedThemedStyle.maximumTrackTintColor}
+            thumbTintColor={selectedThemedStyle.thumbTintColor}
           />
         </View>
         {/* <Select
           label={i18n("Theme")}
           style={styles.line}
-          labelStyle={styles.selectLabel}
+          labelStyle={[
+            styles.selectLabel,
+            labelThemedStyle,
+            style,
+          ]}
           data={themeOptions}
           selectedOption={selectedThemeOption}
           onSelect={setTheme}
@@ -153,7 +166,11 @@ const DisplaySettings = React.memo(({
         <Select
           label={i18n("Bible font")}
           style={styles.line}
-          labelStyle={styles.selectLabel}
+          labelStyle={[
+            styles.selectLabel,
+            labelThemedStyle,
+            style,
+          ]}
           data={fontOptions}
           selectedOption={selectedFontOption}
           onSelect={setFont}
@@ -175,4 +192,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setTheme,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(DisplaySettings)
+DisplaySettings.styledComponentName = 'DisplaySettings'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(DisplaySettings))
