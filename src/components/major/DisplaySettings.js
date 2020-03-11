@@ -1,7 +1,6 @@
 import React, { useMemo, useRef } from "react"
 import { Modal, Select } from '@ui-kitten/components'
 import { StyleSheet, Platform, Slider, I18nManager, Text, View } from "react-native"
-import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
@@ -10,11 +9,6 @@ import { bibleFontList } from "../../utils/bibleFonts.js"
 import useBack from "../../hooks/useBack"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
 import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
-
-const {
-  INPUT_HIGHLIGHT_COLOR,
-  INPUT_HIGHLIGHT_SECONDARY_COLOR,
-} = Constants.manifest.extra
 
 const THROTTLE_MS = 100
 
@@ -130,9 +124,9 @@ const DisplaySettings = React.memo(({
             value={initialTextSize}
             onValueChange={updateTextSize}
             style={styles.slider}
-            minimumTrackTintColor={INPUT_HIGHLIGHT_COLOR}
-            maximumTrackTintColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
-            thumbTintColor={INPUT_HIGHLIGHT_COLOR}
+            minimumTrackTintColor={"#b11f30"}
+            maximumTrackTintColor={"#c2c2c2"}
+            thumbTintColor={"#b11f30"}
           />
         </View>
         <View style={styles.line}>
@@ -143,9 +137,9 @@ const DisplaySettings = React.memo(({
             value={initialLineSpacing}
             onValueChange={updateLineSpacing}
             style={styles.slider}
-            minimumTrackTintColor={INPUT_HIGHLIGHT_COLOR}
-            maximumTrackTintColor={INPUT_HIGHLIGHT_SECONDARY_COLOR}
-            thumbTintColor={INPUT_HIGHLIGHT_COLOR}
+            minimumTrackTintColor={"#b11f30"}
+            maximumTrackTintColor={"#c2c2c2"}
+            thumbTintColor={"#b11f30"}
           />
         </View>
         {/* <Select
