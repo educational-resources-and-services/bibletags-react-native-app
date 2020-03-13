@@ -266,6 +266,14 @@ const mapping = {
         alt0thumbTintColor: "border-danger-color-4",
       },
     },
+    {
+      component: 'Drawer',
+      parameters: {
+        color: "border-basic-color-5",
+        labelColor: "color-basic-700",
+        alt0backgroundColor: "background-basic-color-2",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
