@@ -274,6 +274,34 @@ const mapping = {
         alt0backgroundColor: "background-basic-color-2",
       },
     },
+    {                                 //TO DO: go back and rename all "selectedThemedStyle"s to relevant names
+      component: 'PassageChooser',   //STOPPED HERE: go through passageChooser and versionChooser and change colors to codes
+      parameters: {
+        backgroundColor: "#f0f0f0", //midlight grey (refChooser)
+        labelColor: 'white', //white (parallelLabel)
+        alt0backgroundColor: "#777777", //medium grey (parallelLabelContainer)
+        alt1backgroundColor: "#e9e9eb", //midlight grey (booklist)
+      },
+    },
+    {
+      component: 'VersionChooser',
+      parameters: {
+        color: 'rgba(0, 0, 0, .5)',
+      },
+      variantGroups: {
+        type: {
+          primary: {
+            backgroundColor: "#dadada",
+          },
+          secondary: {
+            backgroundColor: "#e2e2e2",
+          },
+          search: {
+            backgroundColor: "white",
+          },
+        },
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

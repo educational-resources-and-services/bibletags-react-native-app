@@ -169,7 +169,7 @@ const SearchHeader = React.memo(({
             versionIds={ALL_VERSIONS}
             update={updateVersion}
             selectedVersionId={versionId}
-            backgroundColor="white"
+            type="search"
             goVersions={goVersions}
           />
         </View>
