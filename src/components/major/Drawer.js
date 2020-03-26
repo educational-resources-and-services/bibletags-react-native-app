@@ -20,7 +20,7 @@ const {
 } = Constants.manifest.extra
         
 const styles = StyleSheet.create({
-  // separator: {                This doesn't seem to be being used anywhere
+  // separator: {
   //   flex: 0,
   //   height: 10,
   //   backgroundColor: '#e8e8e8',
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     paddingBottom: '50%',
     resizeMode: 'cover',
   },
-  // offline: {                  Also doesn't seem to be being used
+  // offline: {
   //   opacity: .25,
   // },
   list: {
