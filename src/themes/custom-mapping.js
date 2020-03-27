@@ -222,10 +222,10 @@ const mapping = {
         uiStatus: {
           unselected: {
             color: "text-hint-color",
-            labelcolor: "border-alternative-color-1",
+            labelcolor: "text-basic-color",
           },
           selected: {
-            color: "border-alternative-color-5",
+            color: "text-basic-color",
           },
         },
       },
@@ -233,7 +233,7 @@ const mapping = {
     {
       component: 'SearchSuggestion',
       parameters: {
-        color: "color-basic-transparent-focus-border",
+        color: "text-hint-color",
       },
     },
     {
@@ -246,13 +246,13 @@ const mapping = {
       component: 'Spin',
       parameters: {
         color: "border-danger-color-3",
-        backgroundColor: "color-primary-100",
+        backgroundColor: "background-basic-color-2",
       },
     },
     {
       component: 'TapOptions',
       parameters: {
-        labelColor: "color-control-default",
+        labelColor: "text-alternate-color",
         backgroundColor: "background-alternative-color-1",
       },
     },
@@ -260,7 +260,7 @@ const mapping = {
       component: 'DisplaySettings',
       parameters: {
         backgroundColor: "background-basic-color-1",
-        labelColor: "border-alternative-color-4",
+        labelColor: "text-basic-color",
         alt0minimumTrackTintColor: "border-danger-color-4",
         alt0maximumTrackTintColor: "color-basic-focus-border",
         alt0thumbTintColor: "border-danger-color-4",
@@ -269,35 +269,35 @@ const mapping = {
     {
       component: 'Drawer',
       parameters: {
-        color: "border-basic-color-5",
-        labelColor: "color-basic-700",
+        color: "text-primary-color",
+        labelColor: "text-basic-color",
         alt0backgroundColor: "background-basic-color-2",
       },
     },
-    {                                 //TO DO: go back and rename all "selectedThemedStyle"s to relevant names
-      component: 'PassageChooser',   //STOPPED HERE: go through passageChooser and versionChooser and change colors to codes
+    {
+      component: 'PassageChooser',
       parameters: {
-        backgroundColor: "#f0f0f0", //midlight grey (refChooser)
-        labelColor: 'white', //white (parallelLabel)
-        alt0backgroundColor: "#777777", //medium grey (parallelLabelContainer)
-        alt1backgroundColor: "#e9e9eb", //midlight grey (booklist)
+        backgroundColor: "background-basic-color-3",
+        labelColor: "text-alternate-color",
+        alt0backgroundColor: "background-alternative-color-1",
+        alt1backgroundColor: "background-alternative-color-2",
       },
     },
     {
       component: 'VersionChooser',
       parameters: {
-        color: 'rgba(0, 0, 0, .5)',
+        color: "color-primary-transparent-focus",  //info icon
       },
       variantGroups: {
         type: {
           primary: {
-            backgroundColor: "#dadada",
+            backgroundColor: "background-basic-color-4",
           },
           secondary: {
-            backgroundColor: "#e2e2e2",
+            backgroundColor: "background-basic-color-2",
           },
           search: {
-            backgroundColor: "white",
+            backgroundColor: "background-basic-color-1",
           },
         },
       },
