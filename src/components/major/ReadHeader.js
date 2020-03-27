@@ -4,7 +4,9 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPassageStr } from "bibletags-ui-helper"
+import { styled } from '@ui-kitten/components'
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from '../../utils/toolbox.js'
 import useRouterState from "../../hooks/useRouterState"
 
@@ -47,7 +49,6 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'left',
     writingDirection: 'ltr',
-    color: 'rgba(0, 0, 0, .65)',
     fontSize: 11,
   },
   dropdownIcon: {
@@ -56,7 +57,6 @@ const styles = StyleSheet.create({
     top: 0,
     height: 16,
     lineHeight: 40,
-    color: '#aaa',
   },
   search: {
     paddingRight: 8,
@@ -71,11 +71,15 @@ const ReadHeader = React.memo(({
   showPassageChooser,
   showingPassageChooser,
   hideStatusBar,
-  
+  style,
+
+  themedStyle,
   passage,
 }) => {
 
   const { historyPush } = useRouterState()
+  const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ dropdownIconThemedStyle={} ] = altThemedStyleSets
 
   const goSearch = useCallback(
     () => {
@@ -119,13 +123,23 @@ const ReadHeader = React.memo(({
               })}
             </Text>
             {`  `}
-            <Text style={styles.version}>
+            <Text 
+              style={[
+                styles.version,
+                baseThemedStyle,
+                style,
+              ]}
+            >
               {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
             </Text>
           </Text>
           <Icon
             name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-            style={styles.dropdownIcon}
+            style={[
+              styles.dropdownIcon,
+              dropdownIconThemedStyle,
+              style,
+            ]}
           />
         </TouchableOpacity>
       </View>
@@ -153,4 +167,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(ReadHeader)
+ReadHeader.styledComponentName = 'ReadHeader'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadHeader))

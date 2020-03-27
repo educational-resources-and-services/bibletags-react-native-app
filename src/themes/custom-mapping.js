@@ -308,6 +308,13 @@ const mapping = {
         backgroundColor: "background-basic-color-3",
       },
     },
+    {
+      component: 'ReadHeader',
+      parameters: {
+        color: "text-hint-color",
+        alt0color: "text-disabled-color",
+      },   //TODO: go back and change all of the altThemedStyleSets to say the right label
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
