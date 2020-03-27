@@ -302,6 +302,12 @@ const mapping = {
         },
       },
     },
+    {
+      component: 'ReadContentPage',
+      parameters: {
+        backgroundColor: "background-basic-color-3",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

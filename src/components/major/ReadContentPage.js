@@ -1,20 +1,16 @@
 import React, { useRef, useCallback } from "react"
-import Constants from "expo-constants"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
 import { getCorrespondingRefs } from 'bibletags-versification/src/versification'
+import { styled } from '@ui-kitten/components'
 
 import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
 import useAdjacentRefs from '../../hooks/useAdjacentRefs'
 import { setPassageScroll } from "../../redux/actions"
 
 import ReadText from './ReadText'
-
-const {
-  DIVIDER_COLOR,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   page: {
@@ -24,7 +20,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: DIVIDER_COLOR,
   },
 })
 
@@ -40,7 +35,9 @@ const ReadContentPage = React.memo(({
   setPrimaryLoaded,
   setSecondaryLoaded,
   onVerseTap,
+  style,
 
+  themedStyle,
   passageScrollY,
 
   setPassageScroll,
@@ -210,7 +207,11 @@ const ReadContentPage = React.memo(({
       {!!parallelVersionId &&
         <>
           <View
-            style={styles.divider}
+            style={[
+              styles.divider,
+              themedStyle,
+              style,
+            ]}
           />
           <ReadText
             key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
@@ -250,4 +251,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setPassageScroll,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(ReadContentPage)
+ReadContentPage.styledComponentName = 'ReadContentPage'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadContentPage))
