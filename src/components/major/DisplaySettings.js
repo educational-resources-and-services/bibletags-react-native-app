@@ -75,7 +75,7 @@ const DisplaySettings = React.memo(({
 }) => {
   
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ selectedThemedStyle={} ] = altThemedStyleSets
+  const [ tintThemedStyle={} ] = altThemedStyleSets
 
   const { textSize, lineSpacing, font, theme } = displaySettings
 
@@ -133,9 +133,9 @@ const DisplaySettings = React.memo(({
             value={initialTextSize}
             onValueChange={updateTextSize}
             style={styles.slider}
-            minimumTrackTintColor={selectedThemedStyle.minimumTrackTintColor}
-            maximumTrackTintColor={selectedThemedStyle.maximumTrackTintColor}
-            thumbTintColor={selectedThemedStyle.thumbTintColor}
+            minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
+            maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
+            thumbTintColor={tintThemedStyle.thumbTintColor}
           />
         </View>
         <View style={styles.line}>
@@ -146,9 +146,9 @@ const DisplaySettings = React.memo(({
             value={initialLineSpacing}
             onValueChange={updateLineSpacing}
             style={styles.slider}
-            minimumTrackTintColor={selectedThemedStyle.minimumTrackTintColor}
-            maximumTrackTintColor={selectedThemedStyle.maximumTrackTintColor}
-            thumbTintColor={selectedThemedStyle.thumbTintColor}
+            minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
+            maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
+            thumbTintColor={tintThemedStyle.thumbTintColor}
           />
         </View>
         {/* <Select

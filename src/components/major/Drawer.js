@@ -60,7 +60,7 @@ const Drawer = ({
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ selectedThemedStyle={} ] = altThemedStyleSets
+  const [ imageThemedStyle={} ] = altThemedStyleSets
 
   const { historyPush } = useRouterState()
   const { online } = useNetwork()
@@ -95,7 +95,7 @@ const Drawer = ({
           source={require('../../../assets/images/drawer.png')}
           style={[
             styles.image,
-            selectedThemedStyle,
+            imageThemedStyle,
             style,
           ]}
         />

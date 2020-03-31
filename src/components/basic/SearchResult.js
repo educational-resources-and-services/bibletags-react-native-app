@@ -100,7 +100,7 @@ const SearchResult = React.memo(({
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ selectedThemedStyle={} ] = altThemedStyleSets
+  const [ backgroundThemedStyle={} ] = altThemedStyleSets
 
   const { font, textSize, lineSpacing, theme } = displaySettings
   const { pieces, loc } = result
@@ -155,7 +155,7 @@ const SearchResult = React.memo(({
               key={`${idx}-${idx2}`}
               style={[
                 ...styles,
-                (isMatch ? selectedThemedStyle : null),
+                (isMatch ? backgroundThemedStyle : null),
               ]}
             >
               {children
