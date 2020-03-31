@@ -313,7 +313,13 @@ const mapping = {
       parameters: {
         color: "text-hint-color",
         alt0color: "text-disabled-color",
-      },   //TODO: go back and change all of the altThemedStyleSets to say the right label
+      },
+    },
+    {
+      component: 'RecentSection',
+      parameters: {
+        backgroundColor: "color-basic-control-transparent-600", // originally 'rgba(255, 255, 255, .9)',
+      },
     },
     ...MAPPING_CUSTOMIZATION,
   ]),

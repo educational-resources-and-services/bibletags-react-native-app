@@ -2,11 +2,11 @@ import React from "react"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { styled } from '@ui-kitten/components'
 
 import RecentRef from '../basic/RecentRef'
 import RecentSearch from '../basic/RecentSearch'
 
-const bgColor = 'rgba(255, 255, 255, .9)'
 const numFaderLines = 15
 
 const styles = StyleSheet.create({
@@ -17,10 +17,8 @@ const styles = StyleSheet.create({
   },
   faderLine: {
     height: 3,
-    backgroundColor: bgColor,
   },
   main: {
-    backgroundColor: bgColor,
     flex: 1,
     flexDirection: 'row',
     height: 75,
@@ -40,6 +38,9 @@ const RecentSection = React.memo(({
   history,
   recentPassages,
   recentSearches,
+  style,
+
+  themedStyle,
 }) => {
 
   if(recentPassages.length + recentSearches.length === 1) return null
@@ -55,6 +56,8 @@ const RecentSection = React.memo(({
           key={idx}
           style={[
             styles.faderLine,
+            themedStyle,
+            style,
             {
               opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
             },
@@ -62,7 +65,11 @@ const RecentSection = React.memo(({
         />
       ))}
       <View
-        style={styles.main}
+        style={[
+          styles.main,
+          themedStyle,
+          style,
+        ]}
       >
         <View style={styles.refs}>
           {recentPassages.map(historyIndex => {
@@ -114,4 +121,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(RecentSection)
+RecentSection.styledComponentName = 'RecentSection'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentSection))
