@@ -316,6 +316,12 @@ const mapping = {
       },
     },
     {
+      component: 'RecentSection',
+      parameters: {
+        backgroundColor: "color-basic-control-transparent-600", // originally 'rgba(255, 255, 255, .9)',
+      },
+    },
+    {
       component: 'ReadText',
       parameters: {
         alt0color: "text-basic-color", // majorTitleThemedStyle
