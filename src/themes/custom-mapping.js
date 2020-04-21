@@ -336,6 +336,12 @@ const mapping = {
         backgroundColor: "background-basic-color-1",
       },
     },
+    {
+      component: 'LanguageChooser',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
