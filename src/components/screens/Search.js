@@ -5,6 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
+import { styled } from '@ui-kitten/components'
 
 import { logEvent } from '../../utils/analytics'
 import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
@@ -31,7 +32,6 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 20,
     textAlign: 'center',
-    color: 'rgba(0,0,0,.5)',
   },
   searchResults: {
     paddingBottom: 20,
@@ -45,6 +45,9 @@ const defaultTapState = {
 
 const Search = ({
   recordSearch,
+  style,
+
+  themedStyle,
 }) => {
 
   const { routerState } = useRouterState()
@@ -208,7 +211,13 @@ const Search = ({
         }
         {!editing && searchDone && searchResults.length === 0 &&
           <View style={styles.messageContainer}>
-            <Text style={styles.message}>
+            <Text 
+              style={[
+                styles.message,
+                themedStyle,
+                style,
+              ]}
+            >
               {i18n("No results found.")}
             </Text>
           </View>
@@ -238,4 +247,6 @@ const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   recordSearch,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(Search)
+Search.styledComponentName = 'Search'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(Search))
