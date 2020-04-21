@@ -330,6 +330,12 @@ const mapping = {
         alt3color: "color-basic-transparent-400", // section2HeadingThemedStyle
       },
     },
+    {
+      component: 'Splash',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from 'react'
 import { Animated, StyleSheet, Dimensions } from 'react-native'
 import { SplashScreen, Updates } from 'expo'
 import Constants from 'expo-constants'
+import { styled } from '@ui-kitten/components'
 
 import useInstanceValue from '../../hooks/useInstanceValue'
 
@@ -29,7 +30,6 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   image: {
     width: undefined,
@@ -56,6 +56,9 @@ const Splash = ({
   isReady,
   showDelayText,
   updateExists,
+  style,
+
+  themedStyle,
 }) => {
 
   const splashAnimation = useRef(new Animated.Value(0)).current
@@ -121,6 +124,8 @@ const Splash = ({
     <Animated.View
       style={[
         styles.container,
+        themedStyle,
+        style,
         {
           opacity: splashAnimation.interpolate({
             inputRange: [0, 1],
@@ -171,4 +176,6 @@ const Splash = ({
 
 }
 
-export default Splash
+Splash.styledComponentName = 'Splash'
+
+export default styled(Splash)

@@ -193,13 +193,18 @@ const App = () => {
 
   return (
     <>
-      {!!isLoaded &&
-        <NativeRouter>
-          <ApplicationProvider
-            mapping={mapping}
-            customMapping={customMapping}
-            theme={colorScheme === 'dark' ? darkTheme : lightTheme}
-          >
+      <NativeRouter>
+        <ApplicationProvider
+          mapping={mapping}
+          customMapping={customMapping}
+          theme={colorScheme === 'dark' ? darkTheme : lightTheme}
+        >
+          <Splash
+            showDelayText={showDelayText}
+            isReady={isReady}
+            updateExists={updateExists}
+          />
+          {!!isLoaded &&
             <SafeAreaProvider>
               <Provider store={store}>
                 <PersistGate persistor={persistor}>
@@ -207,14 +212,9 @@ const App = () => {
                 </PersistGate>
               </Provider>
             </SafeAreaProvider>
-          </ApplicationProvider>
-        </NativeRouter>
-      }
-      <Splash
-        showDelayText={showDelayText}
-        isReady={isReady}
-        updateExists={updateExists}
-      />
+          } 
+        </ApplicationProvider>
+      </NativeRouter>
     </>
   )
 
