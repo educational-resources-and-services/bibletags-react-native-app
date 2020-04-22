@@ -354,6 +354,12 @@ const mapping = {
         color: 'color-info-focus',
       },
     },
+    {
+      component: 'Versions',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
