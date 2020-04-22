@@ -1,5 +1,6 @@
 import React from "react"
 import { StyleSheet, View, Linking, Text } from "react-native"
+import { styled } from '@ui-kitten/components'
 
 import { getVersionInfo, replaceWithJSX } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
@@ -22,12 +23,15 @@ const styles = StyleSheet.create({
     writingDirection: 'rtl',
   },
   link: {
-    color: 'blue',
     textDecorationLine: 'underline',
   },
 })
 
-const VersionInfo = () => {
+const VersionInfo = ({
+  style,
+
+  themedStyle,
+}) => {
 
   const { routerState } = useRouterState()
   const { versionId } = routerState
@@ -54,7 +58,11 @@ const VersionInfo = () => {
             >
               {replaceWithJSX(copyrightLine, '<a href="([^"]+)">([^<]+)<\/a>', (x, href, linkText) => (
                 <Text
-                  style={styles.link}
+                  style={[
+                    styles.link,
+                    themedStyle,
+                    style,
+                  ]}
                   onPress={() => Linking.openURL(href)}
                 >
                   {linkText}
@@ -69,4 +77,6 @@ const VersionInfo = () => {
 
 }
 
-export default VersionInfo
+VersionInfo.styledComponentName = 'VersionInfo'
+
+export default styled(VersionInfo)
