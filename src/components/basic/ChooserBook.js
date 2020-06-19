@@ -34,7 +34,7 @@ const ChooserBook = React.memo(({
 
   return (
     <TouchableHighlight
-      underlayColor={"rgba(0,0,0,.2)"}
+      underlayColor="rgba(0, 0, 0, .2)"  // this just darkens the item when first touched
       onPress={goPress}
       style={[
         styles.book,
