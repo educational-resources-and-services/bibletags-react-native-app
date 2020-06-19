@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-nat
 import { i18n } from "inline-i18n"
 import { styled } from "@ui-kitten/components"
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo, isRTLText } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
@@ -27,10 +28,10 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     fontSize: 12,
   },
-  subtitleView: {
+  numResultsView: {
     flex: 1,
   },
-  subtitle: {
+  numResults: {
     fontSize: 13,
     textAlign: 'left',
   },
@@ -46,12 +47,14 @@ const SearchSuggestion = React.memo(({
   numberResults,
   setEditing,
   updateEditedSearchString,
-  style,
 
   themedStyle,
 }) => {
 
   const { historyReplace, routerState } = useRouterState()
+
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ versionAbbrThemedStyle={}, numResultsThemedStyle={}, timeThemedStyle={} ] = altThemedStyleSets
 
   const goSearch = useCallback(
     () => {
@@ -72,34 +75,50 @@ const SearchSuggestion = React.memo(({
 
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[
+        styles.container,
+        baseThemedStyle,
+      ]}
       button={true}
       onPress={goSearch}
     >
-      <Text style={styles.searchString}>
+      <Text
+        style={[
+          styles.searchString,
+          labelThemedStyle,
+        ]}
+      >
         {I18nManager.isRTL ? `\u2067`: `\u2066`}
         {i18n("“{{searchString}}”", {
           searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
         })}
         {`  `}
-        <Text style={styles.versionAbbr}>{abbr}</Text>
+        <Text
+          style={[
+            styles.versionAbbr,
+            versionAbbrThemedStyle,
+          ]}
+        >
+          {abbr}
+        </Text>
       </Text>
       <View style={styles.secondLine}>
-        <View style={styles.subtitleView}>
+        <View style={styles.numResultsView}>
           <Text
-            style={styles.subtitle}
             style={[
-              styles.subtitle,
-              themedStyle,
-              style,
+              styles.numResults,
+              numResultsThemedStyle,
             ]}
           >
-          {i18n("{{num_results}} result(s)", { num_results: numberResults })}
-        </Text>
+            {i18n("{{num_results}} result(s)", { num_results: numberResults })}
+          </Text>
         </View>
         <View>
           <RelativeTime
-            style={styles.time}
+            style={[
+              styles.time,
+              timeThemedStyle,
+            ]}
             time={lastViewTime}
           />
         </View>

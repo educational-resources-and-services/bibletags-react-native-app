@@ -199,7 +199,7 @@ const mapping = {
       variantGroups: {
         uiStatus: {
           unselected: {
-            backgroundColor: "background-basic-color-4",
+            backgroundColor: "color-basic-600",
           },
           selected: {
             backgroundColor: "background-alternative-color-4",
@@ -210,7 +210,7 @@ const mapping = {
     {
       component: 'RecentSearch',
       parameters: {
-        backgroundColor: "border-danger-color-3",
+        backgroundColor: "color-danger-700",
       },
     },
     {
@@ -233,7 +233,10 @@ const mapping = {
     {
       component: 'SearchSuggestion',
       parameters: {
-        color: "text-hint-color",
+        labelColor: "color-basic-1100",
+        alt0Color: "color-basic-600",
+        alt1Color: "color-basic-700",
+        alt2Color: "color-basic-700",
       },
     },
     {
@@ -261,40 +264,40 @@ const mapping = {
       parameters: {
         backgroundColor: "background-basic-color-1",
         labelColor: "text-basic-color",
-        alt0minimumTrackTintColor: "border-danger-color-4",
-        alt0maximumTrackTintColor: "color-basic-focus-border",
-        alt0thumbTintColor: "border-danger-color-4",
+        alt0MinimumTrackTintColor: "color-danger-700",
+        alt0MaximumTrackTintColor: "color-basic-500",
+        alt0ThumbTintColor: "color-danger-700",
       },
     },
     {
       component: 'Drawer',
       parameters: {
-        color: "text-primary-color",
-        labelColor: "text-basic-color",
-        alt0backgroundColor: "background-basic-color-2",
+        color: "color-basic-700",
+        labelColor: "color-basic-600",
+        alt0BackgroundColor: "background-basic-color-2",
       },
     },
     {
       component: 'PassageChooser',
       parameters: {
-        backgroundColor: "background-basic-color-3",
-        labelColor: "text-alternate-color",
-        alt0backgroundColor: "background-alternative-color-1",
-        alt1backgroundColor: "background-alternative-color-2",
+        backgroundColor: "background-basic-color-4",
+        labelColor: "text-basic-color",
+        alt0BackgroundColor: "color-basic-transparent-600",
+        alt1BackgroundColor: "background-basic-color-2",
       },
     },
     {
       component: 'VersionChooser',
       parameters: {
-        color: "color-primary-transparent-focus",  //info icon
+        color: "color-basic-600",  //info icon
       },
       variantGroups: {
         type: {
           primary: {
-            backgroundColor: "background-basic-color-4",
+            backgroundColor: "background-basic-color-1",
           },
           secondary: {
-            backgroundColor: "background-basic-color-2",
+            backgroundColor: "background-basic-color-3",
           },
           search: {
             backgroundColor: "background-basic-color-1",
@@ -312,7 +315,7 @@ const mapping = {
       component: 'ReadHeader',
       parameters: {
         color: "text-hint-color",
-        alt0color: "text-disabled-color",
+        alt0Color: "text-disabled-color",
       },
     },
     {
@@ -324,10 +327,10 @@ const mapping = {
     {
       component: 'ReadText',
       parameters: {
-        alt0color: "text-basic-color", // majorTitleThemedStyle
-        alt1color: "color-basic-transparent-600", // majorSectionHeadingThemedStyle
-        alt2color: "color-basic-transparent-500", // section1HeadingThemedStyle
-        alt3color: "color-basic-transparent-400", // section2HeadingThemedStyle
+        alt0Color: "color-basic-600", // majorTitleThemedStyle
+        alt1Color: "color-basic-800", // majorSectionHeadingThemedStyle
+        alt2Color: "color-basic-700", // section1HeadingThemedStyle
+        alt3Color: "color-basic-600", // section2HeadingThemedStyle
       },
     },
     {
