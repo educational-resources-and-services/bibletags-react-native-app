@@ -1,14 +1,14 @@
 import React from "react"
 import { Dimensions, I18nManager, AsyncStorage } from "react-native"
-import NetInfo from '@react-native-community/netinfo'
+import NetInfo from "@react-native-community/netinfo"
 import Constants from "expo-constants"
-import * as SQLite from 'expo-sqlite'
+import * as SQLite from "expo-sqlite"
 import { isIphoneX } from "react-native-iphone-x-helper"
 import { getPassageStr } from "bibletags-ui-helper"
 
 import { i18n, isRTL } from "inline-i18n"
-import bibleVersions from '../../versions.js'
-import { getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
+import bibleVersions from "../../versions"
+import { getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,

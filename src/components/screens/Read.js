@@ -3,9 +3,9 @@ import { StyleSheet, View, StatusBar, TouchableWithoutFeedback } from "react-nat
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 import { Switch, Route } from "react-router-native"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
 
-import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
+import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import Search from "./Search"
@@ -15,9 +15,9 @@ import ReadHeader from "../major/ReadHeader"
 import ReadContent from "../major/ReadContent"
 import DisplaySettings from "../major/DisplaySettings"
 import PassageChooser from "../major/PassageChooser"
-import RevealContainer from '../basic/RevealContainer'
-import RecentSection from '../major/RecentSection'
-import IPhoneXBuffer from "../basic/IPhoneXBuffer.js"
+import RevealContainer from "../basic/RevealContainer"
+import RecentSection from "../major/RecentSection"
+import IPhoneXBuffer from "../basic/IPhoneXBuffer"
 
 const {
   PASSAGE_CHOOSER_HEIGHT,

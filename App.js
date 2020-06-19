@@ -4,33 +4,33 @@ import * as Font from "expo-font"
 import { AppLoading, Updates } from "expo"
 // import * as StoreReview from 'expo-store-review'
 import { mapping } from "@eva-design/eva"
-import { ApplicationProvider } from '@ui-kitten/components'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { ApplicationProvider } from "@ui-kitten/components"
+import { SafeAreaProvider } from "react-native-safe-area-context"
 import * as Localization from "expo-localization"
 import { NativeRouter } from "react-router-native"
 import { AsyncStorage, StatusBar } from "react-native"
 import { createStore, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
-import { PersistGate } from 'redux-persist/integration/react'
+import { PersistGate } from "redux-persist/integration/react"
 import { Provider } from "react-redux"
-import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n.js"
+import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n"
 import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 
 import lightTheme from "./src/themes/light"
 import darkTheme from "./src/themes/dark"
 import customMapping from "./src/themes/custom-mapping"
-import reducers from "./src/redux/reducers.js"
-import { logEvent } from './src/utils/analytics'
-import { bibleFontLoads } from "./src/utils/bibleFonts.js"
-import updateDataStructure from "./src/utils/updateDataStructure.js"
-import importUsfm from "./src/utils/importUsfm.js"
-// import { reportReadings } from "./src/utils/syncUserData.js"
+import reducers from "./src/redux/reducers"
+import { logEvent } from "./src/utils/analytics"
+import { bibleFontLoads } from "./src/utils/bibleFonts"
+import updateDataStructure from "./src/utils/updateDataStructure"
+import importUsfm from "./src/utils/importUsfm"
+// import { reportReadings } from "./src/utils/syncUserData"
 import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
 import { iconFonts } from "./src/components/basic/Icon"
 import useSetTimeout from "./src/hooks/useSetTimeout"
 
-import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher.js"
+import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher"
 import Splash from "./src/components/major/Splash"
 
 // const {

@@ -1,5 +1,5 @@
-import Constants from 'expo-constants'
-import { light as lightTheme } from '@eva-design/eva'
+import Constants from "expo-constants"
+import { light as lightTheme } from "@eva-design/eva"
 
 const {
   THEME_CUSTOMIZATION={},

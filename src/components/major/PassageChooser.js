@@ -3,17 +3,17 @@ import { StyleSheet, ScrollView, FlatList, Text, View } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
 import { i18n } from "inline-i18n"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useMemoObject from "../../hooks/useMemoObject"
-import useInstanceValue from '../../hooks/useInstanceValue'
-import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
+import useInstanceValue from "../../hooks/useInstanceValue"
+import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"

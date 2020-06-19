@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useMemo } from "react"
 import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
-import { styled } from '@ui-kitten/components'
+// import { bindActionCreators } from "redux"
+// import { connect } from "react-redux"
+import { styled } from "@ui-kitten/components"
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10

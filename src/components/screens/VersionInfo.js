@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View, Linking, Text } from "react-native"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import { getVersionInfo, replaceWithJSX } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"

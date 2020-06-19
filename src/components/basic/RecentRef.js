@@ -2,9 +2,9 @@ import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPassageStr } from "bibletags-ui-helper"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
-import { setRef, removeRecentPassage } from "../../redux/actions.js"
+import { setRef, removeRecentPassage } from "../../redux/actions"
 
 import RecentBookmark from "./RecentBookmark"
 

@@ -1,4 +1,4 @@
-import bibleFonts from '../../fonts.js'
+import bibleFonts from "../../fonts"
 
 const variants = [
   "regular",

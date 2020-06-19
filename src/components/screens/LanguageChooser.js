@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { List, styled } from '@ui-kitten/components'
+import { List, styled } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import { languageOptions } from "../../../language"

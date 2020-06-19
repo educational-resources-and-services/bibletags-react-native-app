@@ -1,12 +1,12 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { useDimensions } from 'react-native-hooks'
-import { styled } from '@ui-kitten/components'
+import { useDimensions } from "react-native-hooks"
+import { styled } from "@ui-kitten/components"
 
-import { isIPhoneX } from '../../utils/toolbox.js'
+import { isIPhoneX } from "../../utils/toolbox"
 
-import StatusBarWithBackground from './StatusBarWithBackground.js'
-import IPhoneXBuffer from "./IPhoneXBuffer.js"
+import StatusBarWithBackground from "./StatusBarWithBackground"
+import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
   header: {

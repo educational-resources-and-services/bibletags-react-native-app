@@ -1,7 +1,7 @@
 import React, { useCallback } from "react"
 import { Updates } from "expo"
 import { AsyncStorage, StyleSheet } from "react-native"
-import { ListItem, styled } from '@ui-kitten/components'
+import { ListItem, styled } from "@ui-kitten/components"
 
 import { getLocale } from "inline-i18n"
 

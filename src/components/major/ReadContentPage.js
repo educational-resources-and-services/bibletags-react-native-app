@@ -3,14 +3,14 @@ import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
-import { getCorrespondingRefs } from 'bibletags-versification/src/versification'
-import { styled } from '@ui-kitten/components'
+import { getCorrespondingRefs } from "bibletags-versification/src/versification"
+import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
-import useAdjacentRefs from '../../hooks/useAdjacentRefs'
+import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox"
+import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import { setPassageScroll } from "../../redux/actions"
 
-import ReadText from './ReadText'
+import ReadText from "./ReadText"
 
 const styles = StyleSheet.create({
   page: {

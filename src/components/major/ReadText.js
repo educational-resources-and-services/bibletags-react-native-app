@@ -3,17 +3,17 @@ import Constants from "expo-constants"
 import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
-import { styled } from '@ui-kitten/components'
+import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         adjustFontSize, adjustLineHeight } from '../../utils/toolbox.js'
-import { getValidFontName } from "../../utils/bibleFonts.js"
-import bibleVersions from '../../../versions.js'
-import useInstanceValue from "../../hooks/useInstanceValue.js"
+         adjustFontSize, adjustLineHeight } from '../../utils/toolbox'
+import { getValidFontName } from "../../utils/bibleFonts"
+import bibleVersions from "../../../versions"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
-import VerseText from '../basic/VerseText'
+import VerseText from "../basic/VerseText"
 
 const {
   DEFAULT_FONT_SIZE,

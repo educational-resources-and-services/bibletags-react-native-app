@@ -1,15 +1,15 @@
 import React, { useMemo, useRef } from "react"
-import { Modal, Select, styled } from '@ui-kitten/components'
+import { Modal, Select, styled } from "@ui-kitten/components"
 import { StyleSheet, Platform, Slider, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { bibleFontList } from "../../utils/bibleFonts.js"
+import { bibleFontList } from "../../utils/bibleFonts"
 import useBack from "../../hooks/useBack"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
-import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions.js"
+import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions"
 
 const THROTTLE_MS = 100
 

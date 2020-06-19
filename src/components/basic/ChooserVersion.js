@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"

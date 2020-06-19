@@ -1,4 +1,4 @@
-import { Platform } from 'react-native'
+import { Platform } from "react-native"
 import * as Amplitude from "expo-analytics-amplitude"
 import Constants from "expo-constants"
 

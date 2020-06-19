@@ -4,10 +4,10 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPassageStr } from "bibletags-ui-helper"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo } from '../../utils/toolbox.js'
+import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"

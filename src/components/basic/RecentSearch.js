@@ -1,11 +1,11 @@
 import React, { useCallback } from "react"
-import { StyleSheet } from "react-native"
+// import { StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import useRouterState from "../../hooks/useRouterState"
-import { removeRecentSearch } from "../../redux/actions.js"
+import { removeRecentSearch } from "../../redux/actions"
 
 import RecentBookmark from "./RecentBookmark"
 

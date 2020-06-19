@@ -1,7 +1,7 @@
 import React from "react"
 import Constants from "expo-constants"
 import { StyleSheet } from "react-native"
-import { List, styled } from '@ui-kitten/components'
+import { List, styled } from "@ui-kitten/components"
 import { Switch, Route } from "react-router-native"
 import { i18n } from "inline-i18n"
 

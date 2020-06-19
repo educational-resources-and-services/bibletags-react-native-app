@@ -1,9 +1,9 @@
 import React, { useCallback } from "react"
 import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-native"
 import { i18n } from "inline-i18n"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { getVersionInfo, isRTLText } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import RelativeTime from "./RelativeTime"

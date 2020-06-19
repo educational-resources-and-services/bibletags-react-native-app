@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
-import { useDimensions } from 'react-native-hooks'
-import { styled } from '@ui-kitten/components'
+import { useDimensions } from "react-native-hooks"
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useSetTimeout from "../../hooks/useSetTimeout"

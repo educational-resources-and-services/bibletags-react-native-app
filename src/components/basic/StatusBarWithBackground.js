@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View, StatusBar } from "react-native"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 const styles = StyleSheet.create({
   background: {

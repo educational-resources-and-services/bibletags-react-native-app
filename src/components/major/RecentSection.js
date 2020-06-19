@@ -2,10 +2,10 @@ import React from "react"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
-import RecentRef from '../basic/RecentRef'
-import RecentSearch from '../basic/RecentSearch'
+import RecentRef from "../basic/RecentRef"
+import RecentSearch from "../basic/RecentSearch"
 
 const numFaderLines = 15
 

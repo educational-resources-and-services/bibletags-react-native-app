@@ -1,7 +1,7 @@
-import Constants from 'expo-constants'
-import deepmerge from 'deepmerge'
+import Constants from "expo-constants"
+import deepmerge from "deepmerge"
 
-import { objectMap } from '../utils/toolbox'
+import { objectMap } from "../utils/toolbox"
 
 const {
   MAPPING_CUSTOMIZATION=[],

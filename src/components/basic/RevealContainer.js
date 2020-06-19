@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react'
-import { StyleSheet, Animated } from 'react-native'
-import { Layout } from '@ui-kitten/components'
+import React, { useEffect, useRef } from "react"
+import { StyleSheet, Animated } from "react-native"
+import { Layout } from "@ui-kitten/components"
 
 // import SafeLayout from './SafeLayout'
 

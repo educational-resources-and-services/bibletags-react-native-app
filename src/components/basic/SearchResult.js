@@ -4,16 +4,16 @@ import { View, StyleSheet, Text, Clipboard, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { getRefFromLoc } from 'bibletags-versification/src/versification'
+import { getRefFromLoc } from "bibletags-versification/src/versification"
 import { getPassageStr } from "bibletags-ui-helper"
-import { useDimensions } from 'react-native-hooks'
-import { styled } from '@ui-kitten/components'
+import { useDimensions } from "react-native-hooks"
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
-import { getValidFontName } from "../../utils/bibleFonts.js"
-import useRouterState from "../../hooks/useRouterState"
-import { setRef } from "../../redux/actions.js"
+import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
+import { getValidFontName } from "../../utils/bibleFonts"
+// import useRouterState from "../../hooks/useRouterState"
+import { setRef } from "../../redux/actions"
 
 import TapOptions from "./TapOptions"
 

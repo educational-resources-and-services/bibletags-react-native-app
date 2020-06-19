@@ -4,20 +4,20 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
-import { styled } from '@ui-kitten/components'
+import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
+import { styled } from "@ui-kitten/components"
 
-import { logEvent } from '../../utils/analytics'
-import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
+import { logEvent } from "../../utils/analytics"
+import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import SafeLayout from "../basic/SafeLayout"
-import SearchResult from '../basic/SearchResult'
-import SearchSuggestions from '../basic/SearchSuggestions'
-import CoverAndSpin from '../basic/CoverAndSpin'
-import SearchHeader from '../major/SearchHeader'
+import SearchResult from "../basic/SearchResult"
+import SearchSuggestions from "../basic/SearchSuggestions"
+import CoverAndSpin from "../basic/CoverAndSpin"
+import SearchHeader from "../major/SearchHeader"
 
-import { recordSearch } from "../../redux/actions.js"
+import { recordSearch } from "../../redux/actions"
 
 const {
   MAX_RESULTS,

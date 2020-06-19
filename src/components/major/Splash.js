@@ -1,10 +1,10 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react'
-import { Animated, StyleSheet, Dimensions } from 'react-native'
-import { SplashScreen, Updates } from 'expo'
-import Constants from 'expo-constants'
-import { styled } from '@ui-kitten/components'
+import React, { useRef, useState, useEffect, useCallback } from "react"
+import { Animated, StyleSheet, Dimensions } from "react-native"
+import { SplashScreen, Updates } from "expo"
+import Constants from "expo-constants"
+import { styled } from "@ui-kitten/components"
 
-import useInstanceValue from '../../hooks/useInstanceValue'
+import useInstanceValue from "../../hooks/useInstanceValue"
 
 const {
   FIRST_LOAD_SPLASH_TEXT_LINE_1="Original language Bible study...",

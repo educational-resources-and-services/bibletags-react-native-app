@@ -1,7 +1,7 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { getBibleBookName } from "bibletags-ui-helper"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 

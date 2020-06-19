@@ -3,16 +3,16 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
-import { List, Layout, styled } from '@ui-kitten/components'
+import { List, Layout, styled } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import menuItems from '../../../menu.js'
+import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
 
-import DrawerItem from '../basic/DrawerItem'
+import DrawerItem from "../basic/DrawerItem"
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,

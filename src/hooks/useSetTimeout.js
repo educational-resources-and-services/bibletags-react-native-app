@@ -1,7 +1,7 @@
-import { useRef } from 'react'
+import { useRef } from "react"
 
 import useUnmount from "react-use/lib/useUnmount"
-import useInstanceValue from './useInstanceValue'
+import useInstanceValue from "./useInstanceValue"
 
 const useSetTimeout = ({ fireOnUnmount }={}) => {
 

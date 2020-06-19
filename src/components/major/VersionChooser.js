@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
-import { styled } from '@ui-kitten/components'
+import { styled } from "@ui-kitten/components"
 
 import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
