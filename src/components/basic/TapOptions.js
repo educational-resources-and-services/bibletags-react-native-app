@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttons: {
-    backgroundColor: 'white', //do not put into custom mapping, is functional, not visual
+    backgroundColor: 'white', // do not put into custom mapping; is functional, not visual
     borderRadius: 3,
     overflow: 'hidden',
     flexDirection: 'row',
