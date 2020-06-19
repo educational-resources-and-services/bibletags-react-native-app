@@ -3,15 +3,14 @@ import Constants from "expo-constants"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
 // import { i18n } from "inline-i18n"
-import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
 import { getCorrespondingRefs } from 'bibletags-versification/src/versification'
+
+import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox.js"
 import useAdjacentRefs from '../../hooks/useAdjacentRefs'
+import { setPassageScroll } from "../../redux/actions"
 
 import ReadText from './ReadText'
-
-import { setPassageScroll } from "../../redux/actions"
 
 const {
   DIVIDER_COLOR,
@@ -23,15 +22,9 @@ const styles = StyleSheet.create({
     maxWidth: '100%',
     height: '100%',
   },
-  lowLightPage: {
-    backgroundColor: 'black',
-  },
   divider: {
     height: 1,
     backgroundColor: DIVIDER_COLOR,
-  },
-  contrast: {
-    backgroundColor: '#333333',
   },
 })
 
@@ -49,7 +42,6 @@ const ReadContentPage = React.memo(({
   onVerseTap,
 
   passageScrollY,
-  displaySettings,
 
   setPassageScroll,
 }) => {
@@ -188,14 +180,9 @@ const ReadContentPage = React.memo(({
 
   const parallelPageRef = correspondingRefs[0]
 
-  const { theme } = displaySettings
-
   return (
     <View
-      style={[
-        styles.page,
-        (theme === 'low-light' ? styles.lowLightPage : null),
-      ]}
+      style={styles.page}
     >
       <ReadText
         key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
@@ -223,10 +210,7 @@ const ReadContentPage = React.memo(({
       {!!parallelVersionId &&
         <>
           <View
-            style={[
-              styles.divider,
-              theme === 'high-contrast' ? styles.contrast : null,
-            ]}
+            style={styles.divider}
           />
           <ReadText
             key={`${parallelVersionId} ${parallelPageRef.bookId} ${parallelPageRef.chapter}`}
@@ -258,8 +242,7 @@ const ReadContentPage = React.memo(({
 
 })
 
-const mapStateToProps = ({ displaySettings, passageScrollY }) => ({
-  displaySettings,
+const mapStateToProps = ({ passageScrollY }) => ({
   passageScrollY,
 })
 

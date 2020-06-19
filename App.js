@@ -1,35 +1,41 @@
 import React, { useState, useEffect } from "react"
-import Constants from "expo-constants"
+// import Constants from "expo-constants"
 import * as Font from "expo-font"
 import { AppLoading, Updates } from "expo"
-import * as StoreReview from 'expo-store-review'
-import { Root } from "native-base"
+// import * as StoreReview from 'expo-store-review'
+import { mapping } from "@eva-design/eva"
+import { ApplicationProvider } from '@ui-kitten/components'
+import { SafeAreaProvider } from 'react-native-safe-area-context'
 import * as Localization from "expo-localization"
-
 import { NativeRouter } from "react-router-native"
-import { AsyncStorage } from "react-native"
+import { AsyncStorage, StatusBar } from "react-native"
 import { createStore, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
 import { PersistGate } from 'redux-persist/integration/react'
-import reducers from "./src/redux/reducers.js"
 import { Provider } from "react-redux"
-import { Ionicons } from '@expo/vector-icons'
 import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n.js"
-import { logEvent } from './src/utils/analytics'
+import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 
+import lightTheme from "./src/themes/light"
+import darkTheme from "./src/themes/dark"
+import customMapping from "./src/themes/custom-mapping"
+import reducers from "./src/redux/reducers.js"
+import { logEvent } from './src/utils/analytics'
 import { bibleFontLoads } from "./src/utils/bibleFonts.js"
 import updateDataStructure from "./src/utils/updateDataStructure.js"
 import importUsfm from "./src/utils/importUsfm.js"
 // import { reportReadings } from "./src/utils/syncUserData.js"
-import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
+import { iconFonts } from "./src/components/basic/Icon"
+import useSetTimeout from "./src/hooks/useSetTimeout"
 
 import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher.js"
+import Splash from "./src/components/major/Splash"
 
-const {
-  NUM_OPENS_FOR_RATING_REQUEST=0,
-} = Constants.manifest.extra
+// const {
+//   NUM_OPENS_FOR_RATING_REQUEST=0,
+// } = Constants.manifest.extra
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
@@ -77,81 +83,139 @@ const setLocale = async () => {
   })
 }
 
-const requestRating = async () => {
-  if(!(await StoreReview.hasAction())) return
-
-  const numUserOpensKey = `numUserOpens`
-  const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
-
-  if(numUserOpens === NUM_OPENS_FOR_RATING_REQUEST) {
-    // try {
-    //   StoreReview.requestReview()
-    // } catch(e) {}
-  }
-
-  await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
-}
-
 const App = () => {
 
+  const [ isFirstRender, setIsFirstRender ] = useState(true)
+  const [ showDelayText, setShowDelayText ] = useState(false)
+  const [ isLoaded, setIsLoaded ] = useState(false)
+  const [ updateExists, setUpdateExists ] = useState(false)
   const [ isReady, setIsReady ] = useState(false)
+
+  const [ setInitialOpenTimeout ] = useSetTimeout()
+
+  // TODO: Install and test (expo install react-native-appearance)
+  const colorScheme = 'light' // useColorScheme()
+
+  useEffect(() => { setIsFirstRender(false) }, [])
 
   useEffect(
     () => {
       (async () => {
 
-        await setLocale()
+        let initialTasksComplete = false
+        let newVersionCheckComplete = false
+
+        // record number of opens
+        const numUserOpensKey = `numUserOpens`
+        const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
+        await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
+
+        if(!__DEV__ && numUserOpens === 1) {
+          setShowDelayText(true)
+        }
+
+        const setIsReadyIfReady = force => {
+          if(
+            force
+            || (
+              initialTasksComplete
+              && newVersionCheckComplete
+            )
+          ) {
+
+            setIsReady(true)
+            logEvent({ eventName: `OpenApp` })
+
+          }
+        }
+
+        if(!__DEV__) {
+          // listen for a new version
+          Updates.fetchUpdateAsync({
+            eventListener: ({ type }) => {
+              if(type === Updates.EventType.DOWNLOAD_FINISHED) {
+                setUpdateExists(true)
+              }
+
+              if(
+                [
+                  Updates.EventType.NO_UPDATE_AVAILABLE,
+                  Updates.EventType.ERROR,
+                  Updates.EventType.DOWNLOAD_FINISHED,
+                ].includes(type)
+              ) {
+                newVersionCheckComplete = true
+                setIsReadyIfReady()
+              }
+            },
+          })
+        }
+
+        await Promise.all([
+          Font.loadAsync({
+            ...bibleFontLoads,
+            ...iconFonts,
+          }),
+          (async () => {
+            await updateDataStructure()
+            await importUsfm()
+          })(),
+          setLocale(),
+        ])
 
         if(await fixRTL() === 'reload') {
           Updates.reloadFromCache()
           return
         }
-    
-        await Promise.all([
-          Font.loadAsync({
-            Roboto: require('native-base/Fonts/Roboto.ttf'),
-            Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
-            ...bibleFontLoads,
-            ...Ionicons.font,
-          }),
-        ])
-        
-        await updateDataStructure()  // needs to be after the persistStore call above
-    
-        await importUsfm()
-    
-        setIsReady(true)
 
-        requestRating()  // could use `await` here, but not necessary
-    
-        // no need to wait for the following, but preload anyway
-        // Asset.fromModule(require('./assets/images/drawer.png')).downloadAsync(),
-        // the above line was causing a crash in development mode
-    
-        logEvent({ eventName: `OpenApp` })
-    
+        StatusBar.setBarStyle('dark-content')
+
+        setIsLoaded(true)
+
+        initialTasksComplete = true
+
+        if(!__DEV__ && numUserOpens === 1 && !newVersionCheckComplete) {
+          // only wait for 3 more seconds at most
+          setInitialOpenTimeout(() => setIsReadyIfReady(true), 1000*3)
+        } else {
+          setIsReadyIfReady(true)
+        }
+
       })()
     },
     [],
   )
 
-  if(!isReady) {
+  if(isFirstRender) {
+    // needed to prevent an ugly flash on android
     return <AppLoading />
   }
 
   return (
-    <NativeRouter>
-      <Root>
-        <Provider store={store}>
-          <PersistGate 
-            persistor={persistor} 
-            loading={<AppLoading />}
+    <>
+      {!!isLoaded &&
+        <NativeRouter>
+          <ApplicationProvider
+            mapping={mapping}
+            customMapping={customMapping}
+            theme={colorScheme === 'dark' ? darkTheme : lightTheme}
           >
-            <SideMenuAndRouteSwitcher />
-          </PersistGate>
-        </Provider>
-      </Root>
-    </NativeRouter>
+            <SafeAreaProvider>
+              <Provider store={store}>
+                <PersistGate persistor={persistor}>
+                  <SideMenuAndRouteSwitcher />
+                </PersistGate>
+              </Provider>
+            </SafeAreaProvider>
+          </ApplicationProvider>
+        </NativeRouter>
+      }
+      <Splash
+        showDelayText={showDelayText}
+        isReady={isReady}
+        updateExists={updateExists}
+      />
+    </>
   )
 
 }

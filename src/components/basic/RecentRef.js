@@ -3,11 +3,11 @@ import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-
 import { getPassageStr } from "bibletags-ui-helper"
-import RecentBookmark from "./RecentBookmark"
 
 import { setRef, removeRecentPassage } from "../../redux/actions.js"
+
+import RecentBookmark from "./RecentBookmark"
 
 const {
   RECENT_REF_BACKGROUND_COLOR,
@@ -18,14 +18,8 @@ const styles = StyleSheet.create({
   recentRef: {
     backgroundColor: RECENT_REF_BACKGROUND_COLOR,
   },
-  recentRefLowLight: {
-    backgroundColor: 'rgba(138, 138, 138, 1)',
-  },
   recentRefSelected: {
     backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
-  },
-  recentRefSelectedLowLight: {
-    backgroundColor: 'rgba(237, 237, 237, 1)',
   },
 })
 
@@ -35,7 +29,6 @@ const RecentRef = React.memo(({
 
   history,
   recentPassages,
-  displaySettings,
 
   setRef,
   removeRecentPassage,
@@ -74,8 +67,6 @@ const RecentRef = React.memo(({
     [ passageRef ],
   )
 
-  const { theme } = displaySettings
-
   const text = getPassageStr({
     refs: [ passageRef ],
     abbreviated: true,
@@ -85,13 +76,7 @@ const RecentRef = React.memo(({
     <RecentBookmark
       selected={selected}
       text={text}
-      style={
-        theme === 'low-light' 
-          ?
-            (selected ? styles.recentRefSelectedLowLight : styles.recentRefLowLight)
-          : 
-            (selected ? styles.recentRefSelected : styles.recentRef)
-      }
+      style={selected ? styles.recentRefSelected : styles.recentRef}
       discard={discard}
       select={select}
     />
@@ -99,10 +84,9 @@ const RecentRef = React.memo(({
 
 })
 
-const mapStateToProps = ({ history, recentPassages, displaySettings }) => ({
+const mapStateToProps = ({ history, recentPassages }) => ({
   history,
   recentPassages,
-  displaySettings,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

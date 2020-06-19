@@ -1,13 +1,7 @@
 import React from "react"
-import Constants from "expo-constants"
-import { StyleSheet } from "react-native"
-import { Spinner, View } from "native-base"
-
-import { Circle } from 'react-native-progress'
-
-const {
-  SPINNER_COLOR,
-} = Constants.manifest.extra
+import { StyleSheet, ActivityIndicator, View, Text } from "react-native"
+import { AnimatedCircularProgress } from "react-native-circular-progress"
+import { i18n } from "inline-i18n"
 
 const styles = StyleSheet.create({
   container: {
@@ -15,31 +9,31 @@ const styles = StyleSheet.create({
   },
 })
 
-const circleTextStyle = { fontSize: 12 }
-
-const Spin = ({
-  percentage,
-}) => {
+const Spin = ({ percentage }) => {
 
   if(percentage) {
+    const percent = Math.floor(percentage)
     return (
       <View style={styles.container}>
-        <Circle
-          progress={percentage/100}
-          color={SPINNER_COLOR}
-          showsText={true}
+        <AnimatedCircularProgress
           size={50}
-          textStyle={circleTextStyle}
-          animated={false}
-        />
+          width={3}
+          fill={percent}
+          tintColor="rgb(51, 102, 255)"
+          backgroundColor="rgb(231, 236, 246)">
+          {fill => (
+            <Text>
+              {i18n("{{percent}}%", { percent })}
+            </Text>
+          )}
+        </AnimatedCircularProgress>
       </View>
     )
   }
   
   return (
-    <Spinner color={SPINNER_COLOR} />
+    <ActivityIndicator size="large" color="#0000ff" />
   )
-
 }
 
 export default Spin

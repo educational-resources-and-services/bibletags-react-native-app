@@ -1,9 +1,9 @@
 import React, { useCallback } from "react"
 import * as StoreReview from 'expo-store-review'
 import { Image, StyleSheet, Linking } from "react-native"
-import { ListItem, Body, Text } from "native-base"
-
+import { ListItem } from '@ui-kitten/components'
 import { i18n, getLocale } from "inline-i18n"
+
 import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
@@ -86,34 +86,32 @@ const DrawerItem = React.memo(({
   }
 
   return (
-    <ListItem
-      {...((onPress || typeAction || route || href)
-        ? {
-          button: true,
-          onPress: onPress || typeAction || go,
-        }
-        : {}
-      )}
-      style={styles.listItem}
-    >
-      <Body>
-        {!!(text || typeText) &&
-          <Text style={styles.text}>{text || typeText}</Text> 
-        }
-        {!!image &&
-          <Image
-            source={image}
-            style={[
-              styles.image,
-              {
-                width: imageWidth,
-                paddingBottom: imageHeight,
-              },
-            ]}
-          />
-        }
-      </Body>
-    </ListItem>
+    <>
+      {!!image &&
+        <Image
+          source={image}
+          style={[
+            styles.image,
+            {
+              width: imageWidth,
+              paddingBottom: imageHeight,
+            },
+          ]}
+        />
+      }
+      {!image &&
+        <ListItem
+          {...((onPress || typeAction || route || href)
+            ? {
+              onPress: onPress || typeAction || go,
+            }
+            : {}
+          )}
+          style={styles.listItem}
+          title={text || typeText}
+        />
+      }
+    </>
   )
 
 })

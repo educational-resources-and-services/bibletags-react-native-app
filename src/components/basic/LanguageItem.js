@@ -1,12 +1,10 @@
 import React, { useCallback } from "react"
-import { bindActionCreators } from "redux"
 import { Updates } from "expo"
 import Constants from "expo-constants"
-import { connect } from "react-redux"
 import { AsyncStorage, StyleSheet } from "react-native"
-import { ListItem, Body, Text } from "native-base"
-
+import { ListItem } from '@ui-kitten/components'
 import { getLocale } from "inline-i18n"
+
 import { fixRTL } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
@@ -37,9 +35,6 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     paddingRight: 20,
   },
-  listItemLowLight: {
-    color: 'white',
-  },
   selected: {
     fontWeight: 'bold',
     color: INPUT_HIGHLIGHT_COLOR,
@@ -49,8 +44,6 @@ const styles = StyleSheet.create({
 const LanguageItem = React.memo(({
   locale,
   label,
-
-  displaySettings,
 }) => {
 
   const { historyGoBack } = useRouterState()
@@ -74,32 +67,16 @@ const LanguageItem = React.memo(({
 
   return (
     <ListItem
-      button={true}
+      title={label}
       onPress={goChangeLanguage}
       style={styles.listItem}
-    >
-      <Body>
-        <Text
-          style={[
-            styles.versionName,
-            displaySettings.theme === 'low-light' ? styles.listItemLowLight: null,
-            selected ? styles.selected : null,
-          ]}
-        >
-          {label}
-        </Text> 
-      </Body>
-    </ListItem>
+      titleStyle={[
+        styles.versionName,
+        selected ? styles.selected : null,
+      ]}
+    />
   )
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setTheme,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(LanguageItem)
+export default LanguageItem

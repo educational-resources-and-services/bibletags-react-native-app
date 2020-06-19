@@ -1,16 +1,18 @@
 import React, { useCallback } from "react"
-import { View, StyleSheet, Text, I18nManager } from "react-native"
-import { ListItem, Body } from "native-base"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-native"
+import { i18n } from "inline-i18n"
 
 import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
-import { i18n } from "inline-i18n"
 import useRouterState from "../../hooks/useRouterState"
 
 import RelativeTime from "./RelativeTime"
 
 const styles = StyleSheet.create({
+  container: {
+    marginLeft: 0,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
   searchString: {
     fontWeight: '700',
     fontSize: 16,
@@ -35,26 +37,6 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 13,
   },
-  contrast: {
-    color: 'black',
-  },
-  listItem: {
-    marginLeft: 0,
-    paddingLeft: 16,
-  },
-  listItemLowLight: {
-    borderBottomColor: 'rgba(139, 139, 143, 1)',
-    backgroundColor: 'black',
-  },
-  searchStringLowLight: {
-    color: 'white',
-  },
-  subtitleLowLight: {
-    color: 'rgba(145, 145, 145, 1)',
-  },
-  timeLowLight: {
-    color: 'rgba(217, 217, 217, 1)',
-  },
 })
 
 const SearchSuggestion = React.memo(({
@@ -64,8 +46,6 @@ const SearchSuggestion = React.memo(({
   numberResults,
   setEditing,
   updateEditedSearchString,
-
-  displaySettings,
 }) => {
 
   const { historyReplace, routerState } = useRouterState()
@@ -88,67 +68,37 @@ const SearchSuggestion = React.memo(({
   const { abbr, languageId } = getVersionInfo(versionId)
 
   return (
-    <ListItem
-      style={[
-        styles.listItem,
-        displaySettings.theme === 'low-light' ? styles.listItemLowLight: null
-      ]}
+    <TouchableOpacity
+      style={styles.container}
       button={true}
       onPress={goSearch}
     >
-      <Body>
-        <View>
-          <Text 
-            style={[
-              styles.searchString,
-              displaySettings.theme === 'low-light' ? styles.searchStringLowLight : null,
-            ]}>
-            {I18nManager.isRTL ? `\u2067`: `\u2066`}
-            {i18n("“{{searchString}}”", {
-              searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
-            })}
-            {`  `}
-            <Text style={styles.versionAbbr}>{abbr}</Text>
-          </Text>
-        </View>
-        <View 
-          style={[
-            styles.secondLine,
-          ]}
-        >
-          <View style={styles.subtitleView}>
-            <Text
-              style={[
-                styles.subtitle,
-                displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                displaySettings.theme === 'low-light' ? styles.subtitleLowLight : null,
-              ]}
+      <Text style={styles.searchString}>
+        {I18nManager.isRTL ? `\u2067`: `\u2066`}
+        {i18n("“{{searchString}}”", {
+          searchString: isRTLText({ languageId, searchString }) ? `\u2067${searchString}\u2069` : `\u2066${searchString}\u2069`,
+        })}
+        {`  `}
+        <Text style={styles.versionAbbr}>{abbr}</Text>
+      </Text>
+      <View style={styles.secondLine}>
+        <View style={styles.subtitleView}>
+          <Text
+            style={styles.subtitle}
           >
-            {i18n("{{num_results}} result(s)", { num_results: numberResults })}
-          </Text>
-          </View>
-          <View>
-            <RelativeTime
-              style={[
-                styles.time,
-                displaySettings.theme === 'low-light' ? styles.timeLowLight : null,
-              ]}
-              time={lastViewTime}
-            />
-          </View>
+          {i18n("{{num_results}} result(s)", { num_results: numberResults })}
+        </Text>
         </View>
-      </Body>
-    </ListItem>
+        <View>
+          <RelativeTime
+            style={styles.time}
+            time={lastViewTime}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
   )
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setRef,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(SearchSuggestion)
+export default SearchSuggestion

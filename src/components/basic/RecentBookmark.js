@@ -43,15 +43,6 @@ const styles = StyleSheet.create({
     textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 12,
   },
-  lowLight: {
-    color: 'black',
-  },
-  contrast: {
-    backgroundColor: '#444444',
-  },
-  contrastSelected: {
-    backgroundColor: 'black',
-  },
 })
 
 const isCancelled = ({ dx, dy }) => (
@@ -65,8 +56,6 @@ const RecentBookmark = React.memo(({
   style,
   discard,
   select,
-
-  displaySettings,
 }) => {
 
   const [ beingTouched, setBeingTouched ] = useState(false)
@@ -124,16 +113,12 @@ const RecentBookmark = React.memo(({
     [ selected, discard, select, cancelTouchVisual ],
   )
 
-  const { theme } = displaySettings
-
   return (
     <View
       {...panResponder.panHandlers}
       style={[
         styles.bookmark,
         style,
-        (displaySettings.theme === 'high-contrast' && selected ? styles.contrastSelected : null),
-        (displaySettings.theme === 'high-contrast' && !selected ? styles.contrast : null),
         (selected ? styles.bookmarkSelected : null),
         (beingTouched ? styles.bookmarkBeingTouched : null),
         (beingTouched
@@ -149,7 +134,6 @@ const RecentBookmark = React.memo(({
           numberOfLines={1}
           style={[
             styles.bookmarkText,
-            (theme === 'low-light' ? styles.lowLight : null ),
           ]}>
           {text}
         </Text>
@@ -159,11 +143,4 @@ const RecentBookmark = React.memo(({
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings
-})
-
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(RecentBookmark)
+export default RecentBookmark

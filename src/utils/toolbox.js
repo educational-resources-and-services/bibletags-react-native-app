@@ -3,9 +3,8 @@ import { Dimensions, I18nManager, AsyncStorage } from "react-native"
 import NetInfo from '@react-native-community/netinfo'
 import Constants from "expo-constants"
 import * as SQLite from 'expo-sqlite'
-import nativeBasePlatformVariables from 'native-base/src/theme/variables/platform'
+import { isIphoneX } from "react-native-iphone-x-helper"
 import { getPassageStr } from "bibletags-ui-helper"
-// import { Toast } from "native-base"
 
 import { i18n, isRTL } from "inline-i18n"
 import bibleVersions from '../../versions.js'
@@ -17,9 +16,17 @@ const {
 
 // const cachedSizes = {}
 
-export const isIPhoneX = nativeBasePlatformVariables.isIphoneX
-export const iPhoneXInset = nativeBasePlatformVariables.Inset
-export const getToolbarHeight = () => nativeBasePlatformVariables.toolbarHeight
+export const cloneObj = obj => JSON.parse(JSON.stringify(obj))
+
+export const isIPhoneX = isIphoneX()
+export const iPhoneXInset = {
+  // This still needs to be given correct numbers
+  portrait: {
+    topInset: 0,
+    bottomInset: 0,
+  },
+}
+export const getToolbarHeight = () => 56
 
 export const isPhoneSize = () => {
   const { width, height } = Dimensions.get('window')
@@ -84,28 +91,6 @@ export const isConnected = () => new Promise(resolve => {
       .catch(() => doResolves(false))
   }
 })
-
-// export const showXapiConsent = ({ idps, setXapiConsentShown }) => {
-
-//   let text = i18n ("Note: By using this app, you consent to us recording usage data for the purpose of better improving our services.")
-
-//   if(Object.values(idps).some(idpInfo => {
-//     if(idpInfo.idpXapiOn && !idpInfo.xapiConsentShown) {
-//       text = idpInfo.idpXapiConsentText || text
-//       return true
-//     }
-//   })) {
-
-//     Toast.show({
-//       text,
-//       buttonText: i18n("Okay"),
-//       duration: 0,
-//       onClose: setXapiConsentShown,
-//     })
-
-//   }
-
-// }
 
 export const executeSql = async ({ versionId, statement, args, statements, removeCantillation, removeWordPartDivisions }) => {
   const versionInfo = getVersionInfo(versionId)
@@ -379,4 +364,12 @@ export const adjustLineHeight = ({ lineHeight, isOriginal, languageId, bookId })
       ) * lineHeight
     )
     : lineHeight
+)
+
+export const objectMap = (obj, fn) => (
+  Object.fromEntries(
+    Object.entries(obj).map(
+      ([k, v], i) => [k, fn(v, k, i)]
+    )
+  )
 )

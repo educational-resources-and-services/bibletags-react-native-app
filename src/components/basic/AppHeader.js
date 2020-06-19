@@ -1,97 +1,45 @@
 import React from "react"
-import Constants from "expo-constants"
-import { Header } from "native-base"
-import { Platform, StyleSheet, View, StatusBar } from "react-native"
-import { connect } from "react-redux"
-import { bindActionCreators } from "redux"
-
-import { getToolbarHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox.js'
+import { StyleSheet, View, StatusBar } from "react-native"
 import { useDimensions } from 'react-native-hooks'
+
+import { isIPhoneX } from '../../utils/toolbox.js'
 
 import IPhoneXBuffer from "./IPhoneXBuffer.js"
 
-const {
-  ANDROID_TOOLBAR_COLOR,
-  ANDROID_STATUS_BAR_COLOR,
-} = Constants.manifest.extra
-
 const styles = StyleSheet.create({
-  container: {
+  statusBarBackground: {
     zIndex: 3,
-    ...(
-      Platform.OS === 'android'
-        ? {
-          backgroundColor: ANDROID_STATUS_BAR_COLOR,
-        }
-        : {}
-    ),
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 30,
+    backgroundColor: 'rgba(255, 255, 255, .9)',
   },
   header: {
-    ...(
-      Platform.OS === 'android'
-        ? {
-          backgroundColor: ANDROID_TOOLBAR_COLOR,
-          marginTop: StatusBar.currentHeight,
-        }
-        : (
-          isIPhoneX
-            ? {
-              paddingTop: iPhoneXInset['portrait'].topInset * -1,
-              height: iPhoneXInset['portrait'].bottomInset,
-            }
-            : {}
-        )
-    ),
+    zIndex: 3,
+    minHeight: 50,
+    backgroundColor: 'white',
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderColor: 'rgba(0, 0, 0, .1)',
   },
   noStatusBarSpace: {
     ...(
-      Platform.OS === 'android'
-        ? {
-          marginTop: 0,
+      isIPhoneX
+        ? {}
+        : {
           paddingTop: 0,
+          height: 46,
         }
-        : (
-          isIPhoneX
-            ? {}
-            : {
-              paddingTop: 0,
-              height: 46,
-            }
-        )
-    ),
-  },
-  headerLowLight: {
-    backgroundColor: 'rgba(54, 50, 50, 1)',
-    borderBottomColor: 'rgba(82, 78, 78, 1)',
-  },
-  headerContrast: {
-    ...(
-      Platform.OS === 'android'
-        ? {
-          backgroundColor: '#222222',
-        }
-        : {}
-    ),
-  },
-  statusBarContrast: {
-    ...(
-      Platform.OS === 'android'
-        ? {
-          backgroundColor: 'black',
-        }
-        : {}
     ),
   },
 })
 
 const AppHeader = ({
-  hide,
   hideStatusBar,
+  style,
   children,
-
-  displaySettings,
-
-  ...headerParams
 }) => {
 
   // There is a bug by which the backgroundColor in the header does not get set on load.
@@ -99,58 +47,28 @@ const AppHeader = ({
 
   useDimensions()  // This forces a rerender whenever the dimensions change
 
-  const style = {}
-
-  if(hide) {
-    style.top = getToolbarHeight() * -1
-  }
-
   return (
-    <View
-      style={[
-        !hide ? styles.container : null,
-        displaySettings.theme === 'high-contrast' ? styles.statusBarContrast : null,
-      ]}
-    >
+    <>
       {(!hideStatusBar && isIPhoneX) &&
         <IPhoneXBuffer />
       }
+      <View style={styles.statusBarBackground} />
       <StatusBar
-        backgroundColor={ANDROID_STATUS_BAR_COLOR}
-        barStyle={displaySettings.theme === 'low-light' ? 'default' : 'default'}
-        //backgroundColor and barStyle still do not seem to be working
-        translucent={true}
         animated={!hideStatusBar}
         hidden={hideStatusBar && !isIPhoneX}
       />
-      <Header
-        {...headerParams}
+      <View
         style={[
           styles.header,
-          displaySettings.theme === 'high-contrast'
-            ? styles.headerContrast
-            : (
-              displaySettings.theme === 'low-light'
-                ? styles.headerLowLight
-                : null
-            ),
           (hideStatusBar ? styles.noStatusBarSpace : null),
           style,
         ]}
       >
         {children}
-      </Header>
-    </View>
+      </View>
+    </>
   )
 
 }
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setRef,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(AppHeader)
+export default AppHeader

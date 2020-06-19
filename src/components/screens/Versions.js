@@ -1,13 +1,11 @@
 import React from "react"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
 import Constants from "expo-constants"
 import { StyleSheet } from "react-native"
-import { Container, Content, Body, List } from "native-base"
+import { List } from '@ui-kitten/components'
 import { Switch, Route } from "react-router-native"
-
 import { i18n } from "inline-i18n"
 
+import SafeLayout from "../basic/SafeLayout"
 import VersionInfo from "./VersionInfo"
 import BasicHeader from "../major/BasicHeader"
 import VersionItem from "../basic/VersionItem"
@@ -20,56 +18,36 @@ const {
 const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
 
 const styles = StyleSheet.create({
-  containerLowLight: {
-    backgroundColor: 'black',
-  },
-  body: {
-    width: '100%',
-  },
-  bodyLowLight: {
-    backgroundColor: 'black',
-  },
   list: {
-    width: '100%',
-  },
-  listLowLight: {
-    color: 'white',
+    paddingVertical: 10,
+    backgroundColor: 'white',
   },
 })
 
-const Versions = ({
-  displaySettings,
-}) => {
+const Versions = () => {
 
-  const { theme } = displaySettings
+  const renderItem = ({ item: versionId }) => (
+    <VersionItem
+      key={versionId}
+      versionId={versionId}
+    />
+  )
 
   return (
     <Switch>
       <Route path="/Read/Versions/VersionInfo" component={VersionInfo} />
       <Route>
 
-        <Container style={theme === 'low-light' ? styles.containerLowLight : {}}>
+        <SafeLayout>
           <BasicHeader
             title={i18n("Bible version information")}
           />
-          <Content>
-            <Body
-              style={[
-                styles.body,
-                (theme === 'low-light' ? styles.bodyLowLight : null),
-              ]}
-            >
-              <List style={styles.list}>
-                {ALL_VERSIONS.map(versionId => (
-                  <VersionItem
-                    key={versionId}
-                    versionId={versionId}
-                  />
-                ))}
-              </List>
-            </Body>
-          </Content>
-        </Container>
+          <List
+            style={styles.list}
+            data={ALL_VERSIONS}
+            renderItem={renderItem}
+          />
+        </SafeLayout>
 
       </Route>
     </Switch>
@@ -77,12 +55,4 @@ const Versions = ({
 
 }
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setTheme,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(Versions)
+export default Versions

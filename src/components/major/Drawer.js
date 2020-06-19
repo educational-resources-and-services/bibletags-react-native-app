@@ -2,13 +2,14 @@ import React, { useCallback } from "react"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity } from "react-native"
-import { Container, Content, Text, List, View } from "native-base"
-
+import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
+import { List } from '@ui-kitten/components'
 import { i18n } from "inline-i18n"
+import { useDimensions } from 'react-native-hooks'
+import { Layout } from '@ui-kitten/components'
+
 import menuItems from '../../../menu.js'
 import useNetwork from "../../hooks/useNetwork"
-import { useDimensions } from 'react-native-hooks'
 import useRouterState from "../../hooks/useRouterState"
 
 import DrawerItem from '../basic/DrawerItem'
@@ -36,6 +37,7 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
+    backgroundColor: 'white',
   },
   createdByContainer: {
     paddingTop: 40,
@@ -50,9 +52,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
     color: '#999999',
-  },
-  contrast: {
-    color: '#000000',
   },
 })
 
@@ -78,52 +77,48 @@ const Drawer = ({
 
   const minHeight = height - (StatusBar.currentHeight || 0)
 
+  const renderItem = ({ item, index }) => (
+    <DrawerItem
+      key={index}
+      offline={!online}
+      {...item}
+    />
+  )
+
   return (
-    <Container>
-      <Content>
-        <View style={{ minHeight }}>
-          <Image
-            source={require('../../../assets/images/drawer.png')}
-            style={styles.image}
-          />
-          <List style={styles.list}>
-            {menuItems.map((menuItem, idx) => (
-              <DrawerItem
-                key={idx}
-                offline={!online}
-                {...menuItem}
-              />
-            ))}
-          </List>
-          {!!LINK_TO_BIBLE_TAGS_MARKETING_SITE &&
-            <TouchableOpacity
-              onPress={goToBibleTagsMarketingSite}
-            >
-              <View style={styles.createdByContainer}>
+    <Layout>
+      <View style={{ minHeight }}>
+        <Image
+          source={require('../../../assets/images/drawer.png')}
+          style={styles.image}
+        />
+        <List
+          style={styles.list}
+          data={menuItems}
+          renderItem={renderItem}
+        />
+        {!!LINK_TO_BIBLE_TAGS_MARKETING_SITE &&
+          <TouchableOpacity
+            onPress={goToBibleTagsMarketingSite}
+          >
+            <View style={styles.createdByContainer}>
+              <Text
+                style={styles.createdBy}
+              >
+                {i18n("Powered by Bible Tags")}
+              </Text>
+              {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
                 <Text
-                  style={[
-                    styles.createdBy,
-                    displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                  ]}
+                  style={styles.launchYour}
                 >
-                  {i18n("Powered by Bible Tags")}
+                  {i18n("Open source Bible apps")}
                 </Text>
-                {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
-                  <Text
-                    style={[
-                      styles.launchYour,
-                      displaySettings.theme === 'high-contrast' ? styles.contrast : null,
-                    ]}
-                  >
-                    {i18n("Open source Bible apps")}
-                  </Text>
-                }
-              </View>
-            </TouchableOpacity>
-          }
-        </View>
-      </Content>
-    </Container>
+              }
+            </View>
+          </TouchableOpacity>
+        }
+      </View>
+    </Layout>
   )
 
 }

@@ -1,9 +1,6 @@
 import React, { useCallback } from "react"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import Constants from "expo-constants"
-
 import { getBibleBookName } from "bibletags-ui-helper"
 
 const {
@@ -25,17 +22,8 @@ const styles = StyleSheet.create({
   bookSelected: {
     backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
   },
-  bookSelectedLowLight: {
-    backgroundColor: 'white',
-  },
   bookTextSelected: {
     color: CHOOSER_SELECTED_TEXT_COLOR,
-  },
-  bookTextSelectedLowLight: {
-    color: 'black',
-  },
-  bookTextLowLight: {
-    color: 'white',
   },
 })
 
@@ -43,8 +31,6 @@ const ChooserBook = React.memo(({
   bookId,
   selected,
   onPress,
-
-  displaySettings,
 }) => {
 
   const goPress = useCallback(
@@ -58,23 +44,13 @@ const ChooserBook = React.memo(({
       onPress={goPress}
       style={[
         styles.book,
-        (selected 
-          ?
-            (displaySettings.theme === 'low-light' ? styles.bookSelectedLowLight : styles.bookSelected)
-          :
-            null
-        ),
+        (selected ? styles.bookSelected : null),
       ]}
     >
       <Text
         style={[
           styles.bookText,
-          (displaySettings.theme === 'low-light' 
-            ?
-              (selected ? styles.bookTextSelectedLowLight : styles.bookTextLowLight)
-            :
-              (selected ? styles.bookTextSelected : null)
-          ),
+          (selected ? styles.bookTextSelected : null),
         ]}
       >{getBibleBookName(bookId)}</Text>
     </TouchableHighlight>
@@ -82,12 +58,4 @@ const ChooserBook = React.memo(({
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  // recordSearch,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(ChooserBook)
+export default ChooserBook

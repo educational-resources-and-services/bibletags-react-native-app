@@ -3,31 +3,25 @@ import { StyleSheet, View, Text, FlatList } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Container, Content } from "native-base"
-
 import { i18n } from "inline-i18n"
+import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
+
 import { logEvent } from '../../utils/analytics'
 import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox.js"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting.js"
 import useRouterState from "../../hooks/useRouterState"
 
+import SafeLayout from "../basic/SafeLayout"
 import SearchResult from '../basic/SearchResult'
 import SearchSuggestions from '../basic/SearchSuggestions'
-import FullScreenSpin from '../basic/FullScreenSpin'
+import CoverAndSpin from '../basic/CoverAndSpin'
 import SearchHeader from '../major/SearchHeader'
-import VersionChooser from '../major/VersionChooser'
 
 import { recordSearch } from "../../redux/actions.js"
 
 const {
-  VERSION_CHOOSER_BACKGROUND_COLOR,
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
   MAX_RESULTS,
   HEBREW_CANTILLATION_MODE,
 } = Constants.manifest.extra
-
-const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
 
 const styles = StyleSheet.create({
   messageContainer: {
@@ -42,9 +36,6 @@ const styles = StyleSheet.create({
   searchResults: {
     paddingBottom: 20,
   },
-  searchLowLight: {
-    backgroundColor: 'black',
-  },
 })
 
 const defaultTapState = {
@@ -53,12 +44,10 @@ const defaultTapState = {
 }
 
 const Search = ({
-  displaySettings,
-
   recordSearch,
 }) => {
 
-  const { historyPush, historyReplace, routerState } = useRouterState()
+  const { routerState } = useRouterState()
   const { editOnOpen, searchString, versionId } = routerState
 
   const [ searchState, setSearchState ] = useState({
@@ -140,18 +129,6 @@ const Search = ({
     }
   )
 
-  const updateVersion = useCallback(
-    versionId => {
-      historyReplace(null, {
-        ...routerState,
-        versionId,
-      })
-    },
-    [ routerState ],
-  )
-
-  const goVersions = useCallback(() => historyPush("/Read/Versions"), [])
-
   const updateEditedSearchString = useCallback(
     searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific
     [],
@@ -212,7 +189,7 @@ const Search = ({
   if(numberResults === MAX_RESULTS) numberResults += '+'
 
   return (
-    <Container>
+    <SafeLayout>
       <SearchHeader
         editing={editing}
         setEditing={setEditing}
@@ -220,16 +197,7 @@ const Search = ({
         editedSearchString={editedSearchString}
         updateEditedSearchString={updateEditedSearchString}
       />
-      {editing &&
-        <VersionChooser
-          versionIds={ALL_VERSIONS}
-          update={updateVersion}
-          selectedVersionId={versionId}
-          backgroundColor={displaySettings.theme === 'low-light' ? 'rgba(64, 62, 62, 1)' : VERSION_CHOOSER_BACKGROUND_COLOR}
-          goVersions={goVersions}
-        />
-      }
-      <Content style={displaySettings.theme === 'low-light' ? styles.searchLowLight : {}}>
+      <View>
         {editing &&
           <SearchSuggestions
             editedSearchString={editedSearchString}
@@ -254,15 +222,15 @@ const Search = ({
             />
           </View>
         }
-      </Content>
-      {!editing && !searchDone && <FullScreenSpin />}
-    </Container>
+      </View>
+      {!editing && !searchDone && <CoverAndSpin />}
+    </SafeLayout>
   )
 
 }
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
+const mapStateToProps = () => ({
+  // displaySettings,
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({

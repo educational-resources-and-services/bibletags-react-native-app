@@ -8,14 +8,19 @@ const useRouterState = () => {
 
   // If I add transitions, I made need to prevent a double tap here
 
+  const prepRoute = useCallback(
+    (route, state) => `${(route || "").replace(/^\.\//, `${location.pathname}/`) || location.pathname}${state ? `#${JSON.stringify(state)}` : ``}`,
+    [ location ],
+  )
+
   const historyPush = useCallback(
-    (route, state) => history.push(`${route || location.pathname}${state ? `#${JSON.stringify(state)}` : ``}`),
-    [ history, location ],
+    (route, state) => history.push(prepRoute(route, state)),
+    [ history, prepRoute ],
   )
 
   const historyReplace = useCallback(
-    (route, state) => history.replace(`${route || location.pathname}${state ? `#${JSON.stringify(state)}` : ``}`),
-    [ history, location ],
+    (route, state) => history.replace(prepRoute(route, state)),
+    [ history, prepRoute ],
   )
 
   let routerState = {}

@@ -1,10 +1,8 @@
 import React from "react"
-import { Button, Icon } from "native-base"
-import { StyleSheet, ScrollView, View } from "react-native"
+import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
 import Constants from "expo-constants"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
 
+import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
 
 const {
@@ -25,15 +23,16 @@ const styles = StyleSheet.create({
   contentContainer: {
     minWidth: '100%',
   },
-  info: {
-    color: CHOOSER_SELECTED_BACKGROUND_COLOR,
-    fontSize: 20,
-    lineHeight: 18,
-    opacity: .75,
+  infoContainer: {
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    paddingHorizontal: 14,
     marginRight: 30,
+    paddingTop: 2,
   },
-  lowLight: {
-    color: 'white',
+  info: {
+    color: 'rgba(0, 0, 0, .5)',
+    height: 18,
   },
 })
 
@@ -44,8 +43,6 @@ const VersionChooser = React.memo(({
   update,
   goVersions,
   closeParallelMode,
-
-  displaySettings,
 }) => {
 
   return (
@@ -72,30 +69,19 @@ const VersionChooser = React.memo(({
             />
           )
         })}
-        <Button
-          transparent
+        <TouchableOpacity
+          style={styles.infoContainer}
           onPress={goVersions}
         >
           <Icon
-            name="information-circle-outline"
-            style={[
-              styles.info,
-              displaySettings.theme === 'low-light' ? styles.lowLight : null,
-            ]}
+            name="md-information-circle-outline"
+            style={styles.info}
           />
-        </Button>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   )
 
 })
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings,
-})
-
-const matchDispatchToProps = dispatch => bindActionCreators({
-  // setMode,
-}, dispatch)
-
-export default connect(mapStateToProps, matchDispatchToProps)(VersionChooser)
+export default VersionChooser

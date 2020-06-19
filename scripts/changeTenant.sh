@@ -66,7 +66,7 @@ else
     # optimize assets
     expo optimize
 
-    echo "Changed tenant to $TENANT_TO_SWITCH_TO (language code: $LANGUAGE_CODE)."
+    echo "Changed tenant to $TENANT_TO_SWITCH_TO."
   fi
 fi
 

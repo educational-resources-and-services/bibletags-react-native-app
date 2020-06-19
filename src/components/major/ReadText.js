@@ -3,14 +3,15 @@ import Constants from "expo-constants"
 import { View, ScrollView, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
          adjustFontSize, adjustLineHeight } from '../../utils/toolbox.js'
 import { getValidFontName } from "../../utils/bibleFonts.js"
-import VerseText from '../basic/VerseText'
-import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
 import bibleVersions from '../../../versions.js'
 import useInstanceValue from "../../hooks/useInstanceValue.js"
+
+import VerseText from '../basic/VerseText'
 
 const {
   DEFAULT_FONT_SIZE,
@@ -91,33 +92,6 @@ const textStyles = StyleSheet.create({
   },
   sc: {
     // fontVariant: ["small-caps"],
-  },
-})
-
-const textStylesContrast = StyleSheet.create({
-  contrast: {
-    color: 'black',
-  },
-})
-
-const textStylesLowLight = StyleSheet.create({
-  mt: {
-    color: 'rgba(250, 251, 252, .98)',
-  },
-  ms: {
-    color: 'rgba(250, 251, 252, .98)',
-  },
-  s1: {
-    color: 'rgba(250, 251, 252, .98)',
-  },
-  s2: {
-    color: 'rgba(250, 251, 252, .98)',
-  },
-  d: {
-    color: 'rgba(250, 251, 252, .98)',
-  },
-  p: {
-    color: 'rgba(250, 251, 252, .98)',
   },
 })
 
@@ -351,8 +325,6 @@ const ReadText = React.memo(({
           const styles = [
             wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
             getStyle({ tag, styles: textStyles }),
-            theme === 'low-light' ? getStyle({ tag, styles: textStylesLowLight}) : null,
-            theme === 'high-contrast' ? getStyle({ tag, styles: textStylesContrast}) : null,
             fontSize && { fontSize },
             lineHeight && { lineHeight },
             fontFamily && { fontFamily },
