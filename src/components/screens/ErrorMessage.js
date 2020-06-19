@@ -36,11 +36,13 @@ const ErrorMessage = () => {
     <SafeLayout>
       <ErrorMessageHeader />
       <View style={styles.body}>
-        <Text>{message || (
-          critical
-            ? i18n("There was a critical error. The app will reload in a few seconds. Please contact us if you continue to receive this message.")
-            : i18n("There was an unknown error. Please contact us if you continue to receive this message.")
-        )}</Text>
+        <Text>
+          {message || (
+            critical
+              ? i18n("There was a critical error. The app will reload in a few seconds. Please contact us if you continue to receive this message.")
+              : i18n("There was an unknown error. Please contact us if you continue to receive this message.")
+          )}
+        </Text>
       </View>
     </SafeLayout>
   )

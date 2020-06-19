@@ -48,7 +48,9 @@ const ChooserBook = React.memo(({
           labelThemedStyle,
           style,
         ]}
-      >{getBibleBookName(bookId)}</Text>
+      >
+        {getBibleBookName(bookId)}
+      </Text>
     </TouchableHighlight>
   )
 

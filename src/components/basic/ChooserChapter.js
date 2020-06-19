@@ -49,7 +49,9 @@ const ChooserChapter = React.memo(({
           labelThemedStyle,
           style,
         ]}
-      >{i18nNumber({ num: chapter, type: 'formal' })}</Text>
+      >
+        {i18nNumber({ num: chapter, type: 'formal' })}
+      </Text>
     </TouchableHighlight>
   )
 
