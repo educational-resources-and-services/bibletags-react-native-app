@@ -60,7 +60,9 @@ const ChooserVersion = React.memo(({
             labelThemedStyle,
             style,
           ]}
-        >{getVersionInfo(versionId).abbr}</Text>
+        >
+          {getVersionInfo(versionId).abbr}
+        </Text>
         {!!showCloseIcon &&
           <Icon
             name="md-close"
