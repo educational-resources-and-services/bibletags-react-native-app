@@ -12,7 +12,7 @@ import { styled } from "@ui-kitten/components"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
-// import useRouterState from "../../hooks/useRouterState"
+import useRouterState from "../../hooks/useRouterState"
 import { setRef } from "../../redux/actions"
 
 import TapOptions from "./TapOptions"
@@ -101,6 +101,8 @@ const SearchResult = React.memo(({
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [ backgroundThemedStyle={} ] = altThemedStyleSets
+
+  const { historyGoBack } = useRouterState()
 
   const { font, textSize, lineSpacing, theme } = displaySettings
   const { pieces, loc } = result
