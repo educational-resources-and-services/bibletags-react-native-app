@@ -12,13 +12,16 @@ const EXTRA_SELECTED_BOOKMARK_HEIGHT = 12
 
 const styles = StyleSheet.create({
   bookmark: {
-    width: 25,
+    width: 31,
     height: 75 + MAXIMUM_SWIPE_UP_AMOUNT,
     bottom: EXTRA_SELECTED_BOOKMARK_HEIGHT * -1,
-    marginRight: 10,
+    borderWidth: 3,
+    borderBottomWidth: 0,
+    borderColor: 'white',  // functional, and so not in custom-mapping
+    marginRight: 5,
   },
   bookmarkBeingTouched: {
-    opacity: .7,
+    borderColor: 'rgba(255, 255, 255, .7)',  // functional, and so not in custom-mapping
   },
   bookmarkSelected: {
     bottom: 0,

@@ -22,7 +22,7 @@ export const isIPhoneX = isIphoneX()
 export const iPhoneXInset = {
   // This still needs to be given correct numbers
   portrait: {
-    topInset: 0,
+    topInset: 23,
     bottomInset: 0,
   },
 }

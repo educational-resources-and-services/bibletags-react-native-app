@@ -7,21 +7,13 @@ import { styled } from "@ui-kitten/components"
 import RecentRef from "../basic/RecentRef"
 import RecentSearch from "../basic/RecentSearch"
 
-const numFaderLines = 15
-
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFill,
     top: 'auto',
-    zIndex: 5,
-  },
-  faderLine: {
-    height: 3,
-  },
-  main: {
-    flex: 1,
-    flexDirection: 'row',
     height: 75,
+    zIndex: 5,
+    flexDirection: 'row',
   },
   refs: {
     marginLeft: 30,
@@ -49,61 +41,43 @@ const RecentSection = React.memo(({
     <View
       style={[
         styles.container,
-      ]}
+        themedStyle,
+        style,
+    ]}
+      pointerEvents='box-none'
     >
-      {Array(numFaderLines).fill(0).map((x, idx) => (
-        <View
-          key={idx}
-          style={[
-            styles.faderLine,
-            themedStyle,
-            style,
-            {
-              opacity: 1 - Math.pow(((numFaderLines - idx) / (numFaderLines + 1)), 2),
-            },
-          ]}
-        />
-      ))}
-      <View
-        style={[
-          styles.main,
-          themedStyle,
-          style,
-        ]}
-      >
-        <View style={styles.refs}>
-          {recentPassages.map(historyIndex => {
-            const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
+      <View style={styles.refs}>
+        {recentPassages.map(historyIndex => {
+          const passageRef = historyIndex === 'current' ? passage.ref : history[historyIndex].ref
 
-            if(!passageRef) return null  // just in case
+          if(!passageRef) return null  // just in case
 
-            return (
-              <RecentRef
-                key={`${passageRef.bookId} ${passageRef.chapter}`}
-                passageRef={passageRef}
-                selected={historyIndex === 'current'}
-                uiStatus={historyIndex === 'current' ? 'selected' : 'unselected'}
-              />
-            )
-          })}
-        </View>
-        <View style={styles.searches}>
-          {recentSearches.map(historyIndex => {
-            const recentSearch = history[historyIndex]
+          return (
+            <RecentRef
+              key={`${passageRef.bookId} ${passageRef.chapter}`}
+              passageRef={passageRef}
+              selected={historyIndex === 'current'}
+              uiStatus={historyIndex === 'current' ? 'selected' : 'unselected'}
+            />
+          )
+        })}
+      </View>
+      <View style={styles.searches}>
+        {recentSearches.map(historyIndex => {
+          const recentSearch = history[historyIndex]
 
-            if(!recentSearch) return null  // just in case
+          if(!recentSearch) return null  // just in case
 
-            const { searchString, versionId } = recentSearch
+          const { searchString, versionId } = recentSearch
 
-            return (
-              <RecentSearch
-                key={`${searchString} ${versionId}`}
-                searchString={searchString}
-                versionId={versionId}
-              />
-            )
-          })}
-        </View>
+          return (
+            <RecentSearch
+              key={`${searchString} ${versionId}`}
+              searchString={searchString}
+              versionId={versionId}
+            />
+          )
+        })}
       </View>
     </View>
   )

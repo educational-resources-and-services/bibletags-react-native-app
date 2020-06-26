@@ -9,12 +9,20 @@ import { styled } from "@ui-kitten/components"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
+import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
+import GradualFade from "../basic/GradualFade"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
 
 const styles = StyleSheet.create({
+  gradualFade: {
+    ...StyleSheet.absoluteFillObject,
+    bottom: 'auto',
+    top: 26,
+    zIndex: 2,
+  },
   header: {
     position: 'absolute',
     top: 0,
@@ -23,7 +31,15 @@ const styles = StyleSheet.create({
     minHeight: 40,
     height: 40,
     paddingTop: 0,
-    marginTop: 26,
+    marginTop: (
+      Platform.OS === 'android'
+        ? 5
+        : (26 + (
+          isIPhoneX
+            ? iPhoneXInset['portrait'].topInset
+            : 0
+        ))
+    ),
     marginHorizontal: 15,
     borderRadius: 4,
     elevation: 4,
@@ -102,59 +118,67 @@ const ReadHeader = React.memo(({
     .toUpperCase()
 
   return (
-    <AppHeader
-      hideStatusBar={hideStatusBar}
-      style={styles.header}
-    >
-      <HeaderIconButton
-        name="md-menu"
-        onPress={openSideMenu}
-      />
-      <View style={styles.middle}>
-        <TouchableOpacity
-          onPressIn={showPassageChooser}
-        >
-          <Text style={styles.passageAndVersion}>
-            <Text style={styles.passage}>
-              {getPassageStr({
-                refs: [
-                  passage.ref,
-                ],
-              })}
+    <>
+      {isIPhoneX &&
+        <GradualFade
+          height={iPhoneXInset['portrait'].topInset + 5}
+          style={styles.gradualFade}
+        />
+      }
+      <AppHeader
+        hideStatusBar={hideStatusBar}
+        style={styles.header}
+      >
+        <HeaderIconButton
+          name="md-menu"
+          onPress={openSideMenu}
+        />
+        <View style={styles.middle}>
+          <TouchableOpacity
+            onPressIn={showPassageChooser}
+          >
+            <Text style={styles.passageAndVersion}>
+              <Text style={styles.passage}>
+                {getPassageStr({
+                  refs: [
+                    passage.ref,
+                  ],
+                })}
+              </Text>
+              {`  `}
+              <Text
+                style={[
+                  styles.version,
+                  baseThemedStyle,
+                  style,
+                ]}
+              >
+                {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
+              </Text>
             </Text>
-            {`  `}
-            <Text 
+            <Icon
+              name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
               style={[
-                styles.version,
-                baseThemedStyle,
+                styles.dropdownIcon,
+                dropdownIconThemedStyle,
                 style,
               ]}
-            >
-              {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
-            </Text>
-          </Text>
-          <Icon
-            name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-            style={[
-              styles.dropdownIcon,
-              dropdownIconThemedStyle,
-              style,
-            ]}
-          />
-        </TouchableOpacity>
-      </View>
-      <HeaderIconButton
-        name="md-search"
-        onPress={goSearch}
-        style={styles.search}
-      />
-      <HeaderIconButton
-        name="format-size"
-        pack="materialCommunity"
-        onPress={toggleShowOptions}
-        style={styles.options}
-      />
-    </AppHeader>
+            />
+          </TouchableOpacity>
+        </View>
+        <HeaderIconButton
+          name="md-search"
+          onPress={goSearch}
+          style={styles.search}
+        />
+        <HeaderIconButton
+          name="format-size"
+          pack="materialCommunity"
+          onPress={toggleShowOptions}
+          style={styles.options}
+        />
+      </AppHeader>
+    </>
   )
 
 })
