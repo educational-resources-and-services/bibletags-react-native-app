@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import Constants from "expo-constants"
-import { View, ScrollView, StyleSheet } from "react-native"
+import { View, ScrollView, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
@@ -8,7 +8,7 @@ import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         adjustFontSize, adjustLineHeight } from '../../utils/toolbox'
+         adjustFontSize, adjustLineHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -30,6 +30,21 @@ const viewStyles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingTop: (
+      Platform.OS === 'android'
+        ? 55
+        : (76 + (
+          isIPhoneX
+            ? iPhoneXInset['portrait'].topInset
+            : 0
+        ))
+    ),
+  },
+  parallelContent: {
+    paddingTop: 20,
+  },
+  withRecentSectionContent: {
+    paddingBottom: 95,
   },
   mt: {
     marginTop: 10,
@@ -120,6 +135,8 @@ const ReadText = React.memo(({
   passageRef,
   selectedVerse,
   isVisible,
+  leavePaddingForRecentSection,
+  isParallel,
   forwardRef,
   onContentSizeChange,
   onLoaded,
@@ -395,7 +412,13 @@ const ReadText = React.memo(({
       onContentSizeChange={goContentSizeChange}
       ref={forwardRef}
     >
-      <View style={viewStyles.content}>
+      <View
+        style={[
+          viewStyles.content,
+          isParallel ? viewStyles.parallelContent : null,
+          leavePaddingForRecentSection ? viewStyles.withRecentSectionContent : null,
+        ]}
+      >
         {getJSX()}
       </View>
     </ScrollView>

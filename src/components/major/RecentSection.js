@@ -35,7 +35,7 @@ const RecentSection = React.memo(({
   themedStyle,
 }) => {
 
-  if(recentPassages.length + recentSearches.length === 1) return null
+  if(recentPassages.length + recentSearches.length <= 1) return null
 
   return (
     <View

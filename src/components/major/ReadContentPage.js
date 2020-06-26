@@ -39,6 +39,8 @@ const ReadContentPage = React.memo(({
 
   themedStyle,
   passageScrollY,
+  recentPassages,
+  recentSearches,
 
   setPassageScroll,
 }) => {
@@ -203,6 +205,7 @@ const ReadContentPage = React.memo(({
         onVerseTap={!direction ? onPrimaryVerseTap : null}
         forwardRef={!direction ? primaryRef : null}
         isVisible={!direction}
+        leavePaddingForRecentSection={recentPassages.length + recentSearches.length > 1}
       />
       {!!parallelVersionId &&
         <>
@@ -235,6 +238,7 @@ const ReadContentPage = React.memo(({
             onVerseTap={!direction ? onSecondaryVerseTap : null}
             forwardRef={!direction ? secondaryRef : null}
             isVisible={!direction}
+            isParallel={true}
           />
         </>
       }
@@ -243,8 +247,10 @@ const ReadContentPage = React.memo(({
 
 })
 
-const mapStateToProps = ({ passageScrollY }) => ({
+const mapStateToProps = ({ passageScrollY, recentPassages, recentSearches }) => ({
   passageScrollY,
+  recentPassages,
+  recentSearches,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
