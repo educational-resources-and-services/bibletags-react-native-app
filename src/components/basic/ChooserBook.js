@@ -1,14 +1,10 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
-import Constants from "expo-constants"
 import { getBibleBookName } from "bibletags-ui-helper"
+import { styled } from "@ui-kitten/components"
 
-const {
-  CHOOSER_BOOK_LINE_HEIGHT,
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-  CHOOSER_SELECTED_TEXT_COLOR,
-  CHOOSER_CHOOSING_BACKGROUND_COLOR,
-} = Constants.manifest.extra
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+
 
 const styles = StyleSheet.create({
   book: {
@@ -16,22 +12,20 @@ const styles = StyleSheet.create({
     paddingLeft: 15,
   },
   bookText: {
-    lineHeight: CHOOSER_BOOK_LINE_HEIGHT,
+    lineHeight: 40,
     textAlign: 'left',
-  },
-  bookSelected: {
-    backgroundColor: CHOOSER_SELECTED_BACKGROUND_COLOR,
-  },
-  bookTextSelected: {
-    color: CHOOSER_SELECTED_TEXT_COLOR,
   },
 })
 
 const ChooserBook = React.memo(({
   bookId,
-  selected,
   onPress,
+  style,
+
+  themedStyle,
 }) => {
+
+  const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goPress = useCallback(
     () => onPress(bookId),
@@ -40,22 +34,28 @@ const ChooserBook = React.memo(({
 
   return (
     <TouchableHighlight
-      underlayColor={CHOOSER_CHOOSING_BACKGROUND_COLOR}
+      underlayColor="rgba(0, 0, 0, .2)"  // this just darkens the item when first touched
       onPress={goPress}
       style={[
         styles.book,
-        (selected ? styles.bookSelected : null),
+        baseThemedStyle,
+        style,
       ]}
     >
       <Text
         style={[
           styles.bookText,
-          (selected ? styles.bookTextSelected : null),
+          labelThemedStyle,
+          style,
         ]}
-      >{getBibleBookName(bookId)}</Text>
+      >
+        {getBibleBookName(bookId)}
+      </Text>
     </TouchableHighlight>
   )
 
 })
 
-export default ChooserBook
+ChooserBook.styledComponentName = 'ChooserBook'
+
+export default styled(ChooserBook)

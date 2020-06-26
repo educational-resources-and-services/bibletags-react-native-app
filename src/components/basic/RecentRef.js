@@ -1,31 +1,18 @@
 import React, { useCallback } from "react"
-import { StyleSheet } from "react-native"
-import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPassageStr } from "bibletags-ui-helper"
+import { styled } from "@ui-kitten/components"
 
-import { setRef, removeRecentPassage } from "../../redux/actions.js"
+import { setRef, removeRecentPassage } from "../../redux/actions"
 
 import RecentBookmark from "./RecentBookmark"
-
-const {
-  RECENT_REF_BACKGROUND_COLOR,
-  RECENT_REF_SELECTED_BACKGROUND_COLOR,
-} = Constants.manifest.extra
-
-const styles = StyleSheet.create({
-  recentRef: {
-    backgroundColor: RECENT_REF_BACKGROUND_COLOR,
-  },
-  recentRefSelected: {
-    backgroundColor: RECENT_REF_SELECTED_BACKGROUND_COLOR,
-  },
-})
 
 const RecentRef = React.memo(({
   passageRef,
   selected,
+  style,
+  themedStyle,
 
   history,
   recentPassages,
@@ -76,7 +63,10 @@ const RecentRef = React.memo(({
     <RecentBookmark
       selected={selected}
       text={text}
-      style={selected ? styles.recentRefSelected : styles.recentRef}
+      style={[
+        style,
+        themedStyle,
+      ]}
       discard={discard}
       select={select}
     />
@@ -94,4 +84,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentPassage,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(RecentRef)
+RecentRef.styledComponentName = 'RecentRef'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentRef))

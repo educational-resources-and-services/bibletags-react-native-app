@@ -1,17 +1,17 @@
 import React, { useCallback } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
 import Constants from "expo-constants"
-import { Input } from '@ui-kitten/components'
+import { Input } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
 
-import { getVersionInfo, isRTLText } from '../../utils/toolbox.js'
+import { getVersionInfo, isRTLText } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
-import VersionChooser from './VersionChooser'
+import VersionChooser from "./VersionChooser"
 
 const {
   PRIMARY_VERSIONS,
@@ -169,7 +169,7 @@ const SearchHeader = React.memo(({
             versionIds={ALL_VERSIONS}
             update={updateVersion}
             selectedVersionId={versionId}
-            backgroundColor="white"
+            type="search"
             goVersions={goVersions}
           />
         </View>

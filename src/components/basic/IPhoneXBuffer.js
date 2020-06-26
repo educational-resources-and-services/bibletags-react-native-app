@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
 
-import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox.js"
+import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   iphoneXBuffer: {

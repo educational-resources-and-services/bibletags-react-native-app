@@ -1,9 +1,9 @@
 import React from "react"
 import { StyleSheet, Platform, View, Text } from "react-native"
-import { Button } from '@ui-kitten/components'
+import { Button } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 
-import { isPhoneSize } from '../../utils/toolbox.js'
+// import { isPhoneSize } from '../../utils/toolbox'
 import useRouterState from "../../hooks/useRouterState"
 
 import AppHeader from "../basic/AppHeader"

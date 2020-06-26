@@ -1,6 +1,6 @@
 import { useCallback } from "react"
 import { Platform } from "react-native"
-import { Interaction } from '@ui-kitten/components'
+import { Interaction } from "@ui-kitten/components"
 
 const useThemedStates = ({ dispatch, states=[] }) => {
 

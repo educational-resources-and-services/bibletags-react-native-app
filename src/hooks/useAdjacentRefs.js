@@ -1,6 +1,6 @@
 import { useMemo } from "react"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
-import { getVersionInfo } from "../utils/toolbox.js"
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
+import { getVersionInfo } from "../utils/toolbox"
 
 const useAdjacentRefs = ({ ref, versionId }) => {
 

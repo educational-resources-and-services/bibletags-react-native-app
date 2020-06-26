@@ -4,12 +4,12 @@ import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
 
-import useAdjacentRefs from '../../hooks/useAdjacentRefs'
+import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useSetTimeout from "../../hooks/useSetTimeout"
 
-import TapOptions from '../basic/TapOptions'
+import TapOptions from "../basic/TapOptions"
 import ReadContentPage from "./ReadContentPage"
 
 import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"

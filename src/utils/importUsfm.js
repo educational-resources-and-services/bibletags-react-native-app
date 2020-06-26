@@ -1,7 +1,7 @@
-import { AsyncStorage } from 'react-native'
+import { AsyncStorage } from "react-native"
 import { Asset } from "expo-asset"
 import * as FileSystem from "expo-file-system"
-import bibleVersions, { bibleVersionsToRemove } from '../../versions.js'
+import bibleVersions, { bibleVersionsToRemove } from "../../versions"
 
 const importUsfm = async () => {
 

@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { Layout } from '@ui-kitten/components'
+import { Layout } from "@ui-kitten/components"
 import SafeAreaView from "react-native-safe-area-view"
 
 const styles = StyleSheet.create({

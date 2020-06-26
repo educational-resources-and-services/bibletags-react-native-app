@@ -1,7 +1,7 @@
 import React from "react"
 import Constants from "expo-constants"
 import { StyleSheet } from "react-native"
-import { List } from '@ui-kitten/components'
+import { List, styled } from "@ui-kitten/components"
 import { Switch, Route } from "react-router-native"
 import { i18n } from "inline-i18n"
 
@@ -20,11 +20,14 @@ const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])
 const styles = StyleSheet.create({
   list: {
     paddingVertical: 10,
-    backgroundColor: 'white',
   },
 })
 
-const Versions = () => {
+const Versions = ({
+  style,
+
+  themedStyle,
+}) => {
 
   const renderItem = ({ item: versionId }) => (
     <VersionItem
@@ -43,7 +46,11 @@ const Versions = () => {
             title={i18n("Bible version information")}
           />
           <List
-            style={styles.list}
+            style={[
+              styles.list,
+              themedStyle,
+              style,
+            ]}
             data={ALL_VERSIONS}
             renderItem={renderItem}
           />
@@ -55,4 +62,6 @@ const Versions = () => {
 
 }
 
-export default Versions
+Versions.styledComponentName = 'Versions'
+
+export default styled(Versions)

@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { List } from '@ui-kitten/components'
+import { List, styled } from "@ui-kitten/components"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -13,7 +13,6 @@ const MAX_SEARCH_RESULTS = 15
 const styles = StyleSheet.create({
   list: {
     paddingVertical: 10,
-    backgroundColor: 'white',
     height: '100%',
   },
 })
@@ -24,7 +23,9 @@ const SearchSuggestions = React.memo(({
   editedSearchString,
   setEditing,
   updateEditedSearchString,
+  style,
 
+  themedStyle,
   history,
 }) => {
 
@@ -69,7 +70,11 @@ const SearchSuggestions = React.memo(({
     <List
       data={searchHistory}
       renderItem={renderItem}
-      style={styles.list}
+      style={[
+        styles.list,
+        themedStyle,
+        style,
+      ]}
     />
   )
 
@@ -83,4 +88,7 @@ const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   // recordSearch,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions)
+
+SearchSuggestions.styledComponentName = 'SearchSuggestions'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions))

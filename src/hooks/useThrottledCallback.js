@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react"
 import useSetTimeout from "./useSetTimeout"
-import useInstanceValue from './useInstanceValue'
+import useInstanceValue from "./useInstanceValue"
 
 const useThrottledCallback = (fn, ms, dep) => {
 

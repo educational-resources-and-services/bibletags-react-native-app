@@ -1,7 +1,9 @@
 import React, { useState } from "react"
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
+import { styled } from "@ui-kitten/components"
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import Icon from "./Icon"
 
@@ -14,20 +16,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttons: {
-    backgroundColor: 'white',
+    backgroundColor: 'white', // do not put into custom mapping; is functional, not visual
     borderRadius: 3,
     overflow: 'hidden',
     flexDirection: 'row',
   },
   button: {
-    backgroundColor: '#333333',
     padding: 12,
-  },
-  text: {
-    color: 'white',
-  },
-  invisible: {
-    color: '#333333',
   },
   resultIconView: {
     ...StyleSheet.absoluteFillObject,
@@ -37,7 +32,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   resultIcon: {
-    color: 'white',
     height: 18,
   },
 })
@@ -47,8 +41,12 @@ const TapOptions = React.memo(({
   centerX,
   bottomY,
   topY,
-}) => {
+  style,
 
+  themedStyle,
+}) => {
+  
+  const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
   const [ resultIconProps, setResultIconProps ] = useState()
 
   const [ setShowResultTimeout ] = useSetTimeout()
@@ -94,15 +92,25 @@ const TapOptions = React.memo(({
               onPress={!resultIconProps ? doAction({ action, index }) : null}
               key={label}
             >
-              <View style={styles.button}>
-                <Text style={showResult ? styles.invisible : styles.text}>
+              <View
+                style={[
+                  styles.button,
+                  baseThemedStyle,
+                  style,
+                ]}
+              >
+                <Text style={showResult ? baseThemedStyle : labelThemedStyle}>
                   {label}
                 </Text>
                 {showResult &&
                   <View style={styles.resultIconView}>
                     <Text style={styles.resultIconText}>
                       <Icon
-                        style={styles.resultIcon}
+                        style={[
+                          styles.resultIcon,
+                          labelThemedStyle,
+                          style,
+                        ]}
                         {...resultIconProps}
                       />
                     </Text>
@@ -118,4 +126,6 @@ const TapOptions = React.memo(({
 
 })
 
-export default TapOptions
+TapOptions.styledComponentName = 'TapOptions'
+
+export default styled(TapOptions)

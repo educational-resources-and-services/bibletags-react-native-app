@@ -1,25 +1,23 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import Constants from "expo-constants"
-import { View, ScrollView, StyleSheet } from "react-native"
+import { View, ScrollView, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting.js"
+import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
+import { styled } from "@ui-kitten/components"
 
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         adjustFontSize, adjustLineHeight } from '../../utils/toolbox.js'
-import { getValidFontName } from "../../utils/bibleFonts.js"
-import bibleVersions from '../../../versions.js'
-import useInstanceValue from "../../hooks/useInstanceValue.js"
+         adjustFontSize, adjustLineHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox'
+import { getValidFontName } from "../../utils/bibleFonts"
+import bibleVersions from "../../../versions"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
-import VerseText from '../basic/VerseText'
+import VerseText from "../basic/VerseText"
 
 const {
   DEFAULT_FONT_SIZE,
   HEBREW_CANTILLATION_MODE,
-  TEXT_MAJOR_TITLE_COLOR,
-  TEXT_MAJOR_SECTION_HEADING_COLOR,
-  TEXT_SECTION_HEADING_1_COLOR,
-  TEXT_SECTION_HEADING_2_COLOR,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -32,6 +30,21 @@ const viewStyles = StyleSheet.create({
   },
   content: {
     padding: 20,
+    paddingTop: (
+      Platform.OS === 'android'
+        ? 55
+        : (76 + (
+          isIPhoneX
+            ? iPhoneXInset['portrait'].topInset
+            : 0
+        ))
+    ),
+  },
+  parallelContent: {
+    paddingTop: 20,
+  },
+  withRecentSectionContent: {
+    paddingBottom: 95,
   },
   mt: {
     marginTop: 10,
@@ -67,21 +80,15 @@ const textStyles = StyleSheet.create({
   rtl: {
     writingDirection: "rtl",
   },
-  mt: {
-    color: TEXT_MAJOR_TITLE_COLOR,
+  mt: { //major title
     textAlign: "center",
     // fontVariant: ["small-caps"],
   },
-  ms: {
+  ms: { // major section heading
     textAlign: "center",
-    color: TEXT_MAJOR_SECTION_HEADING_COLOR,
   },
-  s1: {
-    color: TEXT_SECTION_HEADING_1_COLOR,
-  },
-  s2: {
-    color: TEXT_SECTION_HEADING_2_COLOR,
-  },
+  s1: {},  //section heading 1
+  s2: {},  //section heading 2
   nd: {
     // fontVariant: ["small-caps"],
   },
@@ -128,6 +135,8 @@ const ReadText = React.memo(({
   passageRef,
   selectedVerse,
   isVisible,
+  leavePaddingForRecentSection,
+  isParallel,
   forwardRef,
   onContentSizeChange,
   onLoaded,
@@ -137,8 +146,12 @@ const ReadText = React.memo(({
   onTouchEnd,
   onLayout,
 
+  themedStyle,
   displaySettings,
 }) => {
+
+  const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ majorTitleThemedStyle={}, majorSectionHeadingThemedStyle={}, section1HeadingThemedStyle={}, section2HeadingThemedStyle={} ] = altThemedStyleSets
 
   const [ state, setState ] = useState({})
   const { pieces, languageId, isOriginal } = state
@@ -325,6 +338,12 @@ const ReadText = React.memo(({
           const styles = [
             wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
             getStyle({ tag, styles: textStyles }),
+            {
+              mt: majorTitleThemedStyle,
+              ms: majorSectionHeadingThemedStyle,
+              s1: section1HeadingThemedStyle,
+              s2: section2HeadingThemedStyle,
+            }[tag],
             fontSize && { fontSize },
             lineHeight && { lineHeight },
             fontFamily && { fontFamily },
@@ -393,7 +412,13 @@ const ReadText = React.memo(({
       onContentSizeChange={goContentSizeChange}
       ref={forwardRef}
     >
-      <View style={viewStyles.content}>
+      <View
+        style={[
+          viewStyles.content,
+          isParallel ? viewStyles.parallelContent : null,
+          leavePaddingForRecentSection ? viewStyles.withRecentSectionContent : null,
+        ]}
+      >
         {getJSX()}
       </View>
     </ScrollView>
@@ -409,4 +434,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setTheme,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(ReadText)
+ReadText.styledComponentName = 'ReadText'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadText))

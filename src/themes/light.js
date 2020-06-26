@@ -1,5 +1,5 @@
-import Constants from 'expo-constants'
-import { light as lightTheme } from '@eva-design/eva'
+import Constants from "expo-constants"
+import { light as lightTheme } from "@eva-design/eva"
 
 const {
   THEME_CUSTOMIZATION={},
@@ -237,7 +237,7 @@ const theme = {
   // "color-danger-default": "$color-danger-500",
   // "color-danger-active": "$color-danger-600",
   // "color-danger-disabled": "$color-basic-transparent-300",
-  // "color-danger-focus-border": "color-danger-700",
+  "color-danger-focus-border": "$color-danger-700",  // this color label has a typo in the light theme, and so is not commented out here
   // "color-danger-hover-border": "$color-danger-hover",
   // "color-danger-default-border": "$color-danger-default",
   // "color-danger-active-border": "$color-danger-active",

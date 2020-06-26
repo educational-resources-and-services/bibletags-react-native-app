@@ -1,13 +1,9 @@
 import React from "react"
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
-import Constants from "expo-constants"
+import { styled } from "@ui-kitten/components"
 
 import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
-
-const {
-  CHOOSER_SELECTED_BACKGROUND_COLOR,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
@@ -31,7 +27,6 @@ const styles = StyleSheet.create({
     paddingTop: 2,
   },
   info: {
-    color: 'rgba(0, 0, 0, .5)',
     height: 18,
   },
 })
@@ -39,10 +34,12 @@ const styles = StyleSheet.create({
 const VersionChooser = React.memo(({
   versionIds,
   selectedVersionId,
-  backgroundColor,
   update,
   goVersions,
   closeParallelMode,
+  style,
+
+  themedStyle,
 }) => {
 
   return (
@@ -50,7 +47,8 @@ const VersionChooser = React.memo(({
       horizontal={true}
       style={[
         styles.container,
-        { backgroundColor },
+        themedStyle,
+        style,
       ]}
       contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps="always"
@@ -63,7 +61,7 @@ const VersionChooser = React.memo(({
             <ChooserVersion
               key={versionId}
               versionId={versionId}
-              selected={versionId === selectedVersionId}
+              uiStatus={versionId === selectedVersionId ? "selected" : "unselected"}
               onPress={showCloseIcon ? closeParallelMode : update}
               showCloseIcon={showCloseIcon}
             />
@@ -75,7 +73,11 @@ const VersionChooser = React.memo(({
         >
           <Icon
             name="md-information-circle-outline"
-            style={styles.info}
+            style={[
+              styles.info,
+              themedStyle,
+              style,
+            ]}
           />
         </TouchableOpacity>
       </View>
@@ -84,4 +86,6 @@ const VersionChooser = React.memo(({
 
 })
 
-export default VersionChooser
+VersionChooser.styledComponentName = 'VersionChooser'
+
+export default styled(VersionChooser)

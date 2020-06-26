@@ -4,23 +4,21 @@ import { View, StyleSheet, Text, Clipboard, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { getRefFromLoc } from 'bibletags-versification/src/versification'
+import { getRefFromLoc } from "bibletags-versification/src/versification"
 import { getPassageStr } from "bibletags-ui-helper"
-import { useDimensions } from 'react-native-hooks'
+import { useDimensions } from "react-native-hooks"
+import { styled } from "@ui-kitten/components"
 
-import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from '../../utils/toolbox.js'
-import { getValidFontName } from "../../utils/bibleFonts.js"
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
+import { getValidFontName } from "../../utils/bibleFonts"
 import useRouterState from "../../hooks/useRouterState"
-import { setRef } from "../../redux/actions.js"
+import { setRef } from "../../redux/actions"
 
 import TapOptions from "./TapOptions"
 
 const {
   DEFAULT_FONT_SIZE,
-  SEARCH_RESULT_REFERENCE_COLOR,
-  SEARCH_RESULT_VERSE_COLOR,
-  SEARCH_RESULT_SELECTED_COLOR,
-  SEARCH_RESULT_MATCH_COLOR,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -38,19 +36,9 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
-  verse: {
-    color: SEARCH_RESULT_VERSE_COLOR,
-  },
-  selected: {
-    color: SEARCH_RESULT_SELECTED_COLOR,
-  },
   reference: {
     textAlign: 'right',
-    color: SEARCH_RESULT_REFERENCE_COLOR,
     fontWeight: 'bold',
-  },
-  match: {
-    color: SEARCH_RESULT_MATCH_COLOR,
   },
   rtl: {
     writingDirection: 'rtl',
@@ -103,11 +91,16 @@ const SearchResult = React.memo(({
   onSelect,
   versionAbbr,
   unselect,
+  style,
 
+  themedStyle,
   displaySettings,
 
   setRef,
 }) => {
+
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ backgroundThemedStyle={} ] = altThemedStyleSets
 
   const { historyGoBack } = useRouterState()
 
@@ -164,7 +157,7 @@ const SearchResult = React.memo(({
               key={`${idx}-${idx2}`}
               style={[
                 ...styles,
-                (isMatch ? textStyles.match: null),
+                (isMatch ? backgroundThemedStyle : null),
               ]}
             >
               {children
@@ -255,7 +248,8 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.reference,
-          (selected ? textStyles.selected : null),
+          labelThemedStyle,
+          style,
           (isRTLText({ languageId, bookId }) === I18nManager.isRTL ? textStyles.leftAlign : null),
           {
             fontSize: Math.max(fontSize * .65, 12),
@@ -271,7 +265,8 @@ const SearchResult = React.memo(({
       <Text
         style={[
           textStyles.verse,
-          (selected ? textStyles.selected : null),
+          baseThemedStyle,
+          style,
           (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
           { fontSize },
           { lineHeight },
@@ -304,4 +299,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(SearchResult)
+SearchResult.styledComponentName = 'SearchResult'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(SearchResult))

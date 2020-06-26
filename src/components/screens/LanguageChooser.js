@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { List } from '@ui-kitten/components'
-import { i18n } from "inline-i18n"
+import { List, styled } from "@ui-kitten/components"
+import { i18n, getLocale } from "inline-i18n"
 
 import { languageOptions } from "../../../language"
 
@@ -12,17 +12,21 @@ import LanguageItem from "../basic/LanguageItem"
 const styles = StyleSheet.create({
   list: {
     paddingTop: 10,
-    backgroundColor: 'white',
   },
 })
 
-const LanguageChooser = () => {
+const LanguageChooser = ({
+  style,
+
+  themedStyle,
+}) => {
 
   const renderItem = ({ item: { locale, label } }) => (
     <LanguageItem
       key={locale}
       locale={locale}
       label={label}
+      uiStatus={getLocale() === locale ? "selected" : "unselected"}
     />
   )
 
@@ -32,7 +36,11 @@ const LanguageChooser = () => {
         title={i18n("Change app language")}
       />
       <List
-        style={styles.list}
+        style={[
+          styles.list,
+          themedStyle,
+          style,
+        ]}
         data={languageOptions}
         renderItem={renderItem}
       />
@@ -41,4 +49,6 @@ const LanguageChooser = () => {
 
 }
 
-export default LanguageChooser
+LanguageChooser.styledComponentName = 'LanguageChooser'
+
+export default styled(LanguageChooser)

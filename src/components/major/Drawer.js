@@ -3,16 +3,16 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
-import { List } from '@ui-kitten/components'
+import { List, Layout, styled } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from 'react-native-hooks'
-import { Layout } from '@ui-kitten/components'
+import { useDimensions } from "react-native-hooks"
 
-import menuItems from '../../../menu.js'
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
 
-import DrawerItem from '../basic/DrawerItem'
+import DrawerItem from "../basic/DrawerItem"
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,
@@ -20,21 +20,20 @@ const {
 } = Constants.manifest.extra
         
 const styles = StyleSheet.create({
-  separator: {
-    flex: 0,
-    height: 10,
-    backgroundColor: '#e8e8e8',
-  },
+  // separator: {
+  //   flex: 0,
+  //   height: 10,
+  //   backgroundColor: '#e8e8e8',
+  // },
   image: {
     width: '100%',
     height: 0,
     paddingBottom: '50%',
     resizeMode: 'cover',
-    backgroundColor: '#e8e8e8',
   },
-  offline: {
-    opacity: .25,
-  },
+  // offline: {
+  //   opacity: .25,
+  // },
   list: {
     flex: 1,
     backgroundColor: 'white',
@@ -46,18 +45,22 @@ const styles = StyleSheet.create({
   createdBy: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#cccccc',
   },
   launchYour: {
     textAlign: 'center',
     fontSize: 12,
-    color: '#999999',
   },
 })
 
 const Drawer = ({
+  style,
+
+  themedStyle,
   displaySettings,
 }) => {
+
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ imageThemedStyle={} ] = altThemedStyleSets
 
   const { historyPush } = useRouterState()
   const { online } = useNetwork()
@@ -90,7 +93,11 @@ const Drawer = ({
       <View style={{ minHeight }}>
         <Image
           source={require('../../../assets/images/drawer.png')}
-          style={styles.image}
+          style={[
+            styles.image,
+            imageThemedStyle,
+            style,
+          ]}
         />
         <List
           style={styles.list}
@@ -103,13 +110,21 @@ const Drawer = ({
           >
             <View style={styles.createdByContainer}>
               <Text
-                style={styles.createdBy}
+                style={[
+                  styles.createdBy,
+                  baseThemedStyle,
+                  style,
+                ]}
               >
                 {i18n("Powered by Bible Tags")}
               </Text>
               {!!INCLUDE_BIBLE_TAGS_PROMO_TEXT &&
                 <Text
-                  style={styles.launchYour}
+                  style={[
+                    styles.launchYour,
+                    labelThemedStyle,
+                    style,
+                  ]}
                 >
                   {i18n("Open source Bible apps")}
                 </Text>
@@ -130,4 +145,6 @@ const mapStateToProps = ({ displaySettings }) => ({
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(Drawer)
+Drawer.styledComponentName = 'Drawer'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(Drawer))

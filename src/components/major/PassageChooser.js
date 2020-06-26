@@ -3,15 +3,17 @@ import { StyleSheet, ScrollView, FlatList, Text, View } from "react-native"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from 'bibletags-versification/src/versification'
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
 import { i18n } from "inline-i18n"
+import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo } from "../../utils/toolbox"
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { getVersionInfo, isIPhoneX } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useMemoObject from "../../hooks/useMemoObject"
-import useInstanceValue from '../../hooks/useInstanceValue'
-import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions.js"
+import useInstanceValue from "../../hooks/useInstanceValue"
+import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
@@ -21,14 +23,8 @@ const bookIdsPerVersion = {}
 const numChaptersPerVersionAndBook = {}
 
 const {
-  BOOK_CHOOSER_BACKGROUND_COLOR,
-  CHAPTER_CHOOSER_BACKGROUND_COLOR,
   PRIMARY_VERSIONS,
   SECONDARY_VERSIONS,
-  VERSION_CHOOSER_BACKGROUND_COLOR,
-  PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR,
-  PARALLEL_LABEL_VERSION_CHOOSER_BACKGROUND_COLOR,
-  CHOOSER_BOOK_LINE_HEIGHT,
 } = Constants.manifest.extra
 
 const SPACER_BEFORE_FIRST_BOOK = 5
@@ -37,20 +33,15 @@ const NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL = 10
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: isIPhoneX ? 26 : 0,
   },
   refChooser: {
     zIndex: 1,
     flexDirection: 'row',
     flex: 1,
-    backgroundColor: CHAPTER_CHOOSER_BACKGROUND_COLOR,
   },
   spacerBeforeFirstBook: {
     height: SPACER_BEFORE_FIRST_BOOK,
-  },
-  bookList: {
-    // borderRightWidth: 1,
-    // borderRightColor: DIVIDER_COLOR,
-    backgroundColor: BOOK_CHOOSER_BACKGROUND_COLOR,
   },
   chapterList: {
     flex: 1,
@@ -62,7 +53,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   parallelLabelContainer: {
-    backgroundColor: PARALLEL_LABEL_VERSION_CHOOSER_BACKGROUND_COLOR,
     width: 20,
   },
   parallelLabel: {
@@ -76,7 +66,6 @@ const styles = StyleSheet.create({
     width: 50,
     lineHeight: 20,
     textAlign: 'center',
-    color: 'white',
   },
 })
 
@@ -85,7 +74,9 @@ const PassageChooser = ({
   paddingBottom,
   hidePassageChooser,
   goVersions,
+  style,
 
+  themedStyle,
   passage,
   mode,
 
@@ -107,6 +98,10 @@ const PassageChooser = ({
   const chapterChooserRef = useRef()
 
   const [ setScrollTimeout ] = useSetTimeout()
+
+  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ parallelLabelContainerThemedStyle={}, bookListThemedStyle={}, extras={} ] = altThemedStyleSets
+  const chooserBookLineHeight = extras.bookLineHeight || 40
 
   useEffect(
     () => {
@@ -134,15 +129,15 @@ const PassageChooser = ({
 
     let index = getBookIds().indexOf(bookId)
     if(index === -1) index = 0
-    const maxScroll = CHOOSER_BOOK_LINE_HEIGHT * getBookIds().length - (bookChooserHeight - paddingBottom)
-    const scrollAtIndex = CHOOSER_BOOK_LINE_HEIGHT * index
+    const maxScroll = chooserBookLineHeight * getBookIds().length - (bookChooserHeight - paddingBottom)
+    const scrollAtIndex = chooserBookLineHeight * index
     const minOffset = scrollAtIndex - maxScroll
 
     bookChooserRef.current.scrollToIndex({
       animated: false,
       index,
       viewPosition: 0,
-      viewOffset: Math.max(CHOOSER_BOOK_LINE_HEIGHT * Math.min(2.5, index), minOffset),
+      viewOffset: Math.max(chooserBookLineHeight * Math.min(2.5, index), minOffset),
     })
   })
 
@@ -269,7 +264,7 @@ const PassageChooser = ({
         }
         <ChooserBook
           bookId={item}
-          selected={item === bookId}
+          uiStatus={item === bookId ? "selected" : "unselected"}
           onPress={updateBook}
         />
         {index === getBookIds().length - 1 &&
@@ -286,8 +281,8 @@ const PassageChooser = ({
 
   const getItemLayout = useCallback(
     (data, index) => ({
-      length: CHOOSER_BOOK_LINE_HEIGHT,
-      offset: CHOOSER_BOOK_LINE_HEIGHT * index + SPACER_BEFORE_FIRST_BOOK,
+      length: chooserBookLineHeight,
+      offset: chooserBookLineHeight * index + SPACER_BEFORE_FIRST_BOOK,
       index,
     }),
     [],
@@ -335,14 +330,24 @@ const PassageChooser = ({
           versionIds={PRIMARY_VERSIONS}
           update={updateVersion}
           selectedVersionId={passage.versionId}
-          backgroundColor={VERSION_CHOOSER_BACKGROUND_COLOR}
+          type="primary"
           goVersions={goVersions}
         />
       }
       <View style={styles.versionChooserContainer}>
-        <View style={styles.parallelLabelContainer}>
+        <View 
+          style={[
+            styles.parallelLabelContainer,
+            parallelLabelContainerThemedStyle,
+            style,
+          ]}
+        >
           <Text
-            style={styles.parallelLabel}
+            style={[
+              styles.parallelLabel,
+              labelThemedStyle,
+              style,
+            ]}
             numberOfLines={1}
           >
             {i18n("Parallel")}
@@ -352,16 +357,23 @@ const PassageChooser = ({
           versionIds={SECONDARY_VERSIONS}
           update={updateParallelVersion}
           selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
-          backgroundColor={PARALLEL_VERSION_CHOOSER_BACKGROUND_COLOR}
+          type="secondary"
           goVersions={goVersions}
           closeParallelMode={mode === 'parallel' ? closeParallelMode : null}
         />
       </View>
       <View
-        style={styles.refChooser}
+        style={[
+          styles.refChooser,
+          baseThemedStyle,
+          style,
+        ]}
       >
         <View
-          style={styles.bookList}
+          style={[
+            bookListThemedStyle,
+            style,
+          ]}
         >
           <FlatList
             data={getBookIds()}
@@ -390,7 +402,7 @@ const PassageChooser = ({
               <ChooserChapter
                 key={idx+1}
                 chapter={idx+1}
-                selected={idx+1 === chapter}
+                uiStatus={idx+1 === chapter ? "selected" : "unselected"}
                 onPress={updateChapter}
               />
             ))}
@@ -414,4 +426,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setMode,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(PassageChooser)
+PassageChooser.styledComponentName = 'PassageChooser'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(PassageChooser))

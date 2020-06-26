@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react"
 import { Text } from "react-native"
-import moment from 'moment'
-import { getLocale } from 'inline-i18n'
+import moment from "moment"
+import { getLocale } from "inline-i18n"
 
 const RelativeTime = React.memo(({
   time,

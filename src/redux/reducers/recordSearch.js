@@ -1,5 +1,5 @@
 import Constants from "expo-constants"
-import { updateRecentLists } from '../../utils/toolbox.js'
+import { updateRecentLists } from "../../utils/toolbox"
 
 const {
   MAXIMUM_NUMBER_OF_HISTORY,

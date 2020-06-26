@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useMemo } from "react"
 import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
-import { bindActionCreators } from "redux"
-import { connect } from "react-redux"
+// import { bindActionCreators } from "redux"
+// import { connect } from "react-redux"
+import { styled } from "@ui-kitten/components"
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
@@ -11,13 +12,16 @@ const EXTRA_SELECTED_BOOKMARK_HEIGHT = 12
 
 const styles = StyleSheet.create({
   bookmark: {
-    width: 25,
+    width: 31,
     height: 75 + MAXIMUM_SWIPE_UP_AMOUNT,
     bottom: EXTRA_SELECTED_BOOKMARK_HEIGHT * -1,
-    marginRight: 10,
+    borderWidth: 3,
+    borderBottomWidth: 0,
+    borderColor: 'white',  // functional, and so not in custom-mapping
+    marginRight: 5,
   },
   bookmarkBeingTouched: {
-    opacity: .7,
+    borderColor: 'rgba(255, 255, 255, .7)',  // functional, and so not in custom-mapping
   },
   bookmarkSelected: {
     bottom: 0,
@@ -38,7 +42,6 @@ const styles = StyleSheet.create({
     height: 25,
   },
   bookmarkText: {
-    color: 'white',
     lineHeight: 25,
     textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 12,
@@ -56,6 +59,7 @@ const RecentBookmark = React.memo(({
   style,
   discard,
   select,
+  themedStyle,
 }) => {
 
   const [ beingTouched, setBeingTouched ] = useState(false)
@@ -134,6 +138,8 @@ const RecentBookmark = React.memo(({
           numberOfLines={1}
           style={[
             styles.bookmarkText,
+            style,
+            themedStyle,
           ]}>
           {text}
         </Text>
@@ -143,4 +149,6 @@ const RecentBookmark = React.memo(({
 
 })
 
-export default RecentBookmark
+RecentBookmark.styledComponentName = 'RecentBookmark'
+
+export default styled(RecentBookmark)

@@ -4,15 +4,25 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPassageStr } from "bibletags-ui-helper"
+import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo } from '../../utils/toolbox.js'
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
+import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
+import GradualFade from "../basic/GradualFade"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
 
 const styles = StyleSheet.create({
+  gradualFade: {
+    ...StyleSheet.absoluteFillObject,
+    bottom: 'auto',
+    top: 26,
+    zIndex: 2,
+  },
   header: {
     position: 'absolute',
     top: 0,
@@ -21,7 +31,15 @@ const styles = StyleSheet.create({
     minHeight: 40,
     height: 40,
     paddingTop: 0,
-    marginTop: 26,
+    marginTop: (
+      Platform.OS === 'android'
+        ? 5
+        : (26 + (
+          isIPhoneX
+            ? iPhoneXInset['portrait'].topInset
+            : 0
+        ))
+    ),
     marginHorizontal: 15,
     borderRadius: 4,
     elevation: 4,
@@ -47,7 +65,6 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'left',
     writingDirection: 'ltr',
-    color: 'rgba(0, 0, 0, .65)',
     fontSize: 11,
   },
   dropdownIcon: {
@@ -56,7 +73,6 @@ const styles = StyleSheet.create({
     top: 0,
     height: 16,
     lineHeight: 40,
-    color: '#aaa',
   },
   search: {
     paddingRight: 8,
@@ -71,11 +87,15 @@ const ReadHeader = React.memo(({
   showPassageChooser,
   showingPassageChooser,
   hideStatusBar,
-  
+  style,
+
+  themedStyle,
   passage,
 }) => {
 
   const { historyPush } = useRouterState()
+  const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [ dropdownIconThemedStyle={} ] = altThemedStyleSets
 
   const goSearch = useCallback(
     () => {
@@ -98,49 +118,67 @@ const ReadHeader = React.memo(({
     .toUpperCase()
 
   return (
-    <AppHeader
-      hideStatusBar={hideStatusBar}
-      style={styles.header}
-    >
-      <HeaderIconButton
-        name="md-menu"
-        onPress={openSideMenu}
-      />
-      <View style={styles.middle}>
-        <TouchableOpacity
-          onPressIn={showPassageChooser}
-        >
-          <Text style={styles.passageAndVersion}>
-            <Text style={styles.passage}>
-              {getPassageStr({
-                refs: [
-                  passage.ref,
-                ],
-              })}
+    <>
+      {isIPhoneX &&
+        <GradualFade
+          height={iPhoneXInset['portrait'].topInset + 5}
+          style={styles.gradualFade}
+        />
+      }
+      <AppHeader
+        hideStatusBar={hideStatusBar}
+        style={styles.header}
+      >
+        <HeaderIconButton
+          name="md-menu"
+          onPress={openSideMenu}
+        />
+        <View style={styles.middle}>
+          <TouchableOpacity
+            onPressIn={showPassageChooser}
+          >
+            <Text style={styles.passageAndVersion}>
+              <Text style={styles.passage}>
+                {getPassageStr({
+                  refs: [
+                    passage.ref,
+                  ],
+                })}
+              </Text>
+              {`  `}
+              <Text
+                style={[
+                  styles.version,
+                  baseThemedStyle,
+                  style,
+                ]}
+              >
+                {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
+              </Text>
             </Text>
-            {`  `}
-            <Text style={styles.version}>
-              {`${I18nManager.isRTL ? `\u2067` : `\u2066`}${versionsText}`}
-            </Text>
-          </Text>
-          <Icon
-            name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
-            style={styles.dropdownIcon}
-          />
-        </TouchableOpacity>
-      </View>
-      <HeaderIconButton
-        name="md-search"
-        onPress={goSearch}
-        style={styles.search}
-      />
-      <HeaderIconButton
-        name="format-size"
-        pack="materialCommunity"
-        onPress={toggleShowOptions}
-        style={styles.options}
-      />
-    </AppHeader>
+            <Icon
+              name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
+              style={[
+                styles.dropdownIcon,
+                dropdownIconThemedStyle,
+                style,
+              ]}
+            />
+          </TouchableOpacity>
+        </View>
+        <HeaderIconButton
+          name="md-search"
+          onPress={goSearch}
+          style={styles.search}
+        />
+        <HeaderIconButton
+          name="format-size"
+          pack="materialCommunity"
+          onPress={toggleShowOptions}
+          style={styles.options}
+        />
+      </AppHeader>
+    </>
   )
 
 })
@@ -153,4 +191,6 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(ReadHeader)
+ReadHeader.styledComponentName = 'ReadHeader'
+
+export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadHeader))

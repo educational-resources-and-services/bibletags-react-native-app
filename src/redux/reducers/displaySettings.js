@@ -1,4 +1,4 @@
-import { bibleFontList } from "../../utils/bibleFonts.js"
+import { bibleFontList } from "../../utils/bibleFonts"
 
 const initialState = {
   mode: 'basic',

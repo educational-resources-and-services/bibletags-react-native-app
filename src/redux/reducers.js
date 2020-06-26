@@ -1,16 +1,16 @@
 import { combineReducers } from "redux"
 import reduceReducers from "reduce-reducers"
 
-import passage from "./reducers/passage.js"
-import passageScrollY from "./reducers/passageScrollY.js"
-import history from "./reducers/history.js"
-import recentPassages from "./reducers/recentPassages.js"
-import recentSearches from "./reducers/recentSearches.js"
-import displaySettings from "./reducers/displaySettings.js"
+import passage from "./reducers/passage"
+import passageScrollY from "./reducers/passageScrollY"
+import history from "./reducers/history"
+import recentPassages from "./reducers/recentPassages"
+import recentSearches from "./reducers/recentSearches"
+import displaySettings from "./reducers/displaySettings"
 
-import setPassage from "./reducers/setPassage.js"
-import recordSearch from "./reducers/recordSearch.js"
-import setMode from "./reducers/setMode.js"
+import setPassage from "./reducers/setPassage"
+import recordSearch from "./reducers/recordSearch"
+import setMode from "./reducers/setMode"
 
 const slicedReducers = combineReducers({
   passage,

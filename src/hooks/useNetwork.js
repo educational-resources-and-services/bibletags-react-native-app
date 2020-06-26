@@ -1,4 +1,4 @@
-import NetInfo, { useNetInfo } from '@react-native-community/netinfo'
+import NetInfo, { useNetInfo } from "@react-native-community/netinfo"
 
 export const connectionInfo = {
   online: false,

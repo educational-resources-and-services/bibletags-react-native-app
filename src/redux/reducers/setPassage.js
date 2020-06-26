@@ -1,6 +1,6 @@
 import Constants from "expo-constants"
-import { refsMatch, updateRecentLists } from '../../utils/toolbox.js'
-import { logEvent } from '../../utils/analytics'
+import { refsMatch, updateRecentLists } from "../../utils/toolbox"
+import { logEvent } from "../../utils/analytics"
 import { getPassageStr } from "bibletags-ui-helper"
 
 const {

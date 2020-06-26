@@ -1,7 +1,7 @@
 import React, { useCallback } from "react"
-import * as StoreReview from 'expo-store-review'
+import * as StoreReview from "expo-store-review"
 import { Image, StyleSheet, Linking } from "react-native"
-import { ListItem } from '@ui-kitten/components'
+import { ListItem } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import useRouterState from "../../hooks/useRouterState"
@@ -12,7 +12,6 @@ const styles = StyleSheet.create({
     height: 0,
     paddingBottom: '50%',
     resizeMode: 'cover',
-    backgroundColor: 'white',
   },
   listItem: {
     marginLeft: 0,
