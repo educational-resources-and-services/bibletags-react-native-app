@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, I18nManager } from "react-native"
 import Constants from "expo-constants"
 import { Input } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from "react-native-hooks"
+import { useDimensions } from "@react-native-community/hooks"
 
 import { getVersionInfo, isRTLText } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"

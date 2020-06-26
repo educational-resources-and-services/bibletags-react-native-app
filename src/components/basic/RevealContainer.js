@@ -34,6 +34,7 @@ const RevealContainer = ({
           {
             toValue: revealAmount,
             duration: 200,
+            useNativeDriver: true,
           }
         ),
         Animated.timing(
@@ -41,6 +42,7 @@ const RevealContainer = ({
           {
             toValue: revealAmount ? .95 : 1,
             duration: 200,
+            useNativeDriver: true,
           }
         ),
       ]).start()
@@ -55,7 +57,9 @@ const RevealContainer = ({
         style,
         {
           marginTop: immediateAdjustment,
-          top: translateYAnimation,
+          transform: [{
+            translateY: translateYAnimation,
+          }],
           scaleX: scaleAnimation,
           scaleY: scaleAnimation,
         },

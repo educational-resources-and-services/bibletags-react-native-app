@@ -3,7 +3,7 @@ import { StyleSheet, View, StatusBar, TouchableWithoutFeedback } from "react-nat
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 import { Switch, Route } from "react-router-native"
-import { useDimensions } from "react-native-hooks"
+import { useDimensions } from "@react-native-community/hooks"
 
 import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"

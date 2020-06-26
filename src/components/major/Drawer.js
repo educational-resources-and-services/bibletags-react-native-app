@@ -5,7 +5,6 @@ import { connect } from "react-redux"
 import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
 import { List, Layout, styled } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from "react-native-hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import menuItems from "../../../menu"
@@ -20,6 +19,9 @@ const {
 } = Constants.manifest.extra
         
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+  },
   // separator: {
   //   flex: 0,
   //   height: 10,
@@ -64,7 +66,6 @@ const Drawer = ({
 
   const { historyPush } = useRouterState()
   const { online } = useNetwork()
-  const { height } = useDimensions().window
 
   const goToBibleTagsMarketingSite = useCallback(
     () => {
@@ -78,8 +79,6 @@ const Drawer = ({
     [],
   )
 
-  const minHeight = height - (StatusBar.currentHeight || 0)
-
   const renderItem = ({ item, index }) => (
     <DrawerItem
       key={index}
@@ -90,7 +89,7 @@ const Drawer = ({
 
   return (
     <Layout>
-      <View style={{ minHeight }}>
+      <View style={styles.container}>
         <Image
           source={require('../../../assets/images/drawer.png')}
           style={[

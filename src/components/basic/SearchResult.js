@@ -6,7 +6,7 @@ import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getRefFromLoc } from "bibletags-versification/src/versification"
 import { getPassageStr } from "bibletags-ui-helper"
-import { useDimensions } from "react-native-hooks"
+import { useDimensions } from "@react-native-community/hooks"
 import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"

@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
-import { useDimensions } from "react-native-hooks"
+import { useDimensions } from "@react-native-community/hooks"
 import { styled } from "@ui-kitten/components"
 
 import { isIPhoneX } from "../../utils/toolbox"

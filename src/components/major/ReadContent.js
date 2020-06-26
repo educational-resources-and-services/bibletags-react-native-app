@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { useDimensions } from "react-native-hooks"
+import { useDimensions } from "@react-native-community/hooks"
 
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useSetTimeout from "../../hooks/useSetTimeout"
