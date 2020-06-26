@@ -98,7 +98,7 @@ const Read = () => {
             toggleShowOptions={toggleShowOptions}
             showPassageChooser={showPassageChooser}
             showingPassageChooser={showingPassageChooser}
-            hideStatusBar={hideStatusBar}
+            hideStatusBar={Platform.OS === 'ios' && hideStatusBar}
           />
           {showingDisplaySettings &&
             <DisplaySettings
