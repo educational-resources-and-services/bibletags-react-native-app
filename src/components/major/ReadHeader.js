@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { StyleSheet, TouchableOpacity, I18nManager, View, Text } from "react-native"
+import { StyleSheet, TouchableWithoutFeedback, I18nManager, View, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   passageAndVersion: {
-    paddingRight: 20,
+    paddingRight: 7,
     lineHeight: 40,
   },
   passage: {
@@ -68,10 +68,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   dropdownIcon: {
-    position: 'absolute',
-    right: 5,
-    top: 0,
-    height: 16,
+    height: 18,
     lineHeight: 40,
   },
   search: {
@@ -133,10 +130,10 @@ const ReadHeader = React.memo(({
           name="md-menu"
           onPress={openSideMenu}
         />
-        <View style={styles.middle}>
-          <TouchableOpacity
-            onPressIn={showPassageChooser}
-          >
+        <TouchableWithoutFeedback
+          onPressIn={showPassageChooser}
+        >
+          <View style={styles.middle}>
             <Text style={styles.passageAndVersion}>
               <Text style={styles.passage}>
                 {getPassageStr({
@@ -164,8 +161,8 @@ const ReadHeader = React.memo(({
                 style,
               ]}
             />
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableWithoutFeedback>
         <HeaderIconButton
           name="md-search"
           onPress={goSearch}

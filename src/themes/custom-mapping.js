@@ -315,7 +315,7 @@ const mapping = {
       component: 'ReadHeader',
       parameters: {
         color: "text-hint-color",
-        alt0Color: "text-disabled-color",
+        alt0Color: "color-basic-800",
       },
     },
     {
