@@ -205,7 +205,7 @@ const ReadContentPage = React.memo(({
         onVerseTap={!direction ? onPrimaryVerseTap : null}
         forwardRef={!direction ? primaryRef : null}
         isVisible={!direction}
-        leavePaddingForRecentSection={recentPassages.length + recentSearches.length > 1}
+        leavePaddingForRecentSection={!parallelVersionId && recentPassages.length + recentSearches.length > 1}
       />
       {!!parallelVersionId &&
         <>
@@ -239,6 +239,7 @@ const ReadContentPage = React.memo(({
             forwardRef={!direction ? secondaryRef : null}
             isVisible={!direction}
             isParallel={true}
+            leavePaddingForRecentSection={recentPassages.length + recentSearches.length > 1}
           />
         </>
       }
