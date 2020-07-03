@@ -2,6 +2,8 @@ import React from "react"
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
 import { styled } from "@ui-kitten/components"
 
+import useThemedStyleSets from '../../hooks/useThemedStyleSets'
+
 import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
 
@@ -38,16 +40,19 @@ const VersionChooser = React.memo(({
   goVersions,
   closeParallelMode,
   style,
+  iconStyle,
 
   themedStyle,
 }) => {
+
+  const { baseThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 
   return (
     <ScrollView
       horizontal={true}
       style={[
         styles.container,
-        themedStyle,
+        baseThemedStyle,
         style,
       ]}
       contentContainerStyle={styles.contentContainer}
@@ -75,8 +80,8 @@ const VersionChooser = React.memo(({
             name="md-information-circle-outline"
             style={[
               styles.info,
-              themedStyle,
-              style,
+              iconThemedStyle,
+              iconStyle,
             ]}
           />
         </TouchableOpacity>

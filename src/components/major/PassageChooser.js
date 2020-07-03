@@ -75,6 +75,9 @@ const PassageChooser = ({
   hidePassageChooser,
   goVersions,
   style,
+  labelStyle,
+  bookListStyle,
+  parallelLabelContainerStyle,
 
   themedStyle,
   passage,
@@ -339,14 +342,14 @@ const PassageChooser = ({
           style={[
             styles.parallelLabelContainer,
             parallelLabelContainerThemedStyle,
-            style,
+            parallelLabelContainerStyle,
           ]}
         >
           <Text
             style={[
               styles.parallelLabel,
               labelThemedStyle,
-              style,
+              labelStyle,
             ]}
             numberOfLines={1}
           >
@@ -372,7 +375,7 @@ const PassageChooser = ({
         <View
           style={[
             bookListThemedStyle,
-            style,
+            bookListStyle,
           ]}
         >
           <FlatList

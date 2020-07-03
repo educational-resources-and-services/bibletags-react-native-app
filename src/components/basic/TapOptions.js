@@ -42,6 +42,7 @@ const TapOptions = React.memo(({
   bottomY,
   topY,
   style,
+  labelStyle,
 
   themedStyle,
 }) => {
@@ -109,7 +110,7 @@ const TapOptions = React.memo(({
                         style={[
                           styles.resultIcon,
                           labelThemedStyle,
-                          style,
+                          labelStyle,
                         ]}
                         {...resultIconProps}
                       />

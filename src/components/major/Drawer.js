@@ -56,6 +56,8 @@ const styles = StyleSheet.create({
 
 const Drawer = ({
   style,
+  imageStyle,
+  labelStyle,
 
   themedStyle,
   displaySettings,
@@ -95,7 +97,7 @@ const Drawer = ({
           style={[
             styles.image,
             imageThemedStyle,
-            style,
+            imageStyle,
           ]}
         />
         <List
@@ -122,7 +124,7 @@ const Drawer = ({
                   style={[
                     styles.launchYour,
                     labelThemedStyle,
-                    style,
+                    labelStyle,
                   ]}
                 >
                   {i18n("Open source Bible apps")}

@@ -21,6 +21,7 @@ const ChooserBook = React.memo(({
   bookId,
   onPress,
   style,
+  labelStyle,
 
   themedStyle,
 }) => {
@@ -46,7 +47,7 @@ const ChooserBook = React.memo(({
         style={[
           styles.bookText,
           labelThemedStyle,
-          style,
+          labelStyle,
         ]}
       >
         {getBibleBookName(bookId)}

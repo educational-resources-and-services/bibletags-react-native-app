@@ -33,6 +33,8 @@ const ChooserVersion = React.memo(({
   selected,
   showCloseIcon,
   style,
+  labelStyle,
+  iconStyle,
 
   themedStyle,
 }) => {
@@ -58,7 +60,7 @@ const ChooserVersion = React.memo(({
           style={[
             styles.versionText,
             labelThemedStyle,
-            style,
+            labelStyle,
           ]}
         >
           {getVersionInfo(versionId).abbr}
@@ -69,7 +71,7 @@ const ChooserVersion = React.memo(({
             style={[
               styles.closeIcon,
               iconThemedStyle,
-              style,
+              iconStyle,
             ]}
           />
         }

@@ -92,6 +92,7 @@ const SearchResult = React.memo(({
   versionAbbr,
   unselect,
   style,
+  labelStyle,
 
   themedStyle,
   displaySettings,
@@ -249,7 +250,7 @@ const SearchResult = React.memo(({
         style={[
           textStyles.reference,
           labelThemedStyle,
-          style,
+          labelStyle,
           (isRTLText({ languageId, bookId }) === I18nManager.isRTL ? textStyles.leftAlign : null),
           {
             fontSize: Math.max(fontSize * .65, 12),

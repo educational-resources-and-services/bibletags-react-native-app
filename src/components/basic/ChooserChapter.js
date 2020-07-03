@@ -21,7 +21,7 @@ const ChooserChapter = React.memo(({
   chapter,
   onPress,
   style,
-  displaySettings,
+  labelStyle,
 
   themedStyle,
 }) => {
@@ -47,7 +47,7 @@ const ChooserChapter = React.memo(({
         style={[
           styles.chapterText,
           labelThemedStyle,
-          style,
+          labelStyle,
         ]}
       >
         {i18nNumber({ num: chapter, type: 'formal' })}

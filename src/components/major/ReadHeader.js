@@ -85,14 +85,14 @@ const ReadHeader = React.memo(({
   showingPassageChooser,
   hideStatusBar,
   style,
+  iconStyle,
 
   themedStyle,
   passage,
 }) => {
 
   const { historyPush } = useRouterState()
-  const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ dropdownIconThemedStyle={} ] = altThemedStyleSets
+  const { baseThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goSearch = useCallback(
     () => {
@@ -157,8 +157,8 @@ const ReadHeader = React.memo(({
               name={showingPassageChooser ? `md-arrow-dropup` : `md-arrow-dropdown`}
               style={[
                 styles.dropdownIcon,
-                dropdownIconThemedStyle,
-                style,
+                iconThemedStyle,
+                iconStyle,
               ]}
             />
           </View>

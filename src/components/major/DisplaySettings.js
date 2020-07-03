@@ -64,6 +64,7 @@ const themeOptions = [
 const DisplaySettings = React.memo(({
   hideDisplaySettings,
   style,
+  labelStyle,
 
   themedStyle,
   displaySettings,
@@ -157,7 +158,7 @@ const DisplaySettings = React.memo(({
           labelStyle={[
             styles.selectLabel,
             labelThemedStyle,
-            style,
+            labelStyle,
           ]}
           data={themeOptions}
           selectedOption={selectedThemeOption}
@@ -169,7 +170,7 @@ const DisplaySettings = React.memo(({
           labelStyle={[
             styles.selectLabel,
             labelThemedStyle,
-            style,
+            labelStyle,
           ]}
           data={fontOptions}
           selectedOption={selectedFontOption}

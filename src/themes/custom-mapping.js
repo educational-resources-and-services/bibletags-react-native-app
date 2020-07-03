@@ -191,7 +191,7 @@ const mapping = {
     {
       component: 'RecentBookmark',
       parameters: {
-        color: "text-control-color",
+        labelColor: "text-control-color",
       },
     },
     {
@@ -289,7 +289,7 @@ const mapping = {
     {
       component: 'VersionChooser',
       parameters: {
-        color: "color-basic-600",  //info icon
+        iconColor: "color-basic-600",  //info icon
       },
       variantGroups: {
         type: {
@@ -315,7 +315,7 @@ const mapping = {
       component: 'ReadHeader',
       parameters: {
         color: "text-hint-color",
-        alt0Color: "color-basic-800",
+        iconColor: "color-basic-800",  // drop down arrow
       },
     },
     {

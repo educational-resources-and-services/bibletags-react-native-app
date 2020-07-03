@@ -4,6 +4,8 @@ import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 // import { connect } from "react-redux"
 import { styled } from "@ui-kitten/components"
 
+import useThemedStyleSets from '../../hooks/useThemedStyleSets'
+
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
 const X_TO_Y_CANCEL_PROPORTION = .4
@@ -56,14 +58,18 @@ const isCancelled = ({ dx, dy }) => (
 const RecentBookmark = React.memo(({
   selected,
   text,
-  style,
   discard,
   select,
+  style,
+  labelStyle,
+
   themedStyle,
 }) => {
 
   const [ beingTouched, setBeingTouched ] = useState(false)
   const [ dragY, setDragY ] = useState(false)
+
+  const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const cancelTouchVisual = useCallback(
     () => {
@@ -122,6 +128,7 @@ const RecentBookmark = React.memo(({
       {...panResponder.panHandlers}
       style={[
         styles.bookmark,
+        baseThemedStyle,
         style,
         (selected ? styles.bookmarkSelected : null),
         (beingTouched ? styles.bookmarkBeingTouched : null),
@@ -138,8 +145,8 @@ const RecentBookmark = React.memo(({
           numberOfLines={1}
           style={[
             styles.bookmarkText,
-            style,
-            themedStyle,
+            labelStyle,
+            labelThemedStyle,
           ]}>
           {text}
         </Text>
