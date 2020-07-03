@@ -165,7 +165,7 @@ const mapping = {
           selected: {
             backgroundColor: "background-alternative-color-4",
             labelColor: "text-alternate-color",
-            iconColor: "color-basic-control-transparent-600",
+            iconColor: "color-basic-600",
           },
         },
       },
