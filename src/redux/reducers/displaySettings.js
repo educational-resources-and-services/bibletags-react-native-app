@@ -1,7 +1,6 @@
 import { bibleFontList } from "../../utils/bibleFonts"
 
 const initialState = {
-  mode: 'basic',
   textSize: 1,
   lineSpacing: 1.3,
   font: bibleFontList[0],
@@ -14,7 +13,7 @@ const themeOptions = [
   "high-contrast",
 ]
 
-export default function(state = initialState, action) {
+export default (state = initialState, action) => {
   
   switch (action.type) {
 

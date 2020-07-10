@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
-import Constants from "expo-constants"
 import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -8,16 +7,12 @@ import { useDimensions } from "@react-native-community/hooks"
 
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useSetTimeout from "../../hooks/useSetTimeout"
+import useBibleVersions from "../../hooks/useBibleVersions"
 
 import TapOptions from "../basic/TapOptions"
 import ReadContentPage from "./ReadContentPage"
 
 import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"
-
-const {
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
@@ -35,6 +30,7 @@ const ReadContent = React.memo(({
   passage,
   recentPassages,
   recentSearches,
+  myBibleVersions,
 
   setRef,
   setVersionId,
@@ -57,6 +53,8 @@ const ReadContent = React.memo(({
 
   const { width, height } = useDimensions().window
 
+  const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
+
   const [ setOffsetTimeout ] = useSetTimeout()
 
   if(passage !== statePassage) {
@@ -74,17 +72,19 @@ const ReadContent = React.memo(({
 
   useEffect(
     () => {
+      if(primaryVersionIds.length === 0) return
+
       // in the event that a version has been removed...
 
-      if(!PRIMARY_VERSIONS.includes(versionId)) {
-        setVersionId({ versionId: PRIMARY_VERSIONS[0] })
+      if(!primaryVersionIds.includes(versionId)) {
+        setVersionId({ versionId: primaryVersionIds[0] })
       }
 
-      if(parallelVersionId && !SECONDARY_VERSIONS.includes(parallelVersionId)) {
-        setParallelVersionId({ parallelVersionId: SECONDARY_VERSIONS[0] })
+      if(parallelVersionId && !secondaryVersionIds.includes(parallelVersionId)) {
+        setParallelVersionId({ parallelVersionId: secondaryVersionIds[0] })
       }
-    }
-    ,[],
+    },
+    [ primaryVersionIds.length === 0 ],
   )
 
   const onTouchStart = useCallback(
@@ -174,6 +174,8 @@ const ReadContent = React.memo(({
     [ selectedTextContent ],
   )
 
+  if(primaryVersionIds.length === 0) return null
+
   const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
   const getPage = direction => {
@@ -232,10 +234,11 @@ const ReadContent = React.memo(({
 
 })
 
-const mapStateToProps = ({ passage, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passage, recentPassages, recentSearches, myBibleVersions }) => ({
   passage,
   recentPassages,
   recentSearches,
+  myBibleVersions,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

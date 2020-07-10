@@ -26,6 +26,7 @@ const SearchSuggestions = React.memo(({
   style,
 
   themedStyle,
+
   history,
 }) => {
 

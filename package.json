@@ -54,6 +54,7 @@
     "react-native-safe-area-context": "3.0.2",
     "react-native-safe-area-view": "^1.1.1",
     "react-native-simple-side-menu": "github:educational-resources-and-services/react-native-simple-side-menu#22d795ae9000f829365b347c1d8aa82b48c61a30",
+    "react-native-sortable-list": "github:educational-resources-and-services/react-native-sortable-list#9f59e640887e250c0a14db3c9e1b621d984e6c53",
     "react-native-svg": "12.1.0",
     "react-redux": "7.2.0",
     "react-router-dom": "5.2.0",

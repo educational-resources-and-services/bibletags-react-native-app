@@ -39,6 +39,7 @@ const VersionChooser = React.memo(({
   update,
   goVersions,
   closeParallelMode,
+  hideEditVersions,
   style,
   iconStyle,
 
@@ -72,19 +73,22 @@ const VersionChooser = React.memo(({
             />
           )
         })}
-        <TouchableOpacity
-          style={styles.infoContainer}
-          onPress={goVersions}
-        >
-          <Icon
-            name="md-information-circle-outline"
-            style={[
-              styles.info,
-              iconThemedStyle,
-              iconStyle,
-            ]}
-          />
-        </TouchableOpacity>
+        {!hideEditVersions &&
+          <TouchableOpacity
+            style={styles.infoContainer}
+            onPress={goVersions}
+          >
+            <Icon
+              pack="materialCommunity"
+              name="pencil"
+              style={[
+                styles.info,
+                iconThemedStyle,
+                iconStyle,
+              ]}
+            />
+          </TouchableOpacity>
+          }
       </View>
     </ScrollView>
   )

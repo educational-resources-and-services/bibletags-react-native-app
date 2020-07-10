@@ -5,7 +5,6 @@ import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
-
 const styles = StyleSheet.create({
   book: {
     paddingRight: 15,

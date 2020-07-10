@@ -88,6 +88,7 @@ const ReadHeader = React.memo(({
   iconStyle,
 
   themedStyle,
+
   passage,
 }) => {
 

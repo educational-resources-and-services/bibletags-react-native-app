@@ -67,6 +67,7 @@ const DisplaySettings = React.memo(({
   labelStyle,
 
   themedStyle,
+
   displaySettings,
 
   setTextSize,

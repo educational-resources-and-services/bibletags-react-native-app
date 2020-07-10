@@ -173,7 +173,7 @@ const mapping = {
     {
       component: 'CoverAndSpin',
       parameters: {
-        backgroundColor: "background-basic-color-4",
+        backgroundColor: "background-basic-color-1",
       },
     },
     {
@@ -361,6 +361,39 @@ const mapping = {
       component: 'Versions',
       parameters: {
         backgroundColor: "background-basic-color-1",
+        labelBackgroundColor: "color-primary-transparent-300",
+        labelColor: "color-basic-900",
+      },
+    },
+    {
+      component: 'AddVersion',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+        labelBackgroundColor: "color-primary-transparent-300",
+        labelColor: "color-basic-900",
+      },
+    },
+    {
+      component: 'VersionItem',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+      },
+    },
+    {
+      component: 'HeaderIconButton',
+    },
+    {
+      component: 'Icon',
+      variantGroups: {
+        uiStatus: {
+          unselected: {},
+          selected: {
+            color: "color-primary-600",
+          },
+          disabled: {
+            color: "color-basic-500",
+          },
+        },
       },
     },
     ...MAPPING_CUSTOMIZATION,

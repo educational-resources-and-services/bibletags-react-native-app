@@ -23,6 +23,7 @@ const LanguageItem = React.memo(({
   locale,
   label,
   style,
+
   themedStyle,
 }) => {
 

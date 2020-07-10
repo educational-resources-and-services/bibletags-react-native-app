@@ -95,6 +95,7 @@ const SearchResult = React.memo(({
   labelStyle,
 
   themedStyle,
+
   displaySettings,
 
   setRef,

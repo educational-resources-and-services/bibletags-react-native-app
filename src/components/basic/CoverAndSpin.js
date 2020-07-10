@@ -22,10 +22,11 @@ const styles = StyleSheet.create({
 })
 
 const CoverAndSpin = ({
-  style,
-  themedStyle,
   text,
   percentage,
+  style,
+
+  themedStyle,
 }) => (
   <View style={[
     styles.spinnerContainer,

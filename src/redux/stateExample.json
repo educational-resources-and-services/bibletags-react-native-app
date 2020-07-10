@@ -77,9 +77,24 @@
   "recentPassages": [ 0, 2, 4 ],
   "recentSearches": [ 1 ],
   "displaySettings": {
-    "mode": "parallel",
     "textSize": 1,
     "lineSpacing": 1.3,
     "theme": "default"
-  }
+  },
+  "myBibleVersions": [
+    {
+      "id": "esv",
+      "download": true,
+      "downloaded": false
+    },
+    {
+      "id": "original",
+      "download": true,
+      "downloaded": true
+    },
+    {
+      "id": "kjv",
+      "download": false
+    }
+  ]
 }

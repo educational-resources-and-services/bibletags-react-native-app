@@ -60,6 +60,7 @@ const Drawer = ({
   labelStyle,
 
   themedStyle,
+
   displaySettings,
 }) => {
 

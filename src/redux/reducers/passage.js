@@ -1,7 +1,9 @@
 import Constants from "expo-constants"
 
+import bibleVersions from "../../../versions"
+
 const {
-  PRIMARY_VERSIONS,
+  DEFAULT_BIBLE_VERSIONS,
 } = Constants.manifest.extra
 
 const initialState = {
@@ -9,10 +11,10 @@ const initialState = {
     "bookId": 1,
     "chapter": 1,
   },
-  "versionId": PRIMARY_VERSIONS[0],
+  "versionId": DEFAULT_BIBLE_VERSIONS.filter(id => (bibleVersions.filter(version => version.id === id)[0] || {}).myVersionsRestriction !== 'secondary-only')[0],
 }
 
-export default function(state = initialState, action) {
+export default (state = initialState, action) => {
   // see setPassage.js
   return state
 }

@@ -19,6 +19,10 @@ export const setParallelVersionId = ({ parallelVersionId }) => ({
   parallelVersionId,
 })
 
+export const removeParallelVersion = () => ({
+  type: "REMOVE_PARALLEL_VERSION",
+})
+
 export const removeRecentPassage = ({ ref }) => ({
   type: "REMOVE_RECENT_PASSAGE",
   ref,
@@ -34,10 +38,6 @@ export const recordSearch = ({ searchString, versionId, numberResults }) => ({
 export const removeRecentSearch = ({ searchString }) => ({
   type: "REMOVE_RECENT_SEARCH",
   searchString,
-})
-export const setMode = ({ mode }) => ({
-  type: "SET_MODE",
-  mode,
 })
 
 export const setTextSize = ({ textSize }) => ({
@@ -58,4 +58,27 @@ export const setFont = ({ font }) => ({
 export const setTheme = ({ theme }) => ({
   type: "SET_THEME",
   theme,
+})
+
+export const addBibleVersion = ({ id, download }) => ({
+  type: "ADD_BIBLE_VERSION",
+  id,
+  download,
+})
+
+export const removeBibleVersion = ({ id }) => ({
+  type: "REMOVE_BIBLE_VERSION",
+  id,
+})
+
+export const setMyBibleVersionsOrder = ({ ids }) => ({
+  type: "SET_MY_BIBLE_VERSIONS_ORDER",
+  ids,
+})
+
+export const setBibleVersionDownloadStatus = ({ id, download, downloaded }) => ({
+  type: "SET_BIBLE_VERSION_DOWNLOAD_STATUS",
+  id,
+  download,
+  downloaded,
 })

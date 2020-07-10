@@ -4,12 +4,10 @@ import { logEvent } from "../../utils/analytics"
 import { getPassageStr } from "bibletags-ui-helper"
 
 const {
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
   MAXIMUM_NUMBER_OF_HISTORY,
 } = Constants.manifest.extra
 
-export default function(state = initialState, action) {
+export default (state = initialState, action) => {
 
   const newState = { ...state }
 
@@ -77,10 +75,7 @@ export default function(state = initialState, action) {
     }
 
     case "SET_VERSION_ID": {
-      if(
-        newState.passage.versionId !== action.versionId
-        && PRIMARY_VERSIONS.includes(action.versionId)
-      ) {
+      if(newState.passage.versionId !== action.versionId) {
         newState.passage = { ...newState.passage }
         newState.passage.versionId = action.versionId
 
@@ -95,12 +90,9 @@ export default function(state = initialState, action) {
       }
       return state
     }
-  
+
     case "SET_PARALLEL_VERSION_ID": {
-      if(
-        newState.passage.parallelVersionId !== action.parallelVersionId
-        && SECONDARY_VERSIONS.includes(action.parallelVersionId)
-      ) {
+      if(newState.passage.parallelVersionId !== action.parallelVersionId) {
         newState.passage = { ...newState.passage }
         newState.passage.parallelVersionId = action.parallelVersionId
 
@@ -110,6 +102,20 @@ export default function(state = initialState, action) {
           ParallelVersionId: newState.passage.parallelVersionId,
         }
         logEvent({ eventName, properties })
+
+        return newState
+      }
+      return state
+    }
+
+    case "REMOVE_PARALLEL_VERSION": {
+      if(newState.passage.parallelVersionId) {
+        newState.passage = { ...newState.passage }
+        delete newState.passage.parallelVersionId
+
+        // analytics
+        const eventName = `RemoveParallelVersion`
+        logEvent({ eventName })
 
         return newState
       }

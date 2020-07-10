@@ -1,6 +1,6 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-
+import { styled } from "@ui-kitten/components"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 // import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from "@expo/vector-icons"
 
@@ -22,6 +22,9 @@ Object.values(packs).map(({ font }) => {
 const Icon = ({
   pack='ion',
   style,
+
+  themedStyle,
+
   ...otherProps
 }) => {
 
@@ -39,10 +42,15 @@ const Icon = ({
 
   return (
     <IconComponent
-      style={adjustedStyle}
+      style={[
+        themedStyle,
+        adjustedStyle,
+      ]}
       {...otherProps}
     />
   )
 }
 
-export default Icon
+Icon.styledComponentName = 'Icon'
+
+export default styled(Icon)

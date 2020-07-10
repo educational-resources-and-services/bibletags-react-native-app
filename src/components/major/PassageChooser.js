@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
 import { StyleSheet, ScrollView, FlatList, Text, View } from "react-native"
-import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
@@ -8,12 +7,13 @@ import { i18n } from "inline-i18n"
 import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import useBibleVersions from "../../hooks/useBibleVersions"
 import { getVersionInfo, isIPhoneX } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useMemoObject from "../../hooks/useMemoObject"
 import useInstanceValue from "../../hooks/useInstanceValue"
-import { setRef, setVersionId, setParallelVersionId, setMode } from "../../redux/actions"
+import { setRef, setVersionId, setParallelVersionId, removeParallelVersion } from "../../redux/actions"
 
 import VersionChooser from "./VersionChooser"
 import ChooserBook from "../basic/ChooserBook"
@@ -21,11 +21,6 @@ import ChooserChapter from "../basic/ChooserChapter"
 
 const bookIdsPerVersion = {}
 const numChaptersPerVersionAndBook = {}
-
-const {
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
-} = Constants.manifest.extra
 
 const SPACER_BEFORE_FIRST_BOOK = 5
 const NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL = 10
@@ -80,13 +75,14 @@ const PassageChooser = ({
   parallelLabelContainerStyle,
 
   themedStyle,
+
   passage,
-  mode,
+  myBibleVersions,
 
   setRef,
   setVersionId,
   setParallelVersionId,
-  setMode,
+  removeParallelVersion,
 }) => {
 
   useBack(showing && hidePassageChooser)
@@ -99,6 +95,8 @@ const PassageChooser = ({
 
   const bookChooserRef = useRef()
   const chapterChooserRef = useRef()
+
+  const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
   const [ setScrollTimeout ] = useSetTimeout()
 
@@ -170,13 +168,13 @@ const PassageChooser = ({
     versionId => {
       setVersionId({ versionId })
 
-      if(versionId === passage.parallelVersionId && SECONDARY_VERSIONS.length > 1) {
+      if(versionId === passage.parallelVersionId && secondaryVersionIds.length > 1) {
         setParallelVersionId({
           parallelVersionId: (
-            SECONDARY_VERSIONS.includes(passage.versionId)
+            secondaryVersionIds.includes(passage.versionId)
               ? passage.versionId
-              : SECONDARY_VERSIONS[
-                SECONDARY_VERSIONS[0] !== versionId
+              : secondaryVersionIds[
+                secondaryVersionIds[0] !== versionId
                   ? 0
                   : 1
               ]
@@ -186,21 +184,20 @@ const PassageChooser = ({
 
       hidePassageChooser()
     },
-    [ setVersionId, setParallelVersionId, hidePassageChooser, passage ],
+    [ hidePassageChooser, passage ],
   )
 
   const updateParallelVersion = useCallback(
     parallelVersionId => {
-      setMode({ mode: 'parallel' })
       setParallelVersionId({ parallelVersionId })
 
-      if(parallelVersionId === passage.versionId && PRIMARY_VERSIONS.length > 1) {
+      if(parallelVersionId === passage.versionId && primaryVersionIds.length > 1) {
         setVersionId({
           versionId: (
-            PRIMARY_VERSIONS.includes(passage.parallelVersionId)
+            primaryVersionIds.includes(passage.parallelVersionId)
               ? passage.parallelVersionId
-              : PRIMARY_VERSIONS[
-                PRIMARY_VERSIONS[0] !== parallelVersionId
+              : primaryVersionIds[
+                primaryVersionIds[0] !== parallelVersionId
                   ? 0
                   : 1
               ]
@@ -210,15 +207,15 @@ const PassageChooser = ({
 
       hidePassageChooser()
     },
-    [ setVersionId, setParallelVersionId, setMode, hidePassageChooser, passage ],
+    [ hidePassageChooser, passage ],
   )
 
   const closeParallelMode = useCallback(
     () => {
-      setMode({ mode: 'basic' })
+      removeParallelVersion()
       hidePassageChooser()
     },
-    [ hidePassageChooser, setMode ],
+    [ hidePassageChooser ],
   )
 
   const updateChapter = useCallback(
@@ -235,7 +232,7 @@ const PassageChooser = ({
 
       hidePassageChooser()
     },
-    [ setRef, hidePassageChooser, bookId ],
+    [ hidePassageChooser, bookId ],
   )
   
   const updateBook = useCallback(
@@ -320,17 +317,13 @@ const PassageChooser = ({
     paddingBottom,
   })
 
-  // const showParallelVersionChooser = mode === 'parallel' && (PRIMARY_VERSIONS.length > 1 || SECONDARY_VERSIONS.length > 1)
-  // const showVersionChooser = PRIMARY_VERSIONS.length > 1 || showParallelVersionChooser
-  // const showParallelVersionChooser = mode === 'parallel' && SECONDARY_VERSIONS.length > 1
-  // const showVersionChooser = PRIMARY_VERSIONS.length > 1
   const showVersionChooser = true
 
   return (
     <View style={styles.container}>
       {showVersionChooser &&
         <VersionChooser
-          versionIds={PRIMARY_VERSIONS}
+          versionIds={primaryVersionIds}
           update={updateVersion}
           selectedVersionId={passage.versionId}
           type="primary"
@@ -357,12 +350,13 @@ const PassageChooser = ({
           </Text>
         </View>
         <VersionChooser
-          versionIds={SECONDARY_VERSIONS}
+          versionIds={secondaryVersionIds}
           update={updateParallelVersion}
-          selectedVersionId={mode === 'parallel' ? passage.parallelVersionId : null}
+          selectedVersionId={passage.parallelVersionId}
           type="secondary"
           goVersions={goVersions}
-          closeParallelMode={mode === 'parallel' ? closeParallelMode : null}
+          closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
+          hideEditVersions={true}
         />
       </View>
       <View
@@ -417,16 +411,16 @@ const PassageChooser = ({
 
 }
 
-const mapStateToProps = ({ passage, displaySettings }) => ({
+const mapStateToProps = ({ passage, myBibleVersions }) => ({
   passage,
-  mode: displaySettings.mode,
+  myBibleVersions,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
   setVersionId,
   setParallelVersionId,
-  setMode,
+  removeParallelVersion,
 }, dispatch)
 
 PassageChooser.styledComponentName = 'PassageChooser'

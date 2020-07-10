@@ -11,7 +11,8 @@ const styles = StyleSheet.create({
 })
 
 const Spin = ({ 
-  percentage, 
+  percentage,
+  size="large",
   style,
 
   themedStyle,
@@ -39,7 +40,11 @@ const Spin = ({
   }
   
   return (
-    <ActivityIndicator size="large" color={themedStyle.color} />
+    <ActivityIndicator
+      size={size}
+      color={themedStyle.color}
+      style={style}
+    />
   )
 }
 

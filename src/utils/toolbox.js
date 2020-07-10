@@ -33,46 +33,6 @@ export const isPhoneSize = () => {
   return Math.min(width, height) < 500
 }
 
-let nextIdForTimeout = 1
-const componentTimeouts = {}
-
-export const setUpTimeout = (func, ms, thisVar) => {
-
-  if(!thisVar.__idForTimeouts) {
-    thisVar.__idForTimeouts = nextIdForTimeout++
-  }
-
-  if(!componentTimeouts[thisVar.__idForTimeouts]) {
-    componentTimeouts[thisVar.__idForTimeouts] = {}
-  }
-
-  const timeout = setTimeout(() => {
-    if((componentTimeouts[thisVar.__idForTimeouts] || {})[timeout]) {
-      delete componentTimeouts[thisVar.__idForTimeouts][timeout]
-      func()
-    }
-  }, ms)
-
-  componentTimeouts[thisVar.__idForTimeouts][timeout] = true
-
-  return timeout
-}
-
-export const clearOutTimeout = (timeout, thisVar) => {
-  clearTimeout(timeout)
-  if(componentTimeouts[thisVar.__idForTimeouts]) {
-    delete componentTimeouts[thisVar.__idForTimeouts][timeout]
-  }
-}
-
-export const unmountTimeouts = function() {
-  if(componentTimeouts[this.__idForTimeouts]) {
-    Object.keys(componentTimeouts[this.__idForTimeouts]).forEach(timeout => clearOutTimeout(parseInt(timeout, 10), this))
-    delete componentTimeouts[this.__idForTimeouts]
-    delete this.__idForTimeouts
-  }
-}
-
 let netInfoIsConnectedFetch
 let isConnectedResolveFunctions = []
 

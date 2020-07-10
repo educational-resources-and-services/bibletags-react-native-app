@@ -1,24 +1,18 @@
 import React, { useCallback } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
-import Constants from "expo-constants"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { Input } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
-import { useDimensions } from "@react-native-community/hooks"
 
 import { getVersionInfo, isRTLText } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
+import useBibleVersions from "../../hooks/useBibleVersions"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
 import VersionChooser from "./VersionChooser"
-
-const {
-  PRIMARY_VERSIONS,
-  SECONDARY_VERSIONS,
-} = Constants.manifest.extra
-
-const ALL_VERSIONS = [...new Set([ ...PRIMARY_VERSIONS, ...SECONDARY_VERSIONS ])]
 
 const styles = StyleSheet.create({
   line1: {
@@ -68,10 +62,14 @@ const SearchHeader = React.memo(({
   updateEditedSearchString,
   editing,
   numberResults,
+
+  myBibleVersions,
 }) => {
 
   const { historyPush, historyReplace, historyGoBack, routerState } = useRouterState()
   const { searchString, versionId } = routerState
+
+  const { versionIds } = useBibleVersions({ myBibleVersions })
 
   const updateSearchString = useCallback(
     () => {
@@ -126,9 +124,6 @@ const SearchHeader = React.memo(({
 
   const { abbr, languageId } = getVersionInfo(versionId)
 
-  const { width } = useDimensions().window
-  const maxTitleWidth = width - 120
-
   if(editing) {
     return (
       <AppHeader>
@@ -166,7 +161,7 @@ const SearchHeader = React.memo(({
             />
           </View>
           <VersionChooser
-            versionIds={ALL_VERSIONS}
+            versionIds={versionIds}
             update={updateVersion}
             selectedVersionId={versionId}
             type="search"
@@ -209,4 +204,11 @@ const SearchHeader = React.memo(({
 
 })
 
-export default SearchHeader
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(SearchHeader)

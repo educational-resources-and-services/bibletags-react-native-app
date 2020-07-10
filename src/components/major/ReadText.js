@@ -14,6 +14,7 @@ import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
 import VerseText from "../basic/VerseText"
+import CoverAndSpin from "../basic/CoverAndSpin"
 
 const {
   DEFAULT_FONT_SIZE,
@@ -147,6 +148,7 @@ const ReadText = React.memo(({
   onLayout,
 
   themedStyle,
+
   displaySettings,
 }) => {
 
@@ -397,7 +399,9 @@ const ReadText = React.memo(({
 
   if(!pieces) {
     return (
-      <View style={viewStyles.viewContainer} />
+      <View style={viewStyles.viewContainer}>
+        <CoverAndSpin />
+      </View>
     )
   }
 

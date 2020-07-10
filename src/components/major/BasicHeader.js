@@ -17,6 +17,8 @@ const styles = StyleSheet.create({
 
 const BasicHeader = React.memo(({
   title,
+  extraButtons,
+  disableBack,
 }) => {
 
   const { historyGoBack } = useRouterState()
@@ -26,6 +28,8 @@ const BasicHeader = React.memo(({
       <HeaderIconButton
         name={I18nManager.isRTL ? "md-arrow-forward" : "md-arrow-back"}
         onPress={historyGoBack}
+        uiStatus={disableBack ? `disabled` : `unselected`}
+        disabled={!!disableBack}
       />
       <Text
         style={styles.title}
@@ -34,6 +38,7 @@ const BasicHeader = React.memo(({
       >
         {title}
       </Text>
+      {extraButtons}
     </AppHeader>
   )
 

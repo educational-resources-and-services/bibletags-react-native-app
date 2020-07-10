@@ -5,7 +5,7 @@ const {
   MAXIMUM_NUMBER_OF_HISTORY,
 } = Constants.manifest.extra
 
-export default function(state, action) {
+export default (state, action) => {
 
   const newState = { ...state }
 

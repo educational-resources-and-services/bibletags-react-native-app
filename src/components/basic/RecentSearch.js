@@ -14,6 +14,7 @@ const RecentSearch = React.memo(({
   searchString,
   versionId,
   style,
+
   themedStyle,
 
   removeRecentSearch,

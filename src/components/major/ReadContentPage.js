@@ -38,6 +38,7 @@ const ReadContentPage = React.memo(({
   style,
 
   themedStyle,
+
   passageScrollY,
   recentPassages,
   recentSearches,

@@ -23,7 +23,7 @@ import reducers from "./src/redux/reducers"
 import { logEvent } from "./src/utils/analytics"
 import { bibleFontLoads } from "./src/utils/bibleFonts"
 import updateDataStructure from "./src/utils/updateDataStructure"
-import importUsfm from "./src/utils/importUsfm"
+import syncBibleVersions from "./src/utils/syncBibleVersions"
 // import { reportReadings } from "./src/utils/syncUserData"
 import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
@@ -158,7 +158,7 @@ const App = () => {
           }),
           (async () => {
             await updateDataStructure()
-            await importUsfm()
+            await syncBibleVersions()
           })(),
           setLocale(),
         ])

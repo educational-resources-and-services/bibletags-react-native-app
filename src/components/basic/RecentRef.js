@@ -12,6 +12,7 @@ const RecentRef = React.memo(({
   passageRef,
   selected,
   style,
+
   themedStyle,
 
   history,
