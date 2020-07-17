@@ -48,6 +48,18 @@ export default (state, action) => {
       }
     }
 
+    case "REMOVE_BIBLE_VERSION": {
+      const { id } = action
+
+      newState.recentSearches = newState.recentSearches.filter(historyIndex => (
+        id !== (state.history[historyIndex] || {}).versionId
+      ))
+
+      if(newState.recentSearches.length !== state.recentSearches.length) {
+        return newState
+      }
+    }
+
   }
   
   return state
