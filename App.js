@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react"
 // import Constants from "expo-constants"
 import * as Font from "expo-font"
-import { AppLoading, Updates } from "expo"
+import { AppLoading } from "expo"
+import * as Updates from 'expo-updates'
 // import * as StoreReview from 'expo-store-review'
 import { mapping } from "@eva-design/eva"
 import { ApplicationProvider } from "@ui-kitten/components"

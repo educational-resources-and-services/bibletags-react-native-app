@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { Updates } from "expo"
+import * as Updates from 'expo-updates'
 import { AsyncStorage, StyleSheet } from "react-native"
 import { ListItem, styled } from "@ui-kitten/components"
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import Constants from "expo-constants"
-import { View, ScrollView, StyleSheet, Platform } from "react-native"
+import * as Updates from 'expo-updates'
+import { View, ScrollView, StyleSheet, Platform, AsyncStorage } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
@@ -178,30 +179,45 @@ const ReadText = React.memo(({
 
         if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
 
-        const { rows: { _array: vss } } = await executeSql({
-          versionId,
-          statement: `SELECT * FROM ${versionId}Verses WHERE loc LIKE ?`,
-          args: [
-            `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
-          ],
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-          removeWordPartDivisions: true,
-        })
+        try {
+          const { rows: { _array: vss } } = await executeSql({
+            versionId,
+            statement: `SELECT * FROM ${versionId}Verses WHERE loc LIKE ?`,
+            args: [
+              `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
+            ],
+            removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
+            removeWordPartDivisions: true,
+          })
 
-        verses.current = vss
+          verses.current = vss
 
-        const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
+          const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
 
-        const pieces = getPiecesFromUSFM({
-          usfm: vss.map(({ usfm }) => usfm).join('\n'),
-          wordDividerRegex,
-        })
+          const pieces = getPiecesFromUSFM({
+            usfm: vss.map(({ usfm }) => usfm).join('\n'),
+            wordDividerRegex,
+          })
 
-        setState({
-          pieces,
-          languageId,
-          isOriginal,
-        })
+          setState({
+            pieces,
+            languageId,
+            isOriginal,
+          })
+
+        } catch(e) {
+          // For an unknown reason, a text sometimes will not load to sqlite immediately after being downloaded.
+          // Try a single reload in such a case.
+
+          const unableToOpenSqliteLastReloadTimeKey = `unableToOpenSqliteLastReloadTime-${versionId}`
+          const unableToOpenSqliteLastReloadTime = (parseInt(await AsyncStorage.getItem(unableToOpenSqliteLastReloadTimeKey), 10) || 0)
+          const now = Date.now()
+
+          if(now - unableToOpenSqliteLastReloadTime > 1000 * 60 * 5) {
+            await AsyncStorage.setItem(unableToOpenSqliteLastReloadTimeKey, `${now}`)
+            await Updates.reloadAsync()
+          }
+        }
 
       })()
     },

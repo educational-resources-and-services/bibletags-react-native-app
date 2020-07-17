@@ -2,6 +2,7 @@ const Database = require('better-sqlite3')
 const fs = require('fs')
 const readline = require('readline')
 const stream = require('stream')
+const CryptoJS = require("react-native-crypto-js")
 
 const versionsWithHebrewOrdering = [
   "uhb",
@@ -164,6 +165,7 @@ const doubleSpacesRegex = /  +/g
   try {
 
     const params = JSON.parse(process.env.npm_config_argv).remain
+    const encryptEveryXChunks = /^encrypt/.test(params.slice(-1)[0]) ? (parseInt(params.pop().substr("encrypt=".length)) || 20) : false
     const tenant = params.pop()
     const version = params.pop()
     const folders = params
@@ -303,13 +305,33 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    console.log(`\n${version}.db successfully created and placed into ${versionsDir}\n`)
-    
+    if(encryptEveryXChunks) {
+      const appJsonUri = `./tenants/${tenant}/app.json`
+      const appJson = JSON.parse(fs.readFileSync(appJsonUri))
+      const key = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
+
+      const base64Contents = fs.readFileSync(`${versionsDir}/${version}.db`, { encoding: 'base64' })
+      const base64Slices = base64Contents.match(/.{1,11000}/g)  // ~11kb slices (was fastest)
+      const base64SlicesSomeEncrypted = base64Slices.map((slice, idx) => (
+        idx % encryptEveryXChunks === 0
+          ? `@${CryptoJS.AES.encrypt(slice, key).toString()}`
+          : slice
+      ))
+      const encryptedContents = base64SlicesSomeEncrypted.join('\n')
+      fs.writeFileSync(`${versionsDir}/${version}-encrypted.db`, encryptedContents)
+      fs.unlinkSync(`${versionsDir}/${version}.db`)
+
+      console.log(`\n${version}-encrypted.db successfully created and placed into ${versionsDir}\n`)
+  
+    } else {
+      console.log(`\n${version}.db successfully created and placed into ${versionsDir}\n`)
+    }
+
   } catch(err) {
 
     const logSyntax = () => {
-      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files [optional/path/to/second/directory/of/usfm/files] versionId tenant\``)
-      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\`\n`)
+      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files [optional/path/to/second/directory/of/usfm/files] versionId tenant [encrypt[=encryptEveryXChunks]]\`\n`)
+      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt=10\``)
       console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/uhb ../../versions/ugnt original bibletags\`\n`)
     }
 

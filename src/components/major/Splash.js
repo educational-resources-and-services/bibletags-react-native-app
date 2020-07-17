@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect, useCallback } from "react"
 import { Animated, StyleSheet, Dimensions } from "react-native"
-import { SplashScreen, Updates } from "expo"
+import * as SplashScreen from 'expo-splash-screen'
+import * as Updates from 'expo-updates'
 import Constants from "expo-constants"
 import { styled } from "@ui-kitten/components"
 
@@ -90,8 +91,8 @@ const Splash = ({
   )
 
   const onImageLoad = useCallback(
-    () => {
-      SplashScreen.hide()
+    async () => {
+      await SplashScreen.hideAsync()
 
       if(getShowDelayText()) {
         // show first line

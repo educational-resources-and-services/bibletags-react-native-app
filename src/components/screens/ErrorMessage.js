@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { Updates } from "expo"
+import * as Updates from 'expo-updates'
 import { StyleSheet, View, Text } from "react-native"
 import { i18n } from "inline-i18n"
 

@@ -2,11 +2,13 @@ import Constants from "expo-constants"
 import { AsyncStorage } from "react-native"
 import { Asset } from "expo-asset"
 import * as FileSystem from "expo-file-system"
+import CryptoJS from "react-native-crypto-js"
 
 import { getVersionInfo } from "./toolbox"
 
 const {
   DEFAULT_BIBLE_VERSIONS=['original'],
+  BIBLE_VERSIONS_FILE_SECRET="None",
 } = Constants.manifest.extra
 
 const sqliteDir = `${FileSystem.documentDirectory}SQLite`
@@ -18,6 +20,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
 
   const fileRevisionNum = `${(versionInfo || {}).fileRevisionNum || 0}`
   const fileRevisionKey = `fileRevisionNum-${id}`
+  const encrypted = !!(versionInfo || {}).encrypted
 
   let { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/${id}.db`)
 
@@ -59,14 +62,28 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
       console.log(`...via local file...`)
       await FileSystem.copyAsync({
         from: localUri,
-        to: `${sqliteDir}/${id}.db`
+        to: `${sqliteDir}/${id}${encrypted ? `-encrypted` : ``}.db`
       })
     } else {
       console.log(`...via download...`)
       await FileSystem.downloadAsync(
         uri,
-        `${sqliteDir}/${id}.db`
+        `${sqliteDir}/${id}${encrypted ? `-encrypted` : ``}.db`
       )
+    }
+
+    if(encrypted) {
+      const encryptedContent = await FileSystem.readAsStringAsync(`${sqliteDir}/${id}-encrypted.db`)
+      const unencryptedBase64 = encryptedContent
+        .split('\n')
+        .map(slice => (
+          slice.substring(0, 1) === '@'
+            ? CryptoJS.AES.decrypt(slice.substring(1), BIBLE_VERSIONS_FILE_SECRET).toString(CryptoJS.enc.Utf8)
+            : slice
+        ))
+        .join('')
+      await FileSystem.deleteAsync(`${sqliteDir}/${id}-encrypted.db`)
+      await FileSystem.writeAsStringAsync(`${sqliteDir}/${id}.db`, unencryptedBase64, { encoding: FileSystem.EncodingType.Base64 })
     }
 
     await AsyncStorage.setItem(fileRevisionKey, fileRevisionNum)

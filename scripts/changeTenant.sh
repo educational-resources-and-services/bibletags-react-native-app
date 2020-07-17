@@ -64,7 +64,7 @@ else
     # cp -R "src/utils/translations/$LANGUAGE_CODE.json" "src/utils/translations/current.json" || exit 1;
 
     # optimize assets
-    expo optimize
+    # npx expo-optimize
 
     echo "Changed tenant to $TENANT_TO_SWITCH_TO."
   fi
