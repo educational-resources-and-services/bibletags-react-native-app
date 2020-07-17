@@ -47,6 +47,7 @@ const SearchSuggestion = React.memo(({
   numberResults,
   setEditing,
   updateEditedSearchString,
+  uiStatus,
 
   themedStyle,
 }) => {
@@ -81,6 +82,7 @@ const SearchSuggestion = React.memo(({
       ]}
       button={true}
       onPress={goSearch}
+      disabled={uiStatus === 'disabled'}
     >
       <Text
         style={[

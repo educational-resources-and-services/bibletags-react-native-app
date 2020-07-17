@@ -238,6 +238,14 @@ const mapping = {
         alt1Color: "color-basic-700",
         alt2Color: "color-basic-700",
       },
+      variantGroups: {
+        uiStatus: {
+          unselected: {},
+          disabled: {
+            opacity: 0.35,
+          },
+        },
+      },
     },
     {
       component: 'SearchSuggestions',

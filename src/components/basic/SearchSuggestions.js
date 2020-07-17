@@ -5,6 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import useRouterState from "../../hooks/useRouterState"
+import useBibleVersions from "../../hooks/useBibleVersions"
 
 import SearchSuggestion from "./SearchSuggestion"
 
@@ -28,10 +29,13 @@ const SearchSuggestions = React.memo(({
   themedStyle,
 
   history,
+  myBibleVersions,
 }) => {
 
   const { routerState } = useRouterState()
   const { searchString="" } = routerState
+
+  const { versionIds } = useBibleVersions({ myBibleVersions })
 
   const searchKeys = []
   let searchHistory = history.filter(search => {
@@ -64,6 +68,7 @@ const SearchSuggestions = React.memo(({
       setEditing={setEditing}
       updateEditedSearchString={updateEditedSearchString}
       {...search}
+      uiStatus={!versionIds.includes(search.versionId) ? `disabled` : `unselected`}
     />
   )
 
@@ -81,8 +86,9 @@ const SearchSuggestions = React.memo(({
 
 })
 
-const mapStateToProps = ({ history }) => ({
+const mapStateToProps = ({ history, myBibleVersions }) => ({
   history,
+  myBibleVersions,
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
