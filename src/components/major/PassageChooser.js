@@ -96,7 +96,7 @@ const PassageChooser = ({
   const bookChooserRef = useRef()
   const chapterChooserRef = useRef()
 
-  const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
+  const { primaryVersionIds, secondaryVersionIds, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
 
   const [ setScrollTimeout ] = useSetTimeout()
 
@@ -330,35 +330,37 @@ const PassageChooser = ({
           goVersions={goVersions}
         />
       }
-      <View style={styles.versionChooserContainer}>
-        <View 
-          style={[
-            styles.parallelLabelContainer,
-            parallelLabelContainerThemedStyle,
-            parallelLabelContainerStyle,
-          ]}
-        >
-          <Text
+      {getParallelIsAvailable() &&
+        <View style={styles.versionChooserContainer}>
+          <View 
             style={[
-              styles.parallelLabel,
-              labelThemedStyle,
-              labelStyle,
+              styles.parallelLabelContainer,
+              parallelLabelContainerThemedStyle,
+              parallelLabelContainerStyle,
             ]}
-            numberOfLines={1}
           >
-            {i18n("Parallel")}
-          </Text>
+            <Text
+              style={[
+                styles.parallelLabel,
+                labelThemedStyle,
+                labelStyle,
+              ]}
+              numberOfLines={1}
+            >
+              {i18n("Parallel")}
+            </Text>
+          </View>
+          <VersionChooser
+            versionIds={secondaryVersionIds}
+            update={updateParallelVersion}
+            selectedVersionId={passage.parallelVersionId}
+            type="secondary"
+            goVersions={goVersions}
+            closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
+            hideEditVersions={true}
+          />
         </View>
-        <VersionChooser
-          versionIds={secondaryVersionIds}
-          update={updateParallelVersion}
-          selectedVersionId={passage.parallelVersionId}
-          type="secondary"
-          goVersions={goVersions}
-          closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
-          hideEditVersions={true}
-        />
-      </View>
+      }
       <View
         style={[
           styles.refChooser,

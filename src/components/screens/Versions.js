@@ -16,7 +16,7 @@ import AddVersion from "./AddVersion"
 import BasicHeader from "../major/BasicHeader"
 import VersionItem from "../basic/VersionItem"
 import HeaderIconButton from "../basic/HeaderIconButton"
-import { setMyBibleVersionsOrder, removeBibleVersion } from "../../redux/actions"
+import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
 
 const styles = StyleSheet.create({
   list: {
@@ -42,6 +42,7 @@ const Versions = ({
 
   setMyBibleVersionsOrder,
   removeBibleVersion,
+  removeParallelVersion,
 }) => {
 
   const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
@@ -52,7 +53,7 @@ const Versions = ({
 
   const { historyPush } = useRouterState()
 
-  const { versionIds, requiredVersionIds, unusedVersionIds, getVersionStatus } = useBibleVersions({ myBibleVersions })
+  const { versionIds, requiredVersionIds, unusedVersionIds, getVersionStatus, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
 
   const renderItem = ({ data: versionId, active }) => {
     const { download, downloaded } = getVersionStatus(versionId)
@@ -81,6 +82,9 @@ const Versions = ({
           ...(requiredVersionIds.includes(versionId) ? [] : [{
             title: i18n("Remove"),
             onPress: () => {
+              if(!getParallelIsAvailable({ versionIdToRemove: versionId })) {
+                removeParallelVersion()
+              }
               removeBibleVersion({
                 id: versionId,
               })
@@ -176,6 +180,7 @@ const mapStateToProps = ({ myBibleVersions }) => ({
 const matchDispatchToProps = dispatch => bindActionCreators({
   setMyBibleVersionsOrder,
   removeBibleVersion,
+  removeParallelVersion,
 }, dispatch)
 
 export default styled(connect(mapStateToProps, matchDispatchToProps)(Versions))

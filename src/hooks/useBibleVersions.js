@@ -66,6 +66,24 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [ myBibleVersions ],
   )
 
+  const getParallelIsAvailable = useCallback(
+    ({ versionIdToRemove }={}) => {
+      const newPrimaryVersionIds = versionIdToRemove ? primaryVersionIds.filter(id => versionIdToRemove !== id) : primaryVersionIds
+      const newSecondaryVersionIds = versionIdToRemove ? secondaryVersionIds.filter(id => versionIdToRemove !== id) : secondaryVersionIds
+      console.log('versionIdToRemove, ', versionIdToRemove, newPrimaryVersionIds, newSecondaryVersionIds)
+
+      return !(
+        newSecondaryVersionIds.length === 0
+        || (
+          newPrimaryVersionIds.length === 1
+          && newSecondaryVersionIds.length === 1
+          && newPrimaryVersionIds[0] === newSecondaryVersionIds[0]
+        )
+      )
+    },
+    [ primaryVersionIds, secondaryVersionIds ],
+  )
+
   return {
     versionIds,
     downloadedVersionIds,
@@ -74,6 +92,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
     unusedVersionIds,
     requiredVersionIds,
     getVersionStatus,
+    getParallelIsAvailable,
   }
 }
 
