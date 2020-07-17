@@ -1,5 +1,6 @@
 import React from "react"
 import { Dimensions, I18nManager, AsyncStorage } from "react-native"
+import * as Updates from 'expo-updates'
 import NetInfo from "@react-native-community/netinfo"
 import Constants from "expo-constants"
 import * as SQLite from "expo-sqlite"
@@ -60,7 +61,21 @@ export const executeSql = async ({ versionId, statement, args, statements, remov
   const db = SQLite.openDatabase(`${versionId}.db`)
   const resultSets = []
 
-  const logDBError = error => console.log(`ERROR when running executeSql: ${error}`, error)
+  const logDBError = async error => {
+    console.log(`ERROR when running executeSql: ${error}`, error)
+
+    // For an unknown reason, a text sometimes will not load to sqlite immediately after being downloaded.
+    // Try a single reload in such a case.
+
+    const unableToOpenSqliteLastReloadTimeKey = `unableToOpenSqliteLastReloadTime-${versionId}`
+    const unableToOpenSqliteLastReloadTime = (parseInt(await AsyncStorage.getItem(unableToOpenSqliteLastReloadTimeKey), 10) || 0)
+    const now = Date.now()
+
+    if(now - unableToOpenSqliteLastReloadTime > 1000 * 60 * 5) {
+      await AsyncStorage.setItem(unableToOpenSqliteLastReloadTimeKey, `${now}`)
+      await Updates.reloadAsync()
+    }
+  }
 
   await new Promise(resolveAll => {
     db.transaction(
