@@ -81,6 +81,7 @@ const SearchSuggestions = React.memo(({
         themedStyle,
         style,
       ]}
+      keyboardShouldPersistTaps={'handled'}
     />
   )
 
