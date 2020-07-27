@@ -176,11 +176,13 @@ const ReadText = React.memo(({
     () => {
       (async () => {
 
+        if(!bookId) return  // adjacent to beginning or end of Bible
         if(!bibleVersions.some(({ id }) => id === versionId)) return  // failsafe
 
         const { rows: { _array: vss } } = await executeSql({
           versionId,
-          statement: `SELECT * FROM ${versionId}Verses WHERE loc LIKE ?`,
+          bookId,
+          statement: () => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc LIKE ?`,
           args: [
             `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
           ],

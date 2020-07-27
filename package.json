@@ -45,6 +45,7 @@
     "expo-store-review": "~2.1.2",
     "expo-updates": "~0.2.8",
     "find-in-files": "0.5.0",
+    "fs-extra": "^9.0.1",
     "inline-i18n": "github:educational-resources-and-services/inline-i18n#beddb5c27699468712680760c677d4f0f80b8597",
     "moment": "2.27.0",
     "react": "16.11.0",

@@ -15,6 +15,48 @@ const {
   MAXIMUM_NUMBER_OF_RECENT,
 } = Constants.manifest.extra
 
+const hebrewOrderingOfBookIds = [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  9,
+  10,
+  11,
+  12,
+  23,
+  24,
+  26,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  19,
+  20,
+  18,
+  22,
+  8,
+  25,
+  21,
+  17,
+  27,
+  15,
+  16,
+  13,
+  14,
+]
+
 // const cachedSizes = {}
 
 export const cloneObj = obj => JSON.parse(JSON.stringify(obj))
@@ -53,13 +95,20 @@ export const isConnected = () => new Promise(resolve => {
   }
 })
 
-export const executeSql = async ({ versionId, statement, args, statements, removeCantillation, removeWordPartDivisions }) => {
+export const executeSql = async ({
+  versionId,
+  bookId,
+  statement,
+  args,
+  limit,
+  statements,
+  removeCantillation,
+  removeWordPartDivisions,
+}) => {
   const versionInfo = getVersionInfo(versionId)
+  const queryingSingleBook = !!bookId
 
   if(!versionInfo) return null
-
-  const db = SQLite.openDatabase(`${versionId}.db`)
-  const resultSets = []
 
   const logDBError = async error => {
     console.log(`ERROR when running executeSql: ${error}`, error)
@@ -77,33 +126,71 @@ export const executeSql = async ({ versionId, statement, args, statements, remov
     }
   }
 
-  await new Promise(resolveAll => {
-    db.transaction(
-      tx => {
-
-        if(statement) {
-          statements = [{
-            statement,
-            args,
-          }]
-        }
-
-        for(let idx in statements) {
-          const { statement, args=[] } = statements[idx]
-
-          tx.executeSql(
-            statement,
-            args,
-            (x, resultSet) => resultSets[idx] = resultSet,
-            logDBError
-          )
-        }
-
-      },
-      logDBError,
-      resolveAll
-    )
+  const getEmptyResultSet = () => ({
+    rows: {
+      _array: [],
+    },
   })
+
+  const resultSets = [ statement ? getEmptyResultSet() : statements.map(() => getEmptyResultSet()) ]
+
+  const executeSqlForBook = async bookId => {
+    try {
+
+      const db = SQLite.openDatabase(`${versionId}/${bookId}.db`)
+
+      await new Promise(resolveAll => {
+        db.transaction(
+          tx => {
+
+            if(statement) {
+              statements = [{
+                statement,
+                args,
+                limit,
+              }]
+            }
+
+            for(let idx in statements) {
+              const { statement, args=[] } = statements[idx]
+              const limit = statements[idx].limit - resultSets[idx].rows._array.length
+
+              if(Number.isInteger(limit) && limit <= 0) continue
+
+              tx.executeSql(
+                statement({
+                  bookId,
+                  limit,
+                }),
+                args,
+                (x, resultSet) => {
+                  if(queryingSingleBook) {
+                    resultSets[idx] = resultSet
+                  } else {
+                    resultSets[idx].rows._array.splice(resultSets[idx].rows._array.length, 0, ...resultSet.rows._array)
+                  }
+                },
+                logDBError,
+              )
+            }
+
+          },
+          logDBError,
+          resolveAll,
+        )
+      })
+
+    } catch(e) {}
+  }
+
+  if(queryingSingleBook) {
+    await executeSqlForBook(bookId)
+  } else {
+    const orderedBookIds = versionInfo.hebrewOrdering ? hebrewOrderingOfBookIds : Array(66).fill().map((x, idx) => idx+1)
+    for(let idx in orderedBookIds) {
+      await executeSqlForBook(orderedBookIds[idx])
+    }
+  }
 
   if(versionInfo.isOriginal && ['heb', 'heb+grk'].includes(versionInfo.languageId)) {
     resultSets.forEach(resultSet => {

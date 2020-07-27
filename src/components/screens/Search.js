@@ -87,15 +87,15 @@ const Search = ({
         }
         logEvent({ eventName, properties })
 
-        const limit = `LIMIT ${MAX_RESULTS}`
-        const order = `ORDER BY bookOrdering, loc`
+        const order = `ORDER BY loc`
 
         const { rows: { _array: verses } } = await executeSql({
           versionId,
-          statement: `SELECT * FROM ${versionId}Verses WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} ${limit}`,
+          statement: ({ bookId, limit }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} LIMIT ${limit}`,
           args: [
             `% ${escapeLike(searchString)} %`,
           ],
+          limit: MAX_RESULTS,
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
           removeWordPartDivisions: true,
         })

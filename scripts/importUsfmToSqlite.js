@@ -1,55 +1,10 @@
 const Database = require('better-sqlite3')
-const fs = require('fs')
+const fs = require('fs-extra')
 const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 
-const versionsWithHebrewOrdering = [
-  "uhb",
-  "haedut",
-]
-
-const hebrewOrderingOfBookIds = [
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  9,
-  10,
-  11,
-  12,
-  23,
-  24,
-  26,
-  28,
-  29,
-  30,
-  31,
-  32,
-  33,
-  34,
-  35,
-  36,
-  37,
-  38,
-  39,
-  19,
-  20,
-  18,
-  22,
-  8,
-  25,
-  21,
-  17,
-  27,
-  15,
-  16,
-  13,
-  14,
-]
+const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
 const bookAbbrs = [
   "",
@@ -137,6 +92,20 @@ const getLocFromRef = ({ bookId, chapter, verse }) => (
   `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+verse).substr(-3)}`
 )
 
+const sliceStr = ({ str, sliceSize }) => {
+  const slices = []
+  for(let i=0, length=str.length; i<length; i+=sliceSize) {
+    slices.push(str.substring(i, i + sliceSize))
+  }
+  return slices
+}
+
+const removeIndent = str => {
+  const lines = str.split(`\n`)
+  const numSpacesInIndent = (lines[0] || lines[1]).match(/^ */)[0].length
+  return lines.map(line => line.replace(new RegExp(` {1,${numSpacesInIndent}}`), ``)).join(`\n`)
+}
+
 // See the Search component for some of the same variables
 const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|h|toc[0-9]*)(?: .*)?$/
@@ -160,7 +129,7 @@ const doubleSpacesRegex = /  +/g
 
 ;(async () => {
 
-  let version, versionsDir
+  let versionDir
 
   try {
 
@@ -169,45 +138,40 @@ const doubleSpacesRegex = /  +/g
     const tenant = params.pop()
     const version = params.pop()
     const folders = params
-    
-    versionsDir = `./tenants/${tenant}/assets/versions`
+    const requires = Array(66).fill()
 
-    const db = new Database(`${versionsDir}/${version}.db`)
+    const tenantDir = `./tenants/${tenant}`
+    const versionsDir = `${tenantDir}/assets/versions`
+    versionDir = `${versionsDir}/${version}`
+    const encryptedVersionDir = `${versionDir}-encrypted`
 
-    const create = db.prepare(
-      `CREATE TABLE ${version}Verses (
-        loc TEXT PRIMARY KEY,
-        bookOrdering INTEGER,
-        usfm TEXT COLLATE NOCASE,
-        search TEXT COLLATE NOCASE
-      );`
-    )
+    if(!tenant) {
+      throw new Error(`NO_PARAMS`)
+    }
 
-    create.run()
-    
-    const index1 = db.prepare(
-      `CREATE INDEX bookOrdering_idx ON ${version}Verses (bookOrdering);`
-    )
+    if(!await fs.pathExists(tenantDir)) {
+      throw new Error(`Invalid tenant.`)
+    }
 
-    index1.run()
+    await fs.remove(versionDir)
+    await fs.remove(encryptedVersionDir)
+    await fs.ensureDir(versionDir)
 
-    const insert = db.prepare(`INSERT INTO ${version}Verses (loc, bookOrdering, usfm, search) VALUES (@loc, @bookOrdering, @usfm, @search)`)
-
-    const insertMany = db.transaction((verses) => {
-      for(const verse of verses) insert.run(verse)
-    })
+    if(encryptEveryXChunks) {
+      await fs.ensureDir(encryptedVersionDir)
+    }
 
     // loop through folders
     for(let folder of folders) {
 
       // loop through all files, parse them and do the inserts
-      const files = fs.readdirSync(folder)
+      const files = await fs.readdir(folder)
 
       for(let file of files) {
         if(!file.match(/\.u?sfm$/i)) continue
 
         const input = fs.createReadStream(`${folder}/${file}`)
-        let bookId, chapter
+        let bookId, chapter, insertMany, dbFilePath
         const verses = []
         let lastVerse = 0
         let goesWithNextVsText = []
@@ -222,7 +186,28 @@ const doubleSpacesRegex = /  +/g
             bookId = bookAbbrs.indexOf(bookAbbr)
       
             if(bookId < 1) break
-      
+
+            dbFilePath = `${versionDir}/${bookId}.db`
+            const db = new Database(dbFilePath)
+
+            const tableName = `${version}VersesBook${bookId}`
+
+            const create = db.prepare(
+              `CREATE TABLE ${tableName} (
+                loc TEXT PRIMARY KEY,
+                usfm TEXT COLLATE NOCASE,
+                search TEXT COLLATE NOCASE
+              );`
+            )
+
+            create.run()
+
+            const insert = db.prepare(`INSERT INTO ${tableName} (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
+
+            insertMany = db.transaction((verses) => {
+              for(const verse of verses) insert.run(verse)
+            })
+
             console.log(`Importing ${bookAbbr}...`)
             continue
 
@@ -265,7 +250,6 @@ const doubleSpacesRegex = /  +/g
                 ...goesWithNextVsText,
                 line,
               ],
-              bookOrdering: versionsWithHebrewOrdering.includes(version) ? hebrewOrderingOfBookIds.indexOf(bookId) + 1 : bookId,
             })
             goesWithNextVsText = []
             continue
@@ -301,69 +285,94 @@ const doubleSpacesRegex = /  +/g
 
         console.log(`  ...inserted ${verses.length} verses.`)
 
+        if(encryptEveryXChunks) {
+          const appJsonUri = `./tenants/${tenant}/app.json`
+          const appJson = await fs.readJson(appJsonUri)
+          const key = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
+    
+          const base64Contents = await fs.readFile(dbFilePath, { encoding: 'base64' })
+          const base64Slices = sliceStr({ str: base64Contents, sliceSize: ENCRYPT_CHUNK_SIZE })
+          const base64SlicesSomeEncrypted = base64Slices.map((slice, idx) => (
+            idx % encryptEveryXChunks === 0
+              ? `@${CryptoJS.AES.encrypt(slice, key).toString()}`
+              : slice
+          ))
+          const encryptedContents = base64SlicesSomeEncrypted.join('\n')
+          await fs.writeFile(`${encryptedVersionDir}/${bookId}.db`, encryptedContents)
+        }
+
+        requires[bookId-1] = `require("./${bookId}.db"),`
+
       }
 
     }
 
     if(encryptEveryXChunks) {
-      const appJsonUri = `./tenants/${tenant}/app.json`
-      const appJson = JSON.parse(fs.readFileSync(appJsonUri))
-      const key = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
-
-      const base64Contents = fs.readFileSync(`${versionsDir}/${version}.db`, { encoding: 'base64' })
-      const base64Slices = base64Contents.match(/.{1,11000}/g)  // ~11kb slices (was fastest)
-      const base64SlicesSomeEncrypted = base64Slices.map((slice, idx) => (
-        idx % encryptEveryXChunks === 0
-          ? `@${CryptoJS.AES.encrypt(slice, key).toString()}`
-          : slice
-      ))
-      const encryptedContents = base64SlicesSomeEncrypted.join('\n')
-      fs.writeFileSync(`${versionsDir}/${version}-encrypted.db`, encryptedContents)
-      fs.unlinkSync(`${versionsDir}/${version}.db`)
-
-      console.log(`\n${version}-encrypted.db successfully created and placed into ${versionsDir}\n`)
-  
-    } else {
-      console.log(`\n${version}.db successfully created and placed into ${versionsDir}\n`)
+      await fs.remove(versionDir)
     }
+
+    const requiresContent = removeIndent(`
+      const requires = [
+        ${requires.join(`\n        `)}
+      ]
+
+      export default requires 
+    `)
+
+    await fs.writeFile(`${encryptEveryXChunks ? encryptedVersionDir : versionDir}/requires.js`, requiresContent)
+
+    console.log(removeIndent(`
+      Successfully created db files and placed them into \`${encryptEveryXChunks ? encryptedVersionDir : versionDir}\`. Use the following code in versions.js:
+
+        import ${version}Requires from './assets/versions/${version}${encryptEveryXChunks ? `-encrypted` : ``}/requires'
+
+        ...
+
+        const bibleVersions = [
+          ...
+          {
+            id: '${version}',
+            files: ${version}Requires,
+            ${
+              encryptEveryXChunks
+                ? `encrypted: true,\n            ...`
+                : `...`
+            }
+          },
+          ...
+        ]
+
+    `))
 
   } catch(err) {
 
     const logSyntax = () => {
       console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files [optional/path/to/second/directory/of/usfm/files] versionId tenant [encrypt[=encryptEveryXChunks]]\`\n`)
-      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt=10\``)
-      console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/uhb ../../versions/ugnt original bibletags\`\n`)
+      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\``)
+      console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt\``)
+      console.log(`Example #3: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt=10\``)
+      console.log(`Example #4: \`npm run usfm-to-sqlite -- ../../versions/uhb ../../versions/ugnt original bibletags\`\n`)
+      console.log(`Note: You may completely encrypt a version by sending encrypt=1. However, this will cause a significant performance hit when the text is first loaded. The bare \`encrypt\` flag will default to encrypting every 20 chunks. Do not include this flag to leave the file(s) unencrypted.\n`)
     }
 
     switch(err.message.split(',')[0]) {
 
-      case `table ${version}Verses already exists`: {
-        console.log(`\nERROR: The table ${version}Verses already exists in ${versionsDir}/${version}.db\n`)
-        break
-      }
-
-      case `Cannot open database because the directory does not exist`: {
-        console.log(`\nERROR: Invalid tenant\n`)
-        logSyntax()
-        break
-      }
-
-      case `Cannot read property 'split' of undefined`: {
-        console.log(`\nERROR: missing parameters\n`)
+      case `NO_PARAMS`: {
         logSyntax()
         break
       }
 
       case `ENOENT: no such file or directory`: {
-        try { fs.unlinkSync(`${versionsDir}/${version}.db`) } catch(e) {}
-        console.log(`\nERROR: invalid path\n`)
+        await fs.remove(versionDir)
+        console.log(`\nERROR: Invalid path supplied.\n`)
         logSyntax()
         break
       }
 
       default: {
-        try { fs.unlinkSync(`${versionsDir}/${version}.db`) } catch(e) {}
+        await fs.remove(versionDir)
         console.log(`\nERROR: ${err.message}\n`)
+        logSyntax()
       }
 
     }

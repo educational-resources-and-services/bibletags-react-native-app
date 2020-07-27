@@ -70,7 +70,6 @@ const useBibleVersions = ({ myBibleVersions }) => {
     ({ versionIdToRemove }={}) => {
       const newPrimaryVersionIds = versionIdToRemove ? primaryVersionIds.filter(id => versionIdToRemove !== id) : primaryVersionIds
       const newSecondaryVersionIds = versionIdToRemove ? secondaryVersionIds.filter(id => versionIdToRemove !== id) : secondaryVersionIds
-      console.log('versionIdToRemove, ', versionIdToRemove, newPrimaryVersionIds, newSecondaryVersionIds)
 
       return !(
         newSecondaryVersionIds.length === 0
