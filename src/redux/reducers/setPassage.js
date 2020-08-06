@@ -15,27 +15,33 @@ export default (state = initialState, action) => {
 
     case "SET_REF": {
 
-      newState.history = [ ...newState.history ]
+      const refsAlreadyMatch = refsMatch(newState.passage.ref, action.ref)
 
-      // take care of history
-      newState.history.unshift({
-        ...newState.passage,
-        ref: {
-          ...newState.passage.ref,
-          scrollY: newState.passageScrollY,
-        },
-        type: 'passage',
-        lastViewTime: Date.now(),
-      })
-      newState.history.splice(MAXIMUM_NUMBER_OF_HISTORY, newState.history.length)
-      newState.recentPassages = newState.recentPassages.map(index => index === 'current' ? 0 : index + 1)
-      if(action.wasSwipe) {
-        newState.recentPassages = newState.recentPassages.filter(index => index !== 0)
+      if(!refsAlreadyMatch) {
+
+        newState.history = [ ...newState.history ]
+
+        // take care of history
+        newState.history.unshift({
+          ...newState.passage,
+          ref: {
+            ...newState.passage.ref,
+            scrollY: newState.passageScrollY,
+          },
+          type: 'passage',
+          lastViewTime: Date.now(),
+        })
+        newState.history.splice(MAXIMUM_NUMBER_OF_HISTORY, newState.history.length)
+        newState.recentPassages = newState.recentPassages.map(index => index === 'current' ? 0 : index + 1)
+        if(action.wasSwipe) {
+          newState.recentPassages = newState.recentPassages.filter(index => index !== 0)
+        }
+        newState.recentSearches = newState.recentSearches.map(index => index + 1)
+        newState.recentPassages.unshift('current')
+
       }
-      newState.recentSearches = newState.recentSearches.map(index => index + 1)
-      newState.recentPassages.unshift('current')
 
-      if(!refsMatch(newState.passage.ref, action.ref)) {
+      if(!refsAlreadyMatch || action.ref.verse) {
 
         newState.passage = { ...newState.passage }
         newState.passage.ref = { ...newState.passage.ref }
@@ -53,6 +59,14 @@ export default (state = initialState, action) => {
           newState.passageScrollY = action.ref.scrollY
         }
 
+        if(action.ref.verse) {
+          newState.passageScrollY = { verse: action.ref.verse }
+        }
+
+      }
+
+      if(!refsAlreadyMatch) {
+
         // take care of recentPassages and recentSearches
         updateRecentLists({ newState })
 
@@ -63,6 +77,9 @@ export default (state = initialState, action) => {
         }
         logEvent({ eventName, properties })
 
+      }
+
+      if(!refsAlreadyMatch || action.ref.verse) {
         return newState
       }
 

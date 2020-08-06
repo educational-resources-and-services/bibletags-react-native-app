@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from "react"
+import React, { useRef, useCallback, useState } from "react"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -46,6 +46,15 @@ const ReadContentPage = React.memo(({
   setPassageScroll,
 }) => {
 
+  const [ focussedVerse, setFocussedVerse ] = useState(
+    (
+      !direction
+      && passageScrollY
+      && typeof passageScrollY === 'object'
+      && passageScrollY.verse
+    ) || undefined
+  )
+
   const adjacentRefs = useAdjacentRefs(passage)
 
   const { ref, versionId, parallelVersionId } = passage
@@ -57,11 +66,32 @@ const ReadContentPage = React.memo(({
   const secondaryContentHeight = useRef(0)
   const primaryHeight = useRef(0)
   const secondaryHeight = useRef(0)
+  const numberOfVersesInPrimary = useRef(0)
 
-  const onPrimaryTouchStart = useCallback(() => onTouchStart('primary'), [ onTouchStart ])
-  const onSecondaryTouchStart = useCallback(() => onTouchStart('secondary'), [ onTouchStart ])
+  const onPrimaryTouchStart = useCallback(
+    event => {
+      event && setFocussedVerse()
+      onTouchStart('primary')
+    },
+    [ onTouchStart ],
+  )
 
-  const onPrimaryLayout = useCallback(({ nativeEvent }) => primaryHeight.current = nativeEvent.layout.height, [])
+  const onSecondaryTouchStart = useCallback(
+    event => {
+      event && setFocussedVerse()
+      onTouchStart('secondary')
+    },
+    [ onTouchStart ],
+  )
+
+  const onPrimaryLayout = useCallback(
+    ({ nativeEvent }) => {
+      primaryHeight.current = nativeEvent.layout.height
+      checkPrimaryLoaded()
+    },
+    [],
+  )
+
   const onSecondaryLayout = useCallback(({ nativeEvent }) => secondaryHeight.current = nativeEvent.layout.height, [])
 
   const getScrollFactor = useCallback(
@@ -119,7 +149,14 @@ const ReadContentPage = React.memo(({
     [ onPrimaryTouchStart, onPrimaryScroll ],
   )
 
-  const onPrimaryContentSizeChange = useCallback((contentWidth, contentHeight) => primaryContentHeight.current = contentHeight, [])
+  const onPrimaryContentSizeChange = useCallback(
+    (contentWidth, contentHeight) => {
+      primaryContentHeight.current = contentHeight
+      checkPrimaryLoaded()
+    },
+    [],
+  )
+
   const onSecondaryContentSizeChange = useCallback(
     (contentWidth, contentHeight) => {
       secondaryContentHeight.current = contentHeight
@@ -128,10 +165,30 @@ const ReadContentPage = React.memo(({
     [ setUpParallelScroll ],
   )
 
+  const reportNumberOfVerses = useCallback(num => { numberOfVersesInPrimary.current = num }, [])
 
-  const onPrimaryLoaded = useCallback(
+  const checkPrimaryLoaded = useCallback(
     () => {
-      primaryScrollY.current = passageScrollY
+      if(!(
+        primaryHeight.current
+        && primaryContentHeight.current
+      )) return  // something is not ready yet
+
+      if(Number.isInteger(passageScrollY)) {
+        primaryScrollY.current = passageScrollY
+
+      } else {
+        const { verse } = passageScrollY || {}
+        if(verse && numberOfVersesInPrimary.current) {
+          const avgHeightPerVerse = parseInt(primaryContentHeight.current / numberOfVersesInPrimary.current, 10)
+          const toMiddleAdjustment = parseInt((primaryHeight.current - avgHeightPerVerse) / 2, 10)
+          const primaryMaxScroll = Math.max(primaryContentHeight.current - primaryHeight.current, 0)
+          primaryScrollY.current = Math.max(0, Math.min(avgHeightPerVerse * (verse - 1) - toMiddleAdjustment, primaryMaxScroll))
+        } else {
+          primaryScrollY.current = 0
+        }
+      }
+
       const doInitialScroll = () => primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
 
       doInitialScroll
@@ -197,16 +254,17 @@ const ReadContentPage = React.memo(({
                 : null
             )
         }
+        focussedVerse={focussedVerse}
         onTouchStart={!direction ? onPrimaryTouchStart : null}
         onTouchEnd={!direction ? onTouchEnd : null}
         onScroll={!direction ? onPrimaryScroll : null}
         onLayout={!direction ? onPrimaryLayout : null}
         onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
-        onLoaded={!direction ? onPrimaryLoaded : null}
         onVerseTap={!direction ? onPrimaryVerseTap : null}
         forwardRef={!direction ? primaryRef : null}
         isVisible={!direction}
         leavePaddingForRecentSection={!parallelVersionId && recentPassages.length + recentSearches.length > 1}
+        reportNumberOfVerses={reportNumberOfVerses}
       />
       {!!parallelVersionId &&
         <>
@@ -230,6 +288,7 @@ const ReadContentPage = React.memo(({
                     : null
                 )
             }
+            focussedVerse={focussedVerse}
             onTouchStart={!direction ? onSecondaryTouchStart : null}
             onTouchEnd={!direction ? onTouchEnd : null}
             onScroll={!direction ? onSecondaryScroll : null}

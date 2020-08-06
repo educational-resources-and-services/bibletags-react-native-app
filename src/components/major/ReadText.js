@@ -135,6 +135,7 @@ const ReadText = React.memo(({
   versionId,
   passageRef,
   selectedVerse,
+  focussedVerse,
   isVisible,
   leavePaddingForRecentSection,
   isParallel,
@@ -146,6 +147,7 @@ const ReadText = React.memo(({
   onTouchStart,
   onTouchEnd,
   onLayout,
+  reportNumberOfVerses,
 
   themedStyle,
 
@@ -191,6 +193,8 @@ const ReadText = React.memo(({
         })
 
         verses.current = vss
+
+        reportNumberOfVerses && reportNumberOfVerses(vss.length)
 
         const { wordDividerRegex, languageId, isOriginal=false } = getVersionInfo(versionId)
 
@@ -356,6 +360,11 @@ const ReadText = React.memo(({
                 ? { color: '#000000' }
                 : { color: '#bbbbbb' }
             )),
+            (focussedVerse !== undefined && (
+              verse === focussedVerse
+                ? { color: '#000000' }
+                : { color: '#999999' }
+            )),
           ].filter(s => s)
 
           textAlreadyDisplayedInThisView = true
@@ -396,7 +405,7 @@ const ReadText = React.memo(({
 
       return getJSXFromPieces({ pieces })
     },
-    [ pieces, displaySettings, selectedVerse, bookId, languageId, isOriginal ],
+    [ pieces, displaySettings, selectedVerse, focussedVerse, bookId, languageId, isOriginal ],
   )
 
   if(!pieces) {
