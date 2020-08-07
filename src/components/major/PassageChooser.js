@@ -91,14 +91,14 @@ const PassageChooser = ({
   const [ chapter, setChapter ] = useState()
   const [ bookChooserHeight, setBookChooserHeight ] = useState(0)
   const [ chapterChooserHeight, setChapterChooserHeight ] = useState(0)
-  const [ chapterChooserScrollHeight, setChapterChooserScrollHeight ] = useState(0)
 
   const bookChooserRef = useRef()
   const chapterChooserRef = useRef()
+  const chapterChooserScrollHeight = useRef(0)
 
   const { primaryVersionIds, secondaryVersionIds, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
 
-  const [ setScrollTimeout ] = useSetTimeout()
+  const [ setUpdatePassageInUITimeout ] = useSetTimeout()
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [ parallelLabelContainerThemedStyle={}, bookListThemedStyle={}, extras={} ] = altThemedStyleSets
@@ -106,22 +106,13 @@ const PassageChooser = ({
 
   useEffect(
     () => {
-      if(showing) {
-        setBookId(passage.ref.bookId)
-        setChapter(passage.ref.chapter)
-      }
-    }, 
-    [ showing ],
-  )
-
-  useEffect(
-    () => {
-      // Put them in a timeout so that it doesn't jump when user is tapping a chooser change.
-      setScrollTimeout(() => {
+      setBookId(passage.ref.bookId)
+      setChapter(passage.ref.chapter)
+      setUpdatePassageInUITimeout(() => {
         scrollToChosenBook()()
-        scrollToChosenChapter()()
-      }, 500)
-    }, 
+        scrollToChosenChapter()()  // might not work if changing book and num chapters differs, but that's okay as it is called again by onChaptersContentSizeChange
+      }, 300)
+    },
     [ passage ],
   )
 
@@ -144,7 +135,7 @@ const PassageChooser = ({
 
   const scrollToChosenChapter = useInstanceValue(() => {
     const { chapter } = passage.ref
-    const maxScroll = chapterChooserScrollHeight - chapterChooserHeight
+    const maxScroll = chapterChooserScrollHeight.current - chapterChooserHeight
     const numChapters = getNumChapters()
 
     if(maxScroll <= 0) return
@@ -305,15 +296,16 @@ const PassageChooser = ({
 
   const onBooksLayout = useCallback(({ nativeEvent: { layout: { height: bookChooserHeight }}}) => setBookChooserHeight(bookChooserHeight), [])
   const onChaptersLayout = useCallback(({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => setChapterChooserHeight(chapterChooserHeight), [])
-  const onChaptersContentSizeChange = useCallback((x, chapterChooserScrollHeight) => setChapterChooserScrollHeight(chapterChooserScrollHeight), [])
-
+  const onChaptersContentSizeChange = useCallback(
+    (x, chChooserScrollHt) => {
+      chapterChooserScrollHeight.current = chChooserScrollHt
+      scrollToChosenChapter()()
+    },
+    [],
+  )
 
   const extraData = useMemoObject({
     bookId,
-    chapter,
-    bookChooserHeight,
-    chapterChooserHeight,
-    chapterChooserScrollHeight,
     paddingBottom,
   })
 

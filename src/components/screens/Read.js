@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react"
-import { StyleSheet, View, StatusBar, TouchableWithoutFeedback } from "react-native"
+import { StyleSheet, View, TouchableWithoutFeedback } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
 import { Switch, Route } from "react-router-native"
@@ -68,8 +68,9 @@ const Read = () => {
     [],
   )
 
-  const statusBarHeight = StatusBar.currentHeight || 0
   const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
+  let passageChooserPaddingAdjustment = Platform.OS === 'ios' ? -15 : 10
+  if(isIPhoneX) passageChooserPaddingAdjustment += 20
   const hideStatusBar = showingPassageChooser
 
   return (
@@ -85,7 +86,7 @@ const Read = () => {
           <IPhoneXBuffer extraSpace={true} />
           <PassageChooser
             hidePassageChooser={hidePassageChooser}
-            paddingBottom={height - statusBarHeight - adjustedPassageChooserHeight}
+            paddingBottom={height - adjustedPassageChooserHeight + passageChooserPaddingAdjustment}
             showing={showingPassageChooser}
             goVersions={goVersions}
           />
