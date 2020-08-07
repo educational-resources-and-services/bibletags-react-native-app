@@ -34,8 +34,14 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
   },
-  searchResults: {
+  searchResultsContentContainer: {
     paddingBottom: 20,
+  },
+  searchResults: {
+    flex: 1,
+  },
+  searchContainer: {
+    flex: 1,
   },
 })
 
@@ -271,7 +277,7 @@ const Search = ({
         editedSearchString={editedSearchString}
         updateEditedSearchString={updateEditedSearchString}
       />
-      <View>
+      <View style={styles.searchContainer}>
         {editing &&
           <SearchSuggestions
             editedSearchString={editedSearchString}
@@ -293,20 +299,20 @@ const Search = ({
           </View>
         }
         {!editing && searchDone && searchResults.length > 0 &&
-          <View style={styles.searchResults}>
-            <FlatList
-              data={searchResults}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              extraData={selectedLoc}
-              scrollEventThrottle={16}
-              onScroll={onScroll}
-              viewabilityConfig={viewabilityConfig}
-              onViewableItemsChanged={onViewableItemsChanged}
-              initialNumToRender={scrollInfo.current.numToRender}
-              ref={resultsListRef}
-            />
-          </View>
+          <FlatList
+            data={searchResults}
+            renderItem={renderItem}
+            keyExtractor={keyExtractor}
+            extraData={selectedLoc}
+            scrollEventThrottle={16}
+            onScroll={onScroll}
+            viewabilityConfig={viewabilityConfig}
+            onViewableItemsChanged={onViewableItemsChanged}
+            initialNumToRender={scrollInfo.current.numToRender}
+            ref={resultsListRef}
+            style={styles.searchResults}
+            contentContainerStyle={styles.searchResultsContentContainer}
+          />
         }
       </View>
       {!editing && !searchDone && <CoverAndSpin />}

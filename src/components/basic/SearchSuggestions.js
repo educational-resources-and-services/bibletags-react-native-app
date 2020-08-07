@@ -12,9 +12,11 @@ import SearchSuggestion from "./SearchSuggestion"
 const MAX_SEARCH_RESULTS = 15
 
 const styles = StyleSheet.create({
-  list: {
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
     paddingVertical: 10,
-    height: '100%',
   },
 })
 
@@ -81,6 +83,7 @@ const SearchSuggestions = React.memo(({
         themedStyle,
         style,
       ]}
+      contentContainerStyle={styles.contentContainer}
       keyboardShouldPersistTaps={'handled'}
     />
   )
