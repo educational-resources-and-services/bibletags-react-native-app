@@ -118,9 +118,10 @@ const ReadContent = React.memo(({
   const onPageSwipeEnd = useCallback(
     ({ nativeEvent }) => {
       const { x } = nativeEvent.contentOffset
+      const scrollDiff = parseInt(x, 10) - parseInt(width, 10)
 
-      if(x !== width) {
-        let goPrev = x < width
+      if(scrollDiff) {
+        let goPrev = scrollDiff < 0
         if(Platform.OS === 'android' && I18nManager.isRTL) goPrev = !goPrev
         const ref = adjacentRefs[ goPrev ? 'previous' : 'next' ]
 
