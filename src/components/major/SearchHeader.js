@@ -1,4 +1,4 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useState, useEffect } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -69,7 +69,18 @@ const SearchHeader = React.memo(({
   const { historyPush, historyReplace, historyGoBack, routerState } = useRouterState()
   const { searchString, versionId } = routerState
 
+  const [ editedVersionId, setEditedVersionId ] = useState(versionId)
+
   const { versionIds } = useBibleVersions({ myBibleVersions })
+
+  useEffect(
+    () => {
+      if(versionId !== editedVersionId) {
+        setEditedVersionId(versionId)
+      }
+    },
+    [ versionId ],
+  )
 
   const updateSearchString = useCallback(
     () => {
@@ -85,11 +96,12 @@ const SearchHeader = React.memo(({
       historyReplace(null, {
         ...routerState,
         searchString,
+        versionId: editedVersionId,
         initialScrollInfo: {},
         editOnOpen: false,
       })
     },
-    [ setEditing, editedSearchString, routerState ],
+    [ setEditing, editedSearchString, routerState, editedVersionId ],
   )
 
   const onCancel = useCallback(
@@ -99,11 +111,11 @@ const SearchHeader = React.memo(({
         return
       }
 
-      setEditing(false)
-
+      setEditedVersionId(versionId)
       updateEditedSearchString(searchString)
+      setEditing(false)
     },
-    [ searchString, setEditing, updateEditedSearchString ],
+    [ searchString, setEditing, updateEditedSearchString, versionId ],
   )
 
   const editSearchString = useCallback(
@@ -111,20 +123,9 @@ const SearchHeader = React.memo(({
     [ setEditing ],
   )
 
-  const updateVersion = useCallback(
-    versionId => {
-      historyReplace(null, {
-        ...routerState,
-        initialScrollInfo: {},
-        versionId,
-      })
-    },
-    [ routerState ],
-  )
-
   const goVersions = useCallback(() => historyPush("/Read/Versions"), [])
 
-  const { abbr, languageId } = getVersionInfo(versionId)
+  const { abbr, languageId } = getVersionInfo(editedVersionId)
 
   if(editing) {
     return (
@@ -164,8 +165,8 @@ const SearchHeader = React.memo(({
           </View>
           <VersionChooser
             versionIds={versionIds}
-            update={updateVersion}
-            selectedVersionId={versionId}
+            update={setEditedVersionId}
+            selectedVersionId={editedVersionId}
             type="search"
             goVersions={goVersions}
           />
