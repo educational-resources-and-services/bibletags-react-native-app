@@ -6,7 +6,12 @@ const useBack = fn => {
     () => {
       if(fn) {
 
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', fn)
+        const fnWithReturnTrue = () => {
+          fn()
+          return true
+        }
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', fnWithReturnTrue)
         return backHandler.remove
         
       }

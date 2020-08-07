@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
 
 const Read = () => {
 
-  const { historyPush, pathname, historyGoBack } = useRouterState()
+  const { historyPush } = useRouterState()
 
   const [ showingDisplaySettings, setShowingDisplaySettings ] = useState(false)
   const [ showingPassageChooser, setShowingPassageChooser ] = useState(false)
