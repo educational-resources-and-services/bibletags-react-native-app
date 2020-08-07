@@ -12,6 +12,7 @@ import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
+import KeyboardAvoidingView from "../basic/KeyboardAvoidingView"
 import SafeLayout from "../basic/SafeLayout"
 import SearchResult from "../basic/SearchResult"
 import SearchSuggestions from "../basic/SearchSuggestions"
@@ -269,54 +270,56 @@ const Search = ({
   if(numberResults === MAX_RESULTS) numberResults += '+'
 
   return (
-    <SafeLayout>
-      <SearchHeader
-        editing={editing}
-        setEditing={setEditing}
-        numberResults={numberResults}
-        editedSearchString={editedSearchString}
-        updateEditedSearchString={updateEditedSearchString}
-      />
-      <View style={styles.searchContainer}>
-        {editing &&
-          <SearchSuggestions
-            editedSearchString={editedSearchString}
-            updateEditedSearchString={updateEditedSearchString}
-            setEditing={setEditing}
-          />
-        }
-        {!editing && searchDone && searchResults.length === 0 &&
-          <View style={styles.messageContainer}>
-            <Text 
-              style={[
-                styles.message,
-                themedStyle,
-                style,
-              ]}
-            >
-              {i18n("No results found.")}
-            </Text>
-          </View>
-        }
-        {!editing && searchDone && searchResults.length > 0 &&
-          <FlatList
-            data={searchResults}
-            renderItem={renderItem}
-            keyExtractor={keyExtractor}
-            extraData={selectedLoc}
-            scrollEventThrottle={16}
-            onScroll={onScroll}
-            viewabilityConfig={viewabilityConfig}
-            onViewableItemsChanged={onViewableItemsChanged}
-            initialNumToRender={scrollInfo.current.numToRender}
-            ref={resultsListRef}
-            style={styles.searchResults}
-            contentContainerStyle={styles.searchResultsContentContainer}
-          />
-        }
-      </View>
-      {!editing && !searchDone && <CoverAndSpin />}
-    </SafeLayout>
+    <KeyboardAvoidingView>
+      <SafeLayout>
+        <SearchHeader
+          editing={editing}
+          setEditing={setEditing}
+          numberResults={numberResults}
+          editedSearchString={editedSearchString}
+          updateEditedSearchString={updateEditedSearchString}
+        />
+        <View style={styles.searchContainer}>
+          {editing &&
+            <SearchSuggestions
+              editedSearchString={editedSearchString}
+              updateEditedSearchString={updateEditedSearchString}
+              setEditing={setEditing}
+            />
+          }
+          {!editing && searchDone && searchResults.length === 0 &&
+            <View style={styles.messageContainer}>
+              <Text 
+                style={[
+                  styles.message,
+                  themedStyle,
+                  style,
+                ]}
+              >
+                {i18n("No results found.")}
+              </Text>
+            </View>
+          }
+          {!editing && searchDone && searchResults.length > 0 &&
+            <FlatList
+              data={searchResults}
+              renderItem={renderItem}
+              keyExtractor={keyExtractor}
+              extraData={selectedLoc}
+              scrollEventThrottle={16}
+              onScroll={onScroll}
+              viewabilityConfig={viewabilityConfig}
+              onViewableItemsChanged={onViewableItemsChanged}
+              initialNumToRender={scrollInfo.current.numToRender}
+              ref={resultsListRef}
+              style={styles.searchResults}
+              contentContainerStyle={styles.searchResultsContentContainer}
+            />
+          }
+        </View>
+        {!editing && !searchDone && <CoverAndSpin />}
+      </SafeLayout>
+    </KeyboardAvoidingView>
   )
 
 }

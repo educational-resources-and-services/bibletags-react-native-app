@@ -9,7 +9,6 @@ import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 
 import SideMenu from "../major/SideMenu"
-import KeyboardAvoidingView from "../basic/KeyboardAvoidingView"
 import Drawer from "../major/Drawer"
 import Read from "../screens/Read"
 import LanguageChooser from "../screens/LanguageChooser"
@@ -47,20 +46,16 @@ const SideMenuAndRouteSwitcher = ({
       menu={<Drawer />}
     >
 
-      <KeyboardAvoidingView>
+      <Switch>
+        <Route path="/Read" component={Read} />
+        <Route path="/LanguageChooser" component={LanguageChooser} />
+        <Route path="/ErrorMessage" component={ErrorMessage} />
+        <Route>
+          <RouteSwitcher />
+        </Route>
+      </Switch>
 
-        <Switch>
-          <Route path="/Read" component={Read} />
-          <Route path="/LanguageChooser" component={LanguageChooser} />
-          <Route path="/ErrorMessage" component={ErrorMessage} />
-          <Route>
-            <RouteSwitcher />
-          </Route>
-        </Switch>
-
-        <Redirect exact from="/" to="/Read" />
-
-      </KeyboardAvoidingView>
+      <Redirect exact from="/" to="/Read" />
 
     </SideMenu>
   )
