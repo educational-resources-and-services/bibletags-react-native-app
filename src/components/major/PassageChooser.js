@@ -117,8 +117,6 @@ const PassageChooser = ({
   )
 
   const scrollToChosenBook = useInstanceValue(() => {
-    const { bookId } = passage.ref
-
     let index = getBookIds().indexOf(bookId)
     if(index === -1) index = 0
     const maxScroll = chooserBookLineHeight * getBookIds().length - (bookChooserHeight - paddingBottom)
@@ -134,9 +132,12 @@ const PassageChooser = ({
   })
 
   const scrollToChosenChapter = useInstanceValue(() => {
-    const { chapter } = passage.ref
     const maxScroll = chapterChooserScrollHeight.current - chapterChooserHeight
     const numChapters = getNumChapters()
+
+    if(!chapter) {
+      chapterChooserRef.current.scrollTo({ y: 0, animated: false })
+    }
 
     if(maxScroll <= 0) return
     
@@ -230,6 +231,7 @@ const PassageChooser = ({
     bookId => {
       setBookId(bookId)
       setChapter(null)
+      chapterChooserRef.current.scrollTo({ y: 0, animated: false })  // might not work if changing book and num chapters differs, but that's okay as it is called again by onChaptersContentSizeChange
     },
     [],
   )
