@@ -33,7 +33,11 @@
       "searchString": "love",
       "versionId": "kjv",
       "numberResults": 189,
-      "lastViewTime": 123140422
+      "lastViewTime": 123140422,
+      "scrollInfo": {
+        "y": 2827,
+        "numToRender": 36
+      }
     },
     {
       "type": "passage",

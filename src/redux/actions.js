@@ -9,6 +9,11 @@ export const setPassageScroll = ({ y }) => ({
   y,
 })
 
+export const setSearchScrollInfo = ({ scrollInfo }) => ({
+  type: "SET_SEARCH_SCROLL_INFO",
+  scrollInfo,
+})
+
 export const setVersionId = ({ versionId }) => ({
   type: "SET_VERSION_ID",
   versionId,

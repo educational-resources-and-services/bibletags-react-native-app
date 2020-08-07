@@ -85,6 +85,7 @@ const SearchHeader = React.memo(({
       historyReplace(null, {
         ...routerState,
         searchString,
+        initialScrollInfo: {},
         editOnOpen: false,
       })
     },
@@ -114,6 +115,7 @@ const SearchHeader = React.memo(({
     versionId => {
       historyReplace(null, {
         ...routerState,
+        initialScrollInfo: {},
         versionId,
       })
     },

@@ -10,6 +10,7 @@ import { styled } from "@ui-kitten/components"
 import { logEvent } from "../../utils/analytics"
 import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
 import SafeLayout from "../basic/SafeLayout"
 import SearchResult from "../basic/SearchResult"
@@ -17,7 +18,7 @@ import SearchSuggestions from "../basic/SearchSuggestions"
 import CoverAndSpin from "../basic/CoverAndSpin"
 import SearchHeader from "../major/SearchHeader"
 
-import { recordSearch } from "../../redux/actions"
+import { recordSearch, setSearchScrollInfo } from "../../redux/actions"
 
 const {
   MAX_RESULTS,
@@ -43,15 +44,22 @@ const defaultTapState = {
   selectTapY: 0,
 }
 
-const Search = ({
-  recordSearch,
-  style,
+const viewabilityConfig = {
+  minimumViewTime: 300,
+  viewAreaCoveragePercentThreshold: 0,
+}
 
+const Search = ({
+  style,
+  
   themedStyle,
+
+  recordSearch,
+  setSearchScrollInfo,
 }) => {
 
-  const { routerState } = useRouterState()
-  const { editOnOpen, searchString, versionId } = routerState
+  const { historyAlterStateByRoute, routerState } = useRouterState()
+  const { editOnOpen, searchString, initialScrollInfo, versionId } = routerState
 
   const [ searchState, setSearchState ] = useState({
     searchedString: null,
@@ -68,6 +76,11 @@ const Search = ({
   const [ editing, setEditing ] = useState(!!editOnOpen)
   const [ editedSearchString, setEditedSearchString ] = useState(searchString || "")
 
+  const getRouterState = useInstanceValue(routerState)
+  const getEditing = useInstanceValue(editing)
+
+  const resultsListRef = useRef()
+  const scrollInfo = useRef({})
   const skipVerseTap = useRef(false)
 
   useEffect(
@@ -111,6 +124,8 @@ const Search = ({
           }),
         }))
 
+        scrollInfo.current = initialScrollInfo || {}
+
         setSearchState({
           searchedString: searchString,
           searchedVersionId: versionId,
@@ -132,8 +147,63 @@ const Search = ({
     }
   )
 
+  useEffect(
+    () => () => {
+      historyAlterStateByRoute('/Read/Search', {
+        ...getRouterState(),
+        editOnOpen: getEditing(),
+        initialScrollInfo: scrollInfo.current,
+      })
+    },
+    [],
+  )
+
+  useEffect(
+    () => {
+      const { searchedString } = searchState
+
+      if(searchedString && scrollInfo.current.y && resultsListRef.current) {
+
+        resultsListRef.current.scrollToOffset({
+          offset: scrollInfo.current.y,
+          animated: false,
+        })
+
+      }
+    },
+    [ searchState, editing ],
+  )
+
   const updateEditedSearchString = useCallback(
     searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific
+    [],
+  )
+
+  const onScroll = useCallback(
+    ({ nativeEvent }) => {
+      scrollInfo.current.y = nativeEvent.contentOffset.y
+
+      setSearchScrollInfo({
+        scrollInfo: {
+          y: scrollInfo.current.y,
+        },
+      })
+    },
+    [],
+  )
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }) => {
+      if(viewableItems.length === 0) return
+
+      scrollInfo.current.numToRender = viewableItems.slice(-1)[0].index + 1
+
+      setSearchScrollInfo({
+        scrollInfo: {
+          numToRender: scrollInfo.current.numToRender,
+        },
+      })
+    },
     [],
   )
 
@@ -229,6 +299,12 @@ const Search = ({
               renderItem={renderItem}
               keyExtractor={keyExtractor}
               extraData={selectedLoc}
+              scrollEventThrottle={16}
+              onScroll={onScroll}
+              viewabilityConfig={viewabilityConfig}
+              onViewableItemsChanged={onViewableItemsChanged}
+              initialNumToRender={scrollInfo.current.numToRender}
+              ref={resultsListRef}
             />
           </View>
         }
@@ -245,6 +321,7 @@ const mapStateToProps = () => ({
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   recordSearch,
+  setSearchScrollInfo,
 }, dispatch)
 
 Search.styledComponentName = 'Search'

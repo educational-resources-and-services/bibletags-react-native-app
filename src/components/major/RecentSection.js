@@ -68,13 +68,14 @@ const RecentSection = React.memo(({
 
           if(!recentSearch) return null  // just in case
 
-          const { searchString, versionId } = recentSearch
+          const { searchString, versionId, scrollInfo } = recentSearch
 
           return (
             <RecentSearch
               key={`${searchString} ${versionId}`}
               searchString={searchString}
               versionId={versionId}
+              initialScrollInfo={scrollInfo}
             />
           )
         })}

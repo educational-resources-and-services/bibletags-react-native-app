@@ -37,6 +37,22 @@ export default (state, action) => {
 
     }
 
+    case "SET_SEARCH_SCROLL_INFO": {
+      if(newState.history[0]) {
+
+        newState.history = [ ...newState.history ]
+        newState.history[0] = {
+          ...newState.history[0],
+          scrollInfo: {
+            ...newState.history[0].scrollInfo,
+            ...action.scrollInfo,
+          },
+        }
+
+        return newState
+      }
+    }
+
     case "REMOVE_RECENT_SEARCH": {
 
       newState.recentSearches = newState.recentSearches.filter(historyIndex => (

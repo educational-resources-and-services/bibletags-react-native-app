@@ -1,6 +1,8 @@
 import { useCallback } from "react"
 import { useHistory, useLocation } from "react-router-dom"
 
+const prepState = state => (state ? `#${JSON.stringify(state)}` : ``)
+
 const useRouterState = () => {
 
   const history = useHistory()
@@ -9,7 +11,7 @@ const useRouterState = () => {
   // If I add transitions, I made need to prevent a double tap here
 
   const prepRoute = useCallback(
-    (route, state) => `${(route || "").replace(/^\.\//, `${location.pathname}/`) || location.pathname}${state ? `#${JSON.stringify(state)}` : ``}`,
+    (route, state) => `${(route || "").replace(/^\.\//, `${location.pathname}/`) || location.pathname}${prepState(state)}`,
     [ location ],
   )
 
@@ -23,6 +25,17 @@ const useRouterState = () => {
     [ history, prepRoute ],
   )
 
+  const historyAlterStateByRoute = useCallback(
+    (route, newState) => {
+      history.entries.forEach(entry => {
+        if(entry.pathname === route) {
+          entry.hash = prepState(newState)
+        }
+      })
+    },
+    [ history ],
+  )
+
   let routerState = {}
 
   try {
@@ -34,6 +47,7 @@ const useRouterState = () => {
     historyReplace,
     historyGoBack: history.goBack,
     historyGo: history.go,
+    historyAlterStateByRoute,
     routerState,
     ...location,
   }

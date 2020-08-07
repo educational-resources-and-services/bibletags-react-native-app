@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
 const SearchSuggestion = React.memo(({
   searchString,
   versionId,
+  scrollInfo,
   lastViewTime,
   numberResults,
   setEditing,
@@ -60,16 +61,18 @@ const SearchSuggestion = React.memo(({
   const goSearch = useCallback(
     () => {
       updateEditedSearchString(searchString)
-      setEditing(false)
 
       historyReplace(null, {
         ...routerState,
         searchString,
         versionId,
+        initialScrollInfo: scrollInfo,
         editOnOpen: false,
       })
+
+      setEditing(false)
     },
-    [ searchString, versionId, setEditing, updateEditedSearchString, routerState ],
+    [ searchString, versionId, scrollInfo, setEditing, updateEditedSearchString, routerState ],
   )
 
   const { abbr, languageId } = getVersionInfo(versionId)

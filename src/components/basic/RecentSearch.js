@@ -13,6 +13,7 @@ import RecentBookmark from "./RecentBookmark"
 const RecentSearch = React.memo(({
   searchString,
   versionId,
+  initialScrollInfo,
   style,
 
   themedStyle,
@@ -33,6 +34,7 @@ const RecentSearch = React.memo(({
         editOnOpen: false,
         searchString,
         versionId,
+        initialScrollInfo,
       })
     },
     [ searchString, versionId ],
