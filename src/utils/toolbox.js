@@ -241,8 +241,10 @@ export const getTextLanguageId = ({ languageId, bookId }) => (
     : languageId
 )
 
+export const isForceUserFontTag = tag => [ 'mt', 'v', 'ms', 's1', 's2' ].includes(tag)
+
 export const getTextFont = ({ font, isOriginal, languageId, bookId, tag }) => (
-  (isOriginal && tag !== "v")
+  (isOriginal && !isForceUserFontTag(tag))
     ? `original-${getTextLanguageId({ languageId, bookId })}`
     : font
 )

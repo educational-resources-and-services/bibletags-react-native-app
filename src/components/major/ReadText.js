@@ -8,7 +8,8 @@ import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         adjustFontSize, adjustLineHeight, isIPhoneX, iPhoneXInset } from '../../utils/toolbox'
+         isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX,
+         iPhoneXInset } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -382,7 +383,7 @@ const ReadText = React.memo(({
           const light = lightStyles.includes(tag)
           const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
           const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
-          const fontFamily = (wrapInView || bold || italic || light || (isOriginal && tag === "v")) && getValidFontName({
+          const fontFamily = (wrapInView || bold || italic || light || (isOriginal && isForceUserFontTag(tag))) && getValidFontName({
             font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
             bold,
             italic,
