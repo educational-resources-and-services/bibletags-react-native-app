@@ -341,6 +341,7 @@ const mapping = {
         alt3Color: "color-basic-600", // section2HeadingThemedStyle
         alt4Color: "color-basic-500", // pehThemedStyle
         alt5Color: "color-basic-500", // samechThemedStyle
+        alt6Color: "color-basic-600", // selahThemedStyle
       },
     },
     {

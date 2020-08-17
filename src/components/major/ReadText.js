@@ -72,6 +72,9 @@ const viewStyles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
   },
+  q1: {
+    // marginRight: 25,
+  },
   // sup: {
   //   position: "relative",
   //   top: "-0.3em",
@@ -105,6 +108,8 @@ const textStyles = StyleSheet.create({
   peh: {
   },
   samech: {
+  },
+  selah: {
   },
 })
 
@@ -167,6 +172,7 @@ const ReadText = React.memo(({
     section2HeadingThemedStyle={},
     pehThemedStyle={},
     samechThemedStyle={},
+    selahThemedStyle={},
   ] = altThemedStyleSets
 
   const [ state, setState ] = useState({})
@@ -331,6 +337,17 @@ const ReadText = React.memo(({
                     text: ' ס   ',
                   },
                 ]
+              } else if(piece.lemma === 'סֶלָה' && !piece.parentTagIsSelah) {
+                return [
+                  {
+                    endTag: "selah*",
+                    tag: "selah",
+                    children: [{
+                      ...piece,
+                      parentTagIsSelah: true,
+                    }],
+                  },
+                ]
               } else {
                 return [ piece ]
               }
@@ -400,6 +417,7 @@ const ReadText = React.memo(({
               s2: section2HeadingThemedStyle,
               peh: pehThemedStyle,
               samech: samechThemedStyle,
+              selah: selahThemedStyle,
             }[tag],
             fontSize && { fontSize },
             lineHeight && { lineHeight },
