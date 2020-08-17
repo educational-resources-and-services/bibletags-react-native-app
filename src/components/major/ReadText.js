@@ -101,6 +101,10 @@ const textStyles = StyleSheet.create({
   sc: {
     // fontVariant: ["small-caps"],
   },
+  peh: {
+  },
+  samech: {
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -155,7 +159,14 @@ const ReadText = React.memo(({
 }) => {
 
   const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ majorTitleThemedStyle={}, majorSectionHeadingThemedStyle={}, section1HeadingThemedStyle={}, section2HeadingThemedStyle={} ] = altThemedStyleSets
+  const [
+    majorTitleThemedStyle={},
+    majorSectionHeadingThemedStyle={},
+    section1HeadingThemedStyle={},
+    section2HeadingThemedStyle={},
+    pehThemedStyle={},
+    samechThemedStyle={},
+  ] = altThemedStyleSets
 
   const [ state, setState ] = useState({})
   const { pieces, languageId, isOriginal } = state
@@ -291,6 +302,41 @@ const ReadText = React.memo(({
         const { font, textSize, lineSpacing, theme } = displaySettings
         const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
 
+        // For original Hebrew text, split off פ and ס chars that signal a break in flow.
+        if(isOriginal && languageId.split('+').includes('heb')) {
+          pieces = pieces
+            .map(piece => {
+              if((piece.text || "").slice(-1) === 'פ') {
+                return [
+                  {
+                    ...piece,
+                    text: piece.text.slice(0, -1),
+                  },
+                  {
+                    endTag: "peh*",
+                    tag: "peh",
+                    text: ' פ',
+                  },
+                ]
+              } else if((piece.text || "").slice(-1) === 'ס') {
+                return [
+                  {
+                    ...piece,
+                    text: piece.text.slice(0, -1),
+                  },
+                  {
+                    endTag: "samech*",
+                    tag: "samech",
+                    text: ' ס   ',
+                  },
+                ]
+              } else {
+                return [ piece ]
+              }
+            })
+            .flat()
+        }
+
         let textAlreadyDisplayedInThisView = false
 
         const simplifiedPieces = []
@@ -351,6 +397,8 @@ const ReadText = React.memo(({
               ms: majorSectionHeadingThemedStyle,
               s1: section1HeadingThemedStyle,
               s2: section2HeadingThemedStyle,
+              peh: pehThemedStyle,
+              samech: samechThemedStyle,
             }[tag],
             fontSize && { fontSize },
             lineHeight && { lineHeight },
