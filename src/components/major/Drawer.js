@@ -52,6 +52,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 12,
   },
+  subversion: {
+    fontSize: 9,
+    textAlign: 'center',
+    color: '#ddd',
+    paddingBottom: 20,
+  },
 })
 
 const Drawer = ({
@@ -134,6 +140,7 @@ const Drawer = ({
             </View>
           </TouchableOpacity>
         }
+        <Text style={styles.subversion}>Updated PUSH_DATE_STRING</Text>
       </View>
     </Layout>
   )
