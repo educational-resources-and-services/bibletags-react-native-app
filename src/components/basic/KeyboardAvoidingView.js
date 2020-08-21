@@ -42,7 +42,7 @@ const KeyboardAvoidingView = ({
       ]}
       behavior="padding"
       keyboardVerticalOffset={yOffset}
-      enabled={!(Platform.OS === 'android' && __DEV__)}
+      enabled={Platform.OS !== 'android'}  // Note sure why this is not needed on Android, but it isn't.
       {...otherProps}
     >
       {children}
