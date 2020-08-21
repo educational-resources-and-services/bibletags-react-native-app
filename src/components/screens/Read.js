@@ -39,6 +39,7 @@ const Read = () => {
 
   const [ showingDisplaySettings, setShowingDisplaySettings ] = useState(false)
   const [ showingPassageChooser, setShowingPassageChooser ] = useState(false)
+  const [ selectedInfo, setSelectedInfo ] = useState({})
 
   const { height } = useDimensions().window
 
@@ -67,6 +68,8 @@ const Read = () => {
     },
     [],
   )
+
+  const clearSelectedInfo = useCallback(() => setSelectedInfo({}), [])
 
   const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
   let passageChooserPaddingAdjustment = Platform.OS === 'ios' ? -15 : 10
@@ -100,13 +103,18 @@ const Read = () => {
             showPassageChooser={showPassageChooser}
             showingPassageChooser={showingPassageChooser}
             hideStatusBar={Platform.OS === 'ios' && hideStatusBar}
+            selectedInfo={selectedInfo}
+            clearSelectedInfo={clearSelectedInfo}
           />
           {showingDisplaySettings &&
             <DisplaySettings
               hideDisplaySettings={hideDisplaySettings}
             />
           }
-          <ReadContent />
+          <ReadContent
+            selectedInfo={selectedInfo}
+            setSelectedInfo={setSelectedInfo}
+          />
           <RecentSection />
           {!!showingPassageChooser &&
             <TouchableWithoutFeedback

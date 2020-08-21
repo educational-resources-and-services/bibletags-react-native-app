@@ -1,15 +1,15 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
-import { ScrollView, StyleSheet, Clipboard, Platform, I18nManager } from "react-native"
+import React, { useState, useCallback, useEffect, useRef } from "react"
+import { ScrollView, StyleSheet, Platform, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { i18n } from "inline-i18n"
+// import { i18n } from "inline-i18n"
 import { useDimensions } from "@react-native-community/hooks"
 
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useBibleVersions from "../../hooks/useBibleVersions"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
-import TapOptions from "../basic/TapOptions"
 import ReadContentPage from "./ReadContentPage"
 
 import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"
@@ -27,9 +27,10 @@ const styles = StyleSheet.create({
 })
 
 const ReadContent = React.memo(({
+  selectedInfo,
+  setSelectedInfo,
+
   passage,
-  recentPassages,
-  recentSearches,
   myBibleVersions,
 
   setRef,
@@ -39,19 +40,18 @@ const ReadContent = React.memo(({
 
   const { ref, versionId, parallelVersionId } = passage
 
-  const [ selectedInfo, setSelectedInfo ] = useState({})
   const [ statePassage, setStatePassage ] = useState(passage)
   const [ primaryLoaded, setPrimaryLoaded ] = useState(false)
   const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
 
-  const { selectedSection, selectedVerse, selectedTextContent, selectedTapX, selectedTapY } = selectedInfo
+  const { selectedSection, selectedVerse } = selectedInfo
+  const getSelectedSection = useInstanceValue(selectedSection)
 
   const containerRef = useRef()
   const scrollController = useRef('primary')
-  const skipVerseTap = useRef(false)
   const primaryScrollY = useRef(0)
 
-  const { width, height } = useDimensions().window
+  const { width } = useDimensions().window
 
   const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
@@ -87,19 +87,7 @@ const ReadContent = React.memo(({
     [ primaryVersionIds.length === 0 ],
   )
 
-  const onTouchStart = useCallback(
-    scrollCntrlr => {
-      scrollController.current = scrollCntrlr
-
-      if(selectedSection) {
-        setSelectedInfo({})
-        skipVerseTap.current = true
-      }
-    },
-    [ selectedSection ],
-  )
-
-  const onTouchEnd = useCallback(() => skipVerseTap.current = undefined, [])
+  const onTouchStart = useCallback(scrollCntrlr => { scrollController.current = scrollCntrlr }, [])
 
   const setContainerRef = ref => {
     containerRef.current = ref
@@ -144,7 +132,12 @@ const ReadContent = React.memo(({
 
   const onVerseTap = useCallback(
     ({ selectedSection, selectedVerse, selectedTextContent, pageX, pageY }) => {
-      if(skipVerseTap.current) return
+
+      if(getSelectedSection()) {
+        setSelectedInfo({})
+        return
+      }
+
       if(selectedVerse == null) return
 
       setSelectedInfo({
@@ -155,29 +148,10 @@ const ReadContent = React.memo(({
         selectedTapY: pageY,
       })
     },
-    [],
-  )
-
-  const tapOptions = useMemo(
-    () => ([
-      {
-        label: i18n("Copy"),
-        action: () => {
-          Clipboard.setString(selectedTextContent)
-
-          return {
-            showResult: true,
-            onDone: () => setSelectedInfo({}),
-          }
-        }
-      },
-    ]),
-    [ selectedTextContent ],
+    [ setSelectedInfo ],
   )
 
   if(primaryVersionIds.length === 0) return null
-
-  const showingRecentBookmarks = (recentPassages.length + recentSearches.length) !== 1
 
   const getPage = direction => {
     const pageRef = adjacentRefs[direction] || ref
@@ -189,8 +163,8 @@ const ReadContent = React.memo(({
         passage={passage}
         selectedSection={selectedSection}
         selectedVerse={selectedVerse}
-        onTouchEnd={onTouchEnd}
         onTouchStart={onTouchStart}
+        // onTouchEnd={onTouchEnd}
         primaryScrollY={primaryScrollY}
         scrollController={scrollController}
         setPrimaryLoaded={setPrimaryLoaded}
@@ -205,7 +179,6 @@ const ReadContent = React.memo(({
       <ScrollView
         style={[
           styles.container,
-          // (showingRecentBookmarks ? { marginBottom: 84 } : null),
         ]}
         contentContainerStyle={styles.contentContainer}
         horizontal={true}
@@ -222,23 +195,13 @@ const ReadContent = React.memo(({
           getPage('next'),
         ]}
       </ScrollView>
-      {!!selectedSection &&
-        <TapOptions
-          options={tapOptions}
-          centerX={selectedTapX}
-          bottomY={selectedTapY >= 150 ? (height - selectedTapY + 20) : null}
-          topY={selectedTapY < 150 ? (selectedTapY + 40) : null}
-        />
-      }
     </>
   )
 
 })
 
-const mapStateToProps = ({ passage, recentPassages, recentSearches, myBibleVersions }) => ({
+const mapStateToProps = ({ passage, myBibleVersions }) => ({
   passage,
-  recentPassages,
-  recentSearches,
   myBibleVersions,
 })
 
