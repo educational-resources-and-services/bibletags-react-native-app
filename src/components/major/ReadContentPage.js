@@ -35,13 +35,12 @@ const ReadContentPage = React.memo(({
   setPrimaryLoaded,
   setSecondaryLoaded,
   onVerseTap,
+  height,
   style,
 
   themedStyle,
 
   passageScrollY,
-  recentPassages,
-  recentSearches,
 
   setPassageScroll,
 }) => {
@@ -96,12 +95,12 @@ const ReadContentPage = React.memo(({
 
   const getScrollFactor = useCallback(
     () => {
-      const primaryMaxScroll = Math.max(primaryContentHeight.current - primaryHeight.current, 0)
-      const secondaryMaxScroll = Math.max(secondaryContentHeight.current - secondaryHeight.current, 0)
+      const primaryMaxScroll = Math.max(primaryContentHeight.current - height/2, 0)
+      const secondaryMaxScroll = Math.max(secondaryContentHeight.current - height/2, 0)
 
       return primaryMaxScroll / secondaryMaxScroll
     },
-    [],
+    [ height ],
   )
 
   const onPrimaryScroll = useCallback(
@@ -259,11 +258,11 @@ const ReadContentPage = React.memo(({
         onTouchEnd={!direction ? onTouchEnd : null}
         onScroll={!direction ? onPrimaryScroll : null}
         onLayout={!direction ? onPrimaryLayout : null}
+        height={parallelVersionId ? height/2 : height}
         onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
         onVerseTap={!direction ? onPrimaryVerseTap : null}
         forwardRef={!direction ? primaryRef : null}
         isVisible={!direction}
-        leavePaddingForRecentSection={!parallelVersionId && recentPassages.length + recentSearches.length > 1}
         reportNumberOfVerses={reportNumberOfVerses}
       />
       {!!parallelVersionId &&
@@ -293,13 +292,13 @@ const ReadContentPage = React.memo(({
             onTouchEnd={!direction ? onTouchEnd : null}
             onScroll={!direction ? onSecondaryScroll : null}
             onLayout={!direction ? onSecondaryLayout : null}
+            height={height/2}
             onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
             onLoaded={!direction ? onSecondaryLoaded : null}
             onVerseTap={!direction ? onSecondaryVerseTap : null}
             forwardRef={!direction ? secondaryRef : null}
             isVisible={!direction}
             isParallel={true}
-            leavePaddingForRecentSection={recentPassages.length + recentSearches.length > 1}
           />
         </>
       }
@@ -308,10 +307,8 @@ const ReadContentPage = React.memo(({
 
 })
 
-const mapStateToProps = ({ passageScrollY, recentPassages, recentSearches }) => ({
+const mapStateToProps = ({ passageScrollY }) => ({
   passageScrollY,
-  recentPassages,
-  recentSearches,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({

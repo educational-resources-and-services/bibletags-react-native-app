@@ -10,7 +10,7 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
+import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
 import GradualFade from "../basic/GradualFade"
@@ -19,7 +19,7 @@ import Icon from "../basic/Icon"
 
 const passageAndVersion = {
   paddingRight: 7,
-  lineHeight: 40,
+  lineHeight: readHeaderHeight,
 }
 
 const header = {
@@ -27,18 +27,10 @@ const header = {
   top: 0,
   left: 0,
   right: 0,
-  minHeight: 40,
-  height: 40,
+  minHeight: readHeaderHeight,
+  height: readHeaderHeight,
   paddingTop: 0,
-  marginTop: (
-    Platform.OS === 'android'
-      ? 5
-      : (26 + (
-        isIPhoneX
-          ? iPhoneXInset['portrait'].topInset
-          : 0
-      ))
-  ),
+  marginTop: readHeaderMarginTop,
   marginHorizontal: 15,
   borderRadius: 4,
   elevation: 4,
@@ -93,7 +85,7 @@ const styles = StyleSheet.create({
   },
   dropdownIcon: {
     height: 18,
-    lineHeight: 40,
+    lineHeight: readHeaderHeight,
   },
   leftIcon: {
     paddingRight: 8,

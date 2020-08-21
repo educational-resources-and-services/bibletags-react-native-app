@@ -9,7 +9,7 @@ import { styled } from "@ui-kitten/components"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
          isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX,
-         iPhoneXInset } from '../../utils/toolbox'
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -44,9 +44,6 @@ const viewStyles = StyleSheet.create({
   },
   parallelContent: {
     paddingTop: 20,
-  },
-  withRecentSectionContent: {
-    paddingBottom: 95,
   },
   mt: {
     marginTop: 10,
@@ -147,7 +144,6 @@ const ReadText = React.memo(({
   selectedVerse,
   focussedVerse,
   isVisible,
-  leavePaddingForRecentSection,
   isParallel,
   forwardRef,
   onContentSizeChange,
@@ -157,6 +153,7 @@ const ReadText = React.memo(({
   onTouchStart,
   onTouchEnd,
   onLayout,
+  height,
   reportNumberOfVerses,
 
   themedStyle,
@@ -364,8 +361,8 @@ const ReadText = React.memo(({
 
           if(
             previousPiece
-            && (!tag || tag === 'w')
-            && (!previousPiece.tag || previousPiece.tag === 'w')
+            && (!tag || (tag === 'w' && !isVisible))
+            && (!previousPiece.tag || (previousPiece.tag === 'w' && !isVisible))
             && text
             && previousPiece.text
           ) {
@@ -442,6 +439,7 @@ const ReadText = React.memo(({
               style={styles}
               onPress={goVerseTap}
               verseNumber={verse}
+              wordInfo={(tag === 'w' && isVisible) ? piece : null}
             >
               {children
                 ? getJSXFromPieces({
@@ -472,7 +470,7 @@ const ReadText = React.memo(({
 
       return getJSXFromPieces({ pieces })
     },
-    [ pieces, displaySettings, selectedVerse, focussedVerse, bookId, languageId, isOriginal ],
+    [ pieces, displaySettings, selectedVerse, focussedVerse, bookId, languageId, isOriginal, isVisible ],
   )
 
   if(!pieces) {
@@ -498,7 +496,18 @@ const ReadText = React.memo(({
         style={[
           viewStyles.content,
           isParallel ? viewStyles.parallelContent : null,
-          leavePaddingForRecentSection ? viewStyles.withRecentSectionContent : null,
+          {
+            paddingBottom: (
+              height - (
+                (
+                  isParallel
+                    ? 0
+                    : (readHeaderMarginTop + readHeaderHeight)
+                )
+                + 75
+              )
+            ),
+          },
         ]}
       >
         {getJSX()}

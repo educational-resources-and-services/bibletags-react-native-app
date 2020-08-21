@@ -4,6 +4,7 @@ import { Text } from "react-native"
 const VerseText = React.memo(({
   style,
   verseNumber,
+  wordInfo,
   onPress,
   children,
 }) => {
@@ -11,7 +12,12 @@ const VerseText = React.memo(({
   const goPress = useCallback(
     ({ nativeEvent }) => {
       const { pageX, pageY } = nativeEvent
-      onPress({ selectedVerse: verseNumber, pageX, pageY })
+      onPress({
+        selectedVerse: verseNumber,
+        selectedWordInfo: wordInfo,
+        pageX,
+        pageY,
+      })
     },
     [],
   )

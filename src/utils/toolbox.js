@@ -1,15 +1,15 @@
 import React from "react"
-import { Dimensions, I18nManager, AsyncStorage } from "react-native"
+import { Dimensions, I18nManager, AsyncStorage, Platform } from "react-native"
 import * as Updates from 'expo-updates'
 import NetInfo from "@react-native-community/netinfo"
 import Constants from "expo-constants"
 import * as SQLite from "expo-sqlite"
 import { isIphoneX } from "react-native-iphone-x-helper"
 import { getPassageStr } from "bibletags-ui-helper"
-
 import { i18n, isRTL } from "inline-i18n"
-import bibleVersions from "../../versions"
 import { getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
+
+import bibleVersions from "../../versions"
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,
@@ -70,6 +70,18 @@ export const iPhoneXInset = {
   },
 }
 export const getToolbarHeight = () => 56
+
+export const readHeaderHeight = 40
+
+export const readHeaderMarginTop = (
+  Platform.OS === 'android'
+    ? 5
+    : (26 + (
+      isIPhoneX
+        ? iPhoneXInset['portrait'].topInset
+        : 0
+    ))
+)
 
 export const isPhoneSize = () => {
   const { width, height } = Dimensions.get('window')

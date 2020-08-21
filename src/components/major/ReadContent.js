@@ -4,6 +4,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
 import { useDimensions } from "@react-native-community/hooks"
+import { useLayout } from '@react-native-community/hooks'
 
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useSetTimeout from "../../hooks/useSetTimeout"
@@ -52,6 +53,7 @@ const ReadContent = React.memo(({
   const primaryScrollY = useRef(0)
 
   const { width } = useDimensions().window
+  const { onLayout, height } = useLayout()
 
   const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
@@ -131,7 +133,7 @@ const ReadContent = React.memo(({
   )
 
   const onVerseTap = useCallback(
-    ({ selectedSection, selectedVerse, selectedTextContent, pageX, pageY }) => {
+    ({ selectedSection, selectedVerse, selectedTextContent, selectedWordInfo, pageX, pageY }) => {
 
       if(getSelectedSection()) {
         setSelectedInfo({})
@@ -146,6 +148,7 @@ const ReadContent = React.memo(({
         selectedTextContent,
         selectedTapX: pageX,
         selectedTapY: pageY,
+        selectedWordInfo,
       })
     },
     [ setSelectedInfo ],
@@ -170,6 +173,7 @@ const ReadContent = React.memo(({
         setPrimaryLoaded={setPrimaryLoaded}
         setSecondaryLoaded={setSecondaryLoaded}
         onVerseTap={onVerseTap}
+        height={height}
       />
     )
   }
@@ -188,6 +192,7 @@ const ReadContent = React.memo(({
         ref={setContainerRef}
         onMomentumScrollEnd={onPageSwipeEnd}
         //onContentSizeChange={setContentOffset}  // I might need this for device rotation
+        onLayout={onLayout}
       >
         {[
           getPage('previous'),
