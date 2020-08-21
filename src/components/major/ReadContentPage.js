@@ -188,7 +188,11 @@ const ReadContentPage = React.memo(({
         }
       }
 
-      const doInitialScroll = () => primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
+      const doInitialScroll = () => {
+        if(primaryRef.current) {
+          primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
+        }
+      }
 
       doInitialScroll
       setTimeout(doInitialScroll)  // may not fire without the setTimeout
