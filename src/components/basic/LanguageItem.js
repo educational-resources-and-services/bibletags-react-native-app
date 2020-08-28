@@ -5,7 +5,7 @@ import { ListItem } from "@ui-kitten/components"
 
 import { getLocale } from "inline-i18n"
 
-import { fixRTL, memoStyled } from "../../utils/toolbox"
+import { fixRTL, memo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
@@ -59,4 +59,4 @@ const LanguageItem = ({
 
 }
 
-export default memoStyled(LanguageItem, 'LanguageItem')
+export default memo(LanguageItem, { name: 'LanguageItem' })

@@ -7,7 +7,7 @@ import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { getVersionInfo, isIPhoneX, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, isIPhoneX, memo } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
 import useMemoObject from "../../hooks/useMemoObject"
@@ -418,4 +418,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeParallelVersion,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(PassageChooser), 'PassageChooser')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(PassageChooser), { name: 'PassageChooser' })

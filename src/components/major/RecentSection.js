@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import RecentRef from "../basic/RecentRef"
 import RecentSearch from "../basic/RecentSearch"
@@ -97,4 +97,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentSection), 'RecentSection')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(RecentSection), { name: 'RecentSection'})

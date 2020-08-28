@@ -4,7 +4,7 @@ import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import Icon from "./Icon"
 
@@ -128,4 +128,4 @@ const TapOptions = ({
 
 }
 
-export default memoStyled(TapOptions, 'TapOptions')
+export default memo(TapOptions, { name: 'TapOptions' })

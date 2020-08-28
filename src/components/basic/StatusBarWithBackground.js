@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, View, StatusBar } from "react-native"
 
-import { memoStyled } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   background: {
@@ -40,4 +40,4 @@ const StatusBarWithBackground = ({
 
 }
 
-export default memoStyled(StatusBarWithBackground, 'StatusBarWithBackground')
+export default memo(StatusBarWithBackground, { name: 'StatusBarWithBackground' })

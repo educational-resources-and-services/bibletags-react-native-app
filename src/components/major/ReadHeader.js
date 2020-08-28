@@ -9,7 +9,7 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight, memoStyled } from "../../utils/toolbox"
+import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight, memo } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
 import GradualFade from "../basic/GradualFade"
@@ -276,4 +276,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadHeader), 'ReadHeader')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(ReadHeader), { name: 'ReadHeader' })

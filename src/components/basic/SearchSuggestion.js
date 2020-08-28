@@ -3,7 +3,7 @@ import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-nat
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo, isRTLText, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, isRTLText, memo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import RelativeTime from "./RelativeTime"
@@ -132,4 +132,4 @@ const SearchSuggestion = ({
 
 }
 
-export default memoStyled(SearchSuggestion, 'SearchSuggestion')
+export default memo(SearchSuggestion, { name: 'SearchSuggestion' })

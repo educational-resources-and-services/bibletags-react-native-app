@@ -2,7 +2,7 @@ import React from "react"
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
 
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
@@ -95,4 +95,4 @@ const VersionChooser = ({
 
 }
 
-export default memoStyled(VersionChooser, 'VersionChooser')
+export default memo(VersionChooser, { name: 'VersionChooser' })

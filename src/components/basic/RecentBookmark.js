@@ -4,7 +4,7 @@ import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 // import { connect } from "react-redux"
 
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
@@ -156,4 +156,4 @@ const RecentBookmark = ({
 
 }
 
-export default memoStyled(RecentBookmark, 'RecentBookmark')
+export default memo(RecentBookmark, { name: 'RecentBookmark' })

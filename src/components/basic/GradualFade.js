@@ -1,7 +1,7 @@
 import React from "react"
 import { View, StyleSheet } from "react-native"
 
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   container: {
@@ -41,4 +41,4 @@ const GradualFade = ({
   </View>
 )
 
-export default memoStyled(GradualFade, 'GradualFade')
+export default memo(GradualFade, { name: 'GradualFade' })

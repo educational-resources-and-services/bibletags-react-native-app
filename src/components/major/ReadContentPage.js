@@ -5,7 +5,7 @@ import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
 import { getCorrespondingRefs } from "bibletags-versification/src/versification"
 
-import { getVersionInfo, getOriginalVersionInfo, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, getOriginalVersionInfo, memo } from "../../utils/toolbox"
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import { setPassageScroll } from "../../redux/actions"
 
@@ -318,4 +318,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setPassageScroll,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadContentPage), 'ReadContentPage')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(ReadContentPage), { name: 'ReadContentPage' })

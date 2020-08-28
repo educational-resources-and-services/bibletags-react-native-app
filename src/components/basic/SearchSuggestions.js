@@ -6,7 +6,7 @@ import { connect } from "react-redux"
 
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import SearchSuggestion from "./SearchSuggestion"
 
@@ -100,4 +100,4 @@ const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   // recordSearch,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions), 'SearchSuggestions')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions), { name: 'SearchSuggestions' })

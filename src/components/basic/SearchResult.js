@@ -10,7 +10,7 @@ import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, getCopyVerseText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
-         adjustFontSize, memoStyled } from "../../utils/toolbox"
+         adjustFontSize, memo } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import useRouterState from "../../hooks/useRouterState"
 import { setRef } from "../../redux/actions"
@@ -301,4 +301,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(SearchResult), 'SearchResult')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(SearchResult), { name: 'SearchResult' })

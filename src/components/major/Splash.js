@@ -5,7 +5,7 @@ import * as Updates from 'expo-updates'
 import Constants from "expo-constants"
 
 import useInstanceValue from "../../hooks/useInstanceValue"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const {
   FIRST_LOAD_SPLASH_TEXT_LINE_1="Original language Bible study...",
@@ -177,4 +177,4 @@ const Splash = ({
 
 }
 
-export default memoStyled(Splash, 'Splash')
+export default memo(Splash, { name: 'Splash' })

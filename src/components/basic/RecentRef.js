@@ -4,7 +4,7 @@ import { connect } from "react-redux"
 import { getPassageStr } from "bibletags-ui-helper"
 
 import { setRef, removeRecentPassage } from "../../redux/actions"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import RecentBookmark from "./RecentBookmark"
 
@@ -85,4 +85,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentPassage,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentRef), 'RecentRef')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(RecentRef), { name: 'RecentRef' })

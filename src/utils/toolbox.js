@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { Dimensions, I18nManager, AsyncStorage, Platform } from "react-native"
 import * as Updates from 'expo-updates'
 import NetInfo from "@react-native-community/netinfo"
@@ -457,8 +457,35 @@ export const objectMap = (obj, fn) => (
   )
 )
 
-export const memoStyled = (Component, name) => {
-  Component.styledComponentName = name
-  const MemoComponent = styled(Component)
-  return React.memo(props => <MemoComponent {...props} />)
+export const memo = (Component, options) => {
+  const { name, jsonMemoProps=[] } = options
+
+  if(name) {
+    Component.styledComponentName = name
+    Component = styled(Component)
+  }
+
+  Component = React.memo(Component)
+
+  if(jsonMemoProps.length > 0) {
+
+    return props => {
+  
+      const modifiedProps = { ...props }
+  
+      jsonMemoProps.forEach(key => {
+        modifiedProps[key] = useMemo(
+          () => props[key],
+          [ JSON.stringify(props[key]) ],
+        )
+      })
+    
+      return (
+        <Component {...modifiedProps} />
+      )
+    }
+
+  }
+
+  return Component
 }

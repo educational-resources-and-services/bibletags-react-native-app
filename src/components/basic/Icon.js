@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 // import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from "@expo/vector-icons"
 
-import { memoStyled } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 
 const packs = {
   ion: Ionicons,
@@ -52,4 +52,4 @@ const Icon = ({
   )
 }
 
-export default memoStyled(Icon, 'Icon')
+export default memo(Icon, { name: 'Icon' })

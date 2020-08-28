@@ -6,7 +6,7 @@ import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, memo } from "../../utils/toolbox"
 
 import Icon from "../basic/Icon"
 import Spin from "../basic/Spin"
@@ -253,4 +253,4 @@ const VersionItem = ({
 
 }
 
-export default memoStyled(VersionItem, 'VersionItem')
+export default memo(VersionItem, { name: 'VersionItem' })

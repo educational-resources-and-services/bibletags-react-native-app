@@ -10,7 +10,7 @@ import { bibleFontList } from "../../utils/bibleFonts"
 import useBack from "../../hooks/useBack"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
 import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const THROTTLE_MS = 100
 
@@ -195,4 +195,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setTheme,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(DisplaySettings), 'DisplaySettings')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(DisplaySettings), { name: 'DisplaySettings' })

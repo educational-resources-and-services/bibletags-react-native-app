@@ -10,7 +10,7 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
-import { memoStyled } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
 
@@ -155,4 +155,4 @@ const mapStateToProps = ({ displaySettings }) => ({
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(Drawer), 'Drawer')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(Drawer), { name: 'Drawer' })

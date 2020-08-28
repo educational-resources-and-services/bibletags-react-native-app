@@ -8,7 +8,7 @@ import { i18n } from "inline-i18n"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useRouterState from "../../hooks/useRouterState"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
@@ -93,4 +93,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   addBibleVersion,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(AddVersion), 'AddVersion')
+ export default memo(connect(mapStateToProps, matchDispatchToProps)(AddVersion), { name: 'AddVersion' })

@@ -5,7 +5,7 @@ import { connect } from "react-redux"
 
 import useRouterState from "../../hooks/useRouterState"
 import { removeRecentSearch } from "../../redux/actions"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import RecentBookmark from "./RecentBookmark"
 
@@ -62,4 +62,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentSearch,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentSearch), 'RecentSearch')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(RecentSearch), { name: 'RecentSearch' })

@@ -8,7 +8,7 @@ import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-hel
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
          isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memoStyled } from '../../utils/toolbox'
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -372,16 +372,12 @@ const ReadText = ({
         })
 
         return simplifiedPieces.map((piece, idx) => {
-          let { type, tag, text, content, children } = piece
+          let { type, tag, text, content, children, verse } = piece
 
           if(!children && !text && !content) return null
           if([ "c", "cp" ].includes(tag)) return null
 
-          if([ "v" ].includes(tag) && content) {
-            vs = parseInt(content, 10)
-          }
-          
-          const verse = /^(?:ms|mt|s[0-9])$/.test(tag) ? null : vs
+          vs = verse || vs
 
           if([ "v", "vp" ].includes(tag) && content) {
             const nextPiece = simplifiedPieces[idx+1] || {}
@@ -418,12 +414,12 @@ const ReadText = ({
             fontSize && { fontSize },
             lineHeight && { lineHeight },
             fontFamily && { fontFamily },
-            (selectedVerse !== null && (
+            (selectedVerse !== null && verse !== undefined && (
               verse === selectedVerse
                 ? { color: '#000000' }
                 : { color: '#bbbbbb' }
             )),
-            (focussedVerse !== undefined && (
+            (focussedVerse !== undefined && verse !== undefined && (
               verse === focussedVerse
                 ? { color: '#000000' }
                 : { color: '#999999' }
@@ -437,7 +433,7 @@ const ReadText = ({
               key={idx}
               style={styles}
               onPress={goVerseTap}
-              verseNumber={verse}
+              verseNumber={vs}
               wordInfo={tag === 'w' ? piece : null}
             >
               {children
@@ -524,4 +520,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setTheme,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadText), 'ReadText')
+ export default memo(connect(mapStateToProps, matchDispatchToProps)(ReadText), { name: 'ReadText' })

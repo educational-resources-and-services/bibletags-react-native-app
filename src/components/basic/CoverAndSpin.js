@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, View, Text } from "react-native"
 
-import { memoStyled } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 
 import Spin from "./Spin"
 
@@ -47,4 +47,4 @@ const CoverAndSpin = ({
   </View>
 )
 
-export default memoStyled(CoverAndSpin, 'CoverAndSpin')
+export default memo(CoverAndSpin, { name: 'CoverAndSpin' })

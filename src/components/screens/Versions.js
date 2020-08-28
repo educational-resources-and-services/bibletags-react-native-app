@@ -9,7 +9,7 @@ import SortableList from "react-native-sortable-list"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
 
 import SafeLayout from "../basic/SafeLayout"
@@ -182,4 +182,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeParallelVersion,
 }, dispatch)
 
-export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(Versions), 'Versions')
+export default memo(connect(mapStateToProps, matchDispatchToProps)(Versions), { name: 'Versions' })

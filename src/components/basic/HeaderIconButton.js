@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, TouchableOpacity } from "react-native"
 
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import Icon from "../basic/Icon"
 
@@ -46,4 +46,4 @@ const HeaderIconButton = ({
 
 }
 
-export default memoStyled(HeaderIconButton, 'HeaderIconButton')
+export default memo(HeaderIconButton, { name: 'HeaderIconButton' })

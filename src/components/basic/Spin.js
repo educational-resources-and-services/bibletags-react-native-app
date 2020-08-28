@@ -3,7 +3,7 @@ import { StyleSheet, ActivityIndicator, View, Text } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { i18n } from "inline-i18n"
 
-import { memoStyled } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {
@@ -49,4 +49,4 @@ const Spin = ({
   )
 }
 
-export default memoStyled(Spin, 'Spin')
+export default memo(Spin, { name: 'Spin' })

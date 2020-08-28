@@ -3,7 +3,7 @@ import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { getBibleBookName } from "bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   book: {
@@ -56,4 +56,4 @@ const ChooserBook = ({
 
 }
 
-export default memoStyled(ChooserBook, 'ChooserBook')
+export default memo(ChooserBook, { name: 'ChooserBook' })

@@ -1,7 +1,9 @@
 import React, { useCallback } from "react"
 import { Text } from "react-native"
 
-const VerseText = React.memo(({
+import { memo } from "../../utils/toolbox"
+
+const VerseText = ({
   style,
   verseNumber,
   wordInfo,
@@ -31,6 +33,6 @@ const VerseText = React.memo(({
     </Text>
   )
  
-})
+}
 
-export default VerseText
+export default memo(VerseText, { jsonMemoProps: [ 'style', 'wordInfo' ] })

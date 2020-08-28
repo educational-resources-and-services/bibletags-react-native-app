@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, View, Linking, Text } from "react-native"
 
-import { getVersionInfo, replaceWithJSX, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, replaceWithJSX, memo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import SafeLayout from "../basic/SafeLayout"
@@ -76,4 +76,4 @@ const VersionInfo = ({
 
 }
 
-export default memoStyled(VersionInfo, 'VersionInfo')
+export default memo(VersionInfo, { name: 'VersionInfo' })

@@ -3,7 +3,7 @@ import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { i18nNumber } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   chapter: {
@@ -56,4 +56,4 @@ const ChooserChapter = ({
 
 }
 
-export default memoStyled(ChooserChapter, 'ChooserChapter')
+export default memo(ChooserChapter, { name: 'ChooserChapter' })

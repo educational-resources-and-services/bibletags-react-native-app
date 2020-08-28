@@ -2,7 +2,7 @@ import React, { useCallback } from "react"
 import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo, memoStyled } from "../../utils/toolbox"
+import { getVersionInfo, memo } from "../../utils/toolbox"
 
 import Icon from "./Icon"
 
@@ -80,4 +80,4 @@ const ChooserVersion = ({
 
 }
 
-export default memoStyled(ChooserVersion, 'ChooserVersion')
+export default memo(ChooserVersion, { name: 'ChooserVersion' })

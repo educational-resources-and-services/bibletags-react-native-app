@@ -4,7 +4,7 @@ import { List } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import { languageOptions } from "../../../language"
-import { memoStyled } from '../../utils/toolbox'
+import { memo } from '../../utils/toolbox'
 
 import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
@@ -50,4 +50,4 @@ const LanguageChooser = ({
 
 }
 
-export default memoStyled(LanguageChooser, 'LanguageChooser')
+export default memo(LanguageChooser, { name: 'LanguageChooser' })

@@ -19,6 +19,7 @@ const AnimatedContainer = Animated.createAnimatedComponent(Layout)
 const RevealContainer = ({
   revealAmount,
   immediateAdjustment,
+  duration=200,
   style,
   children,
 }) => {
@@ -33,7 +34,7 @@ const RevealContainer = ({
           translateYAnimation,
           {
             toValue: revealAmount,
-            duration: 200,
+            duration,
             useNativeDriver: true,
           }
         ),
@@ -41,7 +42,7 @@ const RevealContainer = ({
           scaleAnimation,
           {
             toValue: revealAmount ? .95 : 1,
-            duration: 200,
+            duration,
             useNativeDriver: true,
           }
         ),
