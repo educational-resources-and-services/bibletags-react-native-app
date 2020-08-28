@@ -1,9 +1,8 @@
 import React from "react"
 import { StyleSheet, View } from "react-native"
 import { useDimensions } from "@react-native-community/hooks"
-import { styled } from "@ui-kitten/components"
 
-import { isIPhoneX } from "../../utils/toolbox"
+import { isIPhoneX, memoStyled } from "../../utils/toolbox"
 
 import StatusBarWithBackground from "./StatusBarWithBackground"
 import IPhoneXBuffer from "./IPhoneXBuffer"
@@ -64,6 +63,4 @@ const AppHeader = ({
 
 }
 
-AppHeader.styledComponentName = 'AppHeader'
-
-export default styled(AppHeader)
+export default memoStyled(AppHeader, 'AppHeader')

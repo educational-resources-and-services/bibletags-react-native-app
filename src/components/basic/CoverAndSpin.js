@@ -1,6 +1,7 @@
 import React from "react"
 import { StyleSheet, View, Text } from "react-native"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from "../../utils/toolbox"
 
 import Spin from "./Spin"
 
@@ -46,6 +47,4 @@ const CoverAndSpin = ({
   </View>
 )
 
-CoverAndSpin.styledComponentName = 'CoverAndSpin'
-
-export default styled(CoverAndSpin)
+export default memoStyled(CoverAndSpin, 'CoverAndSpin')

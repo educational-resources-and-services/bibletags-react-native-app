@@ -4,7 +4,7 @@ import * as Font from "expo-font"
 import { AppLoading } from "expo"
 import * as Updates from 'expo-updates'
 // import * as StoreReview from 'expo-store-review'
-import { mapping } from "@eva-design/eva"
+import * as eva from '@eva-design/eva'
 import { ApplicationProvider } from "@ui-kitten/components"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import * as Localization from "expo-localization"
@@ -196,7 +196,7 @@ const App = () => {
     <>
       <NativeRouter>
         <ApplicationProvider
-          mapping={mapping}
+          {...eva}
           customMapping={customMapping}
           theme={colorScheme === 'dark' ? darkTheme : lightTheme}
         >

@@ -8,6 +8,7 @@ import { isIphoneX } from "react-native-iphone-x-helper"
 import { getPassageStr } from "bibletags-ui-helper"
 import { i18n, isRTL } from "inline-i18n"
 import { getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
+import { styled } from "@ui-kitten/components"
 
 import bibleVersions from "../../versions"
 
@@ -455,3 +456,9 @@ export const objectMap = (obj, fn) => (
     )
   )
 )
+
+export const memoStyled = (Component, name) => {
+  Component.styledComponentName = name
+  const MemoComponent = styled(Component)
+  return React.memo(props => <MemoComponent {...props} />)
+}

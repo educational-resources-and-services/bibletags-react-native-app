@@ -1,9 +1,10 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { List, styled } from "@ui-kitten/components"
+import { List } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import { languageOptions } from "../../../language"
+import { memoStyled } from '../../utils/toolbox'
 
 import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
@@ -49,6 +50,4 @@ const LanguageChooser = ({
 
 }
 
-LanguageChooser.styledComponentName = 'LanguageChooser'
-
-export default styled(LanguageChooser)
+export default memoStyled(LanguageChooser, 'LanguageChooser')

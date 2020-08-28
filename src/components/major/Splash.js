@@ -3,9 +3,9 @@ import { Animated, StyleSheet, Dimensions } from "react-native"
 import * as SplashScreen from 'expo-splash-screen'
 import * as Updates from 'expo-updates'
 import Constants from "expo-constants"
-import { styled } from "@ui-kitten/components"
 
 import useInstanceValue from "../../hooks/useInstanceValue"
+import { memoStyled } from '../../utils/toolbox'
 
 const {
   FIRST_LOAD_SPLASH_TEXT_LINE_1="Original language Bible study...",
@@ -177,6 +177,4 @@ const Splash = ({
 
 }
 
-Splash.styledComponentName = 'Splash'
-
-export default styled(Splash)
+export default memoStyled(Splash, 'Splash')

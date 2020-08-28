@@ -1,11 +1,12 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { List, styled } from "@ui-kitten/components"
+import { List } from "@ui-kitten/components"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
+import { memoStyled } from '../../utils/toolbox'
 
 import SearchSuggestion from "./SearchSuggestion"
 
@@ -22,7 +23,7 @@ const styles = StyleSheet.create({
 
 const getSearchKey = ({ searchString, versionId }) => `${versionId}:${searchString}`
 
-const SearchSuggestions = React.memo(({
+const SearchSuggestions = ({
   editedSearchString,
   setEditing,
   updateEditedSearchString,
@@ -88,7 +89,7 @@ const SearchSuggestions = React.memo(({
     />
   )
 
-})
+}
 
 const mapStateToProps = ({ history, myBibleVersions }) => ({
   history,
@@ -99,7 +100,4 @@ const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   // recordSearch,
 }, dispatch)
 
-
-SearchSuggestions.styledComponentName = 'SearchSuggestions'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(SearchSuggestions), 'SearchSuggestions')

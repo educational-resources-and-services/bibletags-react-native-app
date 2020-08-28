@@ -2,12 +2,14 @@ import React from "react"
 import { StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { List, styled } from "@ui-kitten/components"
+import { List } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useRouterState from "../../hooks/useRouterState"
+import { memoStyled } from '../../utils/toolbox'
+
 import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
 import VersionItem from "../basic/VersionItem"
@@ -83,8 +85,6 @@ const AddVersion = ({
 
 }
 
-AddVersion.styledComponentName = 'AddVersion'
-
 const mapStateToProps = ({ myBibleVersions }) => ({
   myBibleVersions,
 })
@@ -93,4 +93,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   addBibleVersion,
 }, dispatch)
 
-export default styled(connect(mapStateToProps, matchDispatchToProps)(AddVersion))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(AddVersion), 'AddVersion')

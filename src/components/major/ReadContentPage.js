@@ -4,9 +4,8 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
 import { getCorrespondingRefs } from "bibletags-versification/src/versification"
-import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, getOriginalVersionInfo, memoStyled } from "../../utils/toolbox"
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import { setPassageScroll } from "../../redux/actions"
 
@@ -17,13 +16,13 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: '100%',
     height: '100%',
-  },
+    },
   divider: {
     height: 1,
   },
 })
 
-const ReadContentPage = React.memo(({
+const ReadContentPage = (({
   direction,
   passage,
   selectedSection,
@@ -319,6 +318,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setPassageScroll,
 }, dispatch)
 
-ReadContentPage.styledComponentName = 'ReadContentPage'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadContentPage))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadContentPage), 'ReadContentPage')

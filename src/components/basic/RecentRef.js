@@ -2,13 +2,13 @@ import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPassageStr } from "bibletags-ui-helper"
-import { styled } from "@ui-kitten/components"
 
 import { setRef, removeRecentPassage } from "../../redux/actions"
+import { memoStyled } from '../../utils/toolbox'
 
 import RecentBookmark from "./RecentBookmark"
 
-const RecentRef = React.memo(({
+const RecentRef = ({
   passageRef,
   selected,
   style,
@@ -73,7 +73,7 @@ const RecentRef = React.memo(({
     />
   )
 
-})
+}
 
 const mapStateToProps = ({ history, recentPassages }) => ({
   history,
@@ -85,6 +85,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentPassage,
 }, dispatch)
 
-RecentRef.styledComponentName = 'RecentRef'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentRef))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentRef), 'RecentRef')

@@ -1,8 +1,7 @@
 import React from "react"
 import { StyleSheet, View, Linking, Text } from "react-native"
-import { styled } from "@ui-kitten/components"
 
-import { getVersionInfo, replaceWithJSX } from "../../utils/toolbox"
+import { getVersionInfo, replaceWithJSX, memoStyled } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import SafeLayout from "../basic/SafeLayout"
@@ -77,6 +76,4 @@ const VersionInfo = ({
 
 }
 
-VersionInfo.styledComponentName = 'VersionInfo'
-
-export default styled(VersionInfo)
+export default memoStyled(VersionInfo, 'VersionInfo')

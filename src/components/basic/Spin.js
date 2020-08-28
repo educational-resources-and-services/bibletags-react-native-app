@@ -2,7 +2,8 @@ import React from "react"
 import { StyleSheet, ActivityIndicator, View, Text } from "react-native"
 import { AnimatedCircularProgress } from "react-native-circular-progress"
 import { i18n } from "inline-i18n"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {
@@ -48,6 +49,4 @@ const Spin = ({
   )
 }
 
-Spin.styledComponentName = 'Spin'
-
-export default styled(Spin)
+export default memoStyled(Spin, 'Spin')

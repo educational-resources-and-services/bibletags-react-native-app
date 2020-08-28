@@ -5,10 +5,9 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
-import { styled } from "@ui-kitten/components"
 
 import { logEvent } from "../../utils/analytics"
-import { stripHebrew, normalizeGreek, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox"
+import { stripHebrew, normalizeGreek, executeSql, escapeLike, getVersionInfo, memoStyled } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
@@ -333,6 +332,4 @@ const matchDispatchToProps = (dispatch, x) => bindActionCreators({
   setSearchScrollInfo,
 }, dispatch)
 
-Search.styledComponentName = 'Search'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(Search))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(Search), 'Search')

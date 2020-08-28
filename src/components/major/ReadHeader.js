@@ -4,13 +4,12 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getPassageStr } from "bibletags-ui-helper"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight } from "../../utils/toolbox"
+import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight, memoStyled } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
 import GradualFade from "../basic/GradualFade"
@@ -277,6 +276,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-ReadHeader.styledComponentName = 'ReadHeader'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadHeader))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadHeader), 'ReadHeader')

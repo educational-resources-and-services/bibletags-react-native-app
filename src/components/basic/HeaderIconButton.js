@@ -1,6 +1,7 @@
 import React from "react"
 import { StyleSheet, TouchableOpacity } from "react-native"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from '../../utils/toolbox'
 
 import Icon from "../basic/Icon"
 
@@ -15,7 +16,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const HeaderIconButton = React.memo(({
+const HeaderIconButton = ({
   onPress,
   uiStatus,
   style,
@@ -43,8 +44,6 @@ const HeaderIconButton = React.memo(({
     </TouchableOpacity>
   )
 
-})
+}
 
-HeaderIconButton.styledComponentName = 'HeaderIconButton'
-
-export default styled(HeaderIconButton)
+export default memoStyled(HeaderIconButton, 'HeaderIconButton')

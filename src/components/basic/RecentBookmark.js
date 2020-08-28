@@ -2,9 +2,9 @@ import React, { useState, useCallback, useMemo } from "react"
 import { Text, View, StyleSheet, PanResponder, I18nManager } from "react-native"
 // import { bindActionCreators } from "redux"
 // import { connect } from "react-redux"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
+import { memoStyled } from '../../utils/toolbox'
 
 const MAXIMUM_SWIPE_UP_AMOUNT = 30
 const MINIMUM_SWIPE_DOWN_AMOUNT = 10
@@ -55,7 +55,7 @@ const isCancelled = ({ dx, dy }) => (
   && Math.abs(dx) >= MINIMUM_CANCEL_AMOUNT
 )
 
-const RecentBookmark = React.memo(({
+const RecentBookmark = ({
   selected,
   text,
   discard,
@@ -154,8 +154,6 @@ const RecentBookmark = React.memo(({
     </View>
   )
 
-})
+}
 
-RecentBookmark.styledComponentName = 'RecentBookmark'
-
-export default styled(RecentBookmark)
+export default memoStyled(RecentBookmark, 'RecentBookmark')

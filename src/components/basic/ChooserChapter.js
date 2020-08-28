@@ -1,10 +1,9 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { i18nNumber } from "inline-i18n"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-
+import { memoStyled } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   chapter: {
@@ -17,7 +16,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ChooserChapter = React.memo(({
+const ChooserChapter = ({
   chapter,
   onPress,
   style,
@@ -55,8 +54,6 @@ const ChooserChapter = React.memo(({
     </TouchableHighlight>
   )
 
-})
+}
 
-ChooserChapter.styledComponentName = 'ChooserChapter'
-
-export default styled(ChooserChapter)
+export default memoStyled(ChooserChapter, 'ChooserChapter')

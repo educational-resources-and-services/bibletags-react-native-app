@@ -29,6 +29,7 @@
     "@react-native-community/hooks": "^2.6.0",
     "@react-native-community/netinfo": "5.9.2",
     "@ui-kitten/components": "^4.4.0",
+    "@ui-kitten/metro-config": "^5.0.0",
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "^8.2.3",
     "better-sqlite3": "7.1.0",

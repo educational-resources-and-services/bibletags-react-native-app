@@ -2,15 +2,15 @@ import React, { useCallback } from "react"
 // import { StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { styled } from "@ui-kitten/components"
 
 import useRouterState from "../../hooks/useRouterState"
 import { removeRecentSearch } from "../../redux/actions"
+import { memoStyled } from '../../utils/toolbox'
 
 import RecentBookmark from "./RecentBookmark"
 
 
-const RecentSearch = React.memo(({
+const RecentSearch = ({
   searchString,
   versionId,
   initialScrollInfo,
@@ -52,7 +52,7 @@ const RecentSearch = React.memo(({
     />
   )
 
-})
+}
 
 const mapStateToProps = () => ({
   // recentSearches,
@@ -62,6 +62,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeRecentSearch,
 }, dispatch)
 
-RecentSearch.styledComponentName = 'RecentSearch'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentSearch))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentSearch), 'RecentSearch')

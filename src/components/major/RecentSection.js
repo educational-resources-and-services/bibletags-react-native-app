@@ -2,14 +2,15 @@ import React from "react"
 import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from '../../utils/toolbox'
 
 import RecentRef from "../basic/RecentRef"
 import RecentSearch from "../basic/RecentSearch"
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFill,
+    ...StyleSheet.absoluteFillObject,
     top: 'auto',
     height: 75,
     zIndex: 5,
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const RecentSection = React.memo(({
+const RecentSection = ({
   passage,
   history,
   recentPassages,
@@ -83,7 +84,7 @@ const RecentSection = React.memo(({
     </View>
   )
 
-})
+}
 
 const mapStateToProps = ({ passage, history, recentPassages, recentSearches }) => ({
   passage,
@@ -96,6 +97,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setRef,
 }, dispatch)
 
-RecentSection.styledComponentName = 'RecentSection'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(RecentSection))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(RecentSection), 'RecentSection')

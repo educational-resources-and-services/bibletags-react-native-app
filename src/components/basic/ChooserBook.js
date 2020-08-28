@@ -1,9 +1,9 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
 import { getBibleBookName } from "bibletags-ui-helper"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { memoStyled } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   book: {
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ChooserBook = React.memo(({
+const ChooserBook = ({
   bookId,
   onPress,
   style,
@@ -54,8 +54,6 @@ const ChooserBook = React.memo(({
     </TouchableHighlight>
   )
 
-})
+}
 
-ChooserBook.styledComponentName = 'ChooserBook'
-
-export default styled(ChooserBook)
+export default memoStyled(ChooserBook, 'ChooserBook')

@@ -3,13 +3,14 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
-import { List, Layout, styled } from "@ui-kitten/components"
+import { List, Layout } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
+import { memoStyled } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
 
@@ -154,6 +155,4 @@ const mapStateToProps = ({ displaySettings }) => ({
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({
 }, dispatch)
 
-Drawer.styledComponentName = 'Drawer'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(Drawer))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(Drawer), 'Drawer')

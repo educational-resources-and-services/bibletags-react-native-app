@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useMemo, useCallback } from "react"
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Platform, Text, Animated, Easing } from "react-native"
-import { styled, Tooltip } from "@ui-kitten/components"
+import { Tooltip } from "@ui-kitten/components"
 import { OverflowMenu } from "@ui-kitten/components"
 import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, memoStyled } from "../../utils/toolbox"
 
 import Icon from "../basic/Icon"
 import Spin from "../basic/Spin"
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const VersionItem = React.memo(({
+const VersionItem = ({
   versionId,
   reorderable,
   reordering,
@@ -251,8 +251,6 @@ const VersionItem = React.memo(({
     </TouchableOpacity>
   )
 
-})
+}
 
-VersionItem.styledComponentName = 'VersionItem'
-
-export default styled(VersionItem)
+export default memoStyled(VersionItem, 'VersionItem')

@@ -1,9 +1,8 @@
 import React, { useCallback } from "react"
 import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, memoStyled } from "../../utils/toolbox"
 
 import Icon from "./Icon"
 
@@ -27,7 +26,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const ChooserVersion = React.memo(({
+const ChooserVersion = ({
   versionId,
   onPress,
   selected,
@@ -79,8 +78,6 @@ const ChooserVersion = React.memo(({
     </TouchableHighlight>
   )
 
-})
+}
 
-ChooserVersion.styledComponentName = 'ChooserVersion'
-
-export default styled(ChooserVersion)
+export default memoStyled(ChooserVersion, 'ChooserVersion')

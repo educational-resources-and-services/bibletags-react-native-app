@@ -1,10 +1,9 @@
 import React, { useCallback } from "react"
 import { View, StyleSheet, Text, I18nManager, TouchableOpacity } from "react-native"
 import { i18n } from "inline-i18n"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getVersionInfo, isRTLText } from "../../utils/toolbox"
+import { getVersionInfo, isRTLText, memoStyled } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 import RelativeTime from "./RelativeTime"
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const SearchSuggestion = React.memo(({
+const SearchSuggestion = ({
   searchString,
   versionId,
   scrollInfo,
@@ -131,8 +130,6 @@ const SearchSuggestion = React.memo(({
     </TouchableOpacity>
   )
 
-})
+}
 
-SearchSuggestion.styledComponentName = 'SearchSuggestion'
-
-export default styled(SearchSuggestion)
+export default memoStyled(SearchSuggestion, 'SearchSuggestion')

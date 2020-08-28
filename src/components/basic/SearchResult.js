@@ -7,10 +7,10 @@ import { i18n } from "inline-i18n"
 import { getRefFromLoc } from "bibletags-versification/src/versification"
 import { getPassageStr } from "bibletags-ui-helper"
 import { useDimensions } from "@react-native-community/hooks"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getCopyVerseText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
+import { isRTLText, getCopyVerseText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
+         adjustFontSize, memoStyled } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import useRouterState from "../../hooks/useRouterState"
 import { setRef } from "../../redux/actions"
@@ -79,7 +79,7 @@ const lightStyles = [
 
 const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
-const SearchResult = React.memo(({
+const SearchResult = ({
   result,
   languageId,
   isOriginal,
@@ -291,7 +291,7 @@ const SearchResult = React.memo(({
     </View>
   )
 
-})
+}
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
@@ -301,6 +301,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
 }, dispatch)
 
-SearchResult.styledComponentName = 'SearchResult'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(SearchResult))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(SearchResult), 'SearchResult')

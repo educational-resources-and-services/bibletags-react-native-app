@@ -4,12 +4,11 @@ import { View, ScrollView, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
          isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop } from '../../utils/toolbox'
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memoStyled } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -138,7 +137,7 @@ const lightStyles = [
 
 const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
-const ReadText = React.memo(({
+const ReadText = ({
   versionId,
   passageRef,
   selectedVerse,
@@ -361,8 +360,8 @@ const ReadText = React.memo(({
 
           if(
             previousPiece
-            && (!tag || (tag === 'w' && !isVisible))
-            && (!previousPiece.tag || (previousPiece.tag === 'w' && !isVisible))
+            && !tag
+            && !previousPiece.tag
             && text
             && previousPiece.text
           ) {
@@ -439,7 +438,7 @@ const ReadText = React.memo(({
               style={styles}
               onPress={goVerseTap}
               verseNumber={verse}
-              wordInfo={(tag === 'w' && isVisible) ? piece : null}
+              wordInfo={tag === 'w' ? piece : null}
             >
               {children
                 ? getJSXFromPieces({
@@ -515,7 +514,7 @@ const ReadText = React.memo(({
     </ScrollView>
   )
 
-})
+}
 
 const mapStateToProps = ({ displaySettings }) => ({
   displaySettings,
@@ -525,6 +524,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   // setTheme,
 }, dispatch)
 
-ReadText.styledComponentName = 'ReadText'
-
-export default styled(connect(mapStateToProps, matchDispatchToProps)(ReadText))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(ReadText), 'ReadText')

@@ -1,8 +1,8 @@
 import React from "react"
 import { StyleSheet, ScrollView, View, TouchableOpacity } from "react-native"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
+import { memoStyled } from '../../utils/toolbox'
 
 import Icon from "../basic/Icon"
 import ChooserVersion from "../basic/ChooserVersion"
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const VersionChooser = React.memo(({
+const VersionChooser = ({
   versionIds,
   selectedVersionId,
   update,
@@ -93,8 +93,6 @@ const VersionChooser = React.memo(({
     </ScrollView>
   )
 
-})
+}
 
-VersionChooser.styledComponentName = 'VersionChooser'
-
-export default styled(VersionChooser)
+export default memoStyled(VersionChooser, 'VersionChooser')

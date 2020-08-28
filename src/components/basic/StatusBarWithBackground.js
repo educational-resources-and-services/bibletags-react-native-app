@@ -1,6 +1,7 @@
 import React from "react"
 import { StyleSheet, View, StatusBar } from "react-native"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   background: {
@@ -39,6 +40,4 @@ const StatusBarWithBackground = ({
 
 }
 
-StatusBarWithBackground.styledComponentName = 'StatusBarWithBackground'
-
-export default styled(StatusBarWithBackground)
+export default memoStyled(StatusBarWithBackground, 'StatusBarWithBackground')

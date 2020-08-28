@@ -2,7 +2,6 @@ import React, { useState, useMemo, useCallback, useRef } from "react"
 import { StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { styled } from "@ui-kitten/components"
 import { Switch, Route } from "react-router-native"
 import { i18n } from "inline-i18n"
 import SortableList from "react-native-sortable-list"
@@ -10,13 +9,15 @@ import SortableList from "react-native-sortable-list"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { memoStyled } from '../../utils/toolbox'
+import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
+
 import SafeLayout from "../basic/SafeLayout"
 import VersionInfo from "./VersionInfo"
 import AddVersion from "./AddVersion"
 import BasicHeader from "../major/BasicHeader"
 import VersionItem from "../basic/VersionItem"
 import HeaderIconButton from "../basic/HeaderIconButton"
-import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
 
 const styles = StyleSheet.create({
   list: {
@@ -171,8 +172,6 @@ const Versions = ({
 
 }
 
-Versions.styledComponentName = 'Versions'
-
 const mapStateToProps = ({ myBibleVersions }) => ({
   myBibleVersions,
 })
@@ -183,4 +182,4 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   removeParallelVersion,
 }, dispatch)
 
-export default styled(connect(mapStateToProps, matchDispatchToProps)(Versions))
+export default memoStyled(connect(mapStateToProps, matchDispatchToProps)(Versions), 'Versions')

@@ -1,11 +1,11 @@
 import React, { useCallback } from "react"
 import * as Updates from 'expo-updates'
 import { AsyncStorage, StyleSheet } from "react-native"
-import { ListItem, styled } from "@ui-kitten/components"
+import { ListItem } from "@ui-kitten/components"
 
 import { getLocale } from "inline-i18n"
 
-import { fixRTL } from "../../utils/toolbox"
+import { fixRTL, memoStyled } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const LanguageItem = React.memo(({
+const LanguageItem = ({
   locale,
   label,
   style,
@@ -57,8 +57,6 @@ const LanguageItem = React.memo(({
     />
   )
 
-})
+}
 
-LanguageItem.styledComponentName = 'LanguageItem'
-
-export default styled(LanguageItem)
+export default memoStyled(LanguageItem, 'LanguageItem')

@@ -1,6 +1,7 @@
 import React from "react"
 import { View, StyleSheet } from "react-native"
-import { styled } from "@ui-kitten/components"
+
+import { memoStyled } from '../../utils/toolbox'
 
 const styles = StyleSheet.create({
   container: {
@@ -11,7 +12,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const GradualFade = React.memo(({
+const GradualFade = ({
   height=20,
   style,
   lineStyle,
@@ -38,8 +39,6 @@ const GradualFade = React.memo(({
       />
     ))}
   </View>
-))
+)
 
-GradualFade.styledComponentName = 'GradualFade'
-
-export default styled(GradualFade)
+export default memoStyled(GradualFade, 'GradualFade')

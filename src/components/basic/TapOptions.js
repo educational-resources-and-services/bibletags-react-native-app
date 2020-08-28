@@ -1,10 +1,11 @@
 import React, { useState } from "react"
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
 import { useDimensions } from "@react-native-community/hooks"
-import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useSetTimeout from "../../hooks/useSetTimeout"
+import { memoStyled } from '../../utils/toolbox'
+
 import Icon from "./Icon"
 
 const MAX_WIDTH_PER_BUTTON = 70
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const TapOptions = React.memo(({
+const TapOptions = ({
   options,
   centerX,
   bottomY,
@@ -125,8 +126,6 @@ const TapOptions = React.memo(({
     </View>
   )
 
-})
+}
 
-TapOptions.styledComponentName = 'TapOptions'
-
-export default styled(TapOptions)
+export default memoStyled(TapOptions, 'TapOptions')
