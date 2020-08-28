@@ -310,7 +310,7 @@ const ReadText = React.memo(({
         if(isOriginal && languageId.split('+').includes('heb')) {
           pieces = pieces
             .map(piece => {
-              if((piece.text || "").slice(-1) === 'פ') {
+              if(!piece.lemma && /^[ ׃]*פ$/.test(piece.text || "")) {
                 return [
                   {
                     ...piece,
@@ -322,7 +322,7 @@ const ReadText = React.memo(({
                     text: ' פ',
                   },
                 ]
-              } else if((piece.text || "").slice(-1) === 'ס') {
+              } else if(!piece.lemma && /^[ ׃]*ס$/.test(piece.text || "")) {
                 return [
                   {
                     ...piece,
