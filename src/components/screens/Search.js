@@ -8,7 +8,7 @@ import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
 import { styled } from "@ui-kitten/components"
 
 import { logEvent } from "../../utils/analytics"
-import { stripHebrew, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox"
+import { stripHebrew, normalizeGreek, executeSql, escapeLike, getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
@@ -182,7 +182,7 @@ const Search = ({
   )
 
   const updateEditedSearchString = useCallback(
-    searchString => setEditedSearchString(stripHebrew(searchString)),  // Needs to be modified to be version-specific
+    searchString => setEditedSearchString(normalizeGreek(stripHebrew(searchString))),  // Needs to be modified to be version-specific
     [],
   )
 

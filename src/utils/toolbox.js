@@ -16,45 +16,48 @@ const {
 } = Constants.manifest.extra
 
 const hebrewOrderingOfBookIds = [
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  9,
-  10,
-  11,
-  12,
-  23,
-  24,
-  26,
-  28,
-  29,
-  30,
-  31,
-  32,
-  33,
-  34,
-  35,
-  36,
-  37,
-  38,
-  39,
-  19,
-  20,
-  18,
-  22,
-  8,
-  25,
-  21,
-  17,
-  27,
-  15,
-  16,
-  13,
-  14,
+  ...[
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12,
+    23,
+    24,
+    26,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    19,
+    20,
+    18,
+    22,
+    8,
+    25,
+    21,
+    17,
+    27,
+    15,
+    16,
+    13,
+    14,
+  ],
+  ...Array(27).fill().map((x, idx) => idx+40),  // NT books are in the same order
 ]
 
 // const cachedSizes = {}
@@ -370,6 +373,9 @@ export const stripHebrew = (hebrewString="") => {
     .replace(wordDividerRegex, ' ')
     .toLowerCase()
 }
+
+// See https://stackoverflow.com/questions/23346506/javascript-normalize-accented-greek-characters/45797754#45797754
+export const normalizeGreek = (greekString="") => greekString.normalize('NFD').replace(/[\u0300-\u036f]/g, "")
 
 export const replaceWithJSX = (text, regexStr, getReplacement) => {
   let idx = 0

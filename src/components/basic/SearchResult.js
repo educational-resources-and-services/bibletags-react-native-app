@@ -10,7 +10,7 @@ import { useDimensions } from "@react-native-community/hooks"
 import { styled } from "@ui-kitten/components"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getCopyVerseText, stripHebrew, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
+import { isRTLText, getCopyVerseText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight, adjustFontSize } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import useRouterState from "../../hooks/useRouterState"
 import { setRef } from "../../redux/actions"
@@ -149,7 +149,7 @@ const SearchResult = React.memo(({
 
         const getPartOfPiece = (text, idx2) => {
 
-          const normalizedText = stripHebrew(text).toLowerCase()
+          const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
           const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
 
           if(text && styles.length === 0 && !isMatch) return text
@@ -176,7 +176,7 @@ const SearchResult = React.memo(({
         ;(text || "")
           .split(wordDividerSetsInGroupRegex)
           .forEach(word => {
-            if(searchWords.some(searchWord => stripHebrew(word).toLowerCase() === searchWord)) {  // Needs to be modified to be version-specific
+            if(searchWords.some(searchWord => normalizeGreek(stripHebrew(word)).toLowerCase() === searchWord)) {  // Needs to be modified to be version-specific
               textPieces.push(word)
               textPieces.push("")
             } else {
