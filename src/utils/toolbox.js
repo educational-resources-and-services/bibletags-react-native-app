@@ -10,7 +10,7 @@ import { i18n, isRTL } from "inline-i18n"
 import { getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
 import { styled } from "@ui-kitten/components"
 import useCounter from "react-use/lib/useCounter"
-import Animated, { Extrapolate } from "react-native-reanimated"
+// import Animated, { Extrapolate } from "react-native-reanimated"
 
 import bibleVersions from "../../versions"
 import useSetTimeout from "../hooks/useSetTimeout"
@@ -523,45 +523,45 @@ export const memo = (Component, options) => {
   return Component
 }
 
-const hexColorRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
-const rgbRegex = /^rgb\( *(\d{1,3}), *(\d{1,3}), *(\d{1,3}) *\)$/i
+// const hexColorRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+// const rgbRegex = /^rgb\( *(\d{1,3}), *(\d{1,3}), *(\d{1,3}) *\)$/i
 
-const colorToObj = colorStr => {
-  const result = hexColorRegex.exec(colorStr) || rgbRegex.exec(colorStr) || [null, 0, 0, 0]
-  const base = hexColorRegex.test(colorStr) ? 16 : 10
-  return {
-    r: parseInt(result[1], base),
-    g: parseInt(result[2], base),
-    b: parseInt(result[3], base),
-  }
-}
+// const colorToObj = colorStr => {
+//   const result = hexColorRegex.exec(colorStr) || rgbRegex.exec(colorStr) || [null, 0, 0, 0]
+//   const base = hexColorRegex.test(colorStr) ? 16 : 10
+//   return {
+//     r: parseInt(result[1], base),
+//     g: parseInt(result[2], base),
+//     b: parseInt(result[3], base),
+//   }
+// }
 
-export const interpolateColors = (
-  animationValue,
-  inputRange,
-  colorStrs,
-) => {
-  const colors = colorStrs.map(colorStr => colorToObj(colorStr))
-  const r = Animated.round(
-    Animated.interpolate(animationValue, {
-      inputRange,
-      outputRange: colors.map(c => c.r),
-      extrapolate: Extrapolate.CLAMP,
-    }),
-  )
-  const g = Animated.round(
-    Animated.interpolate(animationValue, {
-      inputRange,
-      outputRange: colors.map(c => c.g),
-      extrapolate: Extrapolate.CLAMP,
-    }),
-  )
-  const b = Animated.round(
-    Animated.interpolate(animationValue, {
-      inputRange,
-      outputRange: colors.map(c => c.b),
-      extrapolate: Extrapolate.CLAMP,
-    }),
-  )
-  return Animated.color(r, g, b)
-}
+// export const interpolateColors = (
+//   animationValue,
+//   inputRange,
+//   colorStrs,
+// ) => {
+//   const colors = colorStrs.map(colorStr => colorToObj(colorStr))
+//   const r = Animated.round(
+//     Animated.interpolate(animationValue, {
+//       inputRange,
+//       outputRange: colors.map(c => c.r),
+//       extrapolate: Extrapolate.CLAMP,
+//     }),
+//   )
+//   const g = Animated.round(
+//     Animated.interpolate(animationValue, {
+//       inputRange,
+//       outputRange: colors.map(c => c.g),
+//       extrapolate: Extrapolate.CLAMP,
+//     }),
+//   )
+//   const b = Animated.round(
+//     Animated.interpolate(animationValue, {
+//       inputRange,
+//       outputRange: colors.map(c => c.b),
+//       extrapolate: Extrapolate.CLAMP,
+//     }),
+//   )
+//   return Animated.color(r, g, b)
+// }
