@@ -267,7 +267,14 @@ const ReadText = ({
 
   const goVerseTap = useCallback(
     ({ selectedVerse, ...otherParams }) => {
-      if(selectedVerse == null) return
+      const onVerseTap = getOnVerseTap()
+
+      if(!onVerseTap) return
+
+      if(selectedVerse == null) {
+        onVerseTap()
+        return
+      }
 
       let verseUsfm
       verses.current.some(({ loc, usfm }) => {
@@ -294,8 +301,7 @@ const ReadText = ({
         versionAbbr: abbr,
       })
 
-      const onVerseTap = getOnVerseTap()
-      onVerseTap && onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
+      onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
     },
     [ versionId, passageRef ],
   )
