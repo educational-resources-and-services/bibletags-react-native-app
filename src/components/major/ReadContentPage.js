@@ -5,8 +5,9 @@ import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
 import { getCorrespondingRefs } from "bibletags-versification/src/versification"
 
-import { getVersionInfo, getOriginalVersionInfo, memo } from "../../utils/toolbox"
+import { getVersionInfo, getOriginalVersionInfo, memo, readHeaderHeight, readHeaderMarginTop } from "../../utils/toolbox"
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"
+import useInstanceValue from "../../hooks/useInstanceValue"
 import { setPassageScroll } from "../../redux/actions"
 
 import ReadText from "./ReadText"
@@ -66,6 +67,8 @@ const ReadContentPage = (({
   const secondaryHeight = useRef(0)
   const numberOfVersesInPrimary = useRef(0)
 
+  const heightPerVersion = parallelVersionId ? height/2 : height
+
   const onPrimaryTouchStart = useCallback(
     event => {
       event && setFocussedVerse()
@@ -85,7 +88,7 @@ const ReadContentPage = (({
   const onPrimaryLayout = useCallback(
     ({ nativeEvent }) => {
       primaryHeight.current = nativeEvent.layout.height
-      checkPrimaryLoaded()
+      getCheckPrimaryLoaded()()
     },
     [],
   )
@@ -150,7 +153,7 @@ const ReadContentPage = (({
   const onPrimaryContentSizeChange = useCallback(
     (contentWidth, contentHeight) => {
       primaryContentHeight.current = contentHeight
-      checkPrimaryLoaded()
+      getCheckPrimaryLoaded()()
     },
     [],
   )
@@ -165,7 +168,7 @@ const ReadContentPage = (({
 
   const reportNumberOfVerses = useCallback(num => { numberOfVersesInPrimary.current = num }, [])
 
-  const checkPrimaryLoaded = useCallback(
+  const getCheckPrimaryLoaded = useInstanceValue(
     () => {
       if(!(
         primaryHeight.current
@@ -177,8 +180,10 @@ const ReadContentPage = (({
 
       } else {
         const { verse } = passageScrollY || {}
+        // replace this with actually getting the layout of the verse and putting it in the middle
         if(verse && numberOfVersesInPrimary.current) {
-          const avgHeightPerVerse = parseInt(primaryContentHeight.current / numberOfVersesInPrimary.current, 10)
+          const paddingBottom = heightPerVersion - (readHeaderMarginTop + readHeaderHeight) + 75
+          const avgHeightPerVerse = parseInt((primaryContentHeight.current - paddingBottom) / numberOfVersesInPrimary.current, 10)
           const toMiddleAdjustment = parseInt((primaryHeight.current - avgHeightPerVerse) / 2, 10)
           const primaryMaxScroll = Math.max(primaryContentHeight.current - primaryHeight.current, 0)
           primaryScrollY.current = Math.max(0, Math.min(avgHeightPerVerse * (verse - 1) - toMiddleAdjustment, primaryMaxScroll))
@@ -198,8 +203,7 @@ const ReadContentPage = (({
 
       setUpParallelScroll()
       setPrimaryLoaded(true)
-    },
-    [ passageScrollY, setUpParallelScroll ],
+    }
   )
 
   const onSecondaryLoaded = useCallback(() => setSecondaryLoaded(true), [])
@@ -261,7 +265,7 @@ const ReadContentPage = (({
         onTouchEnd={!direction ? onTouchEnd : null}
         onScroll={!direction ? onPrimaryScroll : null}
         onLayout={!direction ? onPrimaryLayout : null}
-        height={parallelVersionId ? height/2 : height}
+        height={heightPerVersion}
         onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
         onVerseTap={!direction ? onPrimaryVerseTap : null}
         forwardRef={!direction ? primaryRef : null}
@@ -295,7 +299,7 @@ const ReadContentPage = (({
             onTouchEnd={!direction ? onTouchEnd : null}
             onScroll={!direction ? onSecondaryScroll : null}
             onLayout={!direction ? onSecondaryLayout : null}
-            height={height/2}
+            height={heightPerVersion}
             onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
             onLoaded={!direction ? onSecondaryLoaded : null}
             onVerseTap={!direction ? onSecondaryVerseTap : null}
