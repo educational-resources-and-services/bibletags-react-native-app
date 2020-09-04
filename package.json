@@ -33,7 +33,7 @@
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "^8.2.3",
     "better-sqlite3": "7.1.0",
-    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#79f324f0e0da91f0cf80141d3f405e9de6359e80",
+    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#09ec034c2d41462ef218db80069467f56b49fbdc",
     "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#17e87515d6933edbbcf8b969fa30499ca539f4a9",
     "deepmerge": "4.2.2",
     "expo": "^38.0.0",
