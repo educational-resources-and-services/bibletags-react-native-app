@@ -16,6 +16,7 @@ import ReadContent from "../major/ReadContent"
 import DisplaySettings from "../major/DisplaySettings"
 import PassageChooser from "../major/PassageChooser"
 import RevealContainer from "../basic/RevealContainer"
+import LowerPanel from "../basic/LowerPanel"
 import RecentSection from "../major/RecentSection"
 import IPhoneXBuffer from "../basic/IPhoneXBuffer"
 
@@ -116,6 +117,9 @@ const Read = () => {
             setSelectedInfo={setSelectedInfo}
           />
           <RecentSection />
+          <LowerPanel
+            selectedInfo={selectedInfo}
+          />
           {!!showingPassageChooser &&
             <TouchableWithoutFeedback
               style={styles.invisibleCover}
