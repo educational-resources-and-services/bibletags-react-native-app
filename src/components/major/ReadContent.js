@@ -46,7 +46,7 @@ const ReadContent = React.memo(({
   const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
 
   const { selectedSection, selectedVerse } = selectedInfo
-  const getSelectedSection = useInstanceValue(selectedSection)
+  const getSelectedInfo = useInstanceValue(selectedInfo)
 
   const containerRef = useRef()
   const scrollController = useRef('primary')
@@ -135,7 +135,15 @@ const ReadContent = React.memo(({
   const onVerseTap = useCallback(
     ({ selectedSection, selectedVerse, selectedTextContent, selectedWordInfo, pageX, pageY }={}) => {
 
-      if(getSelectedSection()) {
+      const currentSelectedInfo = getSelectedInfo()
+
+      if(
+        currentSelectedInfo.selectedSection
+        && !(
+          currentSelectedInfo.selectedSection === selectedSection
+          && currentSelectedInfo.selectedVerse === selectedVerse
+        )
+      ) {
         setSelectedInfo({})
         return
       }
