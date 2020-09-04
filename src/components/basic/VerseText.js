@@ -2,6 +2,7 @@ import React, { useCallback } from "react"
 import { Text } from "react-native"
 
 import { memo } from "../../utils/toolbox"
+// import detectChangingProps from "../../utils/detectChangingProps"
 
 const VerseText = ({
   style,
@@ -35,4 +36,5 @@ const VerseText = ({
  
 }
 
+// export default memo(detectChangingProps('VerseText', VerseText), { jsonMemoProps: [ 'style', 'wordInfo' ], memoPropMap: { textOpacityStyle: 'isVisible' } })
 export default memo(VerseText, { jsonMemoProps: [ 'style', 'wordInfo' ] })

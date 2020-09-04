@@ -9,8 +9,12 @@ import { getPassageStr } from "bibletags-ui-helper"
 import { i18n, isRTL } from "inline-i18n"
 import { getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
 import { styled } from "@ui-kitten/components"
+import useCounter from "react-use/lib/useCounter"
+import Animated, { Extrapolate } from "react-native-reanimated"
 
 import bibleVersions from "../../versions"
+import useSetTimeout from "../hooks/useSetTimeout"
+import useChangeIndex from "../hooks/useChangeIndex"
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,
@@ -458,7 +462,7 @@ export const objectMap = (obj, fn) => (
 )
 
 export const memo = (Component, options) => {
-  const { name, jsonMemoProps=[] } = options
+  const { name, jsonMemoProps=[], memoPropMap={} } = options
 
   if(name) {
     Component.styledComponentName = name
@@ -467,25 +471,97 @@ export const memo = (Component, options) => {
 
   Component = React.memo(Component)
 
-  if(jsonMemoProps.length > 0) {
+  if(jsonMemoProps.length > 0 || Object.keys(memoPropMap).length > 0) {
 
-    return props => {
-  
+    return ({ delayRenderMs, ignoreChildrenChanging, ...props }) => {
+
       const modifiedProps = { ...props }
-  
+
+      const [ setDelayRenderTimeout ] = useSetTimeout()
+      const [ renderIdx, { inc }] = useCounter(0)
+
       jsonMemoProps.forEach(key => {
         modifiedProps[key] = useMemo(
-          () => props[key],
-          [ JSON.stringify(props[key]) ],
+          () => modifiedProps[key],
+          [ JSON.stringify(modifiedProps[key]) ],
         )
       })
-    
+
+      Object.keys(memoPropMap).forEach(key => {
+        modifiedProps[key] = useMemo(
+          () => modifiedProps[key],
+          [ modifiedProps[memoPropMap[key]] ],
+        )
+      })
+
+      const ignoreChildrenFalseIndex = useChangeIndex(!!ignoreChildrenChanging, (prev, current) => !current)  // iterate every time it is false
+      const memoChildren = useMemo(() => props.children, [ ignoreChildrenFalseIndex ])
+
+      if(ignoreChildrenChanging) {
+        modifiedProps.children = memoChildren
+      }
+
+      const propsToPass = useMemo(
+        () => modifiedProps,
+        [
+          renderIdx,
+          (!delayRenderMs ? Math.random() : null),
+        ],
+      )
+
+      if(delayRenderMs) {
+        setDelayRenderTimeout(inc, delayRenderMs)
+      }
+
       return (
-        <Component {...modifiedProps} />
+        <Component {...propsToPass} />
       )
     }
 
   }
 
   return Component
+}
+
+const hexColorRegex = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+const rgbRegex = /^rgb\( *(\d{1,3}), *(\d{1,3}), *(\d{1,3}) *\)$/i
+
+const colorToObj = colorStr => {
+  const result = hexColorRegex.exec(colorStr) || rgbRegex.exec(colorStr) || [null, 0, 0, 0]
+  const base = hexColorRegex.test(colorStr) ? 16 : 10
+  return {
+    r: parseInt(result[1], base),
+    g: parseInt(result[2], base),
+    b: parseInt(result[3], base),
+  }
+}
+
+export const interpolateColors = (
+  animationValue,
+  inputRange,
+  colorStrs,
+) => {
+  const colors = colorStrs.map(colorStr => colorToObj(colorStr))
+  const r = Animated.round(
+    Animated.interpolate(animationValue, {
+      inputRange,
+      outputRange: colors.map(c => c.r),
+      extrapolate: Extrapolate.CLAMP,
+    }),
+  )
+  const g = Animated.round(
+    Animated.interpolate(animationValue, {
+      inputRange,
+      outputRange: colors.map(c => c.g),
+      extrapolate: Extrapolate.CLAMP,
+    }),
+  )
+  const b = Animated.round(
+    Animated.interpolate(animationValue, {
+      inputRange,
+      outputRange: colors.map(c => c.b),
+      extrapolate: Extrapolate.CLAMP,
+    }),
+  )
+  return Animated.color(r, g, b)
 }

@@ -4,6 +4,7 @@ import { View, ScrollView, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
+import usePrevious from "react-use/lib/usePrevious"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
@@ -179,6 +180,9 @@ const ReadText = ({
   const verses = useRef()
   const contentSizeParams = useRef()
 
+  const previousSelectedVerse = usePrevious(selectedVerse)
+  const previousFocussedVerse = usePrevious(focussedVerse)
+
   useEffect(
     () => {
       if(pieces && onLoaded) {
@@ -300,7 +304,7 @@ const ReadText = ({
     () => {
       let vs = null
 
-      const getJSXFromPieces = ({ pieces }) => {
+      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse }) => {
 
         const { font, textSize, lineSpacing, theme } = displaySettings
         const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
@@ -399,7 +403,7 @@ const ReadText = ({
             light,
           })
 
-          const styles = [
+          const style = StyleSheet.flatten([
             wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
             getStyle({ tag, styles: textStyles }),
             {
@@ -414,31 +418,73 @@ const ReadText = ({
             fontSize && { fontSize },
             lineHeight && { lineHeight },
             fontFamily && { fontFamily },
-            (selectedVerse !== null && verse !== undefined && (
-              verse === selectedVerse
-                ? { color: '#000000' }
-                : { color: '#bbbbbb' }
-            )),
-            (focussedVerse !== undefined && verse !== undefined && (
-              verse === focussedVerse
-                ? { color: '#000000' }
-                : { color: '#999999' }
-            )),
-          ].filter(s => s)
+          ])
+
+          const hasSelectedVerseChild = selectedVerse && (children || []).some(child => child.verse === selectedVerse)
+          const hadSelectedVerseChild = previousSelectedVerse && (children || []).some(child => child.verse === previousSelectedVerse)
+          const hasFocussedVerseChild = focussedVerse && (children || []).some(child => child.verse === focussedVerse)
+          const hadFocussedVerseChild = previousFocussedVerse && (children || []).some(child => child.verse === previousFocussedVerse)
+
+          if(
+            selectedVerse !== null
+            && verse !== undefined
+            && verse !== selectedVerse
+            && sharesBlockWithSelectedVerse
+          ) {
+            style.color = 'rgba(0, 0, 0, .2)'
+          }
+
+          if(
+            selectedVerse !== null
+            && wrapInView
+            && !hasSelectedVerseChild
+          ) {
+            style.opacity = .2
+          }
+
+          if(
+            focussedVerse !== undefined
+            && verse !== undefined
+            && verse !== focussedVerse
+            && sharesBlockWithFocussedVerse
+          ) {
+            style.color = 'rgba(0, 0, 0, .2)'
+          }
+
+          if(
+            focussedVerse !== undefined
+            && wrapInView
+            && !hasFocussedVerseChild
+          ) {
+            style.opacity = .2
+          }
+
+          const ignoreChildrenChanging = (
+            vs !== selectedVerse
+            && vs !== previousSelectedVerse
+            && !hasSelectedVerseChild
+            && !hadSelectedVerseChild
+            && !hasFocussedVerseChild
+            && !hadFocussedVerseChild
+          )
 
           textAlreadyDisplayedInThisView = true
 
           let component = (
             <VerseText
               key={idx}
-              style={styles}
+              style={style}
               onPress={goVerseTap}
               verseNumber={vs}
               wordInfo={tag === 'w' ? piece : null}
+              // delayRenderMs={vs > 1 ? 500 : 0}
+              ignoreChildrenChanging={ignoreChildrenChanging}
             >
               {children
                 ? getJSXFromPieces({
                   pieces: children,
+                  sharesBlockWithSelectedVerse: hasSelectedVerseChild,
+                  sharesBlockWithFocussedVerse: hasFocussedVerseChild,
                 })
                 : (text || content)
               }
