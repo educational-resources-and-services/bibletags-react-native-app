@@ -13,7 +13,7 @@ import { isRTLText, getCopyVerseText, stripHebrew, normalizeGreek, getTextFont, 
          adjustFontSize, memo } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import useRouterState from "../../hooks/useRouterState"
-import { setRef } from "../../redux/actions"
+import { setRef, setVersionId } from "../../redux/actions"
 
 import TapOptions from "./TapOptions"
 
@@ -89,6 +89,7 @@ const SearchResult = ({
   onTouchStart,
   onTouchEnd,
   onSelect,
+  versionId,
   versionAbbr,
   unselect,
   style,
@@ -99,6 +100,7 @@ const SearchResult = ({
   displaySettings,
 
   setRef,
+  setVersionId,
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
@@ -202,6 +204,7 @@ const SearchResult = ({
         label: i18n("Read"),
         action: () => {
           historyGoBack()
+          setVersionId({ versionId })
           setRef({ ref })
         }
       },
@@ -219,7 +222,7 @@ const SearchResult = ({
         }
       },
     ]),
-    [ pieces, ref, versionAbbr, unselect ],
+    [ pieces, ref, versionAbbr, versionId, unselect ],
   )
 
   const onPress = useCallback(
@@ -299,6 +302,7 @@ const mapStateToProps = ({ displaySettings }) => ({
 
 const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
+  setVersionId,
 }, dispatch)
 
 export default memo(connect(mapStateToProps, matchDispatchToProps)(SearchResult), { name: 'SearchResult' })

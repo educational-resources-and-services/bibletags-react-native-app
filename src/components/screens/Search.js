@@ -245,6 +245,7 @@ const Search = ({
           searchString={searchedString}
           languageId={languageId}
           isOriginal={isOriginal}
+          versionId={versionId}
           versionAbbr={versionAbbr}
           selected={selected}
           uiStatus={selected ? "selected" : "unselected"}
