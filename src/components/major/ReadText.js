@@ -303,6 +303,7 @@ const ReadText = ({
   const getJSX = useCallback(
     () => {
       let vs = null
+      let textAlreadyDisplayedInThisView = false
 
       const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse }) => {
 
@@ -355,8 +356,6 @@ const ReadText = ({
             .flat()
         }
 
-        let textAlreadyDisplayedInThisView = false
-
         const simplifiedPieces = []
         pieces.forEach(piece => {
           const { tag, text } = piece
@@ -383,13 +382,17 @@ const ReadText = ({
 
           vs = verse || vs
 
+          const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
+
+          if(wrapInView) {
+            textAlreadyDisplayedInThisView = false
+          }
+
           if([ "v", "vp" ].includes(tag) && content) {
             const nextPiece = simplifiedPieces[idx+1] || {}
             if(tag === "v" && nextPiece.tag === "vp") return null
             content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
           }
-
-          const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
 
           const bold = boldStyles.includes(tag)
           const italic = italicStyles.includes(tag)
@@ -468,7 +471,9 @@ const ReadText = ({
             && !hadFocussedVerseChild
           )
 
-          textAlreadyDisplayedInThisView = true
+          if(!children) {
+            textAlreadyDisplayedInThisView = true
+          }
 
           let component = (
             <VerseText
