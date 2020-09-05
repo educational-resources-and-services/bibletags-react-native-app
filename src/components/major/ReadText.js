@@ -457,6 +457,14 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
+            && tag === 'v'
+            && vs === selectedVerse
+          ) {
+            style.color = 'black'
+          }
+
+          if(
+            selectedVerse !== null
             && verse !== undefined
             && verse !== selectedVerse
             && sharesBlockWithSelectedVerse
