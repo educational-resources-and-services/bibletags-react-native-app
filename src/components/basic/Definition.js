@@ -54,6 +54,11 @@ const Definition = ({
     [ strong ],
   )
 
+  const strongs = strong
+    // .split('-')[0]  // get rid of -eng or the like
+    .replace(/^.*:/, '')  // get rid of prefix
+    .replace(/^G0+/, 'G')  // get rid of leading zeros
+
   return (
     <View style={styles.container}>
       <Text style={styles.line}>
@@ -67,7 +72,7 @@ const Definition = ({
         </Text> */}
         {`  `}
         <Text style={styles.strongs}>
-          {strong}
+          {strongs}
         </Text>
         {/* {`  `}
         <Text style={styles.num}>
