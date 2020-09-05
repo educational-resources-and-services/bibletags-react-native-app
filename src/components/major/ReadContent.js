@@ -45,7 +45,7 @@ const ReadContent = React.memo(({
   const [ primaryLoaded, setPrimaryLoaded ] = useState(false)
   const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
 
-  const { selectedSection, selectedVerse } = selectedInfo
+  const { selectedSection, selectedVerse, selectedWordInfo } = selectedInfo
   const getSelectedInfo = useInstanceValue(selectedInfo)
 
   const containerRef = useRef()
@@ -174,6 +174,7 @@ const ReadContent = React.memo(({
         passage={passage}
         selectedSection={direction ? null : selectedSection}
         selectedVerse={direction ? null : selectedVerse}
+        selectedWordInfo={direction ? null : selectedWordInfo}
         onTouchStart={onTouchStart}
         // onTouchEnd={onTouchEnd}
         primaryScrollY={primaryScrollY}

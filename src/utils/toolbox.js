@@ -68,6 +68,7 @@ const hebrewOrderingOfBookIds = [
 // const cachedSizes = {}
 
 export const cloneObj = obj => JSON.parse(JSON.stringify(obj))
+export const equalObjs = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2)
 
 export const isIPhoneX = isIphoneX()
 export const iPhoneXInset = {

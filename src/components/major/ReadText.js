@@ -8,7 +8,7 @@ import usePrevious from "react-use/lib/usePrevious"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX,
+         isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX, equalObjs,
          iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
@@ -142,6 +142,7 @@ const ReadText = ({
   versionId,
   passageRef,
   selectedVerse,
+  selectedWordInfo,
   focussedVerse,
   isVisible,
   isParallel,
@@ -437,10 +438,30 @@ const ReadText = ({
           if(
             selectedVerse !== null
             && verse !== undefined
+            && verse === selectedVerse
+            && !!selectedWordInfo
+          ) {
+            style.color = 'rgba(0, 0, 0, .3)'
+          }
+
+          if(
+            selectedVerse !== null
+            && tag === 'w'
+            && vs === selectedVerse
+            && equalObjs(selectedWordInfo, piece)
+          ) {
+            style.color = 'black'
+            style.textShadowColor = 'black'
+            style.textShadowRadius = Platform.OS === 'ios' ? 20 : 50
+          }
+
+          if(
+            selectedVerse !== null
+            && verse !== undefined
             && verse !== selectedVerse
             && sharesBlockWithSelectedVerse
           ) {
-            style.color = 'rgba(0, 0, 0, .2)'
+            style.color = 'rgba(0, 0, 0, .1)'
           }
 
           if(
@@ -448,7 +469,7 @@ const ReadText = ({
             && wrapInView
             && !hasSelectedVerseChild
           ) {
-            style.opacity = .2
+            style.opacity = .1
           }
 
           if(
@@ -522,7 +543,7 @@ const ReadText = ({
 
       return getJSXFromPieces({ pieces })
     },
-    [ pieces, displaySettings, selectedVerse, focussedVerse, bookId, languageId, isOriginal, isVisible ],
+    [ pieces, displaySettings, selectedVerse, selectedWordInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
   )
 
   if(!pieces) {
