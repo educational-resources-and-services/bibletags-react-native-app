@@ -171,6 +171,13 @@ const ReadText = ({
     pehThemedStyle={},
     samechThemedStyle={},
     selahThemedStyle={},
+    unfocussedBlockThemedStyle={},
+    unfocussedThemedStyle={},
+    unselectedBlockThemedStyle={},
+    unselectedThemedStyle={},
+    semiSelectedVsThemedStyle={},
+    selectedWordThemedStyle={},
+    selectedVsThemedStyle={},
   ] = altThemedStyleSets
 
   const [ state, setState ] = useState({})
@@ -413,7 +420,7 @@ const ReadText = ({
             light,
           })
 
-          const style = StyleSheet.flatten([
+          let style = StyleSheet.flatten([
             wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
             getStyle({ tag, styles: textStyles }),
             {
@@ -441,18 +448,23 @@ const ReadText = ({
             && verse === selectedVerse
             && !!selectedWordInfo
           ) {
-            style.color = 'rgba(0, 0, 0, .3)'
+            style = {
+              ...style,
+              ...semiSelectedVsThemedStyle,
+            }
           }
-
+      
           if(
             selectedVerse !== null
             && tag === 'w'
             && vs === selectedVerse
             && equalObjs(selectedWordInfo, piece)
           ) {
-            style.color = 'black'
-            style.textShadowColor = 'black'
-            style.textShadowRadius = Platform.OS === 'ios' ? 20 : 50
+            style = {
+              ...style,
+              ...selectedWordThemedStyle,
+              textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
+            }
           }
 
           if(
@@ -460,7 +472,10 @@ const ReadText = ({
             && tag === 'v'
             && vs === selectedVerse
           ) {
-            style.color = 'black'
+            style = {
+              ...style,
+              ...selectedVsThemedStyle,
+            }
           }
 
           if(
@@ -469,7 +484,10 @@ const ReadText = ({
             && verse !== selectedVerse
             && sharesBlockWithSelectedVerse
           ) {
-            style.color = 'rgba(0, 0, 0, .1)'
+            style = {
+              ...style,
+              ...unselectedThemedStyle,
+            }
           }
 
           if(
@@ -477,7 +495,10 @@ const ReadText = ({
             && wrapInView
             && !hasSelectedVerseChild
           ) {
-            style.opacity = .1
+            style = {
+              ...style,
+              ...unselectedBlockThemedStyle,
+            }
           }
 
           if(
@@ -486,7 +507,10 @@ const ReadText = ({
             && verse !== focussedVerse
             && sharesBlockWithFocussedVerse
           ) {
-            style.color = 'rgba(0, 0, 0, .2)'
+            style = {
+              ...style,
+              ...unfocussedThemedStyle,
+            }
           }
 
           if(
@@ -494,7 +518,10 @@ const ReadText = ({
             && wrapInView
             && !hasFocussedVerseChild
           ) {
-            style.opacity = .2
+            style = {
+              ...style,
+              ...unfocussedBlockThemedStyle,
+            }
           }
 
           const ignoreChildrenChanging = (

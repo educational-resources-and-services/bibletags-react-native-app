@@ -347,6 +347,14 @@ const mapping = {
         alt4Color: "color-basic-500", // pehThemedStyle
         alt5Color: "color-basic-500", // samechThemedStyle
         alt6Color: "color-basic-600", // selahThemedStyle
+        alt7Opacity: 0.2, // unfocussedBlockThemedStyle
+        alt8Color: "rgba(0, 0, 0, .2)", // unfocussedThemedStyle
+        alt9Opacity: 0.1, // unselectedBlockThemedStyle
+        alt10Color: "rgba(0, 0, 0, .1)", // unselectedThemedStyle
+        alt11Color: "rgba(0, 0, 0, .3)", // semiSelectedVsThemedStyle
+        alt12Color: "black", // selectedWordThemedStyle
+        alt12TextShadowColor: "black", // selectedWordThemedStyle
+        alt13Color: "black", // selectedVsThemedStyle
       },
     },
     {
