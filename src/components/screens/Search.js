@@ -248,7 +248,6 @@ const Search = ({
           versionId={versionId}
           versionAbbr={versionAbbr}
           selected={selected}
-          uiStatus={selected ? "selected" : "unselected"}
           selectTapY={selected ? selectTapY : null}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}

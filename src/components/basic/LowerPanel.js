@@ -5,6 +5,7 @@ import usePrevious from "react-use/lib/usePrevious"
 
 import RevealContainer from "../basic/RevealContainer"
 import LowerPanelWord from "./LowerPanelWord"
+import LowerPanelVsComparison from "./LowerPanelVsComparison"
 
 const styles = StyleSheet.create({
   container: {
@@ -12,7 +13,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'black',
   },
   scrollView: {
     flex: 1,
@@ -25,7 +25,7 @@ const LowerPanel = ({
 
   const previousSelectedInfo = usePrevious(selectedInfo)
 
-  const { selectedSection, selectedWordInfo } = (selectedInfo.selectedSection ? selectedInfo : previousSelectedInfo) || {}
+  const { selectedVerse, selectedWordInfo } = (selectedInfo.selectedSection ? selectedInfo : previousSelectedInfo) || {}
   const show = !!selectedInfo.selectedSection
 
   const [ contentHeight, setContentHeight ] = useState(300)
@@ -50,6 +50,13 @@ const LowerPanel = ({
         selectedWordInfo={selectedWordInfo}
       />
     )
+
+  } else if(selectedVerse) {
+    contents = (
+      <LowerPanelVsComparison
+        selectedVerse={selectedVerse}
+      />
+    )
   }
 
   const onContentSizeChange = useCallback(
@@ -71,6 +78,7 @@ const LowerPanel = ({
       <ScrollView
         style={styles.scrollView}
         onContentSizeChange={onContentSizeChange}
+        alwaysBounceVertical={false}
       >
         {contents}
       </ScrollView>

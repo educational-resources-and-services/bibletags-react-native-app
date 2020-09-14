@@ -15,6 +15,7 @@ import useCounter from "react-use/lib/useCounter"
 import bibleVersions from "../../versions"
 import useSetTimeout from "../hooks/useSetTimeout"
 import useChangeIndex from "../hooks/useChangeIndex"
+import useJsonMemo from "../hooks/useJsonMemo"
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,
@@ -482,10 +483,7 @@ export const memo = (Component, options) => {
       const [ renderIdx, { inc }] = useCounter(0)
 
       jsonMemoProps.forEach(key => {
-        modifiedProps[key] = useMemo(
-          () => modifiedProps[key],
-          [ JSON.stringify(modifiedProps[key]) ],
-        )
+        modifiedProps[key] = useJsonMemo(modifiedProps[key])
       })
 
       Object.keys(memoPropMap).forEach(key => {

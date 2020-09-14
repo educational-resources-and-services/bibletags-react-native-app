@@ -28,7 +28,7 @@ const VerseText = ({
   return (
     <Text
       style={style}
-      onPress={goPress}
+      onPress={onPress ? goPress : null}
     >
       {children}
     </Text>

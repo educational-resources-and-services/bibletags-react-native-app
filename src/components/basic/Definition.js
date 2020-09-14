@@ -5,7 +5,8 @@ import { isIPhoneX } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#888888',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, .15)',
     paddingVertical: 15,
     paddingHorizontal: 18,
     ...(!isIPhoneX ? {} : {

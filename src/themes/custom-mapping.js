@@ -214,20 +214,25 @@ const mapping = {
       },
     },
     {
-      component: 'SearchResult',
+      component: 'Verse',
       parameters: {
-        alt0Color: "border-danger-color-3",
+        alt0Color: "border-danger-color-3",  // match
       },
       variantGroups: {
         uiStatus: {
           unselected: {
             color: "text-hint-color",
-            labelcolor: "text-basic-color",
           },
           selected: {
             color: "text-basic-color",
           },
         },
+      },
+    },
+    {
+      component: 'SearchResult',
+      parameters: {
+        labelColor: "text-basic-color",
       },
     },
     {

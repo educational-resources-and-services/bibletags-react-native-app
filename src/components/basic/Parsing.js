@@ -10,7 +10,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   morph: {
-    color: 'white',
   },
 })
 
