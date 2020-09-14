@@ -1,7 +1,8 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react"
-import { StyleSheet, ScrollView } from "react-native"
+import React, { useState, useMemo, useCallback } from "react"
+import { StyleSheet, ScrollView, Platform } from "react-native"
 import { useDimensions } from '@react-native-community/hooks'
 import usePrevious from "react-use/lib/usePrevious"
+import { BoxShadow } from 'react-native-shadow'
 
 import RevealContainer from "../basic/RevealContainer"
 import LowerPanelWord from "./LowerPanelWord"
@@ -13,9 +14,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    elevation: 0,
   },
   scrollView: {
     flex: 1,
+    backgroundColor: 'white',
   },
 })
 
@@ -30,7 +33,7 @@ const LowerPanel = ({
 
   const [ contentHeight, setContentHeight ] = useState(300)
 
-  const { height: windowHeight } = useDimensions().window
+  const { width: windowWidth, height: windowHeight } = useDimensions().window
 
   const containerStyle = useMemo(
     () => StyleSheet.flatten([
@@ -39,6 +42,20 @@ const LowerPanel = ({
         height: Math.min(contentHeight, windowHeight/2),
       },
     ]),
+    [ windowHeight, contentHeight ],
+  )
+
+  const shadowSetting = useMemo(
+    () => ({
+      width: windowWidth,
+      height: windowHeight,
+      color:"#000",
+      border: 40,
+      radius: 0,
+      opacity: 0.08,
+      x: 0,
+      y: 0,
+    }),
     [ windowHeight, contentHeight ],
   )
 
@@ -68,6 +85,24 @@ const LowerPanel = ({
     [],
   )
 
+  let wrappedContents = (
+    <ScrollView
+      style={styles.scrollView}
+      onContentSizeChange={onContentSizeChange}
+      alwaysBounceVertical={false}
+    >
+      {contents}
+    </ScrollView>
+  )
+
+  if(Platform.OS === 'android') {
+    wrappedContents = (
+      <BoxShadow setting={shadowSetting}>
+        {wrappedContents}
+      </BoxShadow>
+    )
+  }
+
   return (
     <RevealContainer
       revealAmount={(show ? 0 : containerStyle.height)}
@@ -75,16 +110,9 @@ const LowerPanel = ({
       style={containerStyle}
       duration={100}
     >
-      <ScrollView
-        style={styles.scrollView}
-        onContentSizeChange={onContentSizeChange}
-        alwaysBounceVertical={false}
-      >
-        {contents}
-      </ScrollView>
+      {wrappedContents}
     </RevealContainer>
   )
-
 }
 
 export default LowerPanel
