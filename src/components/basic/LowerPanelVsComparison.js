@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react"
 import Constants from "expo-constants"
-import { StyleSheet, View, ScrollView } from "react-native"
+import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import { getLocFromRef } from "bibletags-versification/src/versification"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
+import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import { getVersionInfo, executeSql } from "../../utils/toolbox"
@@ -17,6 +18,10 @@ const {
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
+  noCompareVersions: {
+    padding: 20,
+    opacity: .5,
+  },
   scrollView: {
     minHeight: 60,
   },
@@ -87,6 +92,17 @@ const LowerPanelVsComparison = ({
     },
     [ versionIdShowing, passage.ref, selectedVerse ],
   )
+
+  if(versionIdsToShow.length === 0) {
+    return (
+      <>
+        <Text style={styles.noCompareVersions}>
+          {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
+        </Text>
+        <IPhoneXBuffer extraSpace={true} />
+      </>
+    )
+  }
 
   return (
     <View style={styles.container}>
