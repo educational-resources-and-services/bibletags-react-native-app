@@ -37,6 +37,7 @@ const LowerPanelVsComparison = ({
 
   const [ index, setIndex ] = useState(0)
   const [ pieces, setPieces ] = useState([])
+  const [ piecesVersionId, setPiecesVersionId ] = useState()
   const { versionIds } = useBibleVersions({ myBibleVersions })
 
   const currentVersionIds = [
@@ -78,6 +79,7 @@ const LowerPanelVsComparison = ({
             wordDividerRegex,
           })
         )
+        setPiecesVersionId(versionIdShowing)
 
       })()
     },
@@ -93,6 +95,7 @@ const LowerPanelVsComparison = ({
       >
         <Verse
           passageRef={passage.ref}
+          versionId={piecesVersionId}
           pieces={pieces}
           style={[
             styles.verse,
