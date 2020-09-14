@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
 })
 
 const LowerPanelVsComparison = ({
+  selectedSection,
   selectedVerse,
   style,
 
@@ -40,12 +41,13 @@ const LowerPanelVsComparison = ({
   const [ piecesVersionId, setPiecesVersionId ] = useState()
   const { versionIds } = useBibleVersions({ myBibleVersions })
 
-  const currentVersionIds = [
-    passage.versionId,
-    passage.parallelVersionId,
-  ].filter(Boolean)
+  const selectedVersionId = (
+    selectedSection === 'primary'
+      ? passage.versionId
+      : passage.parallelVersionId
+  )
 
-  const versionIdsToShow = versionIds.filter(id => !currentVersionIds.includes(id))
+  const versionIdsToShow = versionIds.filter(id => id !== selectedVersionId)
   const versionIdShowing = versionIdsToShow[index]
 
   useEffect(

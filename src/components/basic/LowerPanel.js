@@ -28,7 +28,7 @@ const LowerPanel = ({
 
   const previousSelectedInfo = usePrevious(selectedInfo)
 
-  const { selectedVerse, selectedWordInfo } = (selectedInfo.selectedSection ? selectedInfo : previousSelectedInfo) || {}
+  const { selectedSection, selectedVerse, selectedWordInfo } = (selectedInfo.selectedSection ? selectedInfo : previousSelectedInfo) || {}
   const show = !!selectedInfo.selectedSection
 
   const [ contentHeight, setContentHeight ] = useState(300)
@@ -71,6 +71,7 @@ const LowerPanel = ({
   } else if(selectedVerse) {
     contents = (
       <LowerPanelVsComparison
+        selectedSection={selectedSection}
         selectedVerse={selectedVerse}
       />
     )
