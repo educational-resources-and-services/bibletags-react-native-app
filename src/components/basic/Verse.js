@@ -3,7 +3,7 @@ import Constants from "expo-constants"
 import { View, StyleSheet, Text, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-// import { i18n } from "inline-i18n"
+import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
@@ -107,6 +107,8 @@ const Verse = ({
 
   const getFont = () => getTextFont({ font, isOriginal, languageId, bookId })
 
+  let textContent = ``  
+
   const getJSXFromPieces = ({ pieces }) => {
 
     const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
@@ -117,6 +119,10 @@ const Verse = ({
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
+      
+      if(text && text === i18n(" ", "word separator") && textContent === ``) return null
+      if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
+      textContent += text || ``
 
       const bold = boldStyles.includes(tag)
       const italic = italicStyles.includes(tag)
