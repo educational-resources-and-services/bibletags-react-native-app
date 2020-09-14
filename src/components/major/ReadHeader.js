@@ -21,25 +21,6 @@ const passageAndVersion = {
   lineHeight: readHeaderHeight,
 }
 
-const header = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  minHeight: readHeaderHeight,
-  height: readHeaderHeight,
-  paddingTop: 0,
-  marginTop: readHeaderMarginTop,
-  marginHorizontal: 15,
-  borderRadius: 4,
-  elevation: 4,
-  shadowOffset: { width: 0, height: 0 },
-  shadowColor: "black",
-  shadowOpacity: 0.3,
-  shadowRadius: 15,
-  borderBottomWidth: 0,
-}
-
 const styles = StyleSheet.create({
   gradualFade: {
     ...StyleSheet.absoluteFillObject,
@@ -48,11 +29,22 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   header: {
-    ...header,
-  },
-  selectionHeader: {
-    ...header,
-    backgroundColor: 'black',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    minHeight: readHeaderHeight,
+    height: readHeaderHeight,
+    paddingTop: 0,
+    marginTop: readHeaderMarginTop,
+    marginHorizontal: 15,
+    borderRadius: 4,
+    elevation: 4,
+    shadowOffset: { width: 0, height: 0 },
+    shadowColor: "black",
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    borderBottomWidth: 0,
   },
   closeIcon: {
     tintColor: 'white',
@@ -228,7 +220,8 @@ const ReadHeader = React.memo(({
       {!!selectedVerse && <>
         <AppHeader
           hideStatusBar={hideStatusBar}
-          style={styles.selectionHeader}
+          style={styles.header}
+          uiStatus="selected"
         >
           <HeaderIconButton
             name="window-close"

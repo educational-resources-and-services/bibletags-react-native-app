@@ -126,6 +126,13 @@ const mapping = {
         backgroundColor: "background-basic-color-1",
         borderColor: "color-basic-active-border",
       },
+      variantGroups: {
+        uiStatus: {
+          selected: {
+            backgroundColor: "background-alternative-color-4",
+          },
+        },
+      },
     },
     {
       component: 'StatusBarWithBackground',
@@ -373,7 +380,6 @@ const mapping = {
         alt3Color: "color-basic-700", // numThemedStyle
         // alt4Color: "", // definitionThemedStyle
         // alt5Color: "", // posThemedStyle
-    
       },
     },
     {
