@@ -28,7 +28,7 @@ const ReadContentPage = (({
   passage,
   selectedSection,
   selectedVerse,
-  selectedWordInfo,
+  selectedInfo,
   onTouchEnd,
   onTouchStart,
   primaryScrollY,
@@ -261,7 +261,7 @@ const ReadContentPage = (({
                 : null
             )
         }
-        selectedWordInfo={selectedSection === 'primary' ? selectedWordInfo : null}
+        selectedInfo={selectedSection === 'primary' ? selectedInfo : null}
         focussedVerse={focussedVerse}
         onTouchStart={!direction ? onPrimaryTouchStart : null}
         onTouchEnd={!direction ? onTouchEnd : null}
@@ -296,7 +296,7 @@ const ReadContentPage = (({
                     : null
                 )
             }
-            selectedWordInfo={selectedSection === 'secondary' ? selectedWordInfo : null}
+            selectedInfo={selectedSection === 'secondary' ? selectedInfo : null}
             focussedVerse={focussedVerse}
             onTouchStart={!direction ? onSecondaryTouchStart : null}
             onTouchEnd={!direction ? onTouchEnd : null}

@@ -91,7 +91,7 @@ const ReadHeader = React.memo(({
   showPassageChooser,
   showingPassageChooser,
   hideStatusBar,
-  selectedInfo,
+  selectedData,
   clearSelectedInfo,
   style,
   iconStyle,
@@ -101,7 +101,7 @@ const ReadHeader = React.memo(({
   passage,
 }) => {
 
-  const { selectedVerse, selectedTextContent } = selectedInfo
+  const { selectedVerse, selectedTextContent } = selectedData
 
   const [ showCopied, setShowCopied ] = useState(false)
 

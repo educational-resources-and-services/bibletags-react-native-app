@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
 })
 
 const ReadContent = React.memo(({
-  selectedInfo,
-  setSelectedInfo,
+  selectedData,
+  setSelectedData,
 
   passage,
   myBibleVersions,
@@ -45,8 +45,8 @@ const ReadContent = React.memo(({
   const [ primaryLoaded, setPrimaryLoaded ] = useState(false)
   const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
 
-  const { selectedSection, selectedVerse, selectedWordInfo } = selectedInfo
-  const getSelectedInfo = useInstanceValue(selectedInfo)
+  const { selectedSection, selectedVerse, selectedInfo } = selectedData
+  const getSelectedData = useInstanceValue(selectedData)
 
   const containerRef = useRef()
   const scrollController = useRef('primary')
@@ -67,7 +67,7 @@ const ReadContent = React.memo(({
     setStatePassage(passage)
     setPrimaryLoaded(primaryLoaded && !refChanged && !primaryChanged)
     setSecondaryLoaded(secondaryLoaded && !refChanged && !secondaryChanged)
-    setSelectedInfo({})
+    setSelectedData({})
   }
 
   const adjacentRefs = useAdjacentRefs(passage)
@@ -133,33 +133,33 @@ const ReadContent = React.memo(({
   )
 
   const onVerseTap = useCallback(
-    ({ selectedSection, selectedVerse, selectedTextContent, selectedWordInfo, pageX, pageY }={}) => {
+    ({ selectedSection, selectedVerse, selectedTextContent, selectedInfo, pageX, pageY }={}) => {
 
-      const currentSelectedInfo = getSelectedInfo()
+      const currentSelectedData = getSelectedData()
 
       if(
-        currentSelectedInfo.selectedSection
+        currentSelectedData.selectedSection
         && !(
-          currentSelectedInfo.selectedSection === selectedSection
-          && currentSelectedInfo.selectedVerse === selectedVerse
+          currentSelectedData.selectedSection === selectedSection
+          && currentSelectedData.selectedVerse === selectedVerse
         )
       ) {
-        setSelectedInfo({})
+        setSelectedData({})
         return
       }
 
       if(selectedVerse == null) return
 
-      setSelectedInfo({
+      setSelectedData({
         selectedSection,
         selectedVerse,
         selectedTextContent,
         selectedTapX: pageX,
         selectedTapY: pageY,
-        selectedWordInfo,
+        selectedInfo,
       })
     },
-    [ setSelectedInfo ],
+    [ setSelectedData ],
   )
 
   if(primaryVersionIds.length === 0) return null
@@ -174,7 +174,7 @@ const ReadContent = React.memo(({
         passage={passage}
         selectedSection={direction ? null : selectedSection}
         selectedVerse={direction ? null : selectedVerse}
-        selectedWordInfo={direction ? null : selectedWordInfo}
+        selectedInfo={direction ? null : selectedInfo}
         onTouchStart={onTouchStart}
         // onTouchEnd={onTouchEnd}
         primaryScrollY={primaryScrollY}

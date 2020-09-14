@@ -52,6 +52,12 @@ const textStyles = StyleSheet.create({
   sc: {
     // fontVariant: ['small-caps'],
   },
+  f: {
+    letterSpacing: 2,
+  },
+  fe: {
+    letterSpacing: 2,
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -112,14 +118,18 @@ const Verse = ({
   const getJSXFromPieces = ({ pieces }) => {
 
     const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
-    const searchWords = searchString.split(" ")  // Needs to be modified to be version-specific, as not all languages divide words with spaces
+    const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, children } = piece
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
-      
+
+      if([ "f", "fe" ].includes(tag)) {  // footnote
+        text = ` ● `
+      }
+
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
       if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
       textContent += text || ``
@@ -160,7 +170,7 @@ const Verse = ({
             ])}
             // onPress={goVerseTap}
             verseNumber={verse}
-            wordInfo={tag === 'w' ? piece : null}
+            info={[ 'w', 'f', 'fe' ].includes(tag) ? piece : null}
             // delayRenderMs={vs > 1 ? 500 : 0}
             // ignoreChildrenChanging={ignoreChildrenChanging}
           >
@@ -191,7 +201,7 @@ const Verse = ({
       if(textPieces.length > 0) {
         return textPieces.map((textPiece, idx2) => getPartOfPiece(textPiece, idx2))
       } else {
-        getPartOfPiece(text)
+        return getPartOfPiece(text)
       }
 
     })

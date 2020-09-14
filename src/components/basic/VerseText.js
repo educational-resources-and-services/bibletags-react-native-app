@@ -7,7 +7,7 @@ import { memo } from "../../utils/toolbox"
 const VerseText = ({
   style,
   verseNumber,
-  wordInfo,
+  info,
   onPress,
   children,
 }) => {
@@ -17,7 +17,7 @@ const VerseText = ({
       const { pageX, pageY } = nativeEvent
       onPress({
         selectedVerse: verseNumber,
-        selectedWordInfo: wordInfo,
+        selectedInfo: info,
         pageX,
         pageY,
       })
@@ -36,5 +36,5 @@ const VerseText = ({
  
 }
 
-// export default memo(detectChangingProps('VerseText', VerseText), { jsonMemoProps: [ 'style', 'wordInfo' ], memoPropMap: { textOpacityStyle: 'isVisible' } })
-export default memo(VerseText, { jsonMemoProps: [ 'style', 'wordInfo' ] })
+// export default memo(detectChangingProps('VerseText', VerseText), { jsonMemoProps: [ 'style', 'info' ], memoPropMap: { textOpacityStyle: 'isVisible' } })
+export default memo(VerseText, { jsonMemoProps: [ 'style', 'info' ] })

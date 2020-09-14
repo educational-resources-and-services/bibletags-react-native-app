@@ -108,6 +108,12 @@ const textStyles = StyleSheet.create({
   },
   selah: {
   },
+  f: {
+    letterSpacing: 2,
+  },
+  fe: {
+    letterSpacing: 2,
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -142,7 +148,7 @@ const ReadText = ({
   versionId,
   passageRef,
   selectedVerse,
-  selectedWordInfo,
+  selectedInfo,
   focussedVerse,
   isVisible,
   isParallel,
@@ -396,6 +402,10 @@ const ReadText = ({
 
           vs = verse || vs
 
+          if([ "f", "fe" ].includes(tag)) {  // footnote
+            text = ` ● `  // or ✱
+          }
+
           const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
 
           if(wrapInView) {
@@ -446,19 +456,19 @@ const ReadText = ({
             selectedVerse !== null
             && verse !== undefined
             && verse === selectedVerse
-            && !!selectedWordInfo
+            && !!selectedInfo
           ) {
             style = {
               ...style,
               ...semiSelectedVsThemedStyle,
             }
           }
-      
+
           if(
             selectedVerse !== null
-            && tag === 'w'
+            && [ 'w', 'f', 'fe' ].includes(tag)
             && vs === selectedVerse
-            && equalObjs(selectedWordInfo, piece)
+            && equalObjs(selectedInfo, piece)
           ) {
             style = {
               ...style,
@@ -543,7 +553,7 @@ const ReadText = ({
               style={style}
               onPress={goVerseTap}
               verseNumber={vs}
-              wordInfo={tag === 'w' ? piece : null}
+              info={[ 'w', 'f', 'fe' ].includes(tag) ? piece : null}
               // delayRenderMs={vs > 1 ? 500 : 0}
               ignoreChildrenChanging={ignoreChildrenChanging}
             >
@@ -578,7 +588,7 @@ const ReadText = ({
 
       return getJSXFromPieces({ pieces })
     },
-    [ pieces, displaySettings, selectedVerse, selectedWordInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
+    [ pieces, displaySettings, selectedVerse, selectedInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
   )
 
   if(!pieces) {

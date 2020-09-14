@@ -1,17 +1,16 @@
 import React, { useMemo } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
 
-import { isIPhoneX, memo } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+
+import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
   container: {
     borderTopWidth: 1,
     paddingVertical: 15,
     paddingHorizontal: 18,
-    ...(!isIPhoneX ? {} : {
-      paddingBottom: 30,
-    }),
   },
   line: {
     paddingBottom: 5,
@@ -38,12 +37,12 @@ const styles = StyleSheet.create({
 })
 
 const Definition = ({
-  selectedWordInfo,
+  selectedInfo,
 
   themedStyle,
 }) => {
 
-  const { lemma, strong, morph } = selectedWordInfo || {}
+  const { lemma, strong, morph } = selectedInfo || {}
 
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
@@ -138,6 +137,7 @@ const Definition = ({
           noun
         </Text>
       </Text> */}
+      <IPhoneXBuffer extraSpace={true} />
     </View>
   )
 

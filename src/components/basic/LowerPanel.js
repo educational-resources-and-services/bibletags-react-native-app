@@ -6,6 +6,7 @@ import { BoxShadow } from 'react-native-shadow'
 
 import RevealContainer from "../basic/RevealContainer"
 import LowerPanelWord from "./LowerPanelWord"
+import LowerPanelFootnote from "./LowerPanelFootnote"
 import LowerPanelVsComparison from "./LowerPanelVsComparison"
 
 const styles = StyleSheet.create({
@@ -23,13 +24,13 @@ const styles = StyleSheet.create({
 })
 
 const LowerPanel = ({
-  selectedInfo,
+  selectedData,
 }) => {
 
-  const previousSelectedInfo = usePrevious(selectedInfo)
+  const previousSelectedData = usePrevious(selectedData)
 
-  const { selectedSection, selectedVerse, selectedWordInfo } = (selectedInfo.selectedSection ? selectedInfo : previousSelectedInfo) || {}
-  const show = !!selectedInfo.selectedSection
+  const { selectedSection, selectedVerse, selectedVersionId, selectedInfo } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
+  const show = !!selectedData.selectedSection
 
   const [ contentHeight, setContentHeight ] = useState(300)
 
@@ -60,11 +61,20 @@ const LowerPanel = ({
   )
 
   let contents = null
+  const { type: selectedInfoType } = selectedInfo || {}
 
-  if(selectedWordInfo) {
+  if(selectedInfoType === 'word') {
     contents = (
       <LowerPanelWord
-        selectedWordInfo={selectedWordInfo}
+        selectedInfo={selectedInfo}
+      />
+    )
+
+  } else if([ 'footnote', 'endnote' ].includes(selectedInfoType)) {
+    contents = (
+      <LowerPanelFootnote
+        selectedVersionId={selectedVersionId}
+        selectedInfo={selectedInfo}
       />
     )
 

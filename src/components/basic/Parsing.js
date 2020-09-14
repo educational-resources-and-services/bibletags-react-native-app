@@ -14,14 +14,14 @@ const styles = StyleSheet.create({
 })
 
 const Parsing = ({
-  selectedWordInfo,
+  selectedInfo,
 }) => {
 
-  const { morph } = selectedWordInfo || {}
+  const { morph } = selectedInfo || {}
 
   if(!morph) return null
 
-  const isEntirelyPrefixAndSuffix = getIsEntirelyPrefixAndSuffix(selectedWordInfo)
+  const isEntirelyPrefixAndSuffix = getIsEntirelyPrefixAndSuffix(selectedInfo)
 
   const morphLang = morph.substr(0,2)
   let morphParts

@@ -8,16 +8,16 @@ const styles = StyleSheet.create({
 })
 
 const LowerPanelWord = ({
-  selectedWordInfo,
+  selectedInfo,
 }) => {
 
   return (
     <>
       <Parsing
-        selectedWordInfo={selectedWordInfo}
+        selectedInfo={selectedInfo}
       />
       <Definition
-        selectedWordInfo={selectedWordInfo}
+        selectedInfo={selectedInfo}
       />
     </>
   )
