@@ -1,12 +1,12 @@
 import React, { useMemo } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
 
-import { isIPhoneX } from "../../utils/toolbox"
+import { isIPhoneX, memo } from "../../utils/toolbox"
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 const styles = StyleSheet.create({
   container: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, .15)',
     paddingVertical: 15,
     paddingHorizontal: 18,
     ...(!isIPhoneX ? {} : {
@@ -20,7 +20,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   transliteration: {
-    color: '#444444',
     fontSize: 14,
   },
   strongs: {
@@ -28,7 +27,6 @@ const styles = StyleSheet.create({
     fontSize: 17,
   },
   num: {
-    color: '#444444',
   },
   definition: {
     fontWeight: 'bold',
@@ -41,9 +39,21 @@ const styles = StyleSheet.create({
 
 const Definition = ({
   selectedWordInfo,
+
+  themedStyle,
 }) => {
 
   const { lemma, strong, morph } = selectedWordInfo || {}
+
+  const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [
+    lemmaThemedStyle={},
+    transliterationThemedStyle={},
+    strongsThemedStyle={},
+    numThemedStyle={},
+    definitionThemedStyle={},
+    posThemedStyle={},
+  ] = altThemedStyleSets
 
   const lemmaStyle = useMemo(
     () => ([
@@ -61,37 +71,76 @@ const Definition = ({
     .replace(/^G0+/, 'G')  // get rid of leading zeros
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        baseThemedStyle,
+      ]}
+    >
       <Text style={styles.line}>
-        <Text style={lemmaStyle}>
+        <Text
+          style={[
+            lemmaStyle,
+            lemmaThemedStyle,
+          ]}
+        >
           {I18nManager.isRTL ? `\u2067`: `\u2066`}
           {lemma}
         </Text>
         {`  `}
-        {/* <Text style={styles.transliteration}>
+        <Text
+          style={[
+            styles.transliteration,
+            transliterationThemedStyle,
+          ]}
+        >
           transliteration
-        </Text> */}
+        </Text>
         {`  `}
-        <Text style={styles.strongs}>
+        <Text
+          style={[
+            styles.strongs,
+            strongsThemedStyle,
+          ]}
+        >
           {strongs}
         </Text>
-        {/* {`  `}
-        <Text style={styles.num}>
+        {`  `}
+        <Text
+          style={[
+            styles.num,
+            numThemedStyle,
+          ]}
+        >
           314x
-        </Text> */}
+        </Text>
       </Text>
-      {/* <Text style={styles.line}>
-        <Text style={styles.definition}>
+      <Text
+          style={[
+            styles.line,
+          ]}
+        >
+        <Text
+          style={[
+            styles.definition,
+            definitionThemedStyle,
+          ]}
+        >
           Boy
         </Text>
         {`  `}
-        <Text style={styles.pos}>
+        <Text
+          style={[
+            styles.pos,
+            posThemedStyle,
+          ]}
+        >
           noun
         </Text>
-      </Text> */}
+      </Text>
     </View>
   )
 
 }
 
-export default Definition
+export default memo(Definition, { name: 'Definition' })

@@ -364,6 +364,19 @@ const mapping = {
       },
     },
     {
+      component: 'Definition',
+      parameters: {
+        borderTopColor: "rgba(0, 0, 0, .15)",
+        // alt0Color: "", // lemmaThemedStyle
+        alt1Color: "color-basic-600", // transliterationThemedStyle
+        // alt2Color: "", // strongsThemedStyle
+        alt3Color: "color-basic-700", // numThemedStyle
+        // alt4Color: "", // definitionThemedStyle
+        // alt5Color: "", // posThemedStyle
+    
+      },
+    },
+    {
       component: 'LanguageChooser',
       parameters: {
         backgroundColor: "background-basic-color-1",
