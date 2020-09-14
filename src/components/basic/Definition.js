@@ -88,14 +88,14 @@ const Definition = ({
           {lemma}
         </Text>
         {`  `}
-        <Text
+        {/* <Text
           style={[
             styles.transliteration,
             transliterationThemedStyle,
           ]}
         >
           transliteration
-        </Text>
+        </Text> */}
         {`  `}
         <Text
           style={[
@@ -105,7 +105,7 @@ const Definition = ({
         >
           {strongs}
         </Text>
-        {`  `}
+        {/* {`  `}
         <Text
           style={[
             styles.num,
@@ -113,9 +113,9 @@ const Definition = ({
           ]}
         >
           314x
-        </Text>
+        </Text> */}
       </Text>
-      <Text
+      {/* <Text
           style={[
             styles.line,
           ]}
@@ -137,7 +137,7 @@ const Definition = ({
         >
           noun
         </Text>
-      </Text>
+      </Text> */}
     </View>
   )
 
