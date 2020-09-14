@@ -295,6 +295,7 @@ const mapping = {
         color: "color-basic-700",
         labelColor: "color-basic-600",
         alt0BackgroundColor: "background-basic-color-2",
+        alt1Color: "color-basic-500",
       },
     },
     {

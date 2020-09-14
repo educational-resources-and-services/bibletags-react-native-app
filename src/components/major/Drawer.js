@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
   subversion: {
     fontSize: 9,
     textAlign: 'center',
-    color: '#ddd',
     paddingBottom: 20,
   },
 })
@@ -72,7 +71,10 @@ const Drawer = ({
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ imageThemedStyle={} ] = altThemedStyleSets
+  const [
+    imageThemedStyle={},
+    subversionThemedStyle={}
+  ] = altThemedStyleSets
 
   const { historyPush } = useRouterState()
   const { online } = useNetwork()
@@ -141,7 +143,14 @@ const Drawer = ({
             </View>
           </TouchableOpacity>
         }
-        <Text style={styles.subversion}>Updated PUSH_DATE_STRING</Text>
+        <Text
+          style={[
+            styles.subversion,
+            subversionThemedStyle,
+          ]}
+        >
+          Updated PUSH_DATE_STRING
+        </Text>
       </View>
     </Layout>
   )
