@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     lineHeight: 50,
     flex: 1,
     paddingRight: 15,
+    textAlign: 'left',  // needed so that it is flipped to right when rtl
   },
 })
 

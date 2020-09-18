@@ -13,7 +13,7 @@
 		"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}} {{verse}}",
 		"{{book}} {{chapter}}": "{{book}} {{chapter}}",
 		"{{verse}} ({{passage_reference}} {{version}})": "{{verse}} ({{passage_reference}} {{version}})",
-		"Version information": "זכויות יוצרים",
+		"Version information": "זכויות",
 		"Remove": "למחוק",
 		"My Bible versions": "היוצרים שלי",
 		"Drag to reorder": "גרור כדי לסדר מחדש",

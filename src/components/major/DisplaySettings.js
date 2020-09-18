@@ -27,15 +27,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 15,
     marginBottom: 5,
+    textAlign: 'left',
   },
   line: {
     marginTop: 15,
   },
   label: {
     textAlign: 'left',
-    fontSize: 13,
+  },
+  selectText: {
+    textAlign: 'left',
   },
   selectLabel: {
+    textAlign: 'left',
     fontWeight: 'normal',
     fontSize: 13,
   },
@@ -169,6 +173,7 @@ const DisplaySettings = ({
         <Select
           label={i18n("Bible font")}
           style={styles.line}
+          textStyle={styles.selectText}
           labelStyle={[
             styles.selectLabel,
             labelThemedStyle,

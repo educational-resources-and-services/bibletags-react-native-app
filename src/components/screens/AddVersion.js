@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 7,
     fontSize: 11,
+    textAlign: 'left',  // needed so that it is flipped to right when rtl
   },
 })
 

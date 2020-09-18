@@ -16,8 +16,10 @@ import GradualFade from "../basic/GradualFade"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
 
+const isAndroidRTL = I18nManager.isRTL && Platform.OS === 'android'
+
 const passageAndVersion = {
-  paddingRight: 7,
+  [isAndroidRTL ? `paddingLeft` : `paddingRight`]: 7,
   lineHeight: readHeaderHeight,
 }
 
@@ -206,13 +208,13 @@ const ReadHeader = React.memo(({
           <HeaderIconButton
             name="md-search"
             onPress={goSearch}
-            style={styles.leftIcon}
+            style={isAndroidRTL ? styles.rightIcon : styles.leftIcon}
           />
           <HeaderIconButton
             name="format-size"
             pack="materialCommunity"
             onPress={toggleShowOptions}
-            style={styles.rightIcon}
+            style={isAndroidRTL ? styles.leftIcon : styles.rightIcon}
           />
         </AppHeader>
       </>}

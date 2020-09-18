@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
   title: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'flex-start',
   },
   titleLine1: {
     fontSize: 16,
@@ -36,7 +37,6 @@ const styles = StyleSheet.create({
     left: 13,
     zIndex: 1,
     height: 18,
-    
   },
   searchContainer: {
     flexDirection: 'row',

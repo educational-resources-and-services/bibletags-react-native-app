@@ -16,8 +16,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   abbr: {
-    width: 75,
-    paddingRight: 10,
     fontWeight: 'bold',
     textAlign: 'left',
   },
