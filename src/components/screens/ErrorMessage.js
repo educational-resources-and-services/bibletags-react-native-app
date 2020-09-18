@@ -26,7 +26,7 @@ const ErrorMessage = () => {
   useEffect(
     () => {
       if(critical) {
-        setReloadTimeout(Updates.reload, 5000)
+        setReloadTimeout(Updates.reloadAsync, 5000)
       }
     },
     [],

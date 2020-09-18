@@ -38,7 +38,7 @@ const LanguageItem = ({
         await AsyncStorage.setItem(`uiLocale`, locale)
         await AsyncStorage.removeItem(`fixedRTL`)
         await fixRTL(locale)
-        Updates.reloadFromCache()
+        Updates.reloadAsync()
       }
     },
     [ locale ],

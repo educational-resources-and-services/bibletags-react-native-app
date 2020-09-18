@@ -76,7 +76,7 @@ const Splash = ({
       if(isReady && (!showDelayText || textAnimationComplete)) {
 
         if(updateExists) {
-          Updates.reloadFromCache()
+          Updates.reloadAsync()
         } else {
           Animated.timing(splashAnimation, {
             toValue: 1,

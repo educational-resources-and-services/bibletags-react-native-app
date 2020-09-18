@@ -165,7 +165,7 @@ const App = () => {
         ])
 
         if(await fixRTL() === 'reload') {
-          Updates.reloadFromCache()
+          Updates.reloadAsync()
           return
         }
 
