@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
-import { StyleSheet, ScrollView, FlatList, Text, View } from "react-native"
+import { StyleSheet, ScrollView, FlatList, Text, View, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
   parallelLabel: {
     position: 'absolute',
     transform: [
-      { translateX: -15 },
+      { translateX: I18nManager.isRTL ? 15 : -15 },
       { translateY: 15 },
-      { rotate: '-90deg' },
+      { rotate: I18nManager.isRTL ? '90deg' : '-90deg' },
     ],
     fontSize: 10,
     width: 50,
