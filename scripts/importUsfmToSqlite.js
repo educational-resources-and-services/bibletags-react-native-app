@@ -241,7 +241,7 @@ const doubleSpacesRegex = /  +/g
 
             const verse = line.replace(verseRegex, '$1')
             if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-              console.log(`Non-consecutive verses: ${lastVerse} > ${verse}`)
+              console.log(`Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
             }
             lastVerse = parseInt(verse, 10)
 
