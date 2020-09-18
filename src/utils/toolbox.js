@@ -174,16 +174,27 @@ export const executeSql = async ({
             }
 
             for(let idx in statements) {
-              const { statement, args=[] } = statements[idx]
+              let { statement, args=[] } = statements[idx]
               const limit = statements[idx].limit - resultSets[idx].rows._array.length
 
               if(Number.isInteger(limit) && limit <= 0) continue
 
+              let adjustedStatement = statement({
+                bookId,
+                limit,
+              })
+
+              args.forEach((arg, idx) => {
+                if(arg instanceof Array) {
+                  const statementPieces = adjustedStatement.split(/(\?)/g)
+                  statementPieces[idx*2 + 1] = `(${Array(arg.length).fill('?').join(', ')})`
+                  adjustedStatement = statementPieces.join('')
+                }
+              })
+              args = args.flat()
+
               tx.executeSql(
-                statement({
-                  bookId,
-                  limit,
-                }),
+                adjustedStatement,
                 args,
                 (x, resultSet) => {
                   if(queryingSingleBook) {

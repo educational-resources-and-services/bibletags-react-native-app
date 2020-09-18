@@ -217,7 +217,7 @@ const ReadContentPage = (({
   
   if(parallelVersionId && originalVersionInfo) {
 
-    if(versionId !== originalVersionInfo.versionId) {
+    if(versionId !== originalVersionInfo.id) {
       correspondingRefs = getCorrespondingRefs({
         baseVersion: {
           info: getVersionInfo(versionId),
@@ -230,7 +230,7 @@ const ReadContentPage = (({
       }) || correspondingRefs
     }
 
-    if(parallelVersionId !== originalVersionInfo.versionId) {
+    if(parallelVersionId !== originalVersionInfo.id) {
       correspondingRefs = getCorrespondingRefs({
         baseVersion: {
           info: originalVersionInfo,

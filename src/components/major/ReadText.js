@@ -216,7 +216,7 @@ const ReadText = ({
         const { rows: { _array: vss } } = await executeSql({
           versionId,
           bookId,
-          statement: () => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc LIKE ?`,
+          statement: () => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc LIKE ? ORDER BY loc`,
           args: [
             `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
           ],

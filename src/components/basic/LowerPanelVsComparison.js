@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import Constants from "expo-constants"
 import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
@@ -7,9 +7,10 @@ import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import { getLocFromRef } from "bibletags-versification/src/versification"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
 import { i18n } from "inline-i18n"
+import { getCorrespondingRefs } from "bibletags-versification/src/versification"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { getVersionInfo, executeSql } from "../../utils/toolbox"
+import { getVersionInfo, executeSql, equalObjs, getOriginalVersionInfo } from "../../utils/toolbox"
 import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
 
@@ -52,20 +53,75 @@ const LowerPanelVsComparison = ({
       : passage.parallelVersionId
   )
 
-  const versionIdsToShow = versionIds.filter(id => id !== selectedVersionId)
+  const versionIdsToShow = useMemo(
+    () => versionIds.filter(id => id !== selectedVersionId),
+    [ versionIds, selectedVersionId ],
+  )
+
   const versionIdShowing = versionIdsToShow[index]
+
+  const correspondingRefsByVersion = useMemo(
+    () => {
+      const refsByVersion = {}
+      const baseRef = {
+        ...passage.ref,
+        verse: selectedVerse,
+      }
+
+      versionIdsToShow.forEach(versionId => {
+
+        refsByVersion[versionId] = [ baseRef ]
+        const originalVersionInfo = getOriginalVersionInfo(baseRef.bookId)
+  
+        if(passage.versionId !== originalVersionInfo.id) {
+          refsByVersion[versionId] = getCorrespondingRefs({
+            baseVersion: {
+              info: getVersionInfo(passage.versionId),
+              ref: baseRef,
+            },
+            lookupVersionInfo: originalVersionInfo,
+          }) || refsByVersion[versionId]
+        }
+  
+        if(versionId !== originalVersionInfo.id) {
+          refsByVersion[versionId] = refsByVersion[versionId]
+            .map(correspondingRef => (
+              getCorrespondingRefs({
+                baseVersion: {
+                  info: originalVersionInfo,
+                  ref: correspondingRef,
+                },
+                lookupVersionInfo: getVersionInfo(versionId),
+              }) || refsByVersion[versionId]
+            ))
+            .flat()
+            // need the reduce funciton in case a version corresponds to two orig verses which correspond to different wordRanges in the same verse
+            // TODO: It would be better to handle wordRange's in the verse comparison. If I do so, this will need adjustment.
+            .reduce((uniqueRefs, ref) => (
+              uniqueRefs.some(uniqueRef => equalObjs(uniqueRef, ref))
+                ? uniqueRefs
+                : [
+                  ...uniqueRefs,
+                  ref,
+                ]
+            ), [])
+        }
+
+      })
+
+      return refsByVersion
+    },
+    [ passage, versionIdsToShow, selectedVerse ],
+  )
 
   useEffect(
     () => {
       (async () => {
         const { rows: { _array: [ verse ] } } = await executeSql({
           versionId: versionIdShowing,
-          statement: ({ bookId, limit }) => `SELECT * FROM ${versionIdShowing}VersesBook${bookId} WHERE loc = ? LIMIT ${limit}`,
+          statement: ({ bookId, limit }) => `SELECT * FROM ${versionIdShowing}VersesBook${bookId} WHERE loc IN ? ORDER BY loc LIMIT ${limit}`,
           args: [
-            getLocFromRef({
-              ...passage.ref,
-              verse: selectedVerse,
-            }),
+            correspondingRefsByVersion[versionIdShowing].map(ref => getLocFromRef(ref)),
           ],
           limit: 1,
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
@@ -90,7 +146,7 @@ const LowerPanelVsComparison = ({
 
       })()
     },
-    [ versionIdShowing, passage.ref, selectedVerse ],
+    [ versionIdShowing, correspondingRefsByVersion[versionIdShowing], selectedVerse ],
   )
 
   if(versionIdsToShow.length === 0) {
@@ -103,6 +159,8 @@ const LowerPanelVsComparison = ({
       </>
     )
   }
+
+  // TODO: show vs num (and chapter when different) before each verse when not the same
 
   return (
     <View style={styles.container}>
