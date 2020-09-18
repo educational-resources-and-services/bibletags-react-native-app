@@ -3,14 +3,26 @@
 		" ": {
 			"word separator": " "
 		},
+		"Hebrew": "עברית",
+		"Greek": "יוונית",
+		"{{verse}}a": "{{verse}}א",
+		"{{verse}}b": "{{verse}}ב",
 		"{{book}} {{start_chapter}}:{{start_verse}}–{{end_chapter}}:{{end_verse}}": "{{book}} {{start_chapter}}{{start_verse}}–{{end_chapter}}{{end_verse}}",
 		"{{book}} {{chapter}}:{{start_verse}}–{{end_verse}}": "{{book}} {{chapter}}{{start_verse}}–{{end_verse}}",
+		"{{book}} {{start_chapter}}–{{end_chapter}}": "{{book}} {{start_chapter}}–{{end_chapter}}",
 		"{{book}} {{chapter}}:{{verse}}": "{{book}} {{chapter}} {{verse}}",
-		"Okay": "בסדר",
+		"{{book}} {{chapter}}": "{{book}} {{chapter}}",
 		"{{verse}} ({{passage_reference}} {{version}})": "{{verse}} ({{passage_reference}} {{version}})",
-		"Bible version information": "זכויות יוצרים",
+		"Version information": "זכויות יוצרים",
+		"Remove": "למחוק",
+		"My Bible versions": "היוצרים שלי",
+		"Drag to reorder": "גרור כדי לסדר מחדש",
 		"No results found.": "אין תוצאות.",
-		"Change app language": "שנה את שפת התצוגה",
+		"Change app language": "עדכן שפת האפליקציה",
+		"There was a critical error. The app will reload in a few seconds. Please contact us if you continue to receive this message.": "הייתה שגיאה. האפליקציה תטען מחדש תוך מספר שניות. אנא פנה אלינו אם תמשיך לקבל הודעה זו.",
+		"There was an unknown error. Please contact us if you continue to receive this message.": "הייתה שגיאה. אנא פנה אלינו אם תמשיך לקבל הודעה זו.",
+		"Add Bible version": "הוסף היוצר",
+		"Tap to add": "הקש כדי להוסיף",
 		"Search": "לחפש",
 		"“{{searchString}}”": "“{{searchString}}”",
 		"Searching...": "מחפש...",
@@ -18,8 +30,7 @@
 		", ": {
 			"list separator": ", "
 		},
-		"Copy": "להעתיק",
-		"Verse copied to clipboard": "הפסוק הועתק ללוח",
+		"Parallel": "מסך מפוצל",
 		"Error": "שגיאה",
 		"Your device is not allowing us to open this link.": "המכשיר שלך לא נותן לנו לפתוח את הקישור.",
 		"Powered by Bible Tags": "מופעל על ידי “Bible Tags”",
@@ -27,17 +38,21 @@
 		"Default": "ברירת מחדל",
 		"Low light": "תאורה חלשה",
 		"High contrast": "ניגודיות גבוה",
-		"Font": "פונט",
-		"Cancel": "לבטל",
-		"Theme": "סגנון",
 		"Display options": "אפשרויות תצוגה",
-		"Parallel mode": "מסך מפוצל",
 		"Text size": "גודל הטקסט",
 		"Line spacing": "מרווח בין שורות",
-		"Theme: {{theme}}": "סגנון: {{theme}}",
-		"Font: {{font}}": "פונט: {{font}}",
+		"Theme": "סגנון",
+		"Bible font": "פונט",
+		"Available offline": "זמין במצב לא מקוון",
+		"{{percent}}%": "{{percent}}%",
 		"Read": "לקרוא",
-		"Rate this app": "דרג את האפליקציה"
+		"Copy": "להעתיק",
+		" + ": {
+			"combination character": " + "
+		},
+		"Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.": "הקש על מספר פסוק כדי לקבל השוואה מהירה בין גרסאות התנ״ך שלך. כדי להתחיל, הוסף גרסאות תנ״כיות על ידי הקשה על סמל העיפרון כשאתה מחליף את הקטע.",
+		"Rate this app": "דרג את האפליקציה",
+		"Bible version information": "זכויות יוצרים"
 	},
 	"book": {
 		"Genesis": "בראשית",
@@ -82,6 +97,33 @@
 		"Haggai": "חגי",
 		"Zechariah": "זכריה",
 		"Malachi": "מלאכי",
+		"Matthew": "מתי",
+		"Mark": "מרקוס",
+		"Luke": "לוקס",
+		"John": "יוחנן",
+		"Acts": "מעשי השליחים",
+		"Romans": "אל הרומים",
+		"1 Corinthians": "הראשונה אל הקורינתים",
+		"2 Corinthians": "השניה אל הקורינתים",
+		"Galatians": "אל הגלטים",
+		"Ephesians": "אל האפסים",
+		"Philippians": "אל הפיליפים",
+		"Colossians": "אל הקולוסים",
+		"1 Thessalonians": "הראשונה אל התסלוניקים",
+		"2 Thessalonians": "השניה אל התסלוניקים",
+		"1 Timothy": "הראשונה אל טימותיאוס",
+		"2 Timothy": "השניה אל טימותיאוס",
+		"Titus": "אל טיטוס",
+		"Philemon": "אל פילימון",
+		"Hebrews": "אל העברים",
+		"James": "אגרת יעקב",
+		"1 Peter": "אגרת כיפא הראשונה",
+		"2 Peter": "אגרת כיפא השניה",
+		"1 John": "אגרת יוחנן הראשונה",
+		"2 John": "אגרת יוחנן השניה",
+		"3 John": "אגרת יוחנן השלישית",
+		"Jude": "אגרת יהודה",
+		"Revelation": "ההתגלות",
 		"Gen": {
 			"Abbreviation for Genesis": "בר׳"
 		},
@@ -195,6 +237,233 @@
 		},
 		"Mal": {
 			"Abbreviation for Malachi": "מל׳"
+		},
+		"Mt": {
+			"Abbreviation for Matthew": "מתי"
+		},
+		"Mrk": {
+			"Abbreviation for Mark": "מר׳"
+		},
+		"Lk": {
+			"Abbreviation for Luke": "לו׳"
+		},
+		"Jhn": {
+			"Abbreviation for John": "יוח׳"
+		},
+		"Act": {
+			"Abbreviation for Acts": "מ״הש"
+		},
+		"Rom": {
+			"Abbreviation for Romans": "רומ׳"
+		},
+		"1Co": {
+			"Abbreviation for 1 Corinthians": "קור״א"
+		},
+		"2Co": {
+			"Abbreviation for 2 Corinthians": "קור״ב"
+		},
+		"Gal": {
+			"Abbreviation for Galatians": "גל׳"
+		},
+		"Eph": {
+			"Abbreviation for Ephesians": "אפ׳"
+		},
+		"Php": {
+			"Abbreviation for Philippians": "פיל׳"
+		},
+		"Col": {
+			"Abbreviation for Colossians": "קול׳"
+		},
+		"1Th": {
+			"Abbreviation for 1 Thessalonians": "תס״א"
+		},
+		"2Th": {
+			"Abbreviation for 2 Thessalonians": "תס״ב"
+		},
+		"1Ti": {
+			"Abbreviation for 1 Timothy": "טי״א"
+		},
+		"2Ti": {
+			"Abbreviation for 2 Timothy": "טי״ב"
+		},
+		"Tts": {
+			"Abbreviation for Titus": "טיטי"
+		},
+		"Phm": {
+			"Abbreviation for Philemon": "פילימ׳"
+		},
+		"Heb": {
+			"Abbreviation for Hebrews": "עב׳"
+		},
+		"Jam": {
+			"Abbreviation for James": "יעקב"
+		},
+		"1Pe": {
+			"Abbreviation for 1 Peter": "כי״א"
+		},
+		"2Pe": {
+			"Abbreviation for 2 Peter": "כי״ב"
+		},
+		"1Jn": {
+			"Abbreviation for 1 John": "יו״א"
+		},
+		"2Jn": {
+			"Abbreviation for 2 John": "יו״ב"
+		},
+		"3Jn": {
+			"Abbreviation for 3 John": "יו״ג"
+		},
+		"Jud": {
+			"Abbreviation for Jude": "יהוי"
+		},
+		"Rev": {
+			"Abbreviation for Revelation": "התגי"
 		}
+	},
+	"grammar": {
+		"adjective": "תואר",
+		"conjunction": "מילת חיבור",
+		"adverb": "תואר הפועל",
+		"noun": "שם עצם",
+		"pronoun": "כינוי",
+		"preposition": "מילת יחס",
+		"particle": "חלקיק דיבור",
+		"verb": "פועל",
+		"1st": "גוף ראשון",
+		"2nd": "גופ שני",
+		"3rd": "גוף שלישי",
+		"masculine": "זכר",
+		"feminine": "נקבה",
+		"gender-both": "שני המינים",
+		"common": "כללי",
+		"singular": "יחיד",
+		"plural": "רבים",
+		"dual": "כפול",
+		"absolute": "מוחלט",
+		"construct": "סמיכות",
+		"determined": "קבוע",
+		"cardinal-number": "מספר קרדינלי",
+		"ordinal-number": "מספר סדורי",
+		"gentilic": "קשור לעם",
+		"proper-name": "שם פריטי",
+		"demonstrative": "רמיזה",
+		"indefinite": "סתמי",
+		"interrogative": "השאלה",
+		"personal": "פרוד",
+		"relative": "זיקה",
+		"definite-article": "ה״י",
+		"directional": "כיווני",
+		"paragogic": "פרגוגית",
+		"affirmation": "אישור",
+		"exhortation": "האצה",
+		"interjection": "התערבות",
+		"negative": "שלישי",
+		"direct-object-marker": "סימן מושא ישיר",
+		"qal": "פעל",
+		"niphal": "נפעל",
+		"piel": "פיעל",
+		"pual": "פועל",
+		"hiphil": "הפעיל",
+		"hophal": "הופעל",
+		"hithpael": "התפעל",
+		"polel": "פולֵל",
+		"polal": "פולַל",
+		"hithpolel": "התפולל",
+		"poel": "פועֵל",
+		"poal": "פועַל",
+		"palel": "פלל",
+		"pulal": "פולל",
+		"qal passive": "פעל סביל",
+		"pilpel": "פילפל",
+		"polpal": "פולפל",
+		"hithpalpel": "התפלפל",
+		"nithpael": "נתפעל",
+		"pealal": "פיעלל",
+		"pilel": "פילל",
+		"hothpaal": "הותפעל",
+		"tiphil": "תפעיל",
+		"hishtaphel": "השתפעל",
+		"nithpalel": "נתפלל",
+		"nithpoel": "נתפועל",
+		"hithpoel": "התפועל",
+		"peal": "פיעַל",
+		"peil": "פעיל",
+		"hithpeel": "התפעיל",
+		"pael": "פעֵל",
+		"ithpaal": "יתפעל",
+		"hithpaal": "התפעַל",
+		"aphel": "עפל",
+		"haphel": "הַפֵל",
+		"saphel": "ספל",
+		"shaphel": "שפל",
+		"ithpeel": "יתפעיל",
+		"ishtaphel": "ישתפל",
+		"hithaphel": "התעפל",
+		"ithpoel": "יתפועל",
+		"hephal": "הֵפַל",
+		"tiphel": "תיפל",
+		"palpel": "פלפל",
+		"ithpalpel": "יתפלפל",
+		"ithpolel": "יתפולל",
+		"ittaphal": "יתתפעל",
+		"perfect": "פרפקט",
+		"sequential-perfect": "פרפקט בסידור",
+		"imperfect": "אימפרפקט",
+		"sequential-imperfect": "אימפרפקט בסידור",
+		"cohortative": "ציווי בגוף ראשון",
+		"jussive": "ציווי בגוף שלישי",
+		"imperative": "ציווי",
+		"participle": "בינוני",
+		"passive-participle": "בינוני סביל",
+		"infinitive-absolute": "שם הפועל מוחלט",
+		"infinitive-construct": "שם הפועל",
+		"suffix": "סיומת",
+		"determiner": "קובע",
+		"foreign": "לועזי",
+		"substantive": "שמני",
+		"predicate": "נשוא",
+		"ascriptive": "כתיבתי",
+		"restrictive": "מגביל",
+		"article": "ה״י",
+		"differential": "הבדלי",
+		"possessive": "קניין",
+		"quantifier": "מכמת",
+		"number": "מספר",
+		"ordinal": "סדורי",
+		"reflexive": "חוזר",
+		"reciprocal": "הדדי",
+		"transitive": "מעבר",
+		"intransitive": "בלתי מעבר",
+		"linking": "מחבר",
+		"modal": "מודלי",
+		"periphrastic": "פריפרסטי",
+		"exclamation": "מילת קריאה",
+		"directive": "מילת הוראה",
+		"response": "תגובה",
+		"improper-preposition": "מילת חיבור לא יאה",
+		"correlative": "גומל",
+		"coordinating": "תיאום",
+		"subordinating": "כפוף",
+		"indicative": "חיווי",
+		"subjunctive": "איווי",
+		"optative": "הבעה משאלות",
+		"infinitive": "שם הפועל",
+		"present": "הווה",
+		"future": "עתיד",
+		"aorist": "אאוריסט",
+		"pluperfect": "פלופרפקט",
+		"active": "פעיל",
+		"middle": "הדדי חוזר",
+		"passive": "סביל",
+		"nominative": "יחסת נושא",
+		"genitive": "יחסת סמיכות",
+		"dative": "יחסת אל",
+		"accusative": "יחסת את",
+		"vocative": "יחסת פנייה",
+		"neuter": "סתמי",
+		"comparative": "השוואתי",
+		"superlatives": "סופרלטיב",
+		"diminutive": "צורת הקטנה",
+		"indeclinable": "לא ניתן להסרה"
 	}
 }
