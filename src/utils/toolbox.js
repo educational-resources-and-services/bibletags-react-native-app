@@ -219,7 +219,19 @@ export const executeSql = async ({
   if(queryingSingleBook) {
     await executeSqlForBook(bookId)
   } else {
-    const orderedBookIds = versionInfo.hebrewOrdering ? hebrewOrderingOfBookIds : Array(66).fill().map((x, idx) => idx+1)
+    const orderedBookIds = (
+      versionInfo.hebrewOrdering
+        ? hebrewOrderingOfBookIds
+        : Array(66).fill().map((x, idx) => idx+1)
+    ).slice(
+      ...(
+        {
+          ot: [0, 39],
+          nt: [40],
+        }[versionInfo.partialScope]
+        || [0]
+      )
+    )
     for(let idx in orderedBookIds) {
       await executeSqlForBook(orderedBookIds[idx])
     }

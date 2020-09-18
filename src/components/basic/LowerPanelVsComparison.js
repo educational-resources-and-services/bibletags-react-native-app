@@ -119,6 +119,7 @@ const LowerPanelVsComparison = ({
       (async () => {
         const { rows: { _array: [ verse ] } } = await executeSql({
           versionId: versionIdShowing,
+          bookId: passage.ref.bookId,
           statement: ({ bookId, limit }) => `SELECT * FROM ${versionIdShowing}VersesBook${bookId} WHERE loc IN ? ORDER BY loc LIMIT ${limit}`,
           args: [
             correspondingRefsByVersion[versionIdShowing].map(ref => getLocFromRef(ref)),
