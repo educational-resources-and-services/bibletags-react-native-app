@@ -2,7 +2,7 @@ import React, { useCallback } from "react"
 import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Image, StyleSheet, Linking, StatusBar, TouchableOpacity, Text, View } from "react-native"
+import { Image, StyleSheet, Linking, TouchableOpacity, Text, View } from "react-native"
 import { List, Layout } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 
