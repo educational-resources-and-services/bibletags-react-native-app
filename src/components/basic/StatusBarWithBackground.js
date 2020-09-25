@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View, StatusBar } from "react-native"
+import { StyleSheet, View, StatusBar, Platform } from "react-native"
 
 import { memo } from "../../utils/toolbox"
 
@@ -21,6 +21,8 @@ const StatusBarWithBackground = ({
 
   themedStyle,
 }) => {
+
+  if(Platform.OS === 'android') return null
 
   return (
     <>

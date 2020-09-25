@@ -85,7 +85,7 @@ export const readHeaderHeight = 40
 
 export const readHeaderMarginTop = (
   Platform.OS === 'android'
-    ? 5
+    ? 15
     : (26 + (
       isIPhoneX
         ? iPhoneXInset['portrait'].topInset

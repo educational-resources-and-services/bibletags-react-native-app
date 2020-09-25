@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, View } from "react-native"
+import { StyleSheet, View, Platform } from "react-native"
 import { useDimensions } from "@react-native-community/hooks"
 
 import { isIPhoneX, memo } from "../../utils/toolbox"
@@ -10,9 +10,10 @@ import IPhoneXBuffer from "./IPhoneXBuffer"
 const styles = StyleSheet.create({
   header: {
     zIndex: 3,
-    minHeight: 50,
+    minHeight: Platform.select({ ios: 50, android: 61.5 }),
     flexDirection: 'row',
     borderBottomWidth: 1,
+    paddingTop: Platform.select({ ios: 0, android: 10 }),
   },
   noStatusBarSpace: {
     ...(

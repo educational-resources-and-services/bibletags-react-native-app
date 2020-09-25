@@ -34,7 +34,7 @@ const viewStyles = StyleSheet.create({
     padding: 20,
     paddingTop: (
       Platform.OS === 'android'
-        ? 55
+        ? 65
         : (76 + (
           isIPhoneX
             ? iPhoneXInset['portrait'].topInset

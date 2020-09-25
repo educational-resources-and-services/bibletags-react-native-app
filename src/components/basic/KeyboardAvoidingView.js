@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Platform, StyleSheet, StatusBar, KeyboardAvoidingView as RNKeyboardAvoidingView } from "react-native"
+import { Platform, StyleSheet, KeyboardAvoidingView as RNKeyboardAvoidingView } from "react-native"
 
 const styles = StyleSheet.create({
   view: {
@@ -23,8 +23,9 @@ const KeyboardAvoidingView = ({
         try {
           ref.current.viewRef.current.measure(
             (x, y, w, h, pageX, pageY) => {
-              const statusBarHeight = StatusBar.currentHeight || 0
-              setYOffset(pageY + (Platform.OS === 'android' ? statusBarHeight : 0))
+              // const statusBarHeight = StatusBar.currentHeight || 0
+              // setYOffset(pageY + (Platform.OS === 'android' ? statusBarHeight : 0))
+              setYOffset(pageY)
             }
           )
         } catch(e) {}
