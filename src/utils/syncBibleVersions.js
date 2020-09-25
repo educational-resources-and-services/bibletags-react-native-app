@@ -66,7 +66,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
       await FileSystem.makeDirectoryAsync(encryptedVersionDir, { intermediates: true })
     }
 
-    await Promise.all(versionInfo.files.map(async (file, idx) => {
+    await Promise.all((versionInfo.files || []).map(async (file, idx) => {
 
       if(!file) return
 
