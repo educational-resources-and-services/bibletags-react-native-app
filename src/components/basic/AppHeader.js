@@ -10,10 +10,11 @@ import IPhoneXBuffer from "./IPhoneXBuffer"
 const styles = StyleSheet.create({
   header: {
     zIndex: 3,
-    minHeight: Platform.select({ ios: 50, android: 61.5 }),
+    minHeight: Platform.select({ ios: 50, android: 66.5 }),
     flexDirection: 'row',
     borderBottomWidth: 1,
     paddingTop: Platform.select({ ios: 0, android: 10 }),
+    paddingBottom: Platform.select({ ios: 0, android: 5 }),
   },
   noStatusBarSpace: {
     ...(

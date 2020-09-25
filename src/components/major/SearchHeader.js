@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react"
-import { StyleSheet, View, Text, I18nManager } from "react-native"
+import { StyleSheet, View, Text, I18nManager, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Input } from "@ui-kitten/components"
@@ -16,6 +16,7 @@ import VersionChooser from "./VersionChooser"
 
 const styles = StyleSheet.create({
   line1: {
+    marginTop: Platform.select({ ios: 1, android: 0 }),
     flexDirection: 'row',
   },
   title: {

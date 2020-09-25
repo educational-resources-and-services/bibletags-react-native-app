@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     minHeight: readHeaderHeight,
     height: readHeaderHeight,
     paddingTop: 0,
+    paddingBottom: 0,
     marginTop: readHeaderMarginTop,
     marginHorizontal: 15,
     borderRadius: 4,
