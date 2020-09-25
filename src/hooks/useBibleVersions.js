@@ -38,7 +38,13 @@ const useBibleVersions = ({ myBibleVersions }) => {
     () => (
       downloadedVersionIds
       // versionIds  - change this once versions are available without being offline
-        .filter(id => getVersion(id).myVersionsRestriction !== 'primary-only')
+        .filter(id => (
+          !(  // If there is only one primary version, then don't show that version in the secondary options
+            primaryVersionIds.length === 1
+            && id === primaryVersionIds[0]
+          )
+          && getVersion(id).myVersionsRestriction !== 'primary-only'
+        ))
     ),
     [ downloadedVersionIds, versionIds ],
   )
