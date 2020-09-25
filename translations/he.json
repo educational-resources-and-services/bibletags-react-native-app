@@ -117,8 +117,8 @@
 		"Philemon": "אל פילימון",
 		"Hebrews": "אל העברים",
 		"James": "אגרת יעקב",
-		"1 Peter": "אגרת כיפא הראשונה",
-		"2 Peter": "אגרת כיפא השניה",
+		"1 Peter": "אגרת פטרוס הראשונה",
+		"2 Peter": "אגרת פטרוס השניה",
 		"1 John": "אגרת יוחנן הראשונה",
 		"2 John": "אגרת יוחנן השניה",
 		"3 John": "אגרת יוחנן השלישית",
@@ -251,7 +251,7 @@
 			"Abbreviation for John": "יוח׳"
 		},
 		"Act": {
-			"Abbreviation for Acts": "מ״הש"
+			"Abbreviation for Acts": "מה״ש"
 		},
 		"Rom": {
 			"Abbreviation for Romans": "רומ׳"
@@ -290,7 +290,7 @@
 			"Abbreviation for Titus": "טיטי"
 		},
 		"Phm": {
-			"Abbreviation for Philemon": "פילימ׳"
+			"Abbreviation for Philemon": "פילמ׳"
 		},
 		"Heb": {
 			"Abbreviation for Hebrews": "עב׳"
@@ -299,10 +299,10 @@
 			"Abbreviation for James": "יעקב"
 		},
 		"1Pe": {
-			"Abbreviation for 1 Peter": "כי״א"
+			"Abbreviation for 1 Peter": "פט״א"
 		},
 		"2Pe": {
-			"Abbreviation for 2 Peter": "כי״ב"
+			"Abbreviation for 2 Peter": "פט״ב"
 		},
 		"1Jn": {
 			"Abbreviation for 1 John": "יו״א"
