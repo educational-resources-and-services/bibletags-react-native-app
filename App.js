@@ -131,25 +131,16 @@ const App = () => {
         }
 
         if(!__DEV__) {
-          // listen for a new version
-          Updates.fetchUpdateAsync({
-            eventListener: ({ type }) => {
-              if(type === Updates.EventType.DOWNLOAD_FINISHED) {
+          Updates.fetchUpdateAsync()
+            .then(({ isNew }) => {
+              if(isNew) {
                 setUpdateExists(true)
               }
-
-              if(
-                [
-                  Updates.EventType.NO_UPDATE_AVAILABLE,
-                  Updates.EventType.ERROR,
-                  Updates.EventType.DOWNLOAD_FINISHED,
-                ].includes(type)
-              ) {
-                newVersionCheckComplete = true
-                setIsReadyIfReady()
-              }
-            },
-          })
+            })
+            .finally(() => {
+              newVersionCheckComplete = true
+              setIsReadyIfReady()
+            })
         }
 
         await Promise.all([
