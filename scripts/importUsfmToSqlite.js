@@ -114,7 +114,8 @@ const majorSectionRegex = /^\\ms[0-9]? .*$/
 const sectionRegex = /^\\s[0-9]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
-const paragraphRegex = /^\\p(?: .*)?$/
+const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9]) *$/
+const poetryWithoutContentRegex = /^\\q(?:[0-9rcad]?|m[0-9]?) *$/
 const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
@@ -230,7 +231,8 @@ const doubleSpacesRegex = /  +/g
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
             || psalmTitleRegex.test(line)
-            || paragraphRegex.test(line)
+            || paragraphWithoutContentRegex.test(line)
+            || poetryWithoutContentRegex.test(line)
           ) {
             goesWithNextVsText.push(line)
             continue
