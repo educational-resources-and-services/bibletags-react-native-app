@@ -133,6 +133,21 @@ const Verse = ({
         text = ` ● `
       }
 
+      if(
+        (text || "").match(/ +$/)
+        && ![ "f", "fe", "x" ].includes(tag)
+        && [ "f", "fe", "x" ].includes((pieces[idx + 1] || {}).tag)
+      ) {
+        text = text.replace(/ +$/, '')
+      }
+
+      if(
+        (text || "").match(/^ +/)
+        && [ "f", "fe", "x" ].includes((pieces[idx - 1] || {}).tag)
+      ) {
+        text = text.replace(/^ +/, '')
+      }
+
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
       if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
       textContent += text || ``

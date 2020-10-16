@@ -405,12 +405,23 @@ const ReadText = ({
 
           vs = verse || vs
 
-          if([ "f", "fe" ].includes(tag)) {  // footnote
+          if([ "f", "fe", "x" ].includes(tag)) {  // footnote or cross ref
             text = ` ● `  // or ✱
           }
 
-          if([ "x" ].includes(tag)) {  // crossref
-            text = ` ● `  // or ✱
+          if(
+            (text || "").match(/ +$/)
+            && ![ "f", "fe", "x" ].includes(tag)
+            && [ "f", "fe", "x" ].includes((simplifiedPieces[idx + 1] || {}).tag)
+          ) {
+            text = text.replace(/ +$/, '')
+          }
+
+          if(
+            (text || "").match(/^ +/)
+            && [ "f", "fe", "x" ].includes((simplifiedPieces[idx - 1] || {}).tag)
+          ) {
+            text = text.replace(/^ +/, '')
           }
 
           const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
