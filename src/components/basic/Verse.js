@@ -146,7 +146,7 @@ const Verse = ({
     const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
-      let { type, tag, text, content, children } = piece
+      let { type, tag, text, content, nextChar, children } = piece
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
@@ -225,7 +225,7 @@ const Verse = ({
               ? getJSXFromPieces({
                 pieces: children,
               })
-              : (text || content)
+              : (text || `${content}${nextChar || ``}`)
             }
           </VerseText>
         )
