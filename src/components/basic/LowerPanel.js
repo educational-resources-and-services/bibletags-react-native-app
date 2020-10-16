@@ -61,7 +61,7 @@ const LowerPanel = ({
   )
 
   let contents = null
-  const { type: selectedInfoType } = selectedInfo || {}
+  const { type: selectedInfoType, tag: selectedInfoTag } = selectedInfo || {}
 
   if(selectedInfoType === 'word') {
     contents = (
@@ -70,7 +70,10 @@ const LowerPanel = ({
       />
     )
 
-  } else if([ 'footnote', 'endnote' ].includes(selectedInfoType)) {
+  } else if(
+    [ 'footnote', 'endnote' ].includes(selectedInfoType)
+    || [ 'x' ].includes(selectedInfoTag)
+  ) {
     contents = (
       <LowerPanelFootnote
         selectedVersionId={selectedVersionId}

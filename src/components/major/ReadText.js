@@ -114,6 +114,9 @@ const textStyles = StyleSheet.create({
   fe: {
     letterSpacing: 2,
   },
+  x: {
+    letterSpacing: 2,
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -406,6 +409,10 @@ const ReadText = ({
             text = ` ● `  // or ✱
           }
 
+          if([ "x" ].includes(tag)) {  // crossref
+            text = ` ● `  // or ✱
+          }
+
           const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
 
           if(wrapInView) {
@@ -466,7 +473,7 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
-            && [ 'w', 'f', 'fe' ].includes(tag)
+            && [ 'w', 'f', 'fe', 'x' ].includes(tag)
             && vs === selectedVerse
             && equalObjs(selectedInfo, piece)
           ) {
@@ -553,7 +560,7 @@ const ReadText = ({
               style={style}
               onPress={goVerseTap}
               verseNumber={vs}
-              info={[ 'w', 'f', 'fe' ].includes(tag) ? piece : null}
+              info={[ 'w', 'f', 'fe', 'x' ].includes(tag) ? piece : null}
               // delayRenderMs={vs > 1 ? 500 : 0}
               ignoreChildrenChanging={ignoreChildrenChanging}
             >

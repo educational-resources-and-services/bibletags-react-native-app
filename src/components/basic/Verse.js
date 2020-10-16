@@ -58,6 +58,9 @@ const textStyles = StyleSheet.create({
   fe: {
     letterSpacing: 2,
   },
+  x: {
+    letterSpacing: 2,
+  },
 })
 
 const fontSizeStyleFactors = {
@@ -126,7 +129,7 @@ const Verse = ({
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
 
-      if([ "f", "fe" ].includes(tag)) {  // footnote
+      if([ "f", "fe", "x" ].includes(tag)) {  // footnote or crossref
         text = ` ● `
       }
 
@@ -170,7 +173,7 @@ const Verse = ({
             ])}
             // onPress={goVerseTap}
             verseNumber={verse}
-            info={[ 'w', 'f', 'fe' ].includes(tag) ? piece : null}
+            info={[ 'w', 'f', 'fe', 'x' ].includes(tag) ? piece : null}
             // delayRenderMs={vs > 1 ? 500 : 0}
             // ignoreChildrenChanging={ignoreChildrenChanging}
           >
