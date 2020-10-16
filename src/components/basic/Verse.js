@@ -107,7 +107,29 @@ const Verse = ({
 }) => {
 
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ matchThemedStyle={} ] = altThemedStyleSets
+  const [
+
+    unfocussedBlockThemedStyle={},  // used in ReadText
+    unfocussedThemedStyle={},  // used in ReadText
+    unselectedBlockThemedStyle={},  // used in ReadText
+    unselectedThemedStyle={},  // used in ReadText
+    semiSelectedVsThemedStyle={},  // used in ReadText
+    selectedWordThemedStyle={},  // used in ReadText
+    selectedVsThemedStyle={},  // used in ReadText
+    matchThemedStyle={},
+
+    majorTitleThemedStyle={},  // used in ReadText
+    majorSectionHeadingThemedStyle={},  // used in ReadText
+    section1HeadingThemedStyle={},  // used in ReadText
+    section2HeadingThemedStyle={},  // used in ReadText
+
+    pehThemedStyle={},
+    samechThemedStyle={},
+    selahThemedStyle={},
+    fqThemedStyle={},
+    xtThemedStyle={},
+
+  ] = altThemedStyleSets
 
   const { font, textSize, lineSpacing, theme } = displaySettings
   const { bookId, verse } = passageRef
@@ -166,6 +188,13 @@ const Verse = ({
 
       const styles = [
         getStyle({ tag, styles: textStyles }),
+        {
+          peh: pehThemedStyle,
+          samech: samechThemedStyle,
+          selah: selahThemedStyle,
+          fq: fqThemedStyle,
+          xt: xtThemedStyle,
+        }[tag],
         fontSize && { fontSize },
         lineHeight && { lineHeight },
         fontFamily && { fontFamily },

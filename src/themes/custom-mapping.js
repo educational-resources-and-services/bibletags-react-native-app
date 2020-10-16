@@ -86,6 +86,29 @@ const getComponentMapping = componentInfos => (
   )
 )
 
+const readTextAndVerseParameters = {
+  alt0Opacity: 0.2, // unfocussedBlockThemedStyle
+  alt1Color: "rgba(0, 0, 0, .2)", // unfocussedThemedStyle
+  alt2Opacity: 0.1, // unselectedBlockThemedStyle
+  alt3Color: "rgba(0, 0, 0, .1)", // unselectedThemedStyle
+  alt4Color: "rgba(0, 0, 0, .3)", // semiSelectedVsThemedStyle
+  alt5Color: "black", // selectedWordThemedStyle
+  alt6TextShadowColor: "black", // selectedWordThemedStyle
+  alt6Color: "black", // selectedVsThemedStyle
+  alt7Color: "border-danger-color-3",  // matchThemedStyle
+
+  alt9Color: "color-basic-600", // majorTitleThemedStyle
+  alt9Color: "color-basic-800", // majorSectionHeadingThemedStyle
+  alt10Color: "color-basic-700", // section1HeadingThemedStyle
+  alt11Color: "color-basic-600", // section2HeadingThemedStyle
+
+  alt12Color: "color-basic-500", // pehThemedStyle
+  alt13Color: "color-basic-500", // samechThemedStyle
+  alt14Color: "color-basic-600", // selahThemedStyle
+  alt15Color: "color-primary-500", // fqThemedStyle
+  alt16Color: "color-info-500", // xtThemedStyle
+}
+
 const mapping = {
 
   // See https://github.com/eva-design/eva/blob/master/packages/eva/mapping.json  
@@ -222,9 +245,7 @@ const mapping = {
     },
     {
       component: 'Verse',
-      parameters: {
-        alt0Color: "border-danger-color-3",  // match
-      },
+      parameters: readTextAndVerseParameters,
       variantGroups: {
         uiStatus: {
           unselected: {
@@ -347,23 +368,7 @@ const mapping = {
     },
     {
       component: 'ReadText',
-      parameters: {
-        alt0Color: "color-basic-600", // majorTitleThemedStyle
-        alt1Color: "color-basic-800", // majorSectionHeadingThemedStyle
-        alt2Color: "color-basic-700", // section1HeadingThemedStyle
-        alt3Color: "color-basic-600", // section2HeadingThemedStyle
-        alt4Color: "color-basic-500", // pehThemedStyle
-        alt5Color: "color-basic-500", // samechThemedStyle
-        alt6Color: "color-basic-600", // selahThemedStyle
-        alt7Opacity: 0.2, // unfocussedBlockThemedStyle
-        alt8Color: "rgba(0, 0, 0, .2)", // unfocussedThemedStyle
-        alt9Opacity: 0.1, // unselectedBlockThemedStyle
-        alt10Color: "rgba(0, 0, 0, .1)", // unselectedThemedStyle
-        alt11Color: "rgba(0, 0, 0, .3)", // semiSelectedVsThemedStyle
-        alt12Color: "black", // selectedWordThemedStyle
-        alt12TextShadowColor: "black", // selectedWordThemedStyle
-        alt13Color: "black", // selectedVsThemedStyle
-      },
+      parameters: readTextAndVerseParameters,
     },
     {
       component: 'Splash',

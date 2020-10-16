@@ -173,13 +173,7 @@ const ReadText = ({
 
   const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
-    majorTitleThemedStyle={},
-    majorSectionHeadingThemedStyle={},
-    section1HeadingThemedStyle={},
-    section2HeadingThemedStyle={},
-    pehThemedStyle={},
-    samechThemedStyle={},
-    selahThemedStyle={},
+
     unfocussedBlockThemedStyle={},
     unfocussedThemedStyle={},
     unselectedBlockThemedStyle={},
@@ -187,6 +181,19 @@ const ReadText = ({
     semiSelectedVsThemedStyle={},
     selectedWordThemedStyle={},
     selectedVsThemedStyle={},
+    matchThemedStyle={},  // used in Verse
+
+    majorTitleThemedStyle={},
+    majorSectionHeadingThemedStyle={},
+    section1HeadingThemedStyle={},
+    section2HeadingThemedStyle={},
+
+    pehThemedStyle={},
+    samechThemedStyle={},
+    selahThemedStyle={},
+    fqThemedStyle={},  // used in Verse
+    xtThemedStyle={},  // used in Verse
+
   ] = altThemedStyleSets
 
   const [ state, setState ] = useState({})
