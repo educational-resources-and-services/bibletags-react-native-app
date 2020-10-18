@@ -620,4 +620,55 @@ export const adjustTextForSups = ({
 
 }
 
+export const adjustPiecesForSpecialHebrew = ({ isOriginal, languageId, pieces }) => {
+
+  // For original Hebrew text, split off פ and ס chars that signal a break in flow.
+  if(isOriginal && languageId.split('+').includes('heb')) {
+    return pieces
+      .map(piece => {
+        if(!piece.lemma && /^[ ׃]*פ$/.test(piece.text || "")) {
+          return [
+            {
+              ...piece,
+              text: piece.text.slice(0, -1),
+            },
+            {
+              endTag: "peh*",
+              tag: "peh",
+              text: ' פ',
+            },
+          ]
+        } else if(!piece.lemma && /^[ ׃]*ס$/.test(piece.text || "")) {
+          return [
+            {
+              ...piece,
+              text: piece.text.slice(0, -1),
+            },
+            {
+              endTag: "samech*",
+              tag: "samech",
+              text: ' ס   ',
+            },
+          ]
+        } else if(piece.lemma === 'סֶלָה' && !piece.parentTagIsSelah) {
+          return [
+            {
+              endTag: "selah*",
+              tag: "selah",
+              children: [{
+                ...piece,
+                parentTagIsSelah: true,
+              }],
+            },
+          ]
+        } else {
+          return [ piece ]
+        }
+      })
+      .flat()
+  }
+
+  return pieces
+}
+
 export const getTagStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]

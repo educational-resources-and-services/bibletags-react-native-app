@@ -134,7 +134,7 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'fq', 'xt' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'fq', 'xt' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

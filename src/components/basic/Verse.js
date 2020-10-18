@@ -7,7 +7,8 @@ import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
-         adjustFontSize, memo, getVersionInfo, adjustTextForSups } from "../../utils/toolbox"
+         adjustFontSize, memo, getVersionInfo, adjustTextForSups,
+         adjustPiecesForSpecialHebrew } from "../../utils/toolbox"
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
@@ -75,6 +76,8 @@ const Verse = ({
 
     const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
+    pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
+
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, nextChar, children } = piece
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
@@ -85,7 +88,6 @@ const Verse = ({
       text = adjustTextForSups({ tag, text, pieces, idx })
 
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
-      // if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
       textContent += text || ``
 
       const { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({

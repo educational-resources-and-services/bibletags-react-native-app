@@ -9,7 +9,7 @@ import usePrevious from "react-use/lib/usePrevious"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs,
          iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo,
-         adjustTextForSups, getTagStyle } from '../../utils/toolbox'
+         adjustTextForSups, getTagStyle, adjustPiecesForSpecialHebrew } from '../../utils/toolbox'
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -281,51 +281,7 @@ const ReadText = ({
 
         const { font, textSize, lineSpacing, theme } = displaySettings
 
-        // For original Hebrew text, split off פ and ס chars that signal a break in flow.
-        if(isOriginal && languageId.split('+').includes('heb')) {
-          pieces = pieces
-            .map(piece => {
-              if(!piece.lemma && /^[ ׃]*פ$/.test(piece.text || "")) {
-                return [
-                  {
-                    ...piece,
-                    text: piece.text.slice(0, -1),
-                  },
-                  {
-                    endTag: "peh*",
-                    tag: "peh",
-                    text: ' פ',
-                  },
-                ]
-              } else if(!piece.lemma && /^[ ׃]*ס$/.test(piece.text || "")) {
-                return [
-                  {
-                    ...piece,
-                    text: piece.text.slice(0, -1),
-                  },
-                  {
-                    endTag: "samech*",
-                    tag: "samech",
-                    text: ' ס   ',
-                  },
-                ]
-              } else if(piece.lemma === 'סֶלָה' && !piece.parentTagIsSelah) {
-                return [
-                  {
-                    endTag: "selah*",
-                    tag: "selah",
-                    children: [{
-                      ...piece,
-                      parentTagIsSelah: true,
-                    }],
-                  },
-                ]
-              } else {
-                return [ piece ]
-              }
-            })
-            .flat()
-        }
+        pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
 
         const simplifiedPieces = []
         pieces.forEach(piece => {
