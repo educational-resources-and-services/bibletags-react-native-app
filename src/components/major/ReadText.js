@@ -9,7 +9,7 @@ import usePrevious from "react-use/lib/usePrevious"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
          isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX, equalObjs,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo } from '../../utils/toolbox'
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, uppercaseChars, baseTextStyles } from '../../utils/toolbox'
 import { getValidFontName } from "../../utils/bibleFonts"
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -69,8 +69,29 @@ const viewStyles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
   },
+  q: {
+    marginLeft: 20,
+  },
   q1: {
-    // marginRight: 25,
+    marginLeft: 20,
+  },
+  q2: {
+    marginLeft: 40,
+  },
+  q3: {
+    marginLeft: 60,
+  },
+  q4: {
+    marginLeft: 80,
+  },
+  q5: {
+    marginLeft: 100,
+  },
+  q6: {
+    marginLeft: 120,
+  },
+  q7: {
+    marginLeft: 140,
   },
   // sup: {
   //   position: "relative",
@@ -79,44 +100,15 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
-  rtl: {
-    writingDirection: "rtl",
-  },
+  ...baseTextStyles,
   mt: { //major title
     textAlign: "center",
-    // fontVariant: ["small-caps"],
   },
   ms: { // major section heading
     textAlign: "center",
   },
   s1: {},  //section heading 1
   s2: {},  //section heading 2
-  nd: {
-    // fontVariant: ["small-caps"],
-  },
-  no: {
-    fontVariant: [],
-    fontStyle: "normal",
-    fontWeight: "normal",
-  },
-  sc: {
-    // fontVariant: ["small-caps"],
-  },
-  peh: {
-  },
-  samech: {
-  },
-  selah: {
-  },
-  f: {
-    letterSpacing: 2,
-  },
-  fe: {
-    letterSpacing: 2,
-  },
-  x: {
-    letterSpacing: 2,
-  },
 })
 
 const fontSizeStyleFactors = {
@@ -124,7 +116,7 @@ const fontSizeStyleFactors = {
   ms: 1.2,
   // s1: 1.1,
   s2: .85,
-  // sup: .83,
+  '[small-cap]': .75,
 }
 
 const boldStyles = [
@@ -335,7 +327,7 @@ const ReadText = ({
       let vs = null
       let textAlreadyDisplayedInThisView = false
 
-      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse }) => {
+      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps }) => {
 
         const { font, textSize, lineSpacing, theme } = displaySettings
         const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
@@ -406,6 +398,11 @@ const ReadText = ({
 
         return simplifiedPieces.map((piece, idx) => {
           let { type, tag, text, content, children, verse } = piece
+          const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
+
+          if([ "b" ].includes(tag)) {
+            text = ' '
+          }
 
           if(!children && !text && !content) return null
           if([ "c", "cp" ].includes(tag)) return null
@@ -447,13 +444,29 @@ const ReadText = ({
           const italic = italicStyles.includes(tag)
           const light = lightStyles.includes(tag)
           const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-          const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
+          const lineHeight = fontSize && wrapInView && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
           const fontFamily = (wrapInView || bold || italic || light || (isOriginal && isForceUserFontTag(tag))) && getValidFontName({
             font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
             bold,
             italic,
             light,
           })
+
+          if(doSmallCaps && (text || content)) {
+            const uppercaseRegex = new RegExp(`([${uppercaseChars}])`, `g`)
+            children = (text || content)
+              .split(uppercaseRegex)
+              .map(text => (
+                uppercaseRegex.test(text)
+                  ? {
+                    text,
+                  }
+                  : {
+                    text,
+                    tag: '[small-cap]',
+                  }
+              ))
+          }
 
           let style = StyleSheet.flatten([
             wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
@@ -477,6 +490,9 @@ const ReadText = ({
           const hasFocussedVerseChild = focussedVerse && (children || []).some(child => child.verse === focussedVerse)
           const hadFocussedVerseChild = previousFocussedVerse && (children || []).some(child => child.verse === previousFocussedVerse)
 
+          const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
+
+// adjust margin sizes based on stuff
           if(
             selectedVerse !== null
             && verse !== undefined
@@ -566,6 +582,8 @@ const ReadText = ({
             && !hadSelectedVerseChild
             && !hasFocussedVerseChild
             && !hadFocussedVerseChild
+            && !doSmallCaps
+            && !hasSmallCapsChild(children)
           )
 
           if(!children) {
@@ -587,6 +605,7 @@ const ReadText = ({
                   pieces: children,
                   sharesBlockWithSelectedVerse: hasSelectedVerseChild,
                   sharesBlockWithFocussedVerse: hasFocussedVerseChild,
+                  doSmallCaps,
                 })
                 : (text || content)
               }

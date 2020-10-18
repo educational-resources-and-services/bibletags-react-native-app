@@ -7,7 +7,7 @@ import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
-         adjustFontSize, memo, getVersionInfo } from "../../utils/toolbox"
+         adjustFontSize, memo, getVersionInfo, baseTextStyles, uppercaseChars } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
 // import { setRef, setVersionId } from "../../redux/actions"
@@ -31,40 +31,18 @@ const viewStyles = StyleSheet.create({
 })
 
 const textStyles = StyleSheet.create({
+  ...baseTextStyles,
   reference: {
     textAlign: 'right',
     fontWeight: 'bold',
   },
-  rtl: {
-    writingDirection: 'rtl',
-  },
   leftAlign: {
     textAlign: 'left',
-  },
-  nd: {
-    // fontVariant: ['small-caps'],
-  },
-  no: {
-    fontVariant: [],
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-  },
-  sc: {
-    // fontVariant: ['small-caps'],
-  },
-  f: {
-    letterSpacing: 2,
-  },
-  fe: {
-    letterSpacing: 2,
-  },
-  x: {
-    letterSpacing: 2,
   },
 })
 
 const fontSizeStyleFactors = {
-  // sup: .83,
+  '[small-cap]': .75,
 }
 
 const boldStyles = [
@@ -140,13 +118,14 @@ const Verse = ({
 
   let textContent = ``  
 
-  const getJSXFromPieces = ({ pieces }) => {
+  const getJSXFromPieces = ({ pieces, doSmallCaps }) => {
 
     const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
     const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, nextChar, children } = piece
+      const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
@@ -171,20 +150,35 @@ const Verse = ({
       }
 
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
-      if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
+      // if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
       textContent += text || ``
 
       const bold = boldStyles.includes(tag)
       const italic = italicStyles.includes(tag)
       const light = lightStyles.includes(tag)
       const fontSize = fontSizeStyleFactors[tag] && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-      const lineHeight = fontSize && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
       const fontFamily = (bold || italic || light) && getValidFontName({
         font: getFont(),
         bold,
         italic,
         light,
       })
+
+      if(doSmallCaps && (text || content)) {
+        const uppercaseRegex = new RegExp(`([${uppercaseChars}])`, `g`)
+        children = (text || content)
+          .split(uppercaseRegex)
+          .map(text => (
+            uppercaseRegex.test(text)
+              ? {
+                text,
+              }
+              : {
+                text,
+                tag: '[small-cap]',
+              }
+          ))
+      }
 
       const styles = [
         getStyle({ tag, styles: textStyles }),
@@ -196,7 +190,6 @@ const Verse = ({
           xt: xtThemedStyle,
         }[tag],
         fontSize && { fontSize },
-        lineHeight && { lineHeight },
         fontFamily && { fontFamily },
       ].filter(Boolean)
 
@@ -224,6 +217,7 @@ const Verse = ({
             {children
               ? getJSXFromPieces({
                 pieces: children,
+                doSmallCaps,
               })
               : (text || `${content}${nextChar || ``}`)
             }
