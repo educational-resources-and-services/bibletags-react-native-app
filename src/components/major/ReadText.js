@@ -7,10 +7,10 @@ import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-hel
 import usePrevious from "react-use/lib/usePrevious"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { executeSql, isRTLText, getVersionInfo, getCopyVerseText, getTextFont,
-         isForceUserFontTag, adjustFontSize, adjustLineHeight, isIPhoneX, equalObjs,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, uppercaseChars, baseTextStyles } from '../../utils/toolbox'
-import { getValidFontName } from "../../utils/bibleFonts"
+import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs,
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo,
+         adjustTextForSups, getTagStyle } from '../../utils/toolbox'
+import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
@@ -18,7 +18,6 @@ import VerseText from "../basic/VerseText"
 import CoverAndSpin from "../basic/CoverAndSpin"
 
 const {
-  DEFAULT_FONT_SIZE,
   HEBREW_CANTILLATION_MODE,
 } = Constants.manifest.extra
 
@@ -99,46 +98,6 @@ const viewStyles = StyleSheet.create({
   // },
 })
 
-const textStyles = StyleSheet.create({
-  ...baseTextStyles,
-  mt: { //major title
-    textAlign: "center",
-  },
-  ms: { // major section heading
-    textAlign: "center",
-  },
-  s1: {},  //section heading 1
-  s2: {},  //section heading 2
-})
-
-const fontSizeStyleFactors = {
-  mt: 1.6,
-  ms: 1.2,
-  // s1: 1.1,
-  s2: .85,
-  '[small-cap]': .75,
-}
-
-const boldStyles = [
-  'mt',
-  'bd',
-  'bdit',
-  'v',
-  'vp',
-]
-
-const italicStyles = [
-  'd',
-  'em',
-  'it',
-  'bdit',
-]
-
-const lightStyles = [
-]
-
-const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
-
 const ReadText = ({
   versionId,
   passageRef,
@@ -175,16 +134,7 @@ const ReadText = ({
     selectedVsThemedStyle={},
     matchThemedStyle={},  // used in Verse
 
-    majorTitleThemedStyle={},
-    majorSectionHeadingThemedStyle={},
-    section1HeadingThemedStyle={},
-    section2HeadingThemedStyle={},
-
-    pehThemedStyle={},
-    samechThemedStyle={},
-    selahThemedStyle={},
-    fqThemedStyle={},  // used in Verse
-    xtThemedStyle={},  // used in Verse
+    ...tagThemedStyles
 
   ] = altThemedStyleSets
 
@@ -330,7 +280,6 @@ const ReadText = ({
       const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps }) => {
 
         const { font, textSize, lineSpacing, theme } = displaySettings
-        const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
 
         // For original Hebrew text, split off פ and ס chars that signal a break in flow.
         if(isOriginal && languageId.split('+').includes('heb')) {
@@ -409,24 +358,7 @@ const ReadText = ({
 
           vs = verse || vs
 
-          if([ "f", "fe", "x" ].includes(tag)) {  // footnote or cross ref
-            text = ` ● `  // or ✱
-          }
-
-          if(
-            (text || "").match(/ +$/)
-            && ![ "f", "fe", "x" ].includes(tag)
-            && [ "f", "fe", "x" ].includes((simplifiedPieces[idx + 1] || {}).tag)
-          ) {
-            text = text.replace(/ +$/, '')
-          }
-
-          if(
-            (text || "").match(/^ +/)
-            && [ "f", "fe", "x" ].includes((simplifiedPieces[idx - 1] || {}).tag)
-          ) {
-            text = text.replace(/^ +/, '')
-          }
+          text = adjustTextForSups({ tag, text, pieces: simplifiedPieces, idx })
 
           const wrapInView = tagInList({ tag, list: blockUsfmMarkers })
 
@@ -440,67 +372,38 @@ const ReadText = ({
             content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
           }
 
-          const bold = boldStyles.includes(tag)
-          const italic = italicStyles.includes(tag)
-          const light = lightStyles.includes(tag)
-          const fontSize = (wrapInView || fontSizeStyleFactors[tag]) && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-          const lineHeight = fontSize && wrapInView && adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
-          const fontFamily = (wrapInView || bold || italic || light || (isOriginal && isForceUserFontTag(tag))) && getValidFontName({
-            font: getTextFont({ font, isOriginal, languageId, bookId, tag }),
-            bold,
-            italic,
-            light,
+          let { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({
+            bookId,
+            tag,
+            text,
+            content,
+            children,
+            wrapInView,
+            font,
+            textSize,
+            lineSpacing,
+            doSmallCaps,
+            languageId,
+            isOriginal,
+            tagThemedStyles,
           })
-
-          if(doSmallCaps && (text || content)) {
-            const uppercaseRegex = new RegExp(`([${uppercaseChars}])`, `g`)
-            children = (text || content)
-              .split(uppercaseRegex)
-              .map(text => (
-                uppercaseRegex.test(text)
-                  ? {
-                    text,
-                  }
-                  : {
-                    text,
-                    tag: '[small-cap]',
-                  }
-              ))
-          }
-
-          let style = StyleSheet.flatten([
-            wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
-            getStyle({ tag, styles: textStyles }),
-            {
-              mt: majorTitleThemedStyle,
-              ms: majorSectionHeadingThemedStyle,
-              s1: section1HeadingThemedStyle,
-              s2: section2HeadingThemedStyle,
-              peh: pehThemedStyle,
-              samech: samechThemedStyle,
-              selah: selahThemedStyle,
-            }[tag],
-            fontSize && { fontSize },
-            lineHeight && { lineHeight },
-            fontFamily && { fontFamily },
-          ])
-
-          const hasSelectedVerseChild = selectedVerse && (children || []).some(child => child.verse === selectedVerse)
-          const hadSelectedVerseChild = previousSelectedVerse && (children || []).some(child => child.verse === previousSelectedVerse)
-          const hasFocussedVerseChild = focussedVerse && (children || []).some(child => child.verse === focussedVerse)
-          const hadFocussedVerseChild = previousFocussedVerse && (children || []).some(child => child.verse === previousFocussedVerse)
+    
+          const hasSelectedVerseChild = selectedVerse && (adjustedChildren || []).some(child => child.verse === selectedVerse)
+          const hadSelectedVerseChild = previousSelectedVerse && (adjustedChildren || []).some(child => child.verse === previousSelectedVerse)
+          const hasFocussedVerseChild = focussedVerse && (adjustedChildren || []).some(child => child.verse === focussedVerse)
+          const hadFocussedVerseChild = previousFocussedVerse && (adjustedChildren || []).some(child => child.verse === previousFocussedVerse)
 
           const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
 
-// adjust margin sizes based on stuff
+// TODO: adjust margin sizes based on stuff
           if(
             selectedVerse !== null
             && verse !== undefined
             && verse === selectedVerse
             && !!selectedInfo
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...semiSelectedVsThemedStyle,
             }
           }
@@ -511,8 +414,8 @@ const ReadText = ({
             && vs === selectedVerse
             && equalObjs(selectedInfo, piece)
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...selectedWordThemedStyle,
               textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
             }
@@ -523,8 +426,8 @@ const ReadText = ({
             && tag === 'v'
             && vs === selectedVerse
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...selectedVsThemedStyle,
             }
           }
@@ -535,8 +438,8 @@ const ReadText = ({
             && verse !== selectedVerse
             && sharesBlockWithSelectedVerse
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...unselectedThemedStyle,
             }
           }
@@ -546,8 +449,8 @@ const ReadText = ({
             && wrapInView
             && !hasSelectedVerseChild
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...unselectedBlockThemedStyle,
             }
           }
@@ -558,8 +461,8 @@ const ReadText = ({
             && verse !== focussedVerse
             && sharesBlockWithFocussedVerse
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...unfocussedThemedStyle,
             }
           }
@@ -569,8 +472,8 @@ const ReadText = ({
             && wrapInView
             && !hasFocussedVerseChild
           ) {
-            style = {
-              ...style,
+            verseTextStyles = {
+              ...verseTextStyles,
               ...unfocussedBlockThemedStyle,
             }
           }
@@ -583,26 +486,26 @@ const ReadText = ({
             && !hasFocussedVerseChild
             && !hadFocussedVerseChild
             && !doSmallCaps
-            && !hasSmallCapsChild(children)
+            && !hasSmallCapsChild(adjustedChildren)
           )
 
-          if(!children) {
+          if(!adjustedChildren) {
             textAlreadyDisplayedInThisView = true
           }
 
           let component = (
             <VerseText
               key={idx}
-              style={style}
+              style={verseTextStyles}
               onPress={goVerseTap}
               verseNumber={vs}
               info={[ 'w', 'f', 'fe', 'x' ].includes(tag) ? piece : null}
               // delayRenderMs={vs > 1 ? 500 : 0}
               ignoreChildrenChanging={ignoreChildrenChanging}
             >
-              {children
+              {adjustedChildren
                 ? getJSXFromPieces({
-                  pieces: children,
+                  pieces: adjustedChildren,
                   sharesBlockWithSelectedVerse: hasSelectedVerseChild,
                   sharesBlockWithFocussedVerse: hasFocussedVerseChild,
                   doSmallCaps,
@@ -617,7 +520,7 @@ const ReadText = ({
               <View
                 key={idx}
                 style={[
-                  getStyle({ tag, styles: viewStyles }),
+                  getTagStyle({ tag, styles: viewStyles }),
                 ]}
               >
                 {component}

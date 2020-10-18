@@ -97,16 +97,16 @@ const readTextAndVerseParameters = {
   alt6Color: "black", // selectedVsThemedStyle
   alt7Color: "border-danger-color-3",  // matchThemedStyle
 
-  alt9Color: "color-basic-600", // majorTitleThemedStyle
-  alt9Color: "color-basic-800", // majorSectionHeadingThemedStyle
-  alt10Color: "color-basic-700", // section1HeadingThemedStyle
-  alt11Color: "color-basic-600", // section2HeadingThemedStyle
+  alt9Color: "color-basic-600", // mt
+  alt9Color: "color-basic-800", // ms
+  alt10Color: "color-basic-700", // s1
+  alt11Color: "color-basic-600", // s2
 
-  alt12Color: "color-basic-500", // pehThemedStyle
-  alt13Color: "color-basic-500", // samechThemedStyle
-  alt14Color: "color-basic-600", // selahThemedStyle
-  alt15Color: "color-primary-500", // fqThemedStyle
-  alt16Color: "color-info-500", // xtThemedStyle
+  alt12Color: "color-basic-500", // peh
+  alt13Color: "color-basic-500", // samech
+  alt14Color: "color-basic-600", // selah
+  alt15Color: "color-primary-500", // fq
+  alt16Color: "color-info-500", // xt
 }
 
 const mapping = {

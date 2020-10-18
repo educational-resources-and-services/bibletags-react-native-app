@@ -1,13 +1,14 @@
 import React from "react"
 import Constants from "expo-constants"
-import { View, StyleSheet, Text, I18nManager } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
-         adjustFontSize, memo, getVersionInfo, baseTextStyles, uppercaseChars } from "../../utils/toolbox"
+         adjustFontSize, memo, getVersionInfo, adjustTextForSups } from "../../utils/toolbox"
+import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
 // import { setRef, setVersionId } from "../../redux/actions"
@@ -18,48 +19,11 @@ const {
   DEFAULT_FONT_SIZE,
 } = Constants.manifest.extra
 
-const viewStyles = StyleSheet.create({
-  container: {
-  },
-  toastText: {
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
-  },
-  // sup: {
-  //   position: "relative",
-  //   top: "-0.3em",
-  // },
-})
-
-const textStyles = StyleSheet.create({
-  ...baseTextStyles,
-  reference: {
-    textAlign: 'right',
-    fontWeight: 'bold',
-  },
-  leftAlign: {
-    textAlign: 'left',
+const styles = StyleSheet.create({
+  rtl: {
+    writingDirection: "rtl",
   },
 })
-
-const fontSizeStyleFactors = {
-  '[small-cap]': .75,
-}
-
-const boldStyles = [
-  'bd',
-  'bdit',
-]
-
-const italicStyles = [
-  'em',
-  'it',
-  'bdit',
-]
-
-const lightStyles = [
-]
-
-const getStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
 const Verse = ({
   pieces,
@@ -96,16 +60,7 @@ const Verse = ({
     selectedVsThemedStyle={},  // used in ReadText
     matchThemedStyle={},
 
-    majorTitleThemedStyle={},  // used in ReadText
-    majorSectionHeadingThemedStyle={},  // used in ReadText
-    section1HeadingThemedStyle={},  // used in ReadText
-    section2HeadingThemedStyle={},  // used in ReadText
-
-    pehThemedStyle={},
-    samechThemedStyle={},
-    selahThemedStyle={},
-    fqThemedStyle={},
-    xtThemedStyle={},
+    ...tagThemedStyles
 
   ] = altThemedStyleSets
 
@@ -114,13 +69,10 @@ const Verse = ({
 
   const { languageId, isOriginal=false } = getVersionInfo(versionId)
 
-  const getFont = () => getTextFont({ font, isOriginal, languageId, bookId })
-
   let textContent = ``  
 
   const getJSXFromPieces = ({ pieces, doSmallCaps }) => {
 
-    const baseFontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
     const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
 
     return pieces.map((piece, idx) => {
@@ -130,81 +82,39 @@ const Verse = ({
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
 
-      if([ "f", "fe", "x" ].includes(tag)) {  // footnote or crossref
-        text = ` ● `
-      }
-
-      if(
-        (text || "").match(/ +$/)
-        && ![ "f", "fe", "x" ].includes(tag)
-        && [ "f", "fe", "x" ].includes((pieces[idx + 1] || {}).tag)
-      ) {
-        text = text.replace(/ +$/, '')
-      }
-
-      if(
-        (text || "").match(/^ +/)
-        && [ "f", "fe", "x" ].includes((pieces[idx - 1] || {}).tag)
-      ) {
-        text = text.replace(/^ +/, '')
-      }
+      text = adjustTextForSups({ tag, text, pieces, idx })
 
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
       // if(isOriginal && !tag && /^׃?[פס]$/.test(text) && textContent) text = text.replace(/([פס])/, ' $1')
       textContent += text || ``
 
-      const bold = boldStyles.includes(tag)
-      const italic = italicStyles.includes(tag)
-      const light = lightStyles.includes(tag)
-      const fontSize = fontSizeStyleFactors[tag] && baseFontSize * (fontSizeStyleFactors[tag] || 1)
-      const fontFamily = (bold || italic || light) && getValidFontName({
-        font: getFont(),
-        bold,
-        italic,
-        light,
+      const { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({
+        bookId,
+        tag,
+        text,
+        content,
+        children,
+        font,
+        textSize,
+        lineSpacing,
+        doSmallCaps,
+        languageId,
+        isOriginal,
+        tagThemedStyles,
       })
-
-      if(doSmallCaps && (text || content)) {
-        const uppercaseRegex = new RegExp(`([${uppercaseChars}])`, `g`)
-        children = (text || content)
-          .split(uppercaseRegex)
-          .map(text => (
-            uppercaseRegex.test(text)
-              ? {
-                text,
-              }
-              : {
-                text,
-                tag: '[small-cap]',
-              }
-          ))
-      }
-
-      const styles = [
-        getStyle({ tag, styles: textStyles }),
-        {
-          peh: pehThemedStyle,
-          samech: samechThemedStyle,
-          selah: selahThemedStyle,
-          fq: fqThemedStyle,
-          xt: xtThemedStyle,
-        }[tag],
-        fontSize && { fontSize },
-        fontFamily && { fontFamily },
-      ].filter(Boolean)
 
       const getPartOfPiece = (text, idx2) => {
 
         const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
 
-        if(text && styles.length === 0 && !isMatch) return text
+        if(text && Object.keys(verseTextStyles).length === 0 && !isMatch) return text
 
         return (
           <VerseText
             key={`${idx}-${idx2}`}
             style={StyleSheet.flatten([
-              ...styles,
+              verseTextStyles,
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
             ])}
@@ -214,9 +124,9 @@ const Verse = ({
             // delayRenderMs={vs > 1 ? 500 : 0}
             // ignoreChildrenChanging={ignoreChildrenChanging}
           >
-            {children
+            {adjustedChildren
               ? getJSXFromPieces({
-                pieces: children,
+                pieces: adjustedChildren,
                 doSmallCaps,
               })
               : (text || `${content}${nextChar || ``}`)
@@ -259,16 +169,15 @@ const Verse = ({
 
   const fontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
   const lineHeight = adjustLineHeight({ lineHeight: fontSize * lineSpacing, isOriginal, languageId, bookId })
-  const fontFamily = getValidFontName({ font: getFont() })
+  const fontFamily = getValidFontName({ font: getTextFont({ font, isOriginal, languageId, bookId }) })
 
   return (
-    <View style={viewStyles.container}>
+    <View>
       <Text
         style={[
-          textStyles.verse,
           baseThemedStyle,
           style,
-          (isRTLText({ languageId, bookId }) ? textStyles.rtl : null),
+          (isRTLText({ languageId, bookId }) ? styles.rtl : null),
           { fontSize },
           { lineHeight },
           { fontFamily },
