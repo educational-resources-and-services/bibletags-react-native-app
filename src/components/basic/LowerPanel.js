@@ -70,10 +70,7 @@ const LowerPanel = ({
       />
     )
 
-  } else if(
-    [ 'footnote', 'endnote' ].includes(selectedInfoType)
-    || [ 'x' ].includes(selectedInfoTag)
-  ) {
+  } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
     contents = (
       <LowerPanelFootnote
         selectedVersionId={selectedVersionId}

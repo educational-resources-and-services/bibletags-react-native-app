@@ -10,35 +10,30 @@ const {
 
 const textStyles = StyleSheet.create({
 
+  // see custom-mapping.js for colors
+  // see fontSizeStyleFactors (below) for font sizes
+
   rtl: {
     writingDirection: "rtl",
   },
-  nd: {
+  nd: {  // name of diety
     textTransform: "uppercase",
   },
-  sc: {
+  sc: {  // small caps
     textTransform: "uppercase",
   },
-  no: {
+  no: {  // normal text
     fontVariant: [],
     fontStyle: "normal",
     fontWeight: "normal",
   },
-  sc: {
-  },
-  peh: {
-  },
-  samech: {
-  },
-  selah: {
-  },
-  f: {
+  f: {  // footnote
     letterSpacing: 2,
   },
-  fe: {
+  fe: {  // endnote (treated the same as footnote)
     letterSpacing: 2,
   },
-  x: {
+  x: {  // crossref
     letterSpacing: 2,
   },
 
@@ -47,16 +42,6 @@ const textStyles = StyleSheet.create({
   },
   ms: { // major section heading
     textAlign: "center",
-  },
-  s1: {},  //section heading 1
-  s2: {},  //section heading 2
-
-  reference: {
-    textAlign: 'right',
-    fontWeight: 'bold',
-  },
-  leftAlign: {
-    textAlign: 'left',
   },
 
 })
@@ -82,6 +67,7 @@ const italicStyles = [
   'em',
   'it',
   'bdit',
+  'fq',
 ]
 
 const lightStyles = [
@@ -134,7 +120,7 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'fq', 'xt' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'f', 'fe' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

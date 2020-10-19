@@ -320,16 +320,16 @@ const ReadText = ({
             text = ' '
           }
 
-          if([ "mt" ].includes(tag) && /\\x /.test(content)) {
-            const footnoteRegex = /^\\x (.*?)\\x\*$/
+          if([ "mt" ].includes(tag) && /\\(?:fe?|x) /.test(content)) {
+            const footnoteRegex = /^\\(fe?|x) (.*?)\\((?:fe?|x)\*)$/
             children = content
-              .split(/(\\x .*?\\x\*)/g)
+              .split(/(\\(?:fe?|x) .*?\\(?:fe?|x)\*)/g)
               .map(text => (
                 footnoteRegex.test(text)
                   ? {
-                    content: text.replace(footnoteRegex, '$1'),
-                    tag: "x",
-                    endTag: "x*",
+                    content: text.replace(footnoteRegex, '$2'),
+                    tag: text.replace(footnoteRegex, '$1'),
+                    endTag: text.replace(footnoteRegex, '$3'),
                   }
                   : {
                     text,
@@ -383,7 +383,6 @@ const ReadText = ({
 
           const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
 
-// TODO: adjust margin sizes based on stuff
           if(
             selectedVerse !== null
             && verse !== undefined
