@@ -249,13 +249,15 @@ const ReadHeader = React.memo(({
               </Text>
             </Text>
           </View>
-          <HeaderIconButton
-            name={showCopied ? "check" : "content-copy"}
-            pack="materialCommunity"
-            onPress={showCopied ? null : copyVerse}
-            uiStatus={showCopied ? 'disabled' : null}
-            style={styles.whiteIcon}
-          />
+          {selectedVerse !== -1 &&
+            <HeaderIconButton
+              name={showCopied ? "check" : "content-copy"}
+              pack="materialCommunity"
+              onPress={showCopied ? null : copyVerse}
+              uiStatus={showCopied ? 'disabled' : null}
+              style={styles.whiteIcon}
+            />
+          }
         </AppHeader>
       </>}
 
