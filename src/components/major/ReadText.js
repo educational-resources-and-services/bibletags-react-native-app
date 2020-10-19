@@ -250,22 +250,32 @@ const ReadText = ({
         }
       })
 
-      const { wordDividerRegex, abbr } = getVersionInfo(versionId)
+      let selectedTextContent
 
-      const pieces = getPiecesFromUSFM({
-        usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
-        inlineMarkersOnly: true,
-        wordDividerRegex,
-      })
+      if(verseUsfm) {
 
-      const selectedTextContent = getCopyVerseText({
-        pieces,
-        ref: {
-          ...passageRef,
-          verse: selectedVerse,
-        },
-        versionAbbr: abbr,
-      })
+        const { wordDividerRegex, abbr } = getVersionInfo(versionId)
+
+        const pieces = getPiecesFromUSFM({
+          usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+          inlineMarkersOnly: true,
+          wordDividerRegex,
+        })
+
+        if(pieces) {
+
+          selectedTextContent = getCopyVerseText({
+            pieces,
+            ref: {
+              ...passageRef,
+              verse: selectedVerse,
+            },
+            versionAbbr: abbr,
+          })
+
+        }
+
+      }
 
       onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
     },
@@ -303,10 +313,32 @@ const ReadText = ({
 
         return simplifiedPieces.map((piece, idx) => {
           let { type, tag, text, content, children, verse } = piece
+          tag = tag && tag.replace(/^\+/, '')
           const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
 
           if([ "b" ].includes(tag)) {
             text = ' '
+          }
+
+          if([ "mt" ].includes(tag) && /\\x /.test(content)) {
+            const footnoteRegex = /^\\x (.*?)\\x\*$/
+            children = content
+              .split(/(\\x .*?\\x\*)/g)
+              .map(text => (
+                footnoteRegex.test(text)
+                  ? {
+                    content: text.replace(footnoteRegex, '$1'),
+                    tag: "x",
+                    endTag: "x*",
+                  }
+                  : {
+                    text,
+                  }
+              ))
+          }
+
+          if([ "mt" ].includes(tag) && selectedInfo) {
+            verse = -1
           }
 
           if(!children && !text && !content) return null
@@ -402,6 +434,7 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
+            && verse !== selectedVerse
             && wrapInView
             && !hasSelectedVerseChild
           ) {

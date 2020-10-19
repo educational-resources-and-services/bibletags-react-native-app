@@ -149,7 +149,7 @@ const ReadHeader = React.memo(({
         refs: [
           {
             ...passage.ref,
-            verse: selectedVerse,
+            verse: selectedVerse === -1 ? null : selectedVerse,
           },
         ],
       })

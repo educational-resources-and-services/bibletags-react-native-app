@@ -80,6 +80,7 @@ const Verse = ({
 
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, nextChar, children } = piece
+      tag = tag && tag.replace(/^\+/, '')
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
 
       if(!children && !text && !content) return null
