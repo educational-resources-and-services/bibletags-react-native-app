@@ -109,6 +109,7 @@ const readTextAndVerseParameters = {
   alt16Color: "color-info-500", // xt
   alt17Color: "color-info-500", // f
   alt18Color: "color-info-500", // fe
+  alt19Color: "color-basic-600", // fk
 }
 
 const mapping = {

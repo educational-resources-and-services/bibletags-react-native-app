@@ -134,6 +134,7 @@ const Verse = ({
               })
               : (text || `${content}${nextChar || ``}`)
             }
+            {[ 'fk' ].includes(tag) ? `\n` : ``}
           </VerseText>
         )
       }
