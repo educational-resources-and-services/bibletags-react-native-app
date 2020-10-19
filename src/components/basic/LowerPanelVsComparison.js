@@ -136,9 +136,13 @@ const LowerPanelVsComparison = ({
 
         const { wordDividerRegex } = getVersionInfo(versionIdShowing)
 
+        const preppedUsfm = verse.usfm
+          .replace(/\\m(?:t[0-9]?|te[0-9]?|s[0-9]?|r) .*\n?/g, '')  // get rid of book headings
+          .replace(/\\c ([0-9]+)\n?/g, '')  // get rid of chapter marker, since it is put in below
+
         setPieces(
           getPiecesFromUSFM({
-            usfm: `\\c ${passage.ref.chapter}\n${verse.usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+            usfm: `\\c ${passage.ref.chapter}\n${preppedUsfm}`,
             inlineMarkersOnly: true,
             wordDividerRegex,
           })
