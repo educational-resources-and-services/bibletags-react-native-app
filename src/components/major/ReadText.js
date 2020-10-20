@@ -60,9 +60,13 @@ const viewStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 5,
   },
-  d: {
+  s3: {
     marginTop: 5,
     marginBottom: 5,
+  },
+  d: {
+    marginTop: 5,
+    marginBottom: 12,
   },
   p: {
     marginTop: 5,
@@ -91,6 +95,9 @@ const viewStyles = StyleSheet.create({
   },
   q7: {
     marginLeft: 140,
+  },
+  qd: {
+    marginTop: 20,
   },
   // sup: {
   //   position: "relative",

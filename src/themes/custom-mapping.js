@@ -99,7 +99,7 @@ const readTextAndVerseParameters = {
 
   alt9Color: "color-basic-600", // mt
   alt9Color: "color-basic-800", // ms
-  alt10Color: "color-basic-700", // s1
+  alt10Color: "color-basic-600", // s1
   alt11Color: "color-basic-600", // s2
 
   alt12Color: "color-basic-500", // peh
@@ -110,6 +110,8 @@ const readTextAndVerseParameters = {
   alt17Color: "color-info-500", // f
   alt18Color: "color-info-500", // fe
   alt19Color: "color-basic-600", // fk
+
+  alt20Color: "color-warning-600", // s3
 }
 
 const mapping = {

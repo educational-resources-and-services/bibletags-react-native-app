@@ -46,6 +46,9 @@ const textStyles = StyleSheet.create({
   ms: { // major section heading
     textAlign: "center",
   },
+  qc: { // centered poetic line
+    textAlign: "center",
+  },
 
 })
 
@@ -54,6 +57,7 @@ const fontSizeStyleFactors = {
   ms: 1.2,
   // s1: 1.1,
   s2: .85,
+  s3: .75,
   '[small-cap]': .75,
   fk: .65,
 }
@@ -72,6 +76,7 @@ const italicStyles = [
   'it',
   'bdit',
   'fq',
+  'qd',
 ]
 
 const lightStyles = [
@@ -124,7 +129,7 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'f', 'fe', 'fk' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'f', 'fe', 'fk', 's3' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
