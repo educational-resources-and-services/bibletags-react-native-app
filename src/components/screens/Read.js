@@ -73,7 +73,7 @@ const Read = () => {
   const clearSelectedInfo = useCallback(() => setSelectedData({}), [])
 
   const adjustedPassageChooserHeight = Math.min(PASSAGE_CHOOSER_HEIGHT, height - 100)
-  let passageChooserPaddingAdjustment = Platform.OS === 'ios' ? -15 : 0
+  let passageChooserPaddingAdjustment = Platform.OS === 'ios' ? -15 : 35
   if(isIPhoneX) passageChooserPaddingAdjustment += 20
   const hideStatusBar = showingPassageChooser
 

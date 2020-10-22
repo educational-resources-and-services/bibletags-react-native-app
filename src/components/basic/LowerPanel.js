@@ -29,7 +29,7 @@ const LowerPanel = ({
 
   const previousSelectedData = usePrevious(selectedData)
 
-  const { selectedSection, selectedVerse, selectedVersionId, selectedInfo } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
+  const { selectedSection, selectedVerse, selectedInfo } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
   const show = !!selectedData.selectedSection
 
   const [ contentHeight, setContentHeight ] = useState(300)
@@ -73,8 +73,9 @@ const LowerPanel = ({
   } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
     contents = (
       <LowerPanelFootnote
-        selectedVersionId={selectedVersionId}
+        selectedSection={selectedSection}
         selectedInfo={selectedInfo}
+        isCf={[ 'x' ].includes(selectedInfoTag)}
       />
     )
 

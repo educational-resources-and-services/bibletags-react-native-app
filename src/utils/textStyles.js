@@ -39,6 +39,12 @@ const textStyles = StyleSheet.create({
   x: {  // crossref
     letterSpacing: 2,
   },
+  'xt:selected': {  // crossref
+    textShadowOffset: {
+      height: 1,
+    },
+    textShadowRadius: 3,
+  },
 
   mt: { //major title
     textAlign: "center",
@@ -89,6 +95,7 @@ export const adjustChildrenAndGetStyles = ({
   text,
   content,
   children,
+  isSelectedRef,
   wrapInView,
   font,
   textSize,
@@ -129,12 +136,14 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'f', 'fe', 'fk', 's3' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,
     getTagStyle({ tag, styles: textStyles }),
     tagThemedStyles[tagThemedStyleKeys.indexOf(tag)],
+    isSelectedRef && getTagStyle({ tag: `${tag}:selected`, styles: textStyles }),
+    isSelectedRef && tagThemedStyles[tagThemedStyleKeys.indexOf(`${tag}:selected`)],
     fontSize && { fontSize },
     lineHeight && { lineHeight },
     fontFamily && { fontFamily },

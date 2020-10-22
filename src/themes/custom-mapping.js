@@ -106,12 +106,14 @@ const readTextAndVerseParameters = {
   alt13Color: "color-basic-500", // samech
   alt14Color: "color-basic-600", // selah
   alt15Color: "color-basic-400", // x
-  alt16Color: "color-info-500", // xt
-  alt17Color: "color-info-500", // f
-  alt18Color: "color-info-500", // fe
-  alt19Color: "color-basic-600", // fk
+  alt16Color: "color-primary-400", // xt
+  alt17Color: "color-primary-700", // xt:selected
+  alt17TextShadowColor: "color-primary-200", // xt:selected
+  alt18Color: "color-primary-500", // f
+  alt19Color: "color-info-500", // fe
+  alt20Color: "color-basic-600", // fk
 
-  alt20Color: "color-warning-600", // s3
+  alt21Color: "color-warning-600", // s3
 }
 
 const mapping = {

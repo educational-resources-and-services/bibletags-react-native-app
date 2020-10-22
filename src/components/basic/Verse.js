@@ -28,6 +28,7 @@ const styles = StyleSheet.create({
 
 const Verse = ({
   pieces,
+  selectedAttr,
   passageRef,
   searchString="",
   // selected,
@@ -79,9 +80,10 @@ const Verse = ({
     pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
 
     return pieces.map((piece, idx) => {
-      let { type, tag, text, content, nextChar, children } = piece
+      let { type, tag, text, content, nextChar, children, attrib } = piece
       tag = tag && tag.replace(/^\+/, '')
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
+      const isSelectedRef = selectedAttr && attrib === selectedAttr
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
@@ -97,6 +99,7 @@ const Verse = ({
         text,
         content,
         children,
+        isSelectedRef,
         font,
         textSize,
         lineSpacing,
