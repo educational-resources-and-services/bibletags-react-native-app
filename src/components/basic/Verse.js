@@ -36,6 +36,7 @@ const Verse = ({
   onTouchStart,
   onTouchEnd,
   onPress,
+  onVerseTap,
   versionId,
   // versionAbbr,
   // unselect,
@@ -124,9 +125,9 @@ const Verse = ({
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
             ])}
-            // onPress={goVerseTap}
+            onPress={onVerseTap}
             verseNumber={verse}
-            info={[ 'w', 'f', 'fe', 'x' ].includes(tag) ? piece : null}
+            info={[ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag) ? piece : null}
             // delayRenderMs={vs > 1 ? 500 : 0}
             // ignoreChildrenChanging={ignoreChildrenChanging}
           >

@@ -80,7 +80,16 @@ const LowerPanelFootnote = ({
     [ pieces ],
   )
 
-  const onFootnoteTap = useCallback(() => {}, [])
+  const onFootnoteTap = useCallback(
+    ({ selectedInfo }) => {
+      const { attrib, tag } = selectedInfo || {}
+      if(tag === 'xt' && attrib) {
+        setSelectedAttr(attrib)
+      }
+    },
+    [],
+  )
+
   const onVerseTap = useCallback(() => {}, [])
 
   useEffect(

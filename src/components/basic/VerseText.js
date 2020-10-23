@@ -24,7 +24,7 @@ const VerseText = ({
         pageY,
       })
     },
-    [],
+    [ onPress, verseNumber, info ],
   )
 
   return (
