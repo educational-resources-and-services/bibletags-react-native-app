@@ -79,7 +79,7 @@ const LowerPanel = ({
       />
     )
 
-  } else if(selectedVerse) {
+  } else if(selectedVerse !== null) {
     contents = (
       <LowerPanelVsComparison
         selectedSection={selectedSection}
