@@ -264,7 +264,7 @@ const ReadText = ({
         const { wordDividerRegex, abbr } = getVersionInfo(versionId)
 
         const pieces = getPiecesFromUSFM({
-          usfm: `\\c 1\n${verseUsfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+          usfm: verseUsfm,
           inlineMarkersOnly: true,
           wordDividerRegex,
         })
@@ -351,7 +351,7 @@ const ReadText = ({
           if(!children && !text && !content) return null
           if([ "c", "cp" ].includes(tag)) return null
 
-          vs = verse || vs
+          vs = verse != null ? verse : vs
 
           text = adjustTextForSups({ tag, text, pieces: simplifiedPieces, idx })
 
@@ -383,10 +383,10 @@ const ReadText = ({
             tagThemedStyles,
           })
     
-          const hasSelectedVerseChild = selectedVerse && (adjustedChildren || []).some(child => child.verse === selectedVerse)
-          const hadSelectedVerseChild = previousSelectedVerse && (adjustedChildren || []).some(child => child.verse === previousSelectedVerse)
-          const hasFocussedVerseChild = focussedVerse && (adjustedChildren || []).some(child => child.verse === focussedVerse)
-          const hadFocussedVerseChild = previousFocussedVerse && (adjustedChildren || []).some(child => child.verse === previousFocussedVerse)
+          const hasSelectedVerseChild = selectedVerse !== null && (adjustedChildren || []).some(child => child.verse === selectedVerse)
+          const hadSelectedVerseChild = previousSelectedVerse !== null && (adjustedChildren || []).some(child => child.verse === previousSelectedVerse)
+          const hasFocussedVerseChild = focussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === focussedVerse)
+          const hadFocussedVerseChild = previousFocussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === previousFocussedVerse)
 
           const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
 

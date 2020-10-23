@@ -1,8 +1,5 @@
-import React, { useMemo } from "react"
+import React from "react"
 import { StyleSheet, View } from "react-native"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
-
-import { getVersionInfo } from '../../utils/toolbox'
 
 import Verse from './Verse'
 
@@ -16,35 +13,14 @@ const styles = StyleSheet.create({
 const Footnote = ({
   selectedVersionId,
   selectedInfo,
-  fkInsert,
+  pieces,
   selectedAttr,
   onFootnoteTap,
 }) => {
 
   const { content } = selectedInfo || {}
 
-  const { wordDividerRegex } = getVersionInfo(selectedVersionId)
-
-  const pieces = useMemo(
-    () => getPiecesFromUSFM({
-      usfm: `\\c 1\n${content.replace(/^. /, fkInsert ? `\\fk ${fkInsert} \\ft ` : '')}`,
-      inlineMarkersOnly: true,  // this should become false to allow for \fp
-      wordDividerRegex,
-    }),
-    [ content, selectedVersionId ],
-  )
-
   if(!content) return null
-
-  // TEMP - I need a solution for original language notes to be translatable
-  pieces.forEach(piece => {
-    if(piece.content === 'Q ') {
-      piece.content = 'Qere '
-    }
-    if(piece.content === 'K ') {
-      piece.content = 'Ketiv '
-    }
-  })
 
   return (
     <View style={styles.container}>

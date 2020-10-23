@@ -168,7 +168,7 @@ const ReadHeader = React.memo(({
         />
       }
 
-      {!selectedVerse && <>
+      {selectedVerse == null &&
         <AppHeader
           hideStatusBar={hideStatusBar}
           style={styles.header}
@@ -218,9 +218,9 @@ const ReadHeader = React.memo(({
             style={isAndroidRTL ? styles.leftIcon : styles.rightIcon}
           />
         </AppHeader>
-      </>}
+      }
 
-      {!!selectedVerse && <>
+      {selectedVerse != null &&
         <AppHeader
           hideStatusBar={hideStatusBar}
           style={styles.header}
@@ -259,7 +259,7 @@ const ReadHeader = React.memo(({
             />
           }
         </AppHeader>
-      </>}
+      }
 
     </>
   )

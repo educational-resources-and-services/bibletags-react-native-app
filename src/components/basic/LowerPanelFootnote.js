@@ -48,11 +48,25 @@ const LowerPanelFootnote = ({
   const { wordDividerRegex } = getVersionInfo(selectedVersionId)
 
   const pieces = useMemo(
-    () => getPiecesFromUSFM({
-      usfm: `\\c 1\n${content.replace(/^. /, '')}`,
-      inlineMarkersOnly: true,  // this should become false to allow for \fp
-      wordDividerRegex,
-    }),
+    () => {
+      const pieces = getPiecesFromUSFM({
+        usfm: content.replace(/^. /, isCf ? `\\fk ${i18n("Cross references")} \\ft ` : ``),
+        inlineMarkersOnly: true,  // this should become false to allow for \fp
+        wordDividerRegex,
+      })
+
+      // TEMP - I need a solution for original language notes to be translatable
+      pieces.forEach(piece => {
+        if(piece.content === 'Q ') {
+          piece.content = 'Qere '
+        }
+        if(piece.content === 'K ') {
+          piece.content = 'Ketiv '
+        }
+      })
+
+      return pieces
+    },
     [ content, selectedVersionId ],
   )
 
@@ -137,7 +151,7 @@ const LowerPanelFootnote = ({
       <Footnote
         selectedVersionId={selectedVersionId}
         selectedInfo={selectedInfo}
-        fkInsert={isCf ? i18n("Cross references") : null}
+        pieces={pieces}
         selectedAttr={selectedAttr}
         onFootnoteTap={onFootnoteTap}
       />

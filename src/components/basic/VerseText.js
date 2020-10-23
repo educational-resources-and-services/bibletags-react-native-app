@@ -15,7 +15,7 @@ const VerseText = ({
   const goPress = useCallback(
     ({ nativeEvent }) => {
       const { pageX, pageY } = nativeEvent
-      const selectedVerse = verseNumber || (info ? -1 : null)
+      const selectedVerse = verseNumber != null ? verseNumber : (info ? -1 : null)
 
       onPress({
         selectedVerse,

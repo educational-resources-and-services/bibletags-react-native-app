@@ -124,7 +124,7 @@ const Search = ({
         const searchResults = verses.map(({ usfm, loc }) => ({
           loc,
           pieces: getPiecesFromUSFM({
-            usfm: `\\c 1\n${usfm.replace(/\\c ([0-9]+)\n?/g, '')}`,
+            usfm,
             inlineMarkersOnly: true,
             wordDividerRegex,
           }),
