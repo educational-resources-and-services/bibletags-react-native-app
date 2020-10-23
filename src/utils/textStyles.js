@@ -55,6 +55,10 @@ const textStyles = StyleSheet.create({
   qc: { // centered poetic line
     textAlign: "center",
   },
+  qa: { // hebrew letters for acrostics
+    textAlign: "center",
+    textTransform: "uppercase",
+  },
 
 })
 
@@ -66,6 +70,7 @@ const fontSizeStyleFactors = {
   s3: .75,
   '[small-cap]': .75,
   fk: .65,
+  qa: .75,
 }
 
 const boldStyles = [
@@ -136,7 +141,7 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

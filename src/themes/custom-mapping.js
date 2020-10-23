@@ -114,6 +114,7 @@ const readTextAndVerseParameters = {
   alt20Color: "color-basic-600", // fk
 
   alt21Color: "color-warning-600", // s3
+  alt22Color: "color-basic-500", // qa
 }
 
 const mapping = {

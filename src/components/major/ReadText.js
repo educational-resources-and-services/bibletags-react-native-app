@@ -99,6 +99,10 @@ const viewStyles = StyleSheet.create({
   qd: {
     marginTop: 20,
   },
+  qa: {
+    marginTop: 20,
+    marginBottom: 5,
+  },
   // sup: {
   //   position: "relative",
   //   top: "-0.3em",
