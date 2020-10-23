@@ -230,7 +230,6 @@ const doubleSpacesRegex = /  +/g
             || sectionRegex.test(line)
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
-            || psalmTitleRegex.test(line)
             || paragraphWithoutContentRegex.test(line)
             || poetryWithoutContentRegex.test(line)
           ) {
@@ -239,13 +238,21 @@ const doubleSpacesRegex = /  +/g
           }
 
           // get verse
-          if(verseRegex.test(line)) {
+          if(verseRegex.test(line) || psalmTitleRegex.test(line)) {
 
-            const verse = line.replace(verseRegex, '$1')
-            if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-              console.log(`Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
-            }
-            lastVerse = parseInt(verse, 10)
+            let verse
+
+            if(psalmTitleRegex.test(line)) {
+              verse = '0'
+              lastVerse = 0
+
+            } else {
+              verse = line.replace(verseRegex, '$1')
+              if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
+                console.log(`Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
+              }
+              lastVerse = parseInt(verse, 10)
+            }  
 
             verses.push({
               loc: getLocFromRef({ bookId, chapter, verse }),

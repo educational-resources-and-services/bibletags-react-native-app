@@ -374,7 +374,6 @@ export const getCopyVerseText = ({ pieces, ref, versionAbbr }) => {
   let selectedTextContent = ''
 
   pieces.forEach(({ tag, text }) => {
-    if([ 'd' ].includes(tag)) return
     if(!text) return
 
     selectedTextContent += text
