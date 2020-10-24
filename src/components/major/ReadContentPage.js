@@ -49,11 +49,9 @@ const ReadContentPage = (({
   const [ focussedVerse, setFocussedVerse ] = useState(() => {
     const fVs = (
       !direction
-      && passageScrollY
-      && typeof passageScrollY === 'object'
-      && passageScrollY.verse
+      && (passageScrollY || {}).verse
     )
-    return fVs != null ? fVs : undefined
+    return (fVs || fVs === 0) ? fVs : undefined
   })
 
   const adjacentRefs = useAdjacentRefs(passage)

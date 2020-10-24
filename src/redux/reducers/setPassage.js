@@ -41,7 +41,7 @@ export default (state = initialState, action) => {
 
       }
 
-      if(!refsAlreadyMatch || action.ref.verse) {
+      if(!refsAlreadyMatch || action.ref.verse != null) {
 
         newState.passage = { ...newState.passage }
         newState.passage.ref = { ...newState.passage.ref }
@@ -59,7 +59,7 @@ export default (state = initialState, action) => {
           newState.passageScrollY = action.ref.scrollY
         }
 
-        if(action.ref.verse) {
+        if(action.ref.verse != null) {
           newState.passageScrollY = { verse: action.ref.verse }
         }
 
@@ -79,7 +79,7 @@ export default (state = initialState, action) => {
 
       }
 
-      if(!refsAlreadyMatch || action.ref.verse) {
+      if(!refsAlreadyMatch || action.ref.verse != null) {
         return newState
       }
 
