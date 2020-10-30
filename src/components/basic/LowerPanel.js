@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   boxShadowContent: {
+    backgroundColor: 'white',
     flex: 1,
   },
 })
