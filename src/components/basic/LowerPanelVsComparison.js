@@ -18,6 +18,9 @@ const {
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   noCompareVersions: {
     padding: 20,
     opacity: .5,
@@ -35,6 +38,7 @@ const styles = StyleSheet.create({
 const LowerPanelVsComparison = ({
   selectedSection,
   selectedVerse,
+  onSizeChangeFunctions,
   style,
 
   passage,
@@ -171,6 +175,7 @@ const LowerPanelVsComparison = ({
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContentContainer}
+        onContentSizeChange={onSizeChangeFunctions[0]}
         alwaysBounceVertical={false}
       >
         <Verse
@@ -186,6 +191,7 @@ const LowerPanelVsComparison = ({
       <BottomNavigation
         selectedIndex={index}
         onSelect={setIndex}
+        onLayout={onSizeChangeFunctions[1]}
       >
         {versionIdsToShow.map(id => (
           <BottomNavigationTab
@@ -194,7 +200,10 @@ const LowerPanelVsComparison = ({
           />
         ))}
       </BottomNavigation>
-      <IPhoneXBuffer extraSpace={true} />
+      <IPhoneXBuffer
+        extraSpace={true}
+        onLayout={onSizeChangeFunctions[2]}
+      />
     </View>
   )
 

@@ -373,8 +373,13 @@ export const updateRecentLists = ({ newState }) => {
 export const getCopyVerseText = ({ pieces, ref, versionAbbr }) => {
   let selectedTextContent = ''
 
-  pieces.forEach(({ tag, text }) => {
-    if(!text) return
+  pieces.forEach(({ tag, text, nextChar }) => {
+    if(!text) {
+      if(nextChar === ' ') {
+        selectedTextContent += nextChar
+      }
+      return
+    }
 
     selectedTextContent += text
   })

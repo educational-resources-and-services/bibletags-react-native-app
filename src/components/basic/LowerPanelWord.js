@@ -1,24 +1,35 @@
 import React from "react"
-import { StyleSheet } from "react-native"
+import { StyleSheet, ScrollView } from "react-native"
 
 import Parsing from "./Parsing"
 import Definition from "./Definition"
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
 })
 
 const LowerPanelWord = ({
   selectedInfo,
+  onSizeChangeFunctions,
 }) => {
 
   return (
     <>
       <Parsing
         selectedInfo={selectedInfo}
+        onLayout={onSizeChangeFunctions[0]}
       />
-      <Definition
-        selectedInfo={selectedInfo}
-      />
+      <ScrollView
+        style={styles.scrollView}
+        onContentSizeChange={onSizeChangeFunctions[1]}
+        alwaysBounceVertical={false}
+      >
+        <Definition
+          selectedInfo={selectedInfo}
+        />
+      </ScrollView>
     </>
   )
 

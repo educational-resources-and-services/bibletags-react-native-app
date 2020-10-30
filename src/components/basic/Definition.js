@@ -8,7 +8,6 @@ import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
   container: {
-    borderTopWidth: 1,
     paddingVertical: 15,
     paddingHorizontal: 18,
   },
