@@ -40,6 +40,7 @@ const Verse = ({
   versionId,
   // versionAbbr,
   // unselect,
+  containerStyle,
   style,
   matchStyle,
 
@@ -180,7 +181,7 @@ const Verse = ({
   const fontFamily = getValidFontName({ font: getTextFont({ font, isOriginal, languageId, bookId }) })
 
   return (
-    <View>
+    <View style={containerStyle}>
       <Text
         style={[
           baseThemedStyle,

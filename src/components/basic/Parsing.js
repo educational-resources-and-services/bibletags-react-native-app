@@ -1,11 +1,13 @@
 import React from "react"
-import { StyleSheet, Text } from "react-native"
+import { StyleSheet, Text, View } from "react-native"
 import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix,
          getNormalizedPOSCode, getMainWordPartIndex } from "bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 const styles = StyleSheet.create({
   container: {
+    borderColor: 'rgba(0, 0, 0, .15)',
+    borderBottomWidth: 1,
     paddingVertical: 15,
     paddingHorizontal: 18,
   },
@@ -15,11 +17,17 @@ const styles = StyleSheet.create({
 
 const Parsing = ({
   selectedInfo,
+  onLayout,
 }) => {
 
   const { morph } = selectedInfo || {}
 
-  if(!morph) return null
+  const resetAndReturn = () => {
+    onLayout(0, 0)
+    return null
+  }
+
+  if(!morph) return resetAndReturn()
 
   const isEntirelyPrefixAndSuffix = getIsEntirelyPrefixAndSuffix(selectedInfo)
 
@@ -60,14 +68,17 @@ const Parsing = ({
 
   })
 
-  if(contents.filter(Boolean).length === 0) return null
+  if(contents.filter(Boolean).length === 0) return resetAndReturn()
 
   return (
-    <Text style={styles.container}>
+    <View
+      style={styles.container}
+      onLayout={onLayout}
+    >
       <Text style={styles.morph}>
         {contents}
       </Text>
-    </Text>
+    </View>
   )
 
 }

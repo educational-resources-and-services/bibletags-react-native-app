@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react"
 import Constants from "expo-constants"
-import { StyleSheet, ScrollView } from "react-native"
+import { StyleSheet, ScrollView, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
@@ -19,7 +19,11 @@ const {
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scrollView: {
+    flex: 1,
     minHeight: 60,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, .15)',
@@ -33,6 +37,7 @@ const LowerPanelFootnote = ({
   selectedSection,
   selectedInfo,
   isCf,
+  onSizeChangeFunctions,
   style,
 
   passage,
@@ -147,19 +152,21 @@ const LowerPanelFootnote = ({
   )
 
   return (
-    <>
+    <View style={styles.container}>
       <Footnote
         selectedVersionId={selectedVersionId}
         selectedInfo={selectedInfo}
         pieces={pieces}
         selectedAttr={selectedAttr}
         onFootnoteTap={onFootnoteTap}
+        onLayout={onSizeChangeFunctions[0]}
       />
       {selectedRefs &&
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollViewContentContainer}
           alwaysBounceVertical={false}
+          onContentSizeChange={onSizeChangeFunctions[1]}
         >
           <Verse
             passageRef={selectedRefs[0]}
@@ -170,8 +177,11 @@ const LowerPanelFootnote = ({
           />
         </ScrollView>
       }
-      <IPhoneXBuffer extraSpace={true} />
-    </>
+      <IPhoneXBuffer
+        extraSpace={true}
+        onLayout={onSizeChangeFunctions[2]}
+      />
+    </View>
   )
 
 }

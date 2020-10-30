@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
 
 const IPhoneXBuffer = ({
   extraSpace,
+  ...otherProps
 }) => {
 
   if(!isIPhoneX) return null
@@ -25,6 +26,7 @@ const IPhoneXBuffer = ({
         styles.iphoneXBuffer,
         extraSpace ? styles.extraSpace : null,
       ]}
+      {...otherProps}
     />
   )
 

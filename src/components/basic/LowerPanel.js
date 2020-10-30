@@ -1,8 +1,10 @@
-import React, { useState, useMemo, useCallback } from "react"
-import { StyleSheet, ScrollView, Platform } from "react-native"
+import React, { useState, useMemo, useCallback, useEffect } from "react"
+import { StyleSheet, View, Platform } from "react-native"
 import { useDimensions } from '@react-native-community/hooks'
 import usePrevious from "react-use/lib/usePrevious"
 import { BoxShadow } from 'react-native-shadow'
+
+import useContentHeightManager from "../../hooks/useContentHeightManager"
 
 import RevealContainer from "../basic/RevealContainer"
 import LowerPanelWord from "./LowerPanelWord"
@@ -16,10 +18,10 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     elevation: 0,
-  },
-  scrollView: {
-    flex: 1,
     backgroundColor: 'white',
+  },
+  boxShadowContent: {
+    flex: 1,
   },
 })
 
@@ -32,7 +34,7 @@ const LowerPanel = ({
   const { selectedSection, selectedVerse, selectedInfo } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
   const show = !!selectedData.selectedSection
 
-  const [ contentHeight, setContentHeight ] = useState(300)
+  const { contentHeight, onSizeChangeFunctions, clearRecordedHeights } = useContentHeightManager(300)
 
   const { width: windowWidth, height: windowHeight } = useDimensions().window
 
@@ -62,13 +64,16 @@ const LowerPanel = ({
 
   let contents = null
   const { type: selectedInfoType, tag: selectedInfoTag } = selectedInfo || {}
+  let contentsType
 
   if(selectedInfoType === 'word') {
     contents = (
       <LowerPanelWord
         selectedInfo={selectedInfo}
+        onSizeChangeFunctions={onSizeChangeFunctions}
       />
     )
+    contentsType = 'word'
 
   } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
     contents = (
@@ -76,41 +81,30 @@ const LowerPanel = ({
         selectedSection={selectedSection}
         selectedInfo={selectedInfo}
         isCf={[ 'x' ].includes(selectedInfoTag)}
+        onSizeChangeFunctions={onSizeChangeFunctions}
       />
     )
+    contentsType = 'footnote'
 
   } else if(selectedVerse !== null) {
     contents = (
       <LowerPanelVsComparison
         selectedSection={selectedSection}
         selectedVerse={selectedVerse}
+        onSizeChangeFunctions={onSizeChangeFunctions}
       />
     )
+    contentsType = 'vscomparison'
   }
 
-  const onContentSizeChange = useCallback(
-    (x, contentHeight) => {
-      if(contentHeight) {
-        setContentHeight(contentHeight)
-      }
-    },
-    [],
-  )
-
-  let wrappedContents = (
-    <ScrollView
-      style={styles.scrollView}
-      onContentSizeChange={onContentSizeChange}
-      alwaysBounceVertical={false}
-    >
-      {contents}
-    </ScrollView>
-  )
+  useEffect(clearRecordedHeights, [ contentsType ])
 
   if(Platform.OS === 'android') {
-    wrappedContents = (
+    contents = (
       <BoxShadow setting={shadowSetting}>
-        {wrappedContents}
+        <View style={styles.boxShadowContent}>
+          {contents}
+        </View>
       </BoxShadow>
     )
   }
@@ -122,7 +116,7 @@ const LowerPanel = ({
       style={containerStyle}
       duration={100}
     >
-      {wrappedContents}
+      {contents}
     </RevealContainer>
   )
 }
