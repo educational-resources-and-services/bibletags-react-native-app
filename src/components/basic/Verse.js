@@ -136,7 +136,7 @@ const Verse = ({
                 pieces: adjustedChildren,
                 doSmallCaps,
               })
-              : (text || `${content}${nextChar || ``}`)
+              : (text || `${content || ``}${nextChar || ``}`)
             }
             {[ 'fk' ].includes(tag) ? `\n` : ``}
           </VerseText>
