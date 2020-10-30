@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react"
+import React, { useMemo, useEffect } from "react"
 import { StyleSheet, View, Platform } from "react-native"
 import { useDimensions } from '@react-native-community/hooks'
 import usePrevious from "react-use/lib/usePrevious"
