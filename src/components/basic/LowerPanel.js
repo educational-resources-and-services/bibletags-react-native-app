@@ -52,7 +52,7 @@ const LowerPanel = ({
   const shadowSetting = useMemo(
     () => ({
       width: windowWidth,
-      height: windowHeight,
+      height: containerStyle.height,
       color:"#000",
       border: 40,
       radius: 0,
@@ -60,7 +60,7 @@ const LowerPanel = ({
       x: 0,
       y: 0,
     }),
-    [ windowHeight, contentHeight ],
+    [ windowHeight, containerStyle ],
   )
 
   let contents = null
