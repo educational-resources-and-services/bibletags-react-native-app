@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 0,
     flexBasis: 0,
-    minHeight: '35%',
+    minHeight: '35%',  // This could be better by being a fixed value based on the text size and window height
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, .15)',
   },
