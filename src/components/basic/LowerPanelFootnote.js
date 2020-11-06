@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react"
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react"
 import Constants from "expo-constants"
 import { StyleSheet, ScrollView, View } from "react-native"
 import { bindActionCreators } from "redux"
@@ -22,13 +22,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  scrollView: {
-    flex: 1,
-    minHeight: 60,
+  footnoteScrollView: {
+    flexShrink: 1,
+    flexGrow: 0,
+  },
+  verseScrollView: {
+    flexGrow: 1,
+    flexShrink: 0,
+    flexBasis: 0,
+    minHeight: '35%',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0, 0, 0, .15)',
   },
-  scrollViewContentContainer: {
+  verseScrollViewContentContainer: {
     padding: 20,
   },
 })
@@ -75,11 +81,14 @@ const LowerPanelFootnote = ({
     [ content, selectedVersionId ],
   )
 
+  const [ footnoteScrollHeight, setFootnoteScrollHeight ] = useState(60)
   const [ scriptureRefs, setScriptureRefs ] = useState({})
   const [ selectedAttr, setSelectedAttr ] = useState()
   const [ selectedVersePieces, setSelectedVersePieces ] = useState([])
 
   const selectedRefs = scriptureRefs[selectedAttr]
+
+  const verseScrollRef = useRef()
 
   useEffect(
     () => {
@@ -104,6 +113,7 @@ const LowerPanelFootnote = ({
       const { attrib, tag } = selectedInfo || {}
       if(tag === 'xt' && attrib) {
         setSelectedAttr(attrib)
+        verseScrollRef.current.scrollTo({ y: 0, animated: false })
       }
     },
     [],
@@ -151,22 +161,51 @@ const LowerPanelFootnote = ({
     [ selectedVersionId, selectedRefs ],
   )
 
+  useEffect(
+    () => {
+      if(!selectedRefs) {
+        onSizeChangeFunctions[1](0, 0)
+      }
+    },
+    [ selectedRefs ],
+  )
+
+  const onFootnoteContentSizeChange = useCallback(
+    (...params) => {
+      setFootnoteScrollHeight(params[1])
+      onSizeChangeFunctions[0](...params)
+    },
+    [],
+  )
+
   return (
     <View style={styles.container}>
-      <Footnote
-        selectedVersionId={selectedVersionId}
-        selectedInfo={selectedInfo}
-        pieces={pieces}
-        selectedAttr={selectedAttr}
-        onFootnoteTap={onFootnoteTap}
-        onLayout={onSizeChangeFunctions[0]}
-      />
-      {selectedRefs &&
+
+      <ScrollView
+        style={[
+          styles.footnoteScrollView,
+          { height: footnoteScrollHeight },
+        ]}
+        alwaysBounceVertical={false}
+        onContentSizeChange={onFootnoteContentSizeChange}
+      >
+        <Footnote
+          selectedVersionId={selectedVersionId}
+          selectedInfo={selectedInfo}
+          pieces={pieces}
+          selectedAttr={selectedAttr}
+          onFootnoteTap={onFootnoteTap}
+        />
+        {!selectedRefs && <IPhoneXBuffer extraSpace={true} />}
+      </ScrollView>
+
+      {!!selectedRefs &&
         <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollViewContentContainer}
+          style={styles.verseScrollView}
+          contentContainerStyle={styles.verseScrollViewContentContainer}
           alwaysBounceVertical={false}
           onContentSizeChange={onSizeChangeFunctions[1]}
+          ref={verseScrollRef}
         >
           <Verse
             passageRef={selectedRefs[0]}
@@ -175,12 +214,10 @@ const LowerPanelFootnote = ({
             style={style}
             onVerseTap={onVerseTap}
           />
+          <IPhoneXBuffer extraSpace={true} />
         </ScrollView>
       }
-      <IPhoneXBuffer
-        extraSpace={true}
-        onLayout={onSizeChangeFunctions[2]}
-      />
+
     </View>
   )
 
