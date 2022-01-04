@@ -1,10 +1,22 @@
 {
-  "name": "bibletags-react-native-apps",
-  "version": "1.0.0",
+  "name": "@bibletags/bibletags-react-native-app",
+  "version": "0.1.0",
   "description": "Bible Tags",
-  "author": "Andy Hubert",
-  "private": true,
   "main": "node_modules/expo/AppEntry.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/educational-resources-and-services/bibletags-react-native-app.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/educational-resources-and-services/bibletags-react-native-app/issues"
+  },
+  "homepage": "https://bibletags.org",
+  "author": "Andy Hubert",
+  "funding": {
+    "type" : "individual",
+    "url" : "https://gofundme.com/f/yarn4-bible-tags"
+  },
   "scripts": {
     "android": "expo start --android",
     "build-android-beta": "expo build:android --release-channel beta",
@@ -25,6 +37,8 @@
     "translate-convert-csv-to-json": "node node_modules/inline-i18n/scripts/convertTranslationCSVtoJSON.js --dir='./transations'"
   },
   "dependencies": {
+    "@bibletags/bibletags-ui-helper": "0.1.0",
+    "@bibletags/bibletags-versification": "0.1.0",
     "@eva-design/eva": "^1.4.0",
     "@react-native-community/hooks": "^2.6.0",
     "@react-native-community/netinfo": "5.9.2",
@@ -33,8 +47,6 @@
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "^8.2.3",
     "better-sqlite3": "7.1.0",
-    "bibletags-ui-helper": "github:educational-resources-and-services/bibletags-ui-helper#b3f26959848cc1d5bdeb832fcf0fb00e91316802",
-    "bibletags-versification": "github:educational-resources-and-services/bibletags-versification#2fe0b9073a7df502fb459a80bcc9ed1160eef4ee",
     "deepmerge": "4.2.2",
     "expo": "^38.0.0",
     "expo-analytics-amplitude": "~8.2.1",
@@ -49,7 +61,7 @@
     "expo-updates": "~0.2.8",
     "find-in-files": "0.5.0",
     "fs-extra": "^9.0.1",
-    "inline-i18n": "github:educational-resources-and-services/inline-i18n#865de922d965cb0d6addfc999c125c31ecb7a56d",
+    "inline-i18n": "^0.1.3",
     "moment": "2.27.0",
     "react": "16.11.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-38.0.0.tar.gz",

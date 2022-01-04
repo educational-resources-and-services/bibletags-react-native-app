@@ -1,0 +1,109 @@
+{
+  "expo": {
+    "name": "[APP_NAME]",
+    "slug": "[APP_SLUG]",
+    "privacy": "public",
+    "sdkVersion": "38.0.0",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "primaryColor": "#232222",
+    "icon": "./assets/icons/logo.png",
+    "notification": {
+      "icon": "./assets/icons/sm_bw.png",
+      "color": "#232222"
+    },
+    "androidStatusBar": {
+      "backgroundColor": "#00000088",
+      "barStyle": "light-content",
+      "hidden": true,
+      "translucent": true
+    },
+    "androidNavigationBar": {
+      "visible": "sticky-immersive",
+      "backgroundColor": "#00000088",
+      "barStyle": "light-content"
+    },
+    "scheme": "APP_SLUG",
+    "packagerOpts": {
+      "config": "rn-cli.config.js"
+    },
+    "assetBundlePatterns": [
+      "assets/fonts/**",
+      "assets/icons/**",
+      "assets/images/**",
+      "assets/versions/original/**",
+      "assets/versions/[PRIMARY_VERSION]/**"
+    ],
+    "splash": {
+      "backgroundColor": "#FFFFFF",
+      "resizeMode": "cover",
+      "image": "./assets/icons/splash-tablet.png"
+    },
+    "ios": {
+      "bundleIdentifier": "org.bibletags.[APP_SLUG]",
+      "buildNumber": "1.0.0",
+      "icon": "./assets/icons/logo.png",
+      "loadJSInBackgroundExperimental": true,
+      "supportsTablet": true,
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "org.bibletags.[APP_SLUG]",
+      "versionCode": 100,
+      "icon": "./assets/icons/logo.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/logo_android_fg.png",
+        "backgroundImage": "./assets/icons/logo_android_bg.png"
+      },
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "MANAGE_DOCUMENTS",
+        "READ_CONTACTS",
+        "READ_CALENDAR",
+        "WRITE_CALENDAR",
+        "READ_EXTERNAL_STORAGE",
+        "READ_PHONE_STATE",
+        "RECORD_AUDIO",
+        "USE_FINGERPRINT",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "WRITE_EXTERNAL_STORAGE",
+        "com.anddoes.launcher.permission.UPDATE_COUNT",
+        "com.android.launcher.permission.INSTALL_SHORTCUT",
+        "com.google.android.c2dm.permission.RECEIVE",
+        "com.google.android.gms.permission.ACTIVITY_RECOGNITION",
+        "com.google.android.providers.gsf.permission.READ_GSERVICES",
+        "com.htc.launcher.permission.READ_SETTINGS",
+        "com.htc.launcher.permission.UPDATE_SHORTCUT",
+        "com.majeur.launcher.permission.UPDATE_BADGE",
+        "com.sec.android.provider.badge.permission.READ",
+        "com.sec.android.provider.badge.permission.WRITE",
+        "com.sonyericsson.home.permission.BROADCAST_BADGE"
+      ]
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "extra": {
+      "DEFAULT_BIBLE_VERSIONS": ["[PRIMARY_VERSION]","original"],
+      "BIBLE_VERSIONS_FILE_SECRET": "[RANDOM_STRING]",
+      "AMPLITUDE_API_KEY": "[AMPLITUDE_KEY]",
+      "NUM_OPENS_FOR_RATING_REQUEST": 0,
+      "HEBREW_CANTILLATION_MODE": "remove",
+      "DEFAULT_FONT_SIZE": 22,
+      "LINK_TO_BIBLE_TAGS_MARKETING_SITE": true,
+      "INCLUDE_BIBLE_TAGS_PROMO_TEXT": true,
+      "PASSAGE_CHOOSER_HEIGHT": 400,
+      "MAXIMUM_NUMBER_OF_HISTORY": 100,
+      "MAXIMUM_NUMBER_OF_RECENT": 7,
+      "MAX_RESULTS": 5000,
+      "THEME_CUSTOMIZATION": {
+        
+      }
+    }
+  }
+}
