@@ -17,10 +17,12 @@ For more information on this project, see the [Bible Tags website](https://bible
 * [bibletags-widget](https://github.com/educational-resources-and-services/bibletags-widget)
 * [bibletags-widget-script](https://github.com/educational-resources-and-services/bibletags-widget-script)
 
-## Bugs
+## Bugs / feature requests
 
-* Use the appropriate repository's `Issues`. Please first check if your bug report / feature request already exists before submitting a new issue.
+* See [here](https://github.com/educational-resources-and-services/bibletags-ui-data/issues).
+* Please first check if your bug report / feature request already exists before submitting a new issue.
 * For bug reports, please provide a clear description of the problem and step-by-step explanation of how to reproduce it.
+* For feature requests, please first get to the know the project via the [Design section of the bibletags-data README](https://github.com/educational-resources-and-services/bibletags-data#design) to make sure the desired feature is inline with the direction this project is heading.
 
 # bibletags-react-native-app
 
