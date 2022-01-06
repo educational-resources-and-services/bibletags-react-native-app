@@ -1,6 +1,6 @@
 import React, { useCallback } from "react"
 import { Text, StyleSheet, TouchableHighlight } from "react-native"
-import { getBibleBookName } from "bibletags-ui-helper"
+import { getBibleBookName } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { memo } from '../../utils/toolbox'

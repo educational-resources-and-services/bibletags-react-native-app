@@ -23,7 +23,7 @@
       "backgroundColor": "#00000088",
       "barStyle": "light-content"
     },
-    "scheme": "APP_SLUG",
+    "scheme": "[APP_SLUG]",
     "packagerOpts": {
       "config": "rn-cli.config.js"
     },

@@ -3,7 +3,7 @@ import { StyleSheet, TouchableWithoutFeedback, I18nManager, View, Text, Clipboar
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { getPassageStr } from "bibletags-ui-helper"
+import { getPassageStr } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"

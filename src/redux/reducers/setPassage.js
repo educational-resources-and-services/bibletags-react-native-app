@@ -1,7 +1,7 @@
 import Constants from "expo-constants"
 import { refsMatch, updateRecentLists } from "../../utils/toolbox"
 import { logEvent } from "../../utils/analytics"
-import { getPassageStr } from "bibletags-ui-helper"
+import { getPassageStr } from "@bibletags/bibletags-ui-helper"
 
 const {
   MAXIMUM_NUMBER_OF_HISTORY,

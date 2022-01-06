@@ -3,9 +3,9 @@ import Constants from "expo-constants"
 import { StyleSheet, ScrollView, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
-import { getRefsFromUsfmRefStr } from "bibletags-ui-helper"
-import { getLocFromRef } from "bibletags-versification/src/versification"
+import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
+import { getRefsFromUsfmRefStr } from "@bibletags/bibletags-ui-helper"
+import { getLocFromRef } from "@bibletags/bibletags-versification"
 import { i18n } from "inline-i18n"
 
 import { getVersionInfo, executeSql } from '../../utils/toolbox'

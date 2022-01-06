@@ -4,8 +4,8 @@ import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import { getLocFromRef, getCorrespondingRefs } from "bibletags-versification/src/versification"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
+import { getLocFromRef, getCorrespondingRefs } from "@bibletags/bibletags-versification"
+import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"

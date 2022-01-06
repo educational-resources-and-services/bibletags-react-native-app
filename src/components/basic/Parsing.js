@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet, Text, View } from "react-native"
 import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix,
-         getNormalizedPOSCode, getMainWordPartIndex } from "bibletags-ui-helper"
+         getNormalizedPOSCode, getMainWordPartIndex } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 const styles = StyleSheet.create({

@@ -3,7 +3,7 @@ import Constants from "expo-constants"
 import { View, ScrollView, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "bibletags-ui-helper/src/splitting"
+import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "@bibletags/bibletags-ui-helper"
 import usePrevious from "react-use/lib/usePrevious"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
