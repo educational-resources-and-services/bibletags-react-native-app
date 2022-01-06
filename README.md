@@ -44,7 +44,7 @@ npm run setup
 ### Running
 
 ```bash
-npm run start
+npm start
 ```
 
 ### Customization
