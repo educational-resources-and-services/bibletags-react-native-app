@@ -38,8 +38,8 @@
     "translate-convert-csv-to-json": "node node_modules/inline-i18n/scripts/convertTranslationCSVtoJSON.js --dir='./transations'"
   },
   "dependencies": {
-    "@bibletags/bibletags-ui-helper": "^0.1.0",
-    "@bibletags/bibletags-versification": "^0.1.0",
+    "@bibletags/bibletags-ui-helper": "^0.2.1",
+    "@bibletags/bibletags-versification": "^0.1.7",
     "@eva-design/eva": "^1.4.0",
     "@react-native-community/hooks": "^2.6.0",
     "@react-native-community/netinfo": "5.9.2",
