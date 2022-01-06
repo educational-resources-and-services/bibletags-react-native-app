@@ -3,7 +3,7 @@ import { View, StyleSheet } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 // import { i18n } from "inline-i18n"
-import { getCorrespondingRefs } from "bibletags-versification/src/versification"
+import { getCorrespondingRefs } from "@bibletags/bibletags-versification"
 
 import { getVersionInfo, getOriginalVersionInfo, memo, readHeaderHeight, readHeaderMarginTop } from "../../utils/toolbox"
 import useAdjacentRefs from "../../hooks/useAdjacentRefs"

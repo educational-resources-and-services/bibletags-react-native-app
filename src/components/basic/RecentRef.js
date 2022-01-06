@@ -1,7 +1,7 @@
 import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPassageStr } from "bibletags-ui-helper"
+import { getPassageStr } from "@bibletags/bibletags-ui-helper"
 
 import { setRef, removeRecentPassage } from "../../redux/actions"
 import { memo } from '../../utils/toolbox'

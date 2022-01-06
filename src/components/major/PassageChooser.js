@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react"
 import { StyleSheet, ScrollView, FlatList, Text, View, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "bibletags-versification/src/versification"
+import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "@bibletags/bibletags-versification"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"

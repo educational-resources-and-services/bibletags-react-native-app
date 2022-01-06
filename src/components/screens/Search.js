@@ -4,7 +4,7 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
+import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 
 import { logEvent } from "../../utils/analytics"
 import { stripHebrew, normalizeGreek, executeSql, escapeLike, getVersionInfo, memo } from "../../utils/toolbox"

@@ -31,6 +31,7 @@
     "push-to-beta": "(npm run confirm -s && npm run pre-push-swap && expo publish --release-channel beta && npm run post-push-restore) || true",
     "push-to-production": "(npm run confirm -s && npm run pre-push-swap && expo publish --release-channel production && npm run post-push-restore) || true",
     "usfm-to-sqlite": "node ./scripts/importUsfmToSqlite.js",
+    "setup": "./scripts/setup.sh",
     "start": "expo start",
     "translate": "node node_modules/inline-i18n/scripts/makeTranslationFiles.js --dir='./transations' --parse-dirs='src node_modules/bibletags-ui-helper/src' && npm run translate-convert-json-to-csv",
     "translate-convert-json-to-csv": "node node_modules/inline-i18n/scripts/convertTranslationJSONtoCSV.js --dir='./transations'",
@@ -44,8 +45,8 @@
     "publish-to-npm": "npm publish --access public && echo '\nSUCCESS!\n'"
   },
   "dependencies": {
-    "@bibletags/bibletags-ui-helper": "^0.1.0",
-    "@bibletags/bibletags-versification": "^0.1.0",
+    "@bibletags/bibletags-ui-helper": "^0.2.1",
+    "@bibletags/bibletags-versification": "^0.1.7",
     "@eva-design/eva": "^1.4.0",
     "@react-native-community/hooks": "^2.6.0",
     "@react-native-community/netinfo": "5.9.2",
