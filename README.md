@@ -26,7 +26,7 @@ For more information on this project, see the [Bible Tags website](https://bible
 
 # bibletags-react-native-app
 
-An [Expo](https://expo.dev/) app.
+An open source app template built in React Native with [Expo](https://expo.dev/).
 
 ## Development
 
@@ -77,7 +77,7 @@ See also [the translation process readme for i18n](https://github.com/educationa
 npm run usfm-to-sqlite
 ```
 
-#### Initial Deployment To The App Stores
+## Initial Deployment To The App Stores
 
 Requires app store accounts and an [expo](https://expo.dev/) account.
 
@@ -86,7 +86,7 @@ npm run build-android-production
 npm run build-ios-production
 ```
 
-#### Updating Your Apps
+## Updating Your Apps
 
 ```bash
 npm run push-to-production
