@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import Constants from "expo-constants"
 import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import { getLocFromRef, getCorrespondingRefs } from "bibletags-versification/src/versification"
-import { getPiecesFromUSFM } from "bibletags-ui-helper/src/splitting"
+import { getLocFromRef, getCorrespondingRefs } from "@bibletags/bibletags-versification"
+import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
@@ -49,6 +49,7 @@ const LowerPanelVsComparison = ({
   const [ pieces, setPieces ] = useState([])
   const [ piecesVersionId, setPiecesVersionId ] = useState()
   const { versionIds } = useBibleVersions({ myBibleVersions })
+  const scrollRef = useRef()
 
   const selectedVersionId = (
     selectedSection === 'primary'
@@ -168,6 +169,13 @@ const LowerPanelVsComparison = ({
     )
   }
 
+  useEffect(
+    () => {
+      scrollRef.current.scrollTo({ y: 0, animated: false })
+    },
+    [ pieces ],
+  )
+
   // TODO: show vs num (and chapter when different) before each verse when not the same
 
   return (
@@ -177,6 +185,7 @@ const LowerPanelVsComparison = ({
         contentContainerStyle={styles.scrollViewContentContainer}
         onContentSizeChange={onSizeChangeFunctions[0]}
         alwaysBounceVertical={false}
+        ref={scrollRef}
       >
         <Verse
           passageRef={passage.ref}

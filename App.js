@@ -14,7 +14,7 @@ import { createStore, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
 import { PersistGate } from "redux-persist/integration/react"
 import { Provider } from "react-redux"
-import { passOverI18n, passOverI18nNumber } from "bibletags-ui-helper/src/i18n"
+import { passOverI18n, passOverI18nNumber } from "@bibletags/bibletags-ui-helper"
 import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
 
 import lightTheme from "./src/themes/light"
