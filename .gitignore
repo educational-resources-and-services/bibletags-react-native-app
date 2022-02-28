@@ -3,7 +3,7 @@ node_modules/**/*
 .expo-shared/*
 npm-debug.*
 /assets/*
-/tenants/*
+/tenants
 /app.json
 /language.js
 /fonts.js
