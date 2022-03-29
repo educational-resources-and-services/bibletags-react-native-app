@@ -44,7 +44,7 @@ const Verse = ({
   style,
   matchStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   displaySettings,
 

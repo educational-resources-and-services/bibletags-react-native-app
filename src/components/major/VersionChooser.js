@@ -43,7 +43,7 @@ const VersionChooser = ({
   style,
   iconStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const { baseThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)

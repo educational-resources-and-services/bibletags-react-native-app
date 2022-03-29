@@ -45,7 +45,7 @@ const TapOptions = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
   
   const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)

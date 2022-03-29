@@ -19,7 +19,7 @@ const StatusBarWithBackground = ({
   hidden,
   animated,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   if(Platform.OS === 'android') return null

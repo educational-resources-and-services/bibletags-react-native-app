@@ -1,5 +1,5 @@
 import Constants from "expo-constants"
-import { AsyncStorage } from "react-native"
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Asset } from "expo-asset"
 import * as FileSystem from "expo-file-system"
 import CryptoJS from "react-native-crypto-js"

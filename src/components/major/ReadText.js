@@ -128,7 +128,7 @@ const ReadText = ({
   height,
   reportNumberOfVerses,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   displaySettings,
 }) => {

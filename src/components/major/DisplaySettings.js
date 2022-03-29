@@ -1,5 +1,5 @@
-import React, { useMemo, useRef } from "react"
-import { Modal, Select } from "@ui-kitten/components"
+import React, { useCallback, useMemo, useRef } from "react"
+import { Modal, Select, SelectItem } from "@ui-kitten/components"
 import { StyleSheet, Platform, Slider, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -71,7 +71,7 @@ const DisplaySettings = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   displaySettings,
 
@@ -113,6 +113,8 @@ const DisplaySettings = ({
     [ bibleFontList ],
   )
 
+  const onSelectTheme = useCallback(index => setTheme(themeOptions[index]), [ themeOptions ])
+  const onSelectFont = useCallback(index => setFont(fontOptions[index]), [ fontOptions ])
 
   const selectedThemeOption = themeOptions.filter(themeOption => themeOption.theme === theme)[0] || themeOptions[0]
   const selectedFontOption = fontOptions.filter(fontOption => fontOption.font === font)[0] || fontOptions[0]
@@ -159,30 +161,53 @@ const DisplaySettings = ({
           />
         </View>
         {/* <Select
-          label={i18n("Theme")}
+          label={evaProps => (
+            <Text
+              {...evaProps}
+              style={[
+                styles.selectLabel,
+                labelThemedStyle,
+                labelStyle,
+              ]}
+            >
+              {i18n("Theme")}
+            </Text>
+          )}
           style={styles.line}
-          labelStyle={[
-            styles.selectLabel,
-            labelThemedStyle,
-            labelStyle,
-          ]}
-          data={themeOptions}
           selectedOption={selectedThemeOption}
-          onSelect={setTheme}
-        /> */}
+          onSelect={onSelectTheme}
+        >
+          {themeOptions.map(({ text }) => (
+            <SelectItem
+              title={text}
+              style={styles.selectText}
+            />
+          ))}
+        </Select> */}
         <Select
-          label={i18n("Bible font")}
+          label={evaProps => (
+            <Text
+              {...evaProps}
+              style={[
+                styles.selectLabel,
+                labelThemedStyle,
+                labelStyle,
+              ]}
+            >
+              {i18n("Bible font")}
+            </Text>
+          )}
           style={styles.line}
-          textStyle={styles.selectText}
-          labelStyle={[
-            styles.selectLabel,
-            labelThemedStyle,
-            labelStyle,
-          ]}
-          data={fontOptions}
           selectedOption={selectedFontOption}
-          onSelect={setFont}
-        />
+          onSelect={onSelectFont}
+        >
+          {fontOptions.map(({ text }) => (
+            <SelectItem
+              title={text}
+              style={styles.selectText}
+            />
+          ))}
+        </Select>
       </View>
     </Modal>
   )

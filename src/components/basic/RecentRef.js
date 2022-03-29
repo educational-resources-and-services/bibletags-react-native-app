@@ -13,7 +13,7 @@ const RecentRef = ({
   selected,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   history,
   recentPassages,

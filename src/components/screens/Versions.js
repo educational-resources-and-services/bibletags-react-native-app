@@ -38,7 +38,7 @@ const Versions = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   myBibleVersions,
 

@@ -3,7 +3,7 @@
     "name": "[APP_NAME]",
     "slug": "[APP_SLUG]",
     "privacy": "public",
-    "sdkVersion": "38.0.0",
+    "sdkVersion": "44.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#232222",
@@ -43,7 +43,6 @@
       "bundleIdentifier": "org.bibletags.[APP_SLUG]",
       "buildNumber": "1.0.0",
       "icon": "./assets/icons/logo.png",
-      "loadJSInBackgroundExperimental": true,
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false

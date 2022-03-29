@@ -5,11 +5,19 @@ const useThemedStyleSets = themedStyle => {
   const themedStyleSets = useMemo(
     () => {
 
-      const baseThemedStyle = { ...themedStyle }
+      const baseThemedStyle = {}
       const iconThemedStyle = {}
       const labelThemedStyle = {}
       const altThemedStyleSets = []
-    
+
+      Object.keys(themedStyle).forEach(key => {
+        // I'm not sure why UI Kitten puts in headerPaddingHorizontal, etc but it causes
+        // a warning and so I am weeding it out here.
+        if(!/^(?:header|footer)/.test(key)) {
+          baseThemedStyle[key] = themedStyle[key]
+        }
+      })
+
       for(let key in baseThemedStyle) {
         if(/^icon/.test(key)) {
           let iconKey = key.replace(/^icon/, '')

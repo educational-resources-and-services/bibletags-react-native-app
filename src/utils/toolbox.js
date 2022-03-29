@@ -1,5 +1,6 @@
 import React, { useMemo } from "react"
-import { Dimensions, I18nManager, AsyncStorage, Platform } from "react-native"
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { Dimensions, I18nManager, Platform } from "react-native"
 import * as Updates from 'expo-updates'
 import NetInfo from "@react-native-community/netinfo"
 import Constants from "expo-constants"
@@ -482,20 +483,12 @@ export const adjustLineHeight = ({ lineHeight, isOriginal, languageId, bookId })
     : lineHeight
 )
 
-export const objectMap = (obj, fn) => (
-  Object.fromEntries(
-    Object.entries(obj).map(
-      ([k, v], i) => [k, fn(v, k, i)]
-    )
-  )
-)
-
 export const memo = (Component, options) => {
   const { name, jsonMemoProps=[], memoPropMap={} } = options
 
   if(name) {
-    Component.styledComponentName = name
-    Component = styled(Component)
+    // Component.styledComponentName = name
+    Component = styled(name)(Component)
   }
 
   Component = React.memo(Component)

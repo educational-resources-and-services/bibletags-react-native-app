@@ -49,7 +49,7 @@ const SearchSuggestion = ({
   updateEditedSearchString,
   uiStatus,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const { historyReplace, routerState } = useRouterState()

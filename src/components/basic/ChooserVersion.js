@@ -35,7 +35,7 @@ const ChooserVersion = ({
   labelStyle,
   iconStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
   const { baseThemedStyle, labelThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 

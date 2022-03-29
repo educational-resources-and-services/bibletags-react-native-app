@@ -16,7 +16,7 @@ const RecentSearch = ({
   initialScrollInfo,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   removeRecentSearch,
 }) => {

@@ -32,7 +32,7 @@ const AddVersion = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   myBibleVersions,
 

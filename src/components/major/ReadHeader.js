@@ -99,7 +99,7 @@ const ReadHeader = React.memo(({
   style,
   iconStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   passage,
 }) => {

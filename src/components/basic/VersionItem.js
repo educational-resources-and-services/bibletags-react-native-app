@@ -68,7 +68,7 @@ const VersionItem = ({
   iconStyle,
   downloadedIconStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   ...otherProps
 }) => {
@@ -180,24 +180,26 @@ const VersionItem = ({
         <View>
           <Tooltip
             visible={showTooltip}
-            text={i18n("Available offline")}
             onBackdropPress={toggleShowTooltip}
+            anchor={
+              <TouchableWithoutFeedback
+                onPress={toggleShowTooltip}
+                disabled={reordering}
+              >
+                <Icon
+                  style={[
+                    styles.downloadedIcon,
+                    downloadedIconThemedStyle,
+                    downloadedIconStyle,
+                  ]}
+                  name={"check-underline-circle"}
+                  pack="materialCommunity"
+                  uiStatus={reordering ? `disabled` : `unselected`}
+                />
+              </TouchableWithoutFeedback>
+            }
           >
-            <TouchableWithoutFeedback
-              onPress={toggleShowTooltip}
-              disabled={reordering}
-            >
-              <Icon
-                style={[
-                  styles.downloadedIcon,
-                  downloadedIconThemedStyle,
-                  downloadedIconStyle,
-                ]}
-                name={"check-underline-circle"}
-                pack="materialCommunity"
-                uiStatus={reordering ? `disabled` : `unselected`}
-              />
-            </TouchableWithoutFeedback>
+            {i18n("Available offline")}
           </Tooltip>
         </View>
       }

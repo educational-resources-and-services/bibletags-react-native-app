@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 // import Constants from "expo-constants"
 import * as Font from "expo-font"
-import { AppLoading } from "expo"
+import AppLoading from 'expo-app-loading'
 import * as Updates from 'expo-updates'
 // import * as StoreReview from 'expo-store-review'
 import * as eva from '@eva-design/eva'
@@ -9,17 +9,18 @@ import { ApplicationProvider } from "@ui-kitten/components"
 import { SafeAreaProvider } from "react-native-safe-area-context"
 import * as Localization from "expo-localization"
 import { NativeRouter } from "react-router-native"
-import { AsyncStorage, StatusBar } from "react-native"
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { StatusBar } from "react-native"
 import { createStore, applyMiddleware } from "redux"
 import { persistStore, persistReducer } from "redux-persist"
 import { PersistGate } from "redux-persist/integration/react"
 import { Provider } from "react-redux"
 import { passOverI18n, passOverI18nNumber } from "@bibletags/bibletags-ui-helper"
 import { i18nSetup, i18n, i18nNumber } from "inline-i18n"
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 import lightTheme from "./src/themes/light"
 import darkTheme from "./src/themes/dark"
-import customMapping from "./src/themes/custom-mapping"
 import reducers from "./src/redux/reducers"
 import { logEvent } from "./src/utils/analytics"
 import { bibleFontLoads } from "./src/utils/bibleFonts"
@@ -186,11 +187,10 @@ const App = () => {
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <NativeRouter>
         <ApplicationProvider
           {...eva}
-          customMapping={customMapping}
           theme={colorScheme === 'dark' ? darkTheme : lightTheme}
         >
           <Splash
@@ -209,7 +209,7 @@ const App = () => {
           } 
         </ApplicationProvider>
       </NativeRouter>
-    </>
+    </GestureHandlerRootView>
   )
 
 }

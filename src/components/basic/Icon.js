@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleSheet } from "react-native"
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
-// import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from "@expo/vector-icons"
+import { Ionicons, MaterialCommunityIcons } from "expo-vector-icons"
+// import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from "expo-vector-icons"
 
 import { memo } from "../../utils/toolbox"
 
@@ -24,7 +24,7 @@ const Icon = ({
   pack='ion',
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   ...otherProps
 }) => {

@@ -1,6 +1,7 @@
 import React, { useCallback } from "react"
 import * as Updates from 'expo-updates'
-import { AsyncStorage, StyleSheet } from "react-native"
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { StyleSheet, Text } from "react-native"
 import { ListItem } from "@ui-kitten/components"
 
 import { getLocale } from "inline-i18n"
@@ -24,7 +25,7 @@ const LanguageItem = ({
   label,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const { historyGoBack } = useRouterState()
@@ -46,14 +47,20 @@ const LanguageItem = ({
 
   return (
     <ListItem
-      title={label}
+      title={evaProps => (
+        <Text
+          {...evaProps}
+          style={[
+            styles.versionName,
+            themedStyle,
+            style,
+          ]}
+        >
+          {label}
+        </Text>
+      )}
       onPress={goChangeLanguage}
       style={styles.listItem}
-      titleStyle={[
-        styles.versionName,
-        themedStyle,
-        style,
-      ]}
     />
   )
 

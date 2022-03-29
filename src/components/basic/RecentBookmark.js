@@ -63,7 +63,7 @@ const RecentBookmark = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const [ beingTouched, setBeingTouched ] = useState(false)

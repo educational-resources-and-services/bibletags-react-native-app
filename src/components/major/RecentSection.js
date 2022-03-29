@@ -33,7 +33,7 @@ const RecentSection = ({
   recentSearches,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   if(recentPassages.length + recentSearches.length <= 1) return null

@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
 const LanguageChooser = ({
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const renderItem = ({ item: { locale, label } }) => (

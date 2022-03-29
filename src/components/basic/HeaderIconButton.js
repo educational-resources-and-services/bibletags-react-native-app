@@ -21,7 +21,7 @@ const HeaderIconButton = ({
   uiStatus,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   ...otherProps
 }) => {

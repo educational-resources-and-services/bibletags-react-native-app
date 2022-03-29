@@ -50,7 +50,7 @@ const SearchResult = ({
   style,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   displaySettings,
 

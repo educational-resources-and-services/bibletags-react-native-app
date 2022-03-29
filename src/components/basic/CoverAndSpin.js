@@ -27,7 +27,7 @@ const CoverAndSpin = ({
   percentage,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => (
   <View style={[
     styles.spinnerContainer,

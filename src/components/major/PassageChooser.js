@@ -73,7 +73,7 @@ const PassageChooser = ({
   bookListStyle,
   parallelLabelContainerStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   passage,
   myBibleVersions,

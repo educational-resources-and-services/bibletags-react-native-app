@@ -39,7 +39,7 @@ const ReadContentPage = (({
   height,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   passageScrollY,
 

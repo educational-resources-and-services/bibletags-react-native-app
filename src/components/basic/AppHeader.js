@@ -33,7 +33,7 @@ const AppHeader = ({
   style,
   children,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   // There is a bug by which the backgroundColor in the header does not get set on load.

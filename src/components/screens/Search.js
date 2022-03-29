@@ -58,7 +58,7 @@ const viewabilityConfig = {
 const Search = ({
   style,
   
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   recordSearch,
   setSearchScrollInfo,

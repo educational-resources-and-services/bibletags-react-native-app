@@ -1,11 +1,15 @@
-import Constants from "expo-constants"
-import deepmerge from "deepmerge"
+const deepmerge = require("deepmerge")
+const fs = require('fs').promises
 
-import { objectMap } from "../utils/toolbox"
+const { MAPPING_CUSTOMIZATION=[] } = require("../../app.json").expo.extra
 
-const {
-  MAPPING_CUSTOMIZATION=[],
-} = Constants.manifest.extra
+const objectMap = (obj, fn) => (
+  Object.fromEntries(
+    Object.entries(obj).map(
+      ([k, v], i) => [k, fn(v, k, i)]
+    )
+  )
+)
 
 const getComponentSetup = ({ parameters={}, appearance="default", variantGroups={}, isCustom=true }={}) => {
 
@@ -458,4 +462,8 @@ const mapping = {
   
 }
 
-export default mapping
+;(async () => {
+
+  await fs.writeFile('./custom-mapping.json', JSON.stringify(mapping, null, '\t'), 'utf8')
+
+})()

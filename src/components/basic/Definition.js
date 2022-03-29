@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
 const Definition = ({
   selectedInfo,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const { lemma, strong, morph } = selectedInfo || {}

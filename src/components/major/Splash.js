@@ -59,7 +59,7 @@ const Splash = ({
   updateExists,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const splashAnimation = useRef(new Animated.Value(0)).current

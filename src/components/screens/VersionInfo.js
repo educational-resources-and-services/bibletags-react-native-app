@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
 const VersionInfo = ({
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   const { routerState } = useRouterState()

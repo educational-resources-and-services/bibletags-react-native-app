@@ -12,3 +12,4 @@ npm-debug.*
 /RouteSwitcher.js
 /tenantComponents/*
 /src/utils/translations/current.json
+/custom-mapping.json

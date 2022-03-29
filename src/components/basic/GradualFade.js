@@ -17,7 +17,7 @@ const GradualFade = ({
   style,
   lineStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => (
   <View
     style={[

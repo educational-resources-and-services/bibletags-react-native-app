@@ -29,7 +29,7 @@ const SearchSuggestions = ({
   updateEditedSearchString,
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   history,
   myBibleVersions,

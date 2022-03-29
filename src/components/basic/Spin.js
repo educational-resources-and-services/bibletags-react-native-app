@@ -16,7 +16,7 @@ const Spin = ({
   size="large",
   style,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 }) => {
 
   if(percentage) {

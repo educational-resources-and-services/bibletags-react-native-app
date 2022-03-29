@@ -65,7 +65,7 @@ const Drawer = ({
   imageStyle,
   labelStyle,
 
-  themedStyle,
+  eva: { style: themedStyle={} },
 
   displaySettings,
 }) => {
