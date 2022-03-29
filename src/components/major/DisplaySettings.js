@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useRef } from "react"
-import { Modal, Select, SelectItem } from "@ui-kitten/components"
-import { StyleSheet, Platform, Slider, I18nManager, Text, View } from "react-native"
+import { Modal, Select, SelectItem, IndexPath } from "@ui-kitten/components"
+import Slider from "@react-native-community/slider"
+import { StyleSheet, Platform, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
@@ -41,7 +42,8 @@ const styles = StyleSheet.create({
   selectLabel: {
     textAlign: 'left',
     fontWeight: 'normal',
-    fontSize: 13,
+    fontSize: 14,
+    marginBottom: 4,
   },
   slider: {
     width: Platform.OS === 'android' ? 220 : 200,
@@ -78,7 +80,7 @@ const DisplaySettings = ({
   setTextSize,
   setLineSpacing,
   setFont,
-  setTheme,
+  // setTheme,
 }) => {
   
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
@@ -106,18 +108,35 @@ const DisplaySettings = ({
   const fontOptions = useMemo(
     () => (
       bibleFontList.map(font => ({
-        text: font,
+        title: font,
         font,
       }))
     ),
     [ bibleFontList ],
   )
 
-  const onSelectTheme = useCallback(index => setTheme(themeOptions[index]), [ themeOptions ])
-  const onSelectFont = useCallback(index => setFont(fontOptions[index]), [ fontOptions ])
+  // const onSelectTheme = useCallback(({ row: index }) => setTheme(themeOptions[index]), [ themeOptions ])
+  const onSelectFont = useCallback(({ row: index }) => setFont(fontOptions[index]), [ fontOptions ])
 
-  const selectedThemeOption = themeOptions.filter(themeOption => themeOption.theme === theme)[0] || themeOptions[0]
-  const selectedFontOption = fontOptions.filter(fontOption => fontOption.font === font)[0] || fontOptions[0]
+  // const { selectedThemeIndex, selectedThemeValue } = useMemo(
+  //   () => {
+  //     const index = themeOptions.findIndex(themeOption => themeOption.theme === theme) || 0
+  //     return {
+  //       selectedThemeIndex: new IndexPath(index),
+  //       selectedThemeValue: themeOptions[index].title,
+  //     }
+  //   }
+  // )
+
+  const { selectedFontIndex, selectedFontValue } = useMemo(
+    () => {
+      const index = fontOptions.findIndex(fontOption => fontOption.font === font) || 0
+      return {
+        selectedFontIndex: new IndexPath(index),
+        selectedFontValue: fontOptions[index].title,
+      }
+    }
+  )
 
   return (
     <Modal
@@ -174,12 +193,14 @@ const DisplaySettings = ({
             </Text>
           )}
           style={styles.line}
-          selectedOption={selectedThemeOption}
+          selectedIndex={selectedThemeIndex}
+          value={selectedThemeValue}
           onSelect={onSelectTheme}
         >
-          {themeOptions.map(({ text }) => (
+          {themeOptions.map(({ title }) => (
             <SelectItem
-              title={text}
+              key={title}
+              title={title}
               style={styles.selectText}
             />
           ))}
@@ -198,12 +219,14 @@ const DisplaySettings = ({
             </Text>
           )}
           style={styles.line}
-          selectedOption={selectedFontOption}
+          selectedIndex={selectedFontIndex}
+          value={selectedFontValue}
           onSelect={onSelectFont}
         >
-          {fontOptions.map(({ text }) => (
+          {fontOptions.map(({ title }) => (
             <SelectItem
-              title={text}
+              key={title}
+              title={title}
               style={styles.selectText}
             />
           ))}

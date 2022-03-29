@@ -97,6 +97,7 @@
     "react-use": "17.3.2",
     "reduce-reducers": "1.0.4",
     "redux": "4.1.2",
-    "redux-persist": "6.0.0"
+    "redux-persist": "6.0.0",
+    "@react-native-community/slider": "4.1.12"
   }
 }
