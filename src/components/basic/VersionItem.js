@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useMemo, useCallback } from "react"
 import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Platform, Text, Animated, Easing } from "react-native"
-import { Tooltip } from "@ui-kitten/components"
-import { OverflowMenu } from "@ui-kitten/components"
+import { Tooltip, OverflowMenu, MenuItem } from "@ui-kitten/components"
 import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
 
@@ -135,11 +134,52 @@ const VersionItem = ({
   )
 
   const onOptionSelect = useCallback(
-    idx => {
+    ({ row }) => {
       toggleMenuOpen(false)
-      options[idx].onPress()
+      options[row].onPress()
     },
     [ options ],
+  )
+
+  const renderTooltipAnchor = useCallback(
+    () => (
+      <TouchableWithoutFeedback
+        onPress={toggleShowTooltip}
+        disabled={reordering}
+      >
+        <Icon
+          style={[
+            styles.downloadedIcon,
+            downloadedIconThemedStyle,
+            downloadedIconStyle,
+          ]}
+          name={"check-underline-circle"}
+          pack="materialCommunity"
+          uiStatus={reordering ? `disabled` : `unselected`}
+        />
+      </TouchableWithoutFeedback>
+    ),
+    [ toggleShowTooltip, reordering, styles, downloadedIconThemedStyle, downloadedIconStyle ],
+  )
+
+  const renderOverflowMenuAnchor = useCallback(
+    () => (
+      <TouchableOpacity
+        onPress={toggleMenuOpen}
+        disabled={reordering}
+      >
+        <Icon
+          style={[
+            styles.optionsIcon,
+            iconThemedStyle,
+            iconStyle,
+          ]}
+          name={"md-more"}
+          uiStatus={reordering ? `disabled` : `unselected`}
+        />
+      </TouchableOpacity>
+    ),
+    [ toggleMenuOpen, reordering, styles, iconThemedStyle, iconStyle ],
   )
 
   const contents = (
@@ -181,23 +221,7 @@ const VersionItem = ({
           <Tooltip
             visible={showTooltip}
             onBackdropPress={toggleShowTooltip}
-            anchor={
-              <TouchableWithoutFeedback
-                onPress={toggleShowTooltip}
-                disabled={reordering}
-              >
-                <Icon
-                  style={[
-                    styles.downloadedIcon,
-                    downloadedIconThemedStyle,
-                    downloadedIconStyle,
-                  ]}
-                  name={"check-underline-circle"}
-                  pack="materialCommunity"
-                  uiStatus={reordering ? `disabled` : `unselected`}
-                />
-              </TouchableWithoutFeedback>
-            }
+            anchor={renderTooltipAnchor}
           >
             {i18n("Available offline")}
           </Tooltip>
@@ -206,25 +230,14 @@ const VersionItem = ({
       {(options || []).length > 0 &&
         <View>
           <OverflowMenu
-            data={options}
             visible={menuOpen}
             onSelect={onOptionSelect}
             onBackdropPress={toggleMenuOpen}
+            anchor={renderOverflowMenuAnchor}
           >
-            <TouchableOpacity
-              onPress={toggleMenuOpen}
-              disabled={reordering}
-            >
-              <Icon
-                style={[
-                  styles.optionsIcon,
-                  iconThemedStyle,
-                  iconStyle,
-                ]}
-                name={"md-more"}
-                uiStatus={reordering ? `disabled` : `unselected`}
-              />
-            </TouchableOpacity>
+            {options.map(({ title }) => (
+              <MenuItem title={title} />
+            ))}
           </OverflowMenu>
         </View>
       }
