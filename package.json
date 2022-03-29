@@ -46,7 +46,7 @@
     "publish-to-npm": "npm publish --access public && echo '\nSUCCESS!\n'"
   },
   "dependencies": {
-    "@bibletags/bibletags-ui-helper": "^0.5.17",
+    "@bibletags/bibletags-ui-helper": "^0.5.18",
     "@bibletags/bibletags-versification": "^0.2.9",
     "@eva-design/eva": "^2.1.1",
     "@expo/vector-icons": "^10.2.1",
