@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, useRef } from "react"
 import { StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { Switch, Route } from "react-router-native"
+import { Routes, Route } from "react-router-native"
 import { i18n } from "inline-i18n"
 import SortableList from "react-native-sortable-list"
 
@@ -129,46 +129,47 @@ const Versions = ({
   )
 
   return (
-    <Switch>
-      <Route path="/Read/Versions/VersionInfo" component={VersionInfo} />
-      <Route path="/Read/Versions/AddVersion" component={AddVersion} />
-      <Route>
-
-        <SafeLayout>
-          <BasicHeader
-            title={i18n("My Bible versions")}
-            extraButtons={extraButtons}
-            disableBack={reordering}
-          />
-          {reordering &&
-            <Text
+    <Routes>
+      <Route path="/VersionInfo" component={VersionInfo} />
+      <Route path="/AddVersion" component={AddVersion} />
+      <Route
+        path="*"
+        element={
+          <SafeLayout>
+            <BasicHeader
+              title={i18n("My Bible versions")}
+              extraButtons={extraButtons}
+              disableBack={reordering}
+            />
+            {reordering &&
+              <Text
+                style={[
+                  styles.label,
+                  labelThemedStyle,
+                  labelStyle,
+                ]}
+              >
+                {i18n("Drag to reorder")}
+              </Text>
+            }
+            <SortableList
+              key={JSON.stringify(versionIds)}
               style={[
-                styles.label,
-                labelThemedStyle,
-                labelStyle,
+                styles.list,
+                baseThemedStyle,
+                style,
               ]}
-            >
-              {i18n("Drag to reorder")}
-            </Text>
-          }
-          <SortableList
-            key={JSON.stringify(versionIds)}
-            style={[
-              styles.list,
-              baseThemedStyle,
-              style,
-            ]}
-            contentContainerStyle={styles.contentContainer}
-            data={versionIds}
-            renderRow={renderItem}
-            scrollEnabled={!reordering}
-            sortingEnabled={reordering}
-            onReleaseRow={onReleaseRow}
-          />
-        </SafeLayout>
-
-      </Route>
-    </Switch>
+              contentContainerStyle={styles.contentContainer}
+              data={versionIds}
+              renderRow={renderItem}
+              scrollEnabled={!reordering}
+              sortingEnabled={reordering}
+              onReleaseRow={onReleaseRow}
+            />
+          </SafeLayout>
+        }
+      />
+    </Routes>
   )
 
 }

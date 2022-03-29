@@ -153,16 +153,17 @@ const Search = ({
     }
   )
 
-  useEffect(
-    () => () => {
-      historyAlterStateByRoute('/Read/Search', {
-        ...getRouterState(),
-        editOnOpen: getEditing(),
-        initialScrollInfo: scrollInfo.current,
-      })
-    },
-    [],
-  )
+  // This does not appear to do anything, so commenting it out.
+  // useEffect(
+  //   () => () => {
+  //     historyAlterStateByRoute('/Read/Search', {
+  //       ...getRouterState(),
+  //       editOnOpen: getEditing(),
+  //       initialScrollInfo: scrollInfo.current,
+  //     })
+  //   },
+  //   [],
+  // )
 
   useEffect(
     () => {

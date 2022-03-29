@@ -1,10 +1,10 @@
 import React from "react"
-import { Switch, Route } from "react-router-native"
+import { Routes, Route } from "react-router-native"
 
-// import FAQ from "./tenantComponents/FAQ"
+import FAQ from "./tenantComponents/FAQ"
 
 const RouteSwitcher = () => (
-  <Switch>
+  <Routes>
 
     {/*
       The following base paths are already used and so will have no effect:
@@ -13,9 +13,9 @@ const RouteSwitcher = () => (
         /ErrorMessage
     */}
 
-    {/* <Route path="/FAQ" component={FAQ} /> */}
+    <Route path="/FAQ" element={<FAQ />} />
 
-  </Switch>
+  </Routes>
 )
 
 export default RouteSwitcher

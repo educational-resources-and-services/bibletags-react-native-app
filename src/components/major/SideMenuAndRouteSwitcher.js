@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { Switch, Route, Redirect } from "react-router-native"
+import { Routes, Route, Navigate } from "react-router-native"
 // import SideMenu from "react-native-simple-side-menu"  // I have no idea why this won't work
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -49,16 +49,13 @@ const SideMenuAndRouteSwitcher = ({
       menu={<Drawer />}
     >
 
-      <Switch>
-        <Route path="/Read" component={Read} />
-        <Route path="/LanguageChooser" component={LanguageChooser} />
-        <Route path="/ErrorMessage" component={ErrorMessage} />
-        <Route>
-          <RouteSwitcher />
-        </Route>
-      </Switch>
-
-      <Redirect exact from="/" to="/Read" />
+      <Routes>
+        <Route path="/" element={<Navigate to="/Read" replace />} />
+        <Route path="/Read/*" element={<Read />} />
+        <Route path="/LanguageChooser/*" element={<LanguageChooser />} />
+        <Route path="/ErrorMessage/*" element={<ErrorMessage />} />
+        <Route path="*" element={<RouteSwitcher />} />
+      </Routes>
 
     </SideMenu>
   )

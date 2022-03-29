@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react"
 import { StyleSheet, View, TouchableWithoutFeedback } from "react-native"
 import { activateKeepAwake, deactivateKeepAwake } from "expo-keep-awake"
 import Constants from "expo-constants"
-import { Switch, Route } from "react-router-native"
+import { Routes, Route } from "react-router-native"
 import { useDimensions } from "@react-native-community/hooks"
 
 import { isIPhoneX, iPhoneXInset } from "../../utils/toolbox"
@@ -78,62 +78,67 @@ const Read = () => {
   const hideStatusBar = showingPassageChooser
 
   return (
-    <Switch>
-      <Route path="/Read/Search" component={Search} />
-      <Route path="/Read/VerseFocus" component={VerseFocus} />
-      <Route path="/Read/Versions" component={Versions} />
-      <Route>
+    <Routes>
+      <Route path="/Search" element={<Search />} />
+      <Route path="/VerseFocus" element={<VerseFocus />} />
+      <Route path="/Versions/*" element={<Versions />} />
+      <Route
+        path="*"
+        element={
+          <>
 
-        <View
-          style={styles.passageChooserContainer}
-        >
-          <IPhoneXBuffer extraSpace={true} />
-          <PassageChooser
-            hidePassageChooser={hidePassageChooser}
-            paddingBottom={height - adjustedPassageChooserHeight + passageChooserPaddingAdjustment}
-            showing={showingPassageChooser}
-            goVersions={goVersions}
-          />
-        </View>
-        <RevealContainer
-          revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
-          immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
-        >
-          <ReadHeader
-            toggleShowOptions={toggleShowOptions}
-            showPassageChooser={showPassageChooser}
-            showingPassageChooser={showingPassageChooser}
-            hideStatusBar={Platform.OS === 'ios' && hideStatusBar}
-            selectedData={selectedData}
-            clearSelectedInfo={clearSelectedInfo}
-          />
-          {showingDisplaySettings &&
-            <DisplaySettings
-              hideDisplaySettings={hideDisplaySettings}
-            />
-          }
-          <ReadContent
-            selectedData={selectedData}
-            setSelectedData={setSelectedData}
-          />
-          <RecentSection />
-          <LowerPanel
-            selectedData={selectedData}
-          />
-          {!!showingPassageChooser &&
-            <TouchableWithoutFeedback
-              style={styles.invisibleCover}
-              onPressIn={hidePassageChooser}
+            <View
+              style={styles.passageChooserContainer}
             >
-              <View
-                style={styles.invisibleCover}
+              <IPhoneXBuffer extraSpace={true} />
+              <PassageChooser
+                hidePassageChooser={hidePassageChooser}
+                paddingBottom={height - adjustedPassageChooserHeight + passageChooserPaddingAdjustment}
+                showing={showingPassageChooser}
+                goVersions={goVersions}
               />
-            </TouchableWithoutFeedback>
-          }
-        </RevealContainer>
+            </View>
+            <RevealContainer
+              revealAmount={(showingPassageChooser ? adjustedPassageChooserHeight : 0)}
+              immediateAdjustment={hideStatusBar ? (isIPhoneX ? iPhoneXInset['portrait'].bottomInset : 20) : 0}
+            >
+              <ReadHeader
+                toggleShowOptions={toggleShowOptions}
+                showPassageChooser={showPassageChooser}
+                showingPassageChooser={showingPassageChooser}
+                hideStatusBar={Platform.OS === 'ios' && hideStatusBar}
+                selectedData={selectedData}
+                clearSelectedInfo={clearSelectedInfo}
+              />
+              {showingDisplaySettings &&
+                <DisplaySettings
+                  hideDisplaySettings={hideDisplaySettings}
+                />
+              }
+              <ReadContent
+                selectedData={selectedData}
+                setSelectedData={setSelectedData}
+              />
+              <RecentSection />
+              <LowerPanel
+                selectedData={selectedData}
+              />
+              {!!showingPassageChooser &&
+                <TouchableWithoutFeedback
+                  style={styles.invisibleCover}
+                  onPressIn={hidePassageChooser}
+                >
+                  <View
+                    style={styles.invisibleCover}
+                  />
+                </TouchableWithoutFeedback>
+              }
+            </RevealContainer>
 
-      </Route>
-    </Switch>
+          </>
+        }
+      />
+    </Routes>
   )
 
 }

@@ -1,11 +1,11 @@
 import { useCallback } from "react"
-import { useHistory, useLocation } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 const prepState = state => (state ? `#${JSON.stringify(state)}` : ``)
 
 const useRouterState = () => {
 
-  const history = useHistory()
+  const navigate = useNavigate()
   const location = useLocation()
 
   // If I add transitions, I made need to prevent a double tap here
@@ -16,25 +16,25 @@ const useRouterState = () => {
   )
 
   const historyPush = useCallback(
-    (route, state) => history.push(prepRoute(route, state)),
-    [ history, prepRoute ],
+    (route, state) => navigate(prepRoute(route, state)),
+    [ navigate, prepRoute ],
   )
 
   const historyReplace = useCallback(
-    (route, state) => history.replace(prepRoute(route, state)),
-    [ history, prepRoute ],
+    (route, state) => navigate(prepRoute(route, state), { replace: true }),
+    [ navigate, prepRoute ],
   )
 
   const historyAlterStateByRoute = useCallback(
     (route, newState) => {
-      history.entries.forEach(entry => {
-        if(entry.pathname === route) {
-          entry.hash = prepState(newState)
-        }
-      })
+      if(location.pathname === route) {
+        location.hash = prepState(newState)
+      }
     },
-    [ history ],
+    [ navigate, location ],
   )
+
+  const historyGoBack = useCallback(() => navigate(-1), [ navigate ])
 
   let routerState = {}
 
@@ -45,8 +45,8 @@ const useRouterState = () => {
   return {
     historyPush,
     historyReplace,
-    historyGoBack: history.goBack,
-    historyGo: history.go,
+    historyGoBack,
+    historyGo: navigate,
     historyAlterStateByRoute,
     routerState,
     ...location,
