@@ -99,6 +99,7 @@
     "reduce-reducers": "1.0.4",
     "redux": "4.1.2",
     "redux-persist": "6.0.0",
-    "@react-native-community/slider": "4.1.12"
+    "@react-native-community/slider": "4.1.12",
+    "expo-navigation-bar": "~1.1.1"
   }
 }

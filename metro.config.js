@@ -1,5 +1,8 @@
 const MetroConfig = require('@ui-kitten/metro-config')
-const defaultAssetExts = require("metro-config/src/defaults/defaults").assetExts
+const { getDefaultConfig } = require('expo/metro-config')
+
+const defaultConfig = getDefaultConfig(__dirname)
+defaultConfig.resolver.assetExts.push('db')
 
 const evaConfig = {
   evaPackage: '@eva-design/eva',
@@ -7,12 +10,4 @@ const evaConfig = {
   customMappingPath: './custom-mapping.json',
 }
 
-module.exports = MetroConfig.create(evaConfig, {
-  resolver: {
-    assetExts: [
-      ...defaultAssetExts,
-      // sqlite format
-      "db",
-    ],
-  },
-})
+module.exports = MetroConfig.create(evaConfig, defaultConfig)

@@ -6,7 +6,7 @@ const {
   AMPLITUDE_API_KEY,
 } = Constants.manifest.extra
 
-const IS_STANDALONE = Constants.appOwnership === 'standalone'
+const IS_STANDALONE = Constants.appOwnership !== "expo"
 
 if(IS_STANDALONE && AMPLITUDE_API_KEY) {
   Amplitude.initialize(AMPLITUDE_API_KEY)
