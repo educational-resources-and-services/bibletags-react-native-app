@@ -57,8 +57,6 @@
         "backgroundImage": "./assets/icons/logo_android_bg.png"
       },
       "permissions": [
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION",
         "CAMERA",
         "MANAGE_DOCUMENTS",
         "READ_CONTACTS",
