@@ -24,9 +24,6 @@
       "barStyle": "light-content"
     },
     "scheme": "[APP_SLUG]",
-    "packagerOpts": {
-      "config": "rn-cli.config.js"
-    },
     "assetBundlePatterns": [
       "assets/fonts/**",
       "assets/icons/**",
