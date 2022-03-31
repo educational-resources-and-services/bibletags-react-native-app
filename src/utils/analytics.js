@@ -1,27 +1,48 @@
-import { Platform } from "react-native"
-import * as Amplitude from "expo-analytics-amplitude"
 import Constants from "expo-constants"
+import * as Amplitude from "expo-analytics-amplitude"
+import { isBeta } from './toolbox'
 
 const {
   AMPLITUDE_API_KEY,
 } = Constants.manifest.extra
 
-const IS_STANDALONE = Constants.appOwnership !== "expo"
+const on = !!(!__DEV__ && AMPLITUDE_API_KEY && !isBeta())
+let initialized = false
 
-if(IS_STANDALONE && AMPLITUDE_API_KEY) {
-  Amplitude.initialize(AMPLITUDE_API_KEY)
+const initializeIfNeedBe = async () => {
+  if(!initialized) {
+    await Amplitude.initializeAsync(AMPLITUDE_API_KEY)
+    initialized = true
+  }
 }
 
-export const logEvent = ({ eventName, properties }) => {
+export const logEvent = async ({ eventName, properties }) => {
 
-  if(IS_STANDALONE && AMPLITUDE_API_KEY) {
-    Amplitude.logEventWithProperties(
+  if(on) {
+
+    await initializeIfNeedBe()
+    await Amplitude.logEventWithPropertiesAsync(
       eventName,
-      {
-        Platform: Platform.OS,
-        ...properties,
-      }
+      properties || {},
     )
+
+  }
+
+}
+
+export const setUser = async ({ userId=null, properties={} }={}) => {
+
+  if(on) {
+
+    await initializeIfNeedBe()
+    await Amplitude.setUserIdAsync(userId && `${userId}`)
+
+    if(userId) {
+      await Amplitude.setUserPropertiesAsync(properties)
+    } else {
+      await Amplitude.clearUserPropertiesAsync()
+    }
+
   }
 
 }

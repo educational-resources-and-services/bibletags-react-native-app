@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
   },
   image: {
     width: undefined,
@@ -133,7 +134,8 @@ const Splash = ({
             outputRange: [1, 0],
           }),
         }
-      ]}>
+      ]}
+    >
       <Animated.Image
         source={require("../../../assets/icons/splash-tablet.png")}
         style={[

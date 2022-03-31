@@ -17,9 +17,11 @@ import bibleVersions from "../../versions"
 import useSetTimeout from "../hooks/useSetTimeout"
 import useChangeIndex from "../hooks/useChangeIndex"
 import useJsonMemo from "../hooks/useJsonMemo"
+import * as Sentry from "./sentry"
 
 const {
   MAXIMUM_NUMBER_OF_RECENT,
+  SENTRY_DSN="[SENTRY_DSN]",
 } = Constants.manifest.extra
 
 const hebrewOrderingOfBookIds = [
@@ -68,6 +70,8 @@ const hebrewOrderingOfBookIds = [
 ]
 
 // const cachedSizes = {}
+
+export const isBeta = () => Constants.manifest.releaseChannel === 'beta'
 
 export const cloneObj = obj => JSON.parse(JSON.stringify(obj))
 export const equalObjs = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2)
@@ -669,3 +673,17 @@ export const adjustPiecesForSpecialHebrew = ({ isOriginal, languageId, pieces })
 }
 
 export const getTagStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
+
+export const sentry = (...params) => {
+  if(SENTRY_DSN === "[SENTRY_DSN]") {
+    console.log(`sentry()`, params)
+  } else {
+    if(params.length === 1 && params[0].error) {
+      Sentry.captureException(params[0].error)
+    } else if(params.length === 1 && params[0].message) {
+      Sentry.captureMessage(String(params[0].message))
+    } else {
+      Sentry.captureException(new Error(params.map(param => JSON.stringify(param)).join("\n")))
+    }
+  }
+}

@@ -82,7 +82,21 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "[SENTRY_ORGANIZATION]",
+            "project": "[SENTRY_PROJECT]",
+            "authToken": "[SENTRY_AUTH_TOKEN]"
+          }
+        }
+      ]
+    },
+    "plugins": ["sentry-expo"],
     "extra": {
+      "SENTRY_DSN": "[SENTRY_DSN]",
       "DEFAULT_BIBLE_VERSIONS": ["[PRIMARY_VERSION]","original"],
       "BIBLE_VERSIONS_FILE_SECRET": "[RANDOM_STRING]",
       "AMPLITUDE_API_KEY": "[AMPLITUDE_KEY]",

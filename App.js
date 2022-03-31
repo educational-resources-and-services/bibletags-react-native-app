@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-// import Constants from "expo-constants"
+import Constants from "expo-constants"
 import * as Font from "expo-font"
 import AppLoading from 'expo-app-loading'
 import * as Updates from 'expo-updates'
@@ -31,13 +31,22 @@ import { translations, languageOptions } from "./language"
 import { fixRTL } from "./src/utils/toolbox"
 import { iconFonts } from "./src/components/basic/Icon"
 import useSetTimeout from "./src/hooks/useSetTimeout"
+import * as Sentry from "./src/utils/sentry"
 
 import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher"
 import Splash from "./src/components/major/Splash"
 
-// const {
-//   NUM_OPENS_FOR_RATING_REQUEST=0,
-// } = Constants.manifest.extra
+const {
+  SENTRY_DSN="[SENTRY_DSN]",
+} = Constants.manifest.extra
+
+if(SENTRY_DSN !== "[SENTRY_DSN]") {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    enableInExpoDevelopment: true,
+    debug: true,
+  })
+}
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
