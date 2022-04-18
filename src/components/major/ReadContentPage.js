@@ -6,7 +6,6 @@ import { connect } from "react-redux"
 import { getCorrespondingRefs } from "@bibletags/bibletags-versification"
 
 import { getVersionInfo, getOriginalVersionInfo, memo, readHeaderHeight, readHeaderMarginTop } from "../../utils/toolbox"
-import useAdjacentRefs from "../../hooks/useAdjacentRefs"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import { setPassageScroll } from "../../redux/actions"
 
@@ -14,28 +13,21 @@ import ReadText from "./ReadText"
 
 const styles = StyleSheet.create({
   page: {
-    width: '100%',
-    maxWidth: '100%',
     height: '100%',
-    },
+  },
   divider: {
     height: 1,
   },
 })
 
 const ReadContentPage = (({
-  direction,
   passage,
+  isCurrentPassagePage,
   selectedSection,
   selectedVerse,
   selectedInfo,
-  onTouchEnd,
-  onTouchStart,
-  primaryScrollY,
-  scrollController,
-  setPrimaryLoaded,
-  setSecondaryLoaded,
   onVerseTap,
+  width,
   height,
   style,
 
@@ -48,16 +40,16 @@ const ReadContentPage = (({
 
   const [ focussedVerse, setFocussedVerse ] = useState(() => {
     const fVs = (
-      !direction
+      isCurrentPassagePage
       && (passageScrollY || {}).verse
     )
     return (fVs || fVs === 0) ? fVs : undefined
   })
 
-  const adjacentRefs = useAdjacentRefs(passage)
+  const primaryScrollY = useRef(0)
+  const scrollController = useRef('primary')
 
   const { ref, versionId, parallelVersionId } = passage
-  const pageRef = adjacentRefs[direction] || ref
 
   const primaryRef = useRef()
   const secondaryRef = useRef()
@@ -68,6 +60,8 @@ const ReadContentPage = (({
   const numberOfVersesInPrimary = useRef(0)
 
   const heightPerVersion = parallelVersionId ? height/2 : height
+
+  const onTouchStart = useCallback(scrollCntrlr => { scrollController.current = scrollCntrlr }, [])
 
   const onPrimaryTouchStart = useCallback(
     event => {
@@ -202,17 +196,14 @@ const ReadContentPage = (({
       setTimeout(doInitialScroll)  // may not fire without the setTimeout
 
       setUpParallelScroll()
-      setPrimaryLoaded(true)
     }
   )
-
-  const onSecondaryLoaded = useCallback(() => setSecondaryLoaded(true), [])
 
   const onPrimaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'primary', ...params }), [ onVerseTap ])
   const onSecondaryVerseTap = useCallback(({ ...params }) => onVerseTap({ selectedSection: 'secondary', ...params }), [ onVerseTap ])
 
-  let correspondingRefs = [ pageRef ]
-  const originalVersionInfo = getOriginalVersionInfo(pageRef.bookId)
+  let correspondingRefs = [ ref ]
+  const originalVersionInfo = getOriginalVersionInfo(ref.bookId)
   
   if(parallelVersionId && originalVersionInfo) {
 
@@ -221,7 +212,7 @@ const ReadContentPage = (({
         baseVersion: {
           info: getVersionInfo(versionId),
           ref: {
-            ...pageRef,
+            ...ref,
             verse: 1,
           },
         },
@@ -245,11 +236,14 @@ const ReadContentPage = (({
 
   return (
     <View
-      style={styles.page}
+      style={[
+        styles.page,
+        { width },
+      ]}
     >
       <ReadText
-        key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-        passageRef={pageRef}
+        key={`${versionId} ${ref.bookId} ${ref.chapter}`}
+        passageRef={ref}
         versionId={versionId}
         selectedVerse={
           selectedSection === 'primary'
@@ -262,15 +256,14 @@ const ReadContentPage = (({
         }
         selectedInfo={selectedSection === 'primary' ? selectedInfo : null}
         focussedVerse={focussedVerse}
-        onTouchStart={!direction ? onPrimaryTouchStart : null}
-        onTouchEnd={!direction ? onTouchEnd : null}
-        onScroll={!direction ? onPrimaryScroll : null}
-        onLayout={!direction ? onPrimaryLayout : null}
+        onTouchStart={isCurrentPassagePage ? onPrimaryTouchStart : null}
+        onScroll={isCurrentPassagePage ? onPrimaryScroll : null}
+        onLayout={onPrimaryLayout}
         height={heightPerVersion}
-        onContentSizeChange={!direction ? onPrimaryContentSizeChange : null}
-        onVerseTap={!direction ? onPrimaryVerseTap : null}
-        forwardRef={!direction ? primaryRef : null}
-        isVisible={!direction}
+        onContentSizeChange={onPrimaryContentSizeChange}
+        onVerseTap={isCurrentPassagePage ? onPrimaryVerseTap : null}
+        forwardRef={primaryRef}
+        isVisible={isCurrentPassagePage}
         reportNumberOfVerses={reportNumberOfVerses}
       />
       {!!parallelVersionId &&
@@ -297,16 +290,14 @@ const ReadContentPage = (({
             }
             selectedInfo={selectedSection === 'secondary' ? selectedInfo : null}
             focussedVerse={focussedVerse}
-            onTouchStart={!direction ? onSecondaryTouchStart : null}
-            onTouchEnd={!direction ? onTouchEnd : null}
-            onScroll={!direction ? onSecondaryScroll : null}
-            onLayout={!direction ? onSecondaryLayout : null}
+            onTouchStart={isCurrentPassagePage ? onSecondaryTouchStart : null}
+            onScroll={isCurrentPassagePage ? onSecondaryScroll : null}
+            onLayout={onSecondaryLayout}
             height={heightPerVersion}
-            onContentSizeChange={!direction ? onSecondaryContentSizeChange : null}
-            onLoaded={!direction ? onSecondaryLoaded : null}
-            onVerseTap={!direction ? onSecondaryVerseTap : null}
-            forwardRef={!direction ? secondaryRef : null}
-            isVisible={!direction}
+            onContentSizeChange={onSecondaryContentSizeChange}
+            onVerseTap={isCurrentPassagePage ? onSecondaryVerseTap : null}
+            forwardRef={secondaryRef}
+            isVisible={isCurrentPassagePage}
             isParallel={true}
           />
         </>

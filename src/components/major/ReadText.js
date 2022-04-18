@@ -16,6 +16,7 @@ import useInstanceValue from "../../hooks/useInstanceValue"
 
 import VerseText from "../basic/VerseText"
 import CoverAndSpin from "../basic/CoverAndSpin"
+import useComponentUnloadedRef from "../../hooks/useComponentUnloadedRef"
 
 const {
   HEBREW_CANTILLATION_MODE,
@@ -160,6 +161,8 @@ const ReadText = ({
   const previousSelectedVerse = usePrevious(selectedVerse)
   const previousFocussedVerse = usePrevious(focussedVerse)
 
+  const unloaded = useComponentUnloadedRef()
+
   useEffect(
     () => {
       if(pieces && onLoaded) {
@@ -186,6 +189,8 @@ const ReadText = ({
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
           removeWordPartDivisions: true,
         })
+
+        if(unloaded.current) return
 
         verses.current = vss
 
@@ -216,20 +221,6 @@ const ReadText = ({
       }
     },
     [ onContentSizeChange ],
-  )
-
-  useEffect(
-    () => {
-      // The following line (and related methods) is needed for adjusting numbers
-      // to keep the scroll in parallel, WHEN next/previous chapter has been
-      // swiped.
-      fireOnContentSizeChange()
-  
-      if(!isVisible && (forwardRef || {}).current) {
-        forwardRef.current.scrollTo({ y: 0, animated: false })
-      }
-    },
-    [ isVisible ],
   )
 
   const goContentSizeChange = useCallback(

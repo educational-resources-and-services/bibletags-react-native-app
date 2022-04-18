@@ -1,15 +1,14 @@
-import React, { useState, useCallback, useEffect, useRef } from "react"
-import { ScrollView, StyleSheet, Platform, I18nManager } from "react-native"
+import React, { useCallback, useEffect, useRef, useMemo, useState } from "react"
+import { FlatList, StyleSheet, I18nManager, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-// import { i18n } from "inline-i18n"
 import { useDimensions } from "@react-native-community/hooks"
 import { useLayout } from '@react-native-community/hooks'
+import { getNumberOfChapters } from "@bibletags/bibletags-versification"
 
-import useAdjacentRefs from "../../hooks/useAdjacentRefs"
-import useSetTimeout from "../../hooks/useSetTimeout"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useInstanceValue from "../../hooks/useInstanceValue"
+import { equalObjs, getVersionInfo } from "../../utils/toolbox"
 
 import ReadContentPage from "./ReadContentPage"
 
@@ -18,12 +17,6 @@ import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  contentContainer: {
-    width: '300%',
-  },
-  toastText: {
-    writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
 })
 
@@ -40,96 +33,95 @@ const ReadContent = React.memo(({
 }) => {
 
   const { ref, versionId, parallelVersionId } = passage
+  const getRef = useInstanceValue(ref)
+  const lastSetRef = useRef(ref)
 
-  const [ statePassage, setStatePassage ] = useState(passage)
-  const [ primaryLoaded, setPrimaryLoaded ] = useState(false)
-  const [ secondaryLoaded, setSecondaryLoaded ] = useState(false)
-
-  const { selectedSection, selectedVerse, selectedInfo } = selectedData
   const getSelectedData = useInstanceValue(selectedData)
 
   const containerRef = useRef()
-  const scrollController = useRef('primary')
-  const primaryScrollY = useRef(0)
 
   const { width } = useDimensions().window
   const { onLayout, height } = useLayout()
 
+  const [ initialScrollExecuted, setInitialScrollExecuted ] = useState(false)
+  const getInitialScrollExecuted = useInstanceValue(initialScrollExecuted)
+
   const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
-  const [ setOffsetTimeout ] = useSetTimeout()
-
-  if(passage !== statePassage) {
-    const refChanged = ref !== statePassage.ref
-    const primaryChanged = versionId !== statePassage.versionId
-    const secondaryChanged = parallelVersionId !== statePassage.parallelVersionId
-
-    setStatePassage(passage)
-    setPrimaryLoaded(primaryLoaded && !refChanged && !primaryChanged)
-    setSecondaryLoaded(secondaryLoaded && !refChanged && !secondaryChanged)
-    setSelectedData({})
-  }
-
-  const adjacentRefs = useAdjacentRefs(passage)
-
-  useEffect(
-    () => {
-      if(primaryVersionIds.length === 0) return
-
-      // in the event that a version has been removed...
-
-      if(!primaryVersionIds.includes(versionId)) {
-        setVersionId({ versionId: primaryVersionIds[0] })
-      }
-
-      if(parallelVersionId && !secondaryVersionIds.includes(parallelVersionId)) {
-        setParallelVersionId({ parallelVersionId: secondaryVersionIds[0] })
-      }
-    },
-    [ primaryVersionIds.length === 0 ],
+  const booksAndChapters = useMemo(
+    () => (
+      Array(66).fill()
+        .map((x, idx) => (
+          Array(
+            getNumberOfChapters({
+              versionInfo: getVersionInfo(versionId),
+              bookId: idx + 1,
+            })
+          ).fill().map((x, idx2) => ({
+            bookId: idx + 1,
+            chapter: idx2 + 1,
+          }))
+        ))
+        .flat()
+    ),
+    [ versionId ],
   )
-
-  const onTouchStart = useCallback(scrollCntrlr => { scrollController.current = scrollCntrlr }, [])
-
-  const setContainerRef = ref => {
-    containerRef.current = ref
-    setOffsetTimeout(setContentOffset)
-  }
+  const getBooksAndChapters = useInstanceValue(booksAndChapters)
 
   const setContentOffset = useCallback(
     () => {
-      if(containerRef.current) {
-        containerRef.current.scrollTo({ x: width, animated: false })
+      const booksAndChapters = getBooksAndChapters()
+      const ref = getRef()
+      const scrollToIndex = booksAndChapters.findIndex(({ bookId, chapter }) => (bookId === ref.bookId && chapter === ref.chapter))
+      containerRef.current.scrollToIndex({
+        index: scrollToIndex,
+        animated: false,
+      })
+    },
+    [],
+  )
+
+  const onViewableItemsChanged = useCallback(
+    ({ viewableItems }) => {
+      if(viewableItems.length === 1 && getInitialScrollExecuted()) {
+
+        const booksAndChapters = getBooksAndChapters()
+        const ref = getRef()
+
+        const { index } = viewableItems[0]
+        const currentIndex = booksAndChapters.findIndex(({ bookId, chapter }) => (bookId === ref.bookId && chapter === ref.chapter))
+
+        if(index !== currentIndex && booksAndChapters[index]) {
+          lastSetRef.current = booksAndChapters[index]
+          setRef({
+            ref: booksAndChapters[index],
+            wasSwipe: true,
+          })
+        }
+
       }
     },
+    [],
+  )
+
+  const keyExtractor = useCallback(item => JSON.stringify(item), [])
+
+  const getItemLayout = useCallback(
+    (data, index) => ({
+      length: width,
+      offset: width * index,
+      index,
+    }),
     [ width ],
   )
 
-  const onPageSwipeEnd = useCallback(
-    ({ nativeEvent }) => {
-      const { x } = nativeEvent.contentOffset
-      const scrollDiff = parseInt(x, 10) - parseInt(width, 10)
-
-      if(scrollDiff) {
-        let goPrev = scrollDiff < 0
-        if(Platform.OS === 'android' && I18nManager.isRTL) goPrev = !goPrev
-        const ref = adjacentRefs[ goPrev ? 'previous' : 'next' ]
-
-        if(!ref.bookId) {
-          setContentOffset()
-          return
-        }
-
-        primaryScrollY.current = 0
-
-        setRef({
-          ref,
-          wasSwipe: true,
-        })
-        setContentOffset()
-      }
+  const onLayoutAndSetInitialScrollIndex = useCallback(
+    (...params) => {
+      setContentOffset()
+      setInitialScrollExecuted(true)
+      onLayout(...params)
     },
-    [ setRef, setContentOffset, adjacentRefs ],
+    [ setContentOffset, onLayout ],
   )
 
   const onVerseTap = useCallback(
@@ -162,53 +154,83 @@ const ReadContent = React.memo(({
     [ setSelectedData ],
   )
 
+  const renderItem = useCallback(
+    ({ item: ref }) => {
+
+      const thisPagePassage = { versionId, parallelVersionId, ref }
+      const isCurrentPassagePage = (
+        ref.bookId === passage.ref.bookId
+        && ref.chapter === passage.ref.chapter
+      )
+
+      if(!initialScrollExecuted) {
+        return <View style={{ width, height }} />
+      }
+
+      return (
+        <ReadContentPage
+          key={JSON.stringify(thisPagePassage)}
+          passage={thisPagePassage}
+          isCurrentPassagePage={isCurrentPassagePage}
+          {...(isCurrentPassagePage ? selectedData : {})}
+          onVerseTap={onVerseTap}
+          height={height}
+          width={width}
+        />
+      )
+    },
+    [ versionId, parallelVersionId, passage, selectedData, height, onVerseTap, width, initialScrollExecuted ],
+  )
+
+  useEffect(
+    () => {
+      if(primaryVersionIds.length === 0) return
+
+      // in the event that a version has been removed...
+
+      if(!primaryVersionIds.includes(versionId)) {
+        setVersionId({ versionId: primaryVersionIds[0] })
+      }
+
+      if(parallelVersionId && !secondaryVersionIds.includes(parallelVersionId)) {
+        setParallelVersionId({ parallelVersionId: secondaryVersionIds[0] })
+      }
+    },
+    [ primaryVersionIds.length === 0 ],
+  )
+
+  useEffect(
+    () => {
+      // update content offset if passage changed (except if it was a swipe)
+      if(!equalObjs(ref, lastSetRef.current)) {
+        lastSetRef.current = ref
+        setContentOffset()
+      }
+    },
+    [ ref ],
+  )
+
   if(primaryVersionIds.length === 0) return null
-
-  const getPage = direction => {
-    const pageRef = adjacentRefs[direction] || ref
-
-    return (
-      <ReadContentPage
-        key={`${versionId} ${pageRef.bookId} ${pageRef.chapter}`}
-        direction={direction}
-        passage={passage}
-        selectedSection={direction ? null : selectedSection}
-        selectedVerse={direction ? null : selectedVerse}
-        selectedInfo={direction ? null : selectedInfo}
-        onTouchStart={onTouchStart}
-        // onTouchEnd={onTouchEnd}
-        primaryScrollY={primaryScrollY}
-        scrollController={scrollController}
-        setPrimaryLoaded={setPrimaryLoaded}
-        setSecondaryLoaded={setSecondaryLoaded}
-        onVerseTap={onVerseTap}
-        height={height}
-      />
-    )
-  }
 
   return (
     <>
-      <ScrollView
-        style={[
-          styles.container,
-        ]}
-        contentContainerStyle={styles.contentContainer}
+      <FlatList
+        data={booksAndChapters}
+        extraData={renderItem}
+        getItemLayout={getItemLayout}
+        renderItem={renderItem}
+        initialNumToRender={1}
+        maxToRenderPerBatch={2}
+        keyExtractor={keyExtractor}
+        windowSize={3}
+        style={styles.container}
         horizontal={true}
         pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
-        contentOffset={{ x: width, y: 0 }}
-        ref={setContainerRef}
-        onMomentumScrollEnd={onPageSwipeEnd}
-        //onContentSizeChange={setContentOffset}  // I might need this for device rotation
-        onLayout={onLayout}
-      >
-        {[
-          getPage('previous'),
-          getPage(),
-          getPage('next'),
-        ]}
-      </ScrollView>
+        onViewableItemsChanged={onViewableItemsChanged}
+        onLayout={initialScrollExecuted ? onLayout : onLayoutAndSetInitialScrollIndex}
+        ref={containerRef}
+      />
     </>
   )
 
