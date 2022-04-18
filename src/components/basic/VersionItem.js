@@ -236,7 +236,10 @@ const VersionItem = ({
             anchor={renderOverflowMenuAnchor}
           >
             {options.map(({ title }) => (
-              <MenuItem title={title} />
+              <MenuItem
+                key={title}
+                title={title}
+              />
             ))}
           </OverflowMenu>
         </View>

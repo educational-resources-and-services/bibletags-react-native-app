@@ -130,8 +130,8 @@ const Versions = ({
 
   return (
     <Routes>
-      <Route path="/VersionInfo" component={VersionInfo} />
-      <Route path="/AddVersion" component={AddVersion} />
+      <Route path="/VersionInfo" element={<VersionInfo />} />
+      <Route path="/AddVersion/*" element={<AddVersion />} />
       <Route
         path="*"
         element={
@@ -149,7 +149,7 @@ const Versions = ({
                   labelStyle,
                 ]}
               >
-                {i18n("Drag to reorder")}
+                {i18n("Press and drag to reorder")}
               </Text>
             }
             <SortableList
