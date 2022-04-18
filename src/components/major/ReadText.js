@@ -385,12 +385,7 @@ const ReadText = ({
 
           const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
 
-          if(Platform.OS === 'android' && verse !== undefined) {  // TODO: remove this block when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
-            verseTextStyles = {
-              color: "black",
-              ...verseTextStyles,
-            }
-          }
+          let keyForAndroid
 
           if(
             selectedVerse !== null
@@ -402,6 +397,7 @@ const ReadText = ({
               ...verseTextStyles,
               ...semiSelectedVsThemedStyle,
             }
+            keyForAndroid = `semiSelectedVsThemedStyle`
           }
 
           if(
@@ -415,6 +411,7 @@ const ReadText = ({
               ...selectedWordThemedStyle,
               textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
             }
+            keyForAndroid = `selectedWordThemedStyle`
           }
 
           if(
@@ -426,6 +423,7 @@ const ReadText = ({
               ...verseTextStyles,
               ...selectedVsThemedStyle,
             }
+            keyForAndroid = `selectedVsThemedStyle`
           }
 
           if(
@@ -438,6 +436,7 @@ const ReadText = ({
               ...verseTextStyles,
               ...unselectedThemedStyle,
             }
+            keyForAndroid = `unselectedThemedStyle`
           }
 
           if(
@@ -462,6 +461,7 @@ const ReadText = ({
               ...verseTextStyles,
               ...unfocussedThemedStyle,
             }
+            keyForAndroid = `unfocussedThemedStyle`
           }
 
           if(
@@ -492,7 +492,7 @@ const ReadText = ({
 
           let component = (
             <VerseText
-              key={idx}
+              key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
               style={verseTextStyles}
               onPress={goVerseTap}
               verseNumber={vs}
