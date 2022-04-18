@@ -377,13 +377,20 @@ const ReadText = ({
             isOriginal,
             tagThemedStyles,
           })
-    
+
           const hasSelectedVerseChild = selectedVerse !== null && (adjustedChildren || []).some(child => child.verse === selectedVerse)
           const hadSelectedVerseChild = previousSelectedVerse !== null && (adjustedChildren || []).some(child => child.verse === previousSelectedVerse)
           const hasFocussedVerseChild = focussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === focussedVerse)
           const hadFocussedVerseChild = previousFocussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === previousFocussedVerse)
 
           const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
+
+          if(Platform.OS === 'android' && verse !== undefined) {  // TODO: remove this block when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
+            verseTextStyles = {
+              color: "black",
+              ...verseTextStyles,
+            }
+          }
 
           if(
             selectedVerse !== null

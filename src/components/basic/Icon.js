@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet } from "react-native"
+import { StyleSheet, Platform } from "react-native"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 // import { Ionicons, MaterialCommunityIcons, MaterialIcons, FontAwesome } from "@expo/vector-icons"
 
@@ -43,6 +43,7 @@ const Icon = ({
 
   return (
     <IconComponent
+      key={Platform.OS === 'android' && themedStyle.color}  // TODO: remove this line when RN bug fixed
       style={[
         themedStyle,
         adjustedStyle,

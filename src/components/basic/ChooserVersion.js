@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { View, Text, StyleSheet, TouchableHighlight } from "react-native"
+import { View, Text, StyleSheet, TouchableHighlight, Platform } from "react-native"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo, memo } from "../../utils/toolbox"
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
 const ChooserVersion = ({
   versionId,
   onPress,
-  selected,
   showCloseIcon,
   style,
   labelStyle,
@@ -56,6 +55,7 @@ const ChooserVersion = ({
     >
       <View style={styles.versionTextContainer}>
         <Text
+          key={Platform.OS === 'android' && labelThemedStyle.color}  // TODO: remove this line when RN bug fixed
           style={[
             styles.versionText,
             labelThemedStyle,

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { Text, StyleSheet, TouchableHighlight } from "react-native"
+import { Text, StyleSheet, TouchableHighlight, Platform } from "react-native"
 import { getBibleBookName } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -43,6 +43,7 @@ const ChooserBook = ({
       ]}
     >
       <Text
+        key={Platform.OS === 'android' && labelThemedStyle.color}  // TODO: remove this line when RN bug fixed
         style={[
           styles.bookText,
           labelThemedStyle,
