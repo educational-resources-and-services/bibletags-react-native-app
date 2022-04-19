@@ -20,6 +20,12 @@ const styles = StyleSheet.create({
   },
 })
 
+const viewabilityConfig = {
+  minimumViewTime: 10,
+  viewAreaCoveragePercentThreshold: 60,
+  waitForInteraction: true,
+}
+
 const ReadContent = React.memo(({
   selectedData,
   setSelectedData,
@@ -224,6 +230,7 @@ const ReadContent = React.memo(({
         keyExtractor={keyExtractor}
         windowSize={3}
         style={styles.container}
+        viewabilityConfig={viewabilityConfig}
         horizontal={true}
         pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
