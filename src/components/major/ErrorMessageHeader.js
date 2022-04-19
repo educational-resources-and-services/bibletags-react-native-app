@@ -1,5 +1,5 @@
 import React from "react"
-import { StyleSheet, Platform, View, Text } from "react-native"
+import { StyleSheet, View, Text } from "react-native"
 import { Button } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 

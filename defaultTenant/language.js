@@ -8,10 +8,13 @@
 
 export const languageOptions = [
   // {
+  //   id: 'heb',
   //   label: 'עברית',
   //   locale: 'he',
+  //   standardWordDivider: '+',  // include this if words are not typically divided by a space
   // },
   {
+    id: 'eng',
     label: 'English',
     locale: 'en',
   }

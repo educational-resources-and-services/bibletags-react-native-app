@@ -9,28 +9,40 @@ const VerseText = ({
   verseNumber,
   info,
   onPress,
+  onLongPress,
   children,
 }) => {
 
-  const goPress = useCallback(
-    ({ nativeEvent }) => {
+  const goShortOrLongPress = useCallback(
+    ({ onPressFunc, nativeEvent }) => {
       const { pageX, pageY } = nativeEvent
       const selectedVerse = verseNumber != null ? verseNumber : (info ? -1 : null)
 
-      onPress({
+      onPressFunc({
         selectedVerse,
         selectedInfo: info,
         pageX,
         pageY,
       })
     },
-    [ onPress, verseNumber, info ],
+    [ verseNumber, info ],
+  )
+
+  const goPress = useCallback(
+    ({ nativeEvent }) => goShortOrLongPress({ onPressFunc: onPress, nativeEvent }),
+    [ onPress, goShortOrLongPress ],
+  )
+
+  const goLongPress = useCallback(
+    ({ nativeEvent }) => goShortOrLongPress({ onPressFunc: onLongPress, nativeEvent }),
+    [ onLongPress, goShortOrLongPress ],
   )
 
   return (
     <Text
       style={style}
       onPress={onPress ? goPress : null}
+      onLongPress={onLongPress ? goLongPress : null}
     >
       {children}
     </Text>

@@ -145,6 +145,7 @@ const ReadText = ({
     selectedWordThemedStyle={},
     selectedVsThemedStyle={},
     matchThemedStyle={},  // used in Verse
+    usedWordThemedStyle={},  // used in Verse
 
     ...tagThemedStyles
 

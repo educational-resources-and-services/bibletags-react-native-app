@@ -10,8 +10,10 @@ import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import { getVersionInfo, executeSql, equalObjs, getOriginalVersionInfo } from "../../utils/toolbox"
+
 import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
+import NotYetTagged from "./NotYetTagged"
 
 const {
   HEBREW_CANTILLATION_MODE,
@@ -63,6 +65,17 @@ const LowerPanelVsComparison = ({
   )
 
   const versionIdShowing = versionIdsToShow[index]
+
+  const passageWithVerse = useMemo(
+    () => ({
+      ...passage,
+      ref: {
+        ...passage.ref,
+        verse: selectedVerse,
+      },
+    }),
+    [ passage, selectedVerse ],
+  )
 
   const correspondingRefsByVersion = useMemo(
     () => {
@@ -196,6 +209,11 @@ const LowerPanelVsComparison = ({
             style,
           ]}
         />
+        {piecesVersionId === 'original' &&
+          <NotYetTagged
+            passage={passageWithVerse}
+          />
+        }
       </ScrollView>
       <BottomNavigation
         selectedIndex={index}

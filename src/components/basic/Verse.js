@@ -43,6 +43,10 @@ const Verse = ({
   containerStyle,
   style,
   matchStyle,
+  usedWordNumbers=[],
+  selectedWordNumbers=[],
+  displaySettingsOverride,
+  hideSuperscripts,
 
   eva: { style: themedStyle={} },
 
@@ -60,15 +64,16 @@ const Verse = ({
     unselectedBlockThemedStyle={},  // used in ReadText
     unselectedThemedStyle={},  // used in ReadText
     semiSelectedVsThemedStyle={},  // used in ReadText
-    selectedWordThemedStyle={},  // used in ReadText
+    selectedWordThemedStyle={},
     selectedVsThemedStyle={},  // used in ReadText
     matchThemedStyle={},
+    usedWordThemedStyle={},
 
     ...tagThemedStyles
 
   ] = altThemedStyleSets
 
-  const { font, textSize, lineSpacing, theme } = displaySettings
+  const { font, textSize, lineSpacing, theme } = { ...displaySettings, ...displaySettingsOverride }
   const { bookId, verse } = passageRef
 
   const { languageId, isOriginal=false } = getVersionInfo(versionId)
@@ -82,13 +87,14 @@ const Verse = ({
     pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
 
     return pieces.map((piece, idx) => {
-      let { type, tag, text, content, nextChar, children, attrib } = piece
+      let { type, tag, text, content, nextChar, children, attrib, wordNumberInVerse } = piece
       tag = tag && tag.replace(/^\+/, '')
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
       const isSelectedRef = selectedAttr && attrib === selectedAttr
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
+      if(hideSuperscripts && [ 'f', 'fe', 'x', 'xt' ].includes(tag)) return null
 
       text = adjustTextForSups({ tag, text, pieces, idx })
 
@@ -115,20 +121,30 @@ const Verse = ({
 
         const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
+        let info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? piece : null
 
-        if(text && Object.keys(verseTextStyles).length === 0 && !isMatch) return text
+        if(doSmallCaps && info) {
+          info = {
+            ...info,
+            text: info.text.toUpperCase(),
+          }
+        }
+
+        if(text && Object.keys(verseTextStyles).length === 0 && !isMatch && type !== 'word') return text
 
         return (
           <VerseText
             key={`${idx}-${idx2}`}
             style={StyleSheet.flatten([
               verseTextStyles,
+              ((usedWordNumbers.includes(wordNumberInVerse) && !selectedWordNumbers.includes(wordNumberInVerse)) ? usedWordThemedStyle : null),
+              (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
             ])}
-            onPress={onVerseTap}
+            onPress={info ? onVerseTap : null}
             verseNumber={verse}
-            info={[ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag) ? piece : null}
+            info={info}
             // delayRenderMs={vs > 1 ? 500 : 0}
             // ignoreChildrenChanging={ignoreChildrenChanging}
           >

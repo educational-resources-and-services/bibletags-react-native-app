@@ -100,24 +100,26 @@ const readTextAndVerseParameters = {
   alt6TextShadowColor: "black", // selectedWordThemedStyle
   alt6Color: "black", // selectedVsThemedStyle
   alt7Color: "border-danger-color-3",  // matchThemedStyle
+  alt8TextDecorationLine: "line-through",  // usedWordThemedStyle
+  alt8Color: "color-basic-500",  // usedWordThemedStyle
 
-  alt9Color: "color-basic-600", // mt
-  alt9Color: "color-basic-800", // ms
-  alt10Color: "color-basic-600", // s1
-  alt11Color: "color-basic-600", // s2
+  alt10Color: "color-basic-600", // mt
+  alt10Color: "color-basic-800", // ms
+  alt11Color: "color-basic-600", // s1
+  alt12Color: "color-basic-600", // s2
 
-  alt12Color: "color-basic-500", // peh
-  alt13Color: "color-basic-500", // samech
-  alt14Color: "color-basic-600", // selah
-  alt15Color: "color-basic-400", // x
-  alt16Color: "color-primary-400", // xt
-  alt17Color: "color-primary-700", // xt:selected
-  alt17TextShadowColor: "color-primary-200", // xt:selected
-  alt18Color: "color-primary-500", // f
-  alt19Color: "color-info-500", // fe
-  alt20Color: "color-basic-600", // fk
+  alt13Color: "color-basic-500", // peh
+  alt14Color: "color-basic-500", // samech
+  alt15Color: "color-basic-600", // selah
+  alt16Color: "color-basic-400", // x
+  alt17Color: "color-primary-400", // xt
+  alt18Color: "color-primary-700", // xt:selected
+  alt18TextShadowColor: "color-primary-200", // xt:selected
+  alt19Color: "color-primary-500", // f
+  alt20Color: "color-info-500", // fe
+  alt21Color: "color-basic-600", // fk
 
-  alt21Color: "color-warning-600", // s3
+  alt22Color: "color-warning-600", // s3
   alt22Color: "color-basic-500", // qa
 }
 
@@ -455,6 +457,29 @@ const mapping = {
             color: "color-basic-500",
           },
         },
+      },
+    },
+    {
+      component: 'NotYetTagged',
+      parameters: {
+        labelColor: "color-basic-600",
+        alt0Color: "color-primary-500",  // linkThemedStyle
+      },
+    },
+    {
+      component: 'VerseTagger',
+      parameters: {
+        alt0Color: "color-basic-600",  // translationThemedStyle
+      },
+    },
+    {
+      component: 'TaggerVerse',
+      parameters: {
+        alt0Color: "color-basic-600",  // wordThemedStyle
+        alt1Color: "color-basic-1100",  // selectedWordThemedStyle
+        alt2Color: "color-basic-500",  // slashThemedStyle
+        alt3Color: "color-basic-600",  // translationWordsThemedStyle
+        alt4Color: "color-basic-1100",  // selectedTranslationWordThemedStyle
       },
     },
     ...MAPPING_CUSTOMIZATION,
