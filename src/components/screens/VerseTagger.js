@@ -71,6 +71,14 @@ const VerseTagger = ({
   )
   const getUsedWordNumbers = useInstanceValue(usedWordNumbers)
 
+  const selectedWordNumbers = useMemo(
+    () => (
+      (translationWordInfoByWordIdAndPartNumbers[JSON.stringify(selectedWordIdAndPartNumbers)] || [])
+        .map(({ wordNumberInVerse }) => wordNumberInVerse)
+    ),
+    [ translationWordInfoByWordIdAndPartNumbers, selectedWordIdAndPartNumbers ],
+  )
+
   const { abbr, languageId } = getVersionInfo(versionId)
 
   const onOriginalPress = useCallback(
@@ -267,7 +275,7 @@ const VerseTagger = ({
               versionId={versionId}
               pieces={pieces}
               usedWordNumbers={usedWordNumbers}
-              selectedWordNumbers={translationWordInfoByWordIdAndPartNumbers[JSON.stringify(selectedWordIdAndPartNumbers)]}
+              selectedWordNumbers={selectedWordNumbers}
               displaySettingsOverride={displaySettingsOverride}
               style={translationThemedStyle}
               onVerseTap={onPress}
