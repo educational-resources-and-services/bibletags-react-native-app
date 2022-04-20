@@ -317,7 +317,6 @@ const mapping = {
     {
       component: 'DisplaySettings',
       parameters: {
-        backgroundColor: "background-basic-color-1",
         labelColor: "text-basic-color",
         alt0MinimumTrackTintColor: "color-danger-700",
         alt0MaximumTrackTintColor: "color-basic-500",
@@ -481,6 +480,16 @@ const mapping = {
         alt3Color: "color-basic-600",  // translationWordsThemedStyle
         alt4Color: "color-basic-1100",  // selectedTranslationWordThemedStyle
       },
+    },
+    {
+      component: 'Dialog',
+      parameters: {
+        backgroundColor: "background-basic-color-1",
+        labelColor: "text-basic-color",
+      },
+    },
+    {
+      component: 'ConfirmTagSubmissionButton',
     },
     ...MAPPING_CUSTOMIZATION,
   ]),

@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getTextFont, adjustFontSize, memo, adjustPiecesForSpecialHebrew } from "../../utils/toolbox"
+import { isRTLText, getTextFont, adjustFontSize, memo, adjustPiecesForSpecialHebrew, getWordIdAndPartNumber } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import { languageOptions } from "../../../language"
 
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     writingDirection: "rtl",
   },
   translationWords: {
+    height: 15,
     fontSize: 10,
     marginTop: -2,
     marginBottom: 4,
@@ -82,7 +83,7 @@ const TaggerVerse = ({
   const fontFamily = getValidFontName({ font: getTextFont({ font, isOriginal, languageId, bookId }) })
   const { standardWordDivider=' ' } = languageOptions.find(({ id }) => id === translationLanguageId) || {}
 
-  const getJSXFromPieces = ({ pieces, isWordPart }) => {
+  const getJSXFromPieces = () => {
 
     const usedWordIdAndPartNumbersJSONs = []
     pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
@@ -93,10 +94,10 @@ const TaggerVerse = ({
       tag = tag && tag.replace(/^\+/, '')
 
       if(!children && !text) return null
-      if(tag !== 'w' && !isWordPart) return null
+      if(tag !== 'w') return null
 
       const getPartOfPiece = (text, wordPartNumber, includeSlash) => {
-        const wordIdAndPartNumber =  `${id}${wordPartNumber ? `|${wordPartNumber}` : ``}`
+        const wordIdAndPartNumber =  getWordIdAndPartNumber({ id, wordPartNumber, bookId })
         const isSelected = selectedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
 
         const key = Object.keys(translationWordInfoByWordIdAndPartNumbers).find(wordIdAndPartNumbersJSON => {
@@ -180,7 +181,7 @@ const TaggerVerse = ({
         (isRTL ? styles.rtl : null),
       ]}
     >
-      {getJSXFromPieces({ pieces })}
+      {getJSXFromPieces()}
     </View>
   )
 

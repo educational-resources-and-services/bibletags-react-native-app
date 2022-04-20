@@ -61,7 +61,7 @@ const AddVersion = ({
   return (
     <SafeLayout>
       <BasicHeader
-        title={i18n("Add Bible version")}
+        title={i18n("Add Bible Version")}
       />
       <Text
         style={[

@@ -4,9 +4,8 @@ import Constants from "expo-constants"
 import { getPassageStr, getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
-import { Button } from "@ui-kitten/components"
 
-import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj } from "../../utils/toolbox"
+import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj, getWordIdAndPartNumber } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -16,6 +15,7 @@ import Verse from "../basic/Verse"
 import TaggerVerse from "../basic/TaggerVerse"
 import BasicHeader from "../major/BasicHeader"
 import CoverAndSpin from "../basic/CoverAndSpin"
+import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
 
 const {
   HEBREW_CANTILLATION_MODE,
@@ -51,6 +51,7 @@ const VerseTagger = ({
   const { routerState } = useRouterState()
   const { passage } = routerState
   const { ref, versionId } = passage
+  const alignmentType = "without-suggestion"  // TODO
 
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
@@ -68,12 +69,14 @@ const VerseTagger = ({
     ),
     [ translationWordInfoByWordIdAndPartNumbers ],
   )
+  const getUsedWordNumbers = useInstanceValue(usedWordNumbers)
+
   const { abbr, languageId } = getVersionInfo(versionId)
 
   const onOriginalPress = useCallback(
     ({ selectedInfo: { id, wordPartNumber }}) => {
 
-      const newSelectedWordIdAndPartNumber = `${id}${wordPartNumber ? `|${wordPartNumber}` : ``}`
+      const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ id, wordPartNumber, bookId: ref.bookId })
       const translationWordInfoByWordIdAndPartNumbers = getTranslationWordInfoByWordIdAndPartNumbers()
 
       // first try to select an existing group
@@ -98,7 +101,7 @@ const VerseTagger = ({
     ({ selectedInfo: { id, wordPartNumber }}) => {
 
       // update group selection
-      const newSelectedWordIdAndPartNumber = `${id}${wordPartNumber ? `|${wordPartNumber}` : ``}`
+      const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ id, wordPartNumber, bookId: ref.bookId })
       const newSelectedWordIdAndPartNumbers = [ ...getSelectedWordIdAndPartNumbers() ]
       toggleArrayValue(newSelectedWordIdAndPartNumbers, newSelectedWordIdAndPartNumber)
       newSelectedWordIdAndPartNumbers.sort()
@@ -120,7 +123,7 @@ const VerseTagger = ({
   )
 
   const onPress = useCallback(
-    ({ selectedInfo: { text, wordNumberInVerse }}) => {
+    ({ selectedInfo: { text, wordNumberInVerse, hasUnknownCapitalization=false }}) => {
 
       const selectedWordIdAndPartNumbers = getSelectedWordIdAndPartNumbers()
       if(selectedWordIdAndPartNumbers.length === 0) return
@@ -146,12 +149,16 @@ const VerseTagger = ({
         newTranslationWordInfoByWordIdAndPartNumbers[key].push({
           wordNumberInVerse,
           word: text,
+          hasUnknownCapitalization,
         })
         newTranslationWordInfoByWordIdAndPartNumbers[key].sort((a,b) => a.wordNumberInVerse > b.wordNumberInVerse ? 1 : -1)
 
       } else {
         // remove this translation word to the current orig word group
         newTranslationWordInfoByWordIdAndPartNumbers[key].splice(index, 1)
+        if(newTranslationWordInfoByWordIdAndPartNumbers[key].length === 0) {
+          delete newTranslationWordInfoByWordIdAndPartNumbers[key]
+        }
       }
 
       setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
@@ -268,12 +275,14 @@ const VerseTagger = ({
             />
 
             <View style={styles.buttonContainer}>
-              <Button
-                // onPress={}
-                disabled={true}
-              >
-                {i18n("Submit tags")}
-              </Button>
+              <ConfirmTagSubmissionButton
+                alignmentType={alignmentType}
+                getUsedWordNumbers={getUsedWordNumbers}
+                getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
+                originalPieces={originalPieces}
+                pieces={pieces}
+                bookId={ref.bookId}
+              />
             </View>
 
           </>

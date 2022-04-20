@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from "react"
-import { Modal, Select, SelectItem, IndexPath } from "@ui-kitten/components"
+import { Select, SelectItem, IndexPath } from "@ui-kitten/components"
 import Slider from "@react-native-community/slider"
 import { StyleSheet, Platform, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
@@ -8,27 +8,17 @@ import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { bibleFontList } from "../../utils/bibleFonts"
-import useBack from "../../hooks/useBack"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
 import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions"
 import { memo } from '../../utils/toolbox'
 
+import Dialog from "./Dialog"
+
 const THROTTLE_MS = 100
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 15,
-    elevation: 4,
-    shadowOffset: { width: 0, height: 0 },
-    shadowColor: "black",
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
-  },
-  title: {
-    fontWeight: '600',
-    fontSize: 15,
-    marginBottom: 5,
-    textAlign: 'left',
+  firstLine: {
+    marginTop: 5,
   },
   line: {
     marginTop: 15,
@@ -70,8 +60,6 @@ const themeOptions = [
 
 const DisplaySettings = ({
   hideDisplaySettings,
-  style,
-  labelStyle,
 
   eva: { style: themedStyle={} },
 
@@ -90,8 +78,6 @@ const DisplaySettings = ({
 
   const initialTextSize = useRef(textSize).current
   const initialLineSpacing = useRef(lineSpacing).current
-
-  useBack(hideDisplaySettings)
 
   const updateTextSize = useThrottledCallback(
     textSize => setTextSize({ textSize }),
@@ -139,100 +125,88 @@ const DisplaySettings = ({
   )
 
   return (
-    <Modal
-      backdropStyle={styles.cover}
-      onBackdropPress={hideDisplaySettings}
-      visible={true}
+    <Dialog
+      title={i18n("Display Options")}
+      goHide={hideDisplaySettings}
+      style={baseThemedStyle}
     >
-      <View 
-        style={[
-          styles.container,
-          baseThemedStyle,
-          style,
-        ]}>
-        <Text style={styles.title}>
-          {i18n("Display options")}
-        </Text>
-        <View style={styles.line}>
-          <Text style={styles.label}>{i18n("Text size")}</Text>
-          <Slider
-            minimumValue={.3}
-            maximumValue={3}
-            value={initialTextSize}
-            onValueChange={updateTextSize}
-            style={styles.slider}
-            minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
-            maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
-            thumbTintColor={tintThemedStyle.thumbTintColor}
-          />
-        </View>
-        <View style={styles.line}>
-          <Text style={styles.label}>{i18n("Line spacing")}</Text>
-          <Slider
-            minimumValue={1}
-            maximumValue={3}
-            value={initialLineSpacing}
-            onValueChange={updateLineSpacing}
-            style={styles.slider}
-            minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
-            maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
-            thumbTintColor={tintThemedStyle.thumbTintColor}
-          />
-        </View>
-        {/* <Select
-          label={evaProps => (
-            <Text
-              {...evaProps}
-              style={[
-                styles.selectLabel,
-                labelThemedStyle,
-                labelStyle,
-              ]}
-            >
-              {i18n("Theme")}
-            </Text>
-          )}
-          style={styles.line}
-          selectedIndex={selectedThemeIndex}
-          value={selectedThemeValue}
-          onSelect={onSelectTheme}
-        >
-          {themeOptions.map(({ title }) => (
-            <SelectItem
-              key={title}
-              title={title}
-              style={styles.selectText}
-            />
-          ))}
-        </Select> */}
-        <Select
-          label={evaProps => (
-            <Text
-              {...evaProps}
-              style={[
-                styles.selectLabel,
-                labelThemedStyle,
-                labelStyle,
-              ]}
-            >
-              {i18n("Bible font")}
-            </Text>
-          )}
-          style={styles.line}
-          selectedIndex={selectedFontIndex}
-          value={selectedFontValue}
-          onSelect={onSelectFont}
-        >
-          {fontOptions.map(({ title }) => (
-            <SelectItem
-              key={title}
-              title={title}
-              style={styles.selectText}
-            />
-          ))}
-        </Select>
+      <View style={styles.firstLine}>
+        <Text style={styles.label}>{i18n("Text Size")}</Text>
+        <Slider
+          minimumValue={.3}
+          maximumValue={3}
+          value={initialTextSize}
+          onValueChange={updateTextSize}
+          style={styles.slider}
+          minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
+          maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
+          thumbTintColor={tintThemedStyle.thumbTintColor}
+        />
       </View>
-    </Modal>
+      <View style={styles.line}>
+        <Text style={styles.label}>{i18n("Line Spacing")}</Text>
+        <Slider
+          minimumValue={1}
+          maximumValue={3}
+          value={initialLineSpacing}
+          onValueChange={updateLineSpacing}
+          style={styles.slider}
+          minimumTrackTintColor={tintThemedStyle.minimumTrackTintColor}
+          maximumTrackTintColor={tintThemedStyle.maximumTrackTintColor}
+          thumbTintColor={tintThemedStyle.thumbTintColor}
+        />
+      </View>
+      {/* <Select
+        label={evaProps => (
+          <Text
+            {...evaProps}
+            style={[
+              styles.selectLabel,
+              labelThemedStyle,
+            ]}
+          >
+            {i18n("Theme")}
+          </Text>
+        )}
+        style={styles.line}
+        selectedIndex={selectedThemeIndex}
+        value={selectedThemeValue}
+        onSelect={onSelectTheme}
+      >
+        {themeOptions.map(({ title }) => (
+          <SelectItem
+            key={title}
+            title={title}
+            style={styles.selectText}
+          />
+        ))}
+      </Select> */}
+      <Select
+        label={evaProps => (
+          <Text
+            {...evaProps}
+            style={[
+              styles.selectLabel,
+              labelThemedStyle,
+            ]}
+          >
+            {i18n("Bible Font")}
+          </Text>
+        )}
+        style={styles.line}
+        selectedIndex={selectedFontIndex}
+        value={selectedFontValue}
+        onSelect={onSelectFont}
+      >
+        {fontOptions.map(({ title }) => (
+          <SelectItem
+            key={title}
+            title={title}
+            style={styles.selectText}
+          />
+        ))}
+      </Select>
+    </Dialog>
   )
 
 }

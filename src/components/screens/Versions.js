@@ -137,7 +137,7 @@ const Versions = ({
         element={
           <SafeLayout>
             <BasicHeader
-              title={i18n("My Bible versions")}
+              title={i18n("My Bible Versions")}
               extraButtons={extraButtons}
               disableBack={reordering}
             />

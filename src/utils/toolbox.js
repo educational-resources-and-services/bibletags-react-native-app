@@ -696,3 +696,5 @@ export const toggleArrayValue = (array, value) => {
   }
   return array
 }
+
+export const getWordIdAndPartNumber = ({ id, wordPartNumber, bookId }) => `${id}${bookId <= 39 ? `|${wordPartNumber}` : ``}`

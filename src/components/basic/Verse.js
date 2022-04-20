@@ -99,6 +99,7 @@ const Verse = ({
       text = adjustTextForSups({ tag, text, pieces, idx })
 
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
+      const previousTextContent = textContent
       textContent += text || ``
 
       const { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({
@@ -121,12 +122,17 @@ const Verse = ({
 
         const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
-        let info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? piece : null
+        const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? piece : null
 
-        if(doSmallCaps && info) {
-          info = {
-            ...info,
-            text: info.text.toUpperCase(),
+        if(info) {
+          if(doSmallCaps) {
+            info.text = info.text.toUpperCase()
+          } else if(
+            /^$|[.;:,¿?!¡"“’(]/.test(previousTextContent.slice(-1))  // relevant punctuation in the previous char, or first word in verse
+            && info.text.slice(0,1) !== info.text.slice(0,1).toLowerCase()  // first char is capitalized
+            && info.text.slice(1) === info.text.slice(1).toLowerCase()  // remaining chars are not capitalized
+          ) {
+            info.hasUnknownCapitalization = true
           }
         }
 
