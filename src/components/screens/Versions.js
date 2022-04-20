@@ -95,7 +95,7 @@ const Versions = ({
         ]}
       />
     )
-}
+  }
 
   const extraButtons = useMemo(
     () => [

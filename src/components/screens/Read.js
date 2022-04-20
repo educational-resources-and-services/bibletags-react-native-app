@@ -10,6 +10,7 @@ import useRouterState from "../../hooks/useRouterState"
 
 import Search from "./Search"
 import VerseTagger from "./VerseTagger"
+import VerseTaggerHelp from "./VerseTaggerHelp"
 import VerseFocus from "./VerseFocus"
 import Versions from "./Versions"
 import ReadHeader from "../major/ReadHeader"
@@ -82,6 +83,7 @@ const Read = () => {
     <Routes>
       <Route path="/Search" element={<Search />} />
       <Route path="/VerseTagger" element={<VerseTagger />} />
+      <Route path="/VerseTagger/Help" element={<VerseTaggerHelp />} />
       <Route path="/VerseFocus" element={<VerseFocus />} />
       <Route path="/Versions/*" element={<Versions />} />
       <Route

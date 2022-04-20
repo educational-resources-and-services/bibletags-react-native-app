@@ -139,9 +139,9 @@ const ConfirmTagSubmissionButton = ({
       const tagSetSubmission = [
         ...[ ...Object.keys(translationWordInfoByWordIdAndPartNumbers), ...untaggedWordIdAndPartNumbers ].map(wordIdAndPartNumbersJSON => ({
           origWordsInfo: JSON.parse(wordIdAndPartNumbersJSON).map(wordIdAndPartNumber => {
-            const [ uhbWordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
+            const [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
             return {
-              uhbWordId,
+              [bookId <= 39 ? `uhb` : `ugnt`]: wordId,
               ...(wordPartNumber ? { wordPartNumber } : {}),
             }
           }),

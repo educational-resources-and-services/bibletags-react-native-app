@@ -16,6 +16,7 @@ import TaggerVerse from "../basic/TaggerVerse"
 import BasicHeader from "../major/BasicHeader"
 import CoverAndSpin from "../basic/CoverAndSpin"
 import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
+import HeaderIconButton from "../basic/HeaderIconButton"
 
 const {
   HEBREW_CANTILLATION_MODE,
@@ -48,7 +49,7 @@ const VerseTagger = ({
     translationThemedStyle={},
   ] = altThemedStyleSets
 
-  const { routerState } = useRouterState()
+  const { routerState, historyPush } = useRouterState()
   const { passage } = routerState
   const { ref, versionId } = passage
   const alignmentType = "without-suggestion"  // TODO
@@ -234,6 +235,18 @@ const VerseTagger = ({
     [ JSON.stringify(ref), versionId ],
   )
 
+  const extraButtons = useMemo(
+    () => [
+      <HeaderIconButton
+        key="help"
+        name="md-help-circle"
+        onPress={() => historyPush("/Read/VerseTagger/Help")}
+        uiStatus="unselected"
+      />,
+    ],
+    [ historyPush ],
+  )
+
   return (
     <SafeLayout>
 
@@ -244,6 +257,7 @@ const VerseTagger = ({
             refs: [ ref ],
           })
         })}
+        extraButtons={extraButtons}
       />
 
       <ScrollView

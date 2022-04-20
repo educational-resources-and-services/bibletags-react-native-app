@@ -491,6 +491,9 @@ const mapping = {
     {
       component: 'ConfirmTagSubmissionButton',
     },
+    {
+      component: 'VerseTaggerHelp',
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   
