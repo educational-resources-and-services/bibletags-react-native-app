@@ -32,8 +32,14 @@ const styles = StyleSheet.create({
   firstLine: {
     marginTop: 0,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    marginHorizontal: -5,
+  },
   button: {
+    marginHorizontal: 5,
     marginTop: 25,
+    flex: 1,
   },
 })
 
@@ -105,16 +111,18 @@ const Dialog = ({
 
           {children}
 
-          {buttons.map((button, idx) => (
-            <Button
-              key={idx}
-              onPress={goHide}
-              children={i18n("Okay")}
-              status='info'
-              style={styles.button}
-              {...button}
-            />
-          ))}
+          <View style={styles.buttonContainer}>
+            {buttons.map((button, idx) => (
+              <Button
+                key={idx}
+                onPress={goHide}
+                children={i18n("Okay")}
+                status='info'
+                style={styles.button}
+                {...button}
+              />
+            ))}
+          </View>
 
         </ScrollView>
       </View>

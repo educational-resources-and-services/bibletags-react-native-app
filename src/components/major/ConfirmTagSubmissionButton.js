@@ -69,7 +69,7 @@ const ConfirmTagSubmissionButton = ({
   const tagSetSubmissionWithCapitalizationChoices = useMemo(
     () => {
       const tagSetSubmissionWithCapitalizationChoices = cloneObj(tagSetSubmission)
-      tagSetSubmissionWithCapitalizationChoices.forEach(({ translationWordsInfo }) => {
+      tagSetSubmissionWithCapitalizationChoices.forEach(({ translationWordsInfo=[] }) => {
         translationWordsInfo.forEach(translationWordInfo => {
           const wordCapitalizationOptions = wordCapitalizationOptionsByWordNumber[translationWordInfo.wordNumberInVerse]
           if(wordCapitalizationOptions) {
@@ -92,6 +92,7 @@ const ConfirmTagSubmissionButton = ({
           .map(wordIdAndPartNumbersJSON => JSON.parse(wordIdAndPartNumbersJSON))
           .flat()
       )
+      const untaggedWordIdAndPartNumbers = []
       const untaggedOrigWords = []
       let numOrigWords = 0
       originalPieces.filter(word => word[`x-id`]).forEach(word => {
@@ -100,6 +101,7 @@ const ConfirmTagSubmissionButton = ({
           const wordIdAndPartNumber = getWordIdAndPartNumber({ id: word[`x-id`], wordPartNumber: idx+1, bookId })
           if(!taggedWordIdAndPartNumbers.includes(wordIdAndPartNumber)) {
             untaggedOrigWords.push(wordPiece.text)
+            untaggedWordIdAndPartNumbers.push(JSON.stringify([ wordIdAndPartNumber ]))
           }
         })
       })
@@ -110,7 +112,10 @@ const ConfirmTagSubmissionButton = ({
       pieces.filter(({ children }) => children).forEach(({ children }) => {
         children.filter(({ type }) => type === 'word').forEach(({ text, wordNumberInVerse }) => {
           if(!usedWordNumbers.includes(wordNumberInVerse)) {
-            untaggedTranslationWords.push(text)
+            untaggedTranslationWords.push({
+              word: text,
+              wordNumberInVerse,
+            })
           }
         })
       })
@@ -131,33 +136,40 @@ const ConfirmTagSubmissionButton = ({
 
       // form the submission
       const wordCapitalizationOptionsByWordNumber = {}
-      const tagSetSubmission = Object.keys(translationWordInfoByWordIdAndPartNumbers).map(wordIdAndPartNumbersJSON => ({
-        origWordsInfo: JSON.parse(wordIdAndPartNumbersJSON).map(wordIdAndPartNumber => {
-          const [ uhbWordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
-          return {
-            uhbWordId,
-            ...(wordPartNumber ? { wordPartNumber } : {}),
-          }
-        }),
-        translationWordsInfo: translationWordInfoByWordIdAndPartNumbers[wordIdAndPartNumbersJSON].map(({ wordNumberInVerse, word, hasUnknownCapitalization }) => {
-          if(hasUnknownCapitalization) {
-            wordCapitalizationOptionsByWordNumber[wordNumberInVerse] = {
-              options: [ word, word.toLowerCase() ],
+      const tagSetSubmission = [
+        ...[ ...Object.keys(translationWordInfoByWordIdAndPartNumbers), ...untaggedWordIdAndPartNumbers ].map(wordIdAndPartNumbersJSON => ({
+          origWordsInfo: JSON.parse(wordIdAndPartNumbersJSON).map(wordIdAndPartNumber => {
+            const [ uhbWordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
+            return {
+              uhbWordId,
+              ...(wordPartNumber ? { wordPartNumber } : {}),
             }
-          }
-          return {
-            wordNumberInVerse,
-            ...(!hasUnknownCapitalization ? { word } : {}),
-          }
-        }),
-        alignmentType,
-      }))
+          }),
+          translationWordsInfo: (translationWordInfoByWordIdAndPartNumbers[wordIdAndPartNumbersJSON] || []).map(({ wordNumberInVerse, word, hasUnknownCapitalization }) => {
+            if(hasUnknownCapitalization) {
+              wordCapitalizationOptionsByWordNumber[wordNumberInVerse] = {
+                options: [ word, word.toLowerCase() ],
+              }
+            }
+            return {
+              wordNumberInVerse,
+              ...(!hasUnknownCapitalization ? { word } : {}),
+            }
+          }),
+          alignmentType,
+        })),
+        untaggedTranslationWords.map(wordInfo => ({
+          origWordsInfo: [],
+          translationWordsInfo: [ wordInfo ],
+          alignmentType,
+        }))
+      ]
 
       // confirm
       setDialogInfo({
         visible: true,
         vars: {
-          untaggedWords: [ ...untaggedOrigWords, ...untaggedTranslationWords ],
+          untaggedWords: [ ...untaggedOrigWords, ...untaggedTranslationWords.map(({ word }) => word) ],
           tagSetSubmission,
           wordCapitalizationOptionsByWordNumber,
         },
@@ -179,6 +191,7 @@ const ConfirmTagSubmissionButton = ({
 
   const goConfirmSubmitTags = useCallback(
     () => {
+      console.log('tagSetSubmissionWithCapitalizationChoices', tagSetSubmissionWithCapitalizationChoices)
       // do the submit online, unless offline in which I need to queue it up
       // keep track of my submissions? Perhaps only when in the queue with the queue essentially editable
       // (don't ask the person to confirm if they are the only submitter as it will not confirm!)
@@ -186,7 +199,7 @@ const ConfirmTagSubmissionButton = ({
       // go back
 
     },
-    [],
+    [ tagSetSubmissionWithCapitalizationChoices ],
   )
 
   return (
@@ -281,8 +294,14 @@ const ConfirmTagSubmissionButton = ({
         )}
         buttons={[
           {
-            disabled: tagSetSubmissionWithCapitalizationChoices.some(({ translationWordsInfo }) => translationWordsInfo.some(({ word }) => !word)),
+            onPress: goHideDialog,
+            children: i18n("Cancel"),
+            status: "basic",
+          },
+          {
+            disabled: tagSetSubmissionWithCapitalizationChoices.some(({ translationWordsInfo=[] }) => translationWordsInfo.some(({ word }) => !word)),
             onPress: goConfirmSubmitTags,
+            children: i18n("Confirm"),
           },
         ]}
         goHide={goHideDialog}
