@@ -71,6 +71,7 @@ const Dialog = ({
       style={{
         maxWidth: parseInt(width * .9, 10),
         maxHeight: parseInt(height * .85, 10),
+        minWidth: 240,
       }}
       onBackdropPress={goHide}
       visible={true}
@@ -112,11 +113,18 @@ const Dialog = ({
           {children}
 
           <View style={styles.buttonContainer}>
-            {buttons.map((button, idx) => (
+            {buttons.map(({ label=i18n("Okay"), ...button }, idx) => (
               <Button
                 key={idx}
                 onPress={goHide}
-                children={i18n("Okay")}
+                children={
+                  <Text
+                    numberOfLines={1}
+                    ellipsizeMode="clip"
+                  >
+                    {label}
+                  </Text>
+                }
                 status='info'
                 style={styles.button}
                 {...button}

@@ -290,18 +290,24 @@ const ConfirmTagSubmissionButton = ({
               </>
             }
 
+            {untaggedWords.length === 0 && Object.values(wordCapitalizationOptionsByWordNumber).length === 0 &&
+              <Text style={styles.areYouSure}>
+                {i18n("Are you sure?")}
+              </Text>
+            }
+
           </>
         )}
         buttons={[
           {
             onPress: goHideDialog,
-            children: i18n("Cancel"),
+            label: i18n("Cancel"),
             status: "basic",
           },
           {
             disabled: tagSetSubmissionWithCapitalizationChoices.some(({ translationWordsInfo=[] }) => translationWordsInfo.some(({ word }) => !word)),
             onPress: goConfirmSubmitTags,
-            children: i18n("Confirm"),
+            label: i18n("Confirm"),
           },
         ]}
         goHide={goHideDialog}
