@@ -164,7 +164,7 @@ const doubleSpacesRegex = /  +/g
             .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
             .replace(/files\s*:.*/g, '')  // get rid of files: requires
             .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
-            .match(new RegExp(`{(?:[^}]|\\n|{(?:[^}]|\\n)+})*\\n\\s*(?:id|"id"|'id')\\s*:\\s*(?:"${version}"|'${version}')\\s*,\\s*\\n(?:[^{}]|\\n|{(?:[^{}]|\\n)+})*}`))
+            .match(new RegExp(`{(?:[^}]|\\n|{(?:[^}]|\\n)*})*\\n\\s*(?:id|"id"|'id')\\s*:\\s*(?:"${version}"|'${version}')\\s*,\\s*\\n(?:[^{}]|\\n|{(?:[^{}]|\\n)*})*}`))
         )
         versionInfo = eval(`(${matches[0]})`)
       } catch(err) {
