@@ -60,7 +60,8 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
 
     console.log(`Copy ${id} to SQLite dir...`)
 
-    await FileSystem.makeDirectoryAsync(versionDir, { intermediates: true })
+    await FileSystem.makeDirectoryAsync(`${versionDir}/verses`, { intermediates: true })
+    await FileSystem.makeDirectoryAsync(`${versionDir}/search`, { intermediates: true })
 
     if(encrypted) {
       await FileSystem.makeDirectoryAsync(encryptedVersionDir, { intermediates: true })
@@ -71,7 +72,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
       if(!file) return
 
       const { localUri, uri } = Asset.fromModule(file)
-      const to = `${encrypted ? encryptedVersionDir : versionDir}/${idx+1}.db`
+      const to = `${encrypted ? encryptedVersionDir : versionDir}/${uri.split(`/${id}/`)[1].replace(/\?.*$/, '')}`
 
       if(localUri) {
         if(idx === 0) console.log(`...via local file...`)

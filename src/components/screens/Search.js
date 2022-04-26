@@ -108,46 +108,47 @@ const Search = ({
 
         const order = `ORDER BY loc`
 
-        const { rows: { _array: verses } } = await executeSql({
+        const { rows: { _array: unitWords } } = await executeSql({
           versionId,
-          statement: ({ bookId, limit }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE (' ' || search || ' ') LIKE ? ESCAPE '\\' ${order} LIMIT ${limit}`,
+          database: 'search/unitWords',
+          statement: ({ limit }) => `SELECT * FROM ${versionId}UnitWords WHERE id LIKE ? ESCAPE '\\' LIMIT ${limit}`,
           args: [
-            `% ${escapeLike(searchString)} %`,
+            `verse:${escapeLike(searchString)}`,
           ],
           limit: MAX_RESULTS,
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-          removeWordPartDivisions: true,
         })
 
-        const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
+        console.log('unitWords', unitWords)
 
-        const searchResults = verses.map(({ usfm, loc }) => ({
-          loc,
-          pieces: getPiecesFromUSFM({
-            usfm,
-            inlineMarkersOnly: true,
-            wordDividerRegex,
-          }),
-        }))
+        // const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
 
-        scrollInfo.current = initialScrollInfo || {}
+        // const searchResults = verses.map(({ usfm, loc }) => ({
+        //   loc,
+        //   pieces: getPiecesFromUSFM({
+        //     usfm,
+        //     inlineMarkersOnly: true,
+        //     wordDividerRegex,
+        //   }),
+        // }))
 
-        setSearchState({
-          searchedString: searchString,
-          searchedVersionId: versionId,
-          searchResults,
-          languageId,
-          isOriginal,
-          versionAbbr: abbr,
-        })
+        // scrollInfo.current = initialScrollInfo || {}
 
-        if(searchResults.length > 0) {
-          recordSearch({
-            searchString,
-            versionId,
-            numberResults: searchResults.length,
-          })
-        }
+        // setSearchState({
+        //   searchedString: searchString,
+        //   searchedVersionId: versionId,
+        //   searchResults,
+        //   languageId,
+        //   isOriginal,
+        //   versionAbbr: abbr,
+        // })
+
+        // if(searchResults.length > 0) {
+        //   recordSearch({
+        //     searchString,
+        //     versionId,
+        //     numberResults: searchResults.length,
+        //   })
+        // }
 
       })()
     }

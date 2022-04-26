@@ -28,7 +28,7 @@
       "assets/fonts/**",
       "assets/icons/**",
       "assets/images/**",
-      "assets/versions/original/**",
+      "assets/versions/original/verses/**",
       "assets/versions/[PRIMARY_VERSION]/**"
     ],
     "splash": {
@@ -96,6 +96,7 @@
     },
     "plugins": ["sentry-expo"],
     "extra": {
+      "EMBEDDING_APP_ID": "[EMBEDDING_APP_ID]",
       "SENTRY_DSN": "[SENTRY_DSN]",
       "DEFAULT_BIBLE_VERSIONS": ["[PRIMARY_VERSION]","original"],
       "BIBLE_VERSIONS_FILE_SECRET": "[RANDOM_STRING]",

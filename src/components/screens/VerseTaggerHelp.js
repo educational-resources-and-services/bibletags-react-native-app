@@ -66,7 +66,7 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            2. DO include a translation’s genitive helper words (eg. “of” in English) when you tag Hebrew in the construct form or Greek genitives.
+            2. DO include a translation’s genitive or dative helper words (eg. “of” and “to” in English) when you tag Hebrew in the construct form or Greek genitives.
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>τῶν ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men”.
@@ -82,6 +82,9 @@ const VerseTaggerHelp = ({
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.hebrew}>מ֥וֹת תָּמֽוּת</Text>” in Genesis 2:17 should be tagged to “shall surely die”. (It would be incorrect to say that “<Text style={styles.hebrew}>מ֥וֹת</Text>” is translated “surely” even though that is the effect of the infinitive absolute in this context.)
+          </Text>
+          <Text style={styles.example}>
+            Eg. “<Text style={styles.greek}>τὸν Θεόν</Text>” in John 1:1 should be tagged to “God”.
           </Text>
         </View>
 

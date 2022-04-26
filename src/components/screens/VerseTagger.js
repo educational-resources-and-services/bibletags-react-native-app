@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { StyleSheet, View, ScrollView } from "react-native"
 import Constants from "expo-constants"
-import { getPassageStr, getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
+import { getPassageStr, getPiecesFromUSFM, getWordsHash } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 
@@ -56,6 +56,7 @@ const VerseTagger = ({
 
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
+  const [ wordsHash, setWordsHash ] = useState()
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
@@ -215,6 +216,12 @@ const VerseTagger = ({
           })
         )
 
+        if(versionId !== 'original') {
+          setWordsHash(
+            getWordsHash({ usfm: preppedUsfm, wordDividerRegex })
+          )
+        }
+
       }
 
       getPieces({
@@ -303,7 +310,8 @@ const VerseTagger = ({
                 getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
                 originalPieces={originalPieces}
                 pieces={pieces}
-                bookId={ref.bookId}
+                passage={passage}
+                wordsHash={wordsHash}
               />
             </View>
 

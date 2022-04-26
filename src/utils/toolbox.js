@@ -12,6 +12,9 @@ import { getBookIdListWithCorrectOrdering } from "@bibletags/bibletags-versifica
 import { styled } from "@ui-kitten/components"
 import useCounter from "react-use/lib/useCounter"
 // import Animated, { Extrapolate } from "react-native-reanimated"
+import { request, gql } from 'graphql-request'
+import 'react-native-get-random-values'  // this import required for the uuid import next
+import { v4 as uuidv4 } from 'uuid'
 
 import bibleVersions from "../../versions"
 import useSetTimeout from "../hooks/useSetTimeout"
@@ -22,6 +25,8 @@ import * as Sentry from "./sentry"
 const {
   MAXIMUM_NUMBER_OF_RECENT,
   SENTRY_DSN="[SENTRY_DSN]",
+  BIBLETAGS_DATA_GRAPHQL_URI_DEV="http://localhost:8082/graphql",
+  BIBLETAGS_DATA_GRAPHQL_URI="https://data.bibletags.org/graphql",
 } = Constants.manifest.extra
 
 const hebrewOrderingOfBookIds = [
@@ -124,6 +129,7 @@ export const isConnected = () => new Promise(resolve => {
 
 export const executeSql = async ({
   versionId,
+  database,
   bookId,
   statement,
   args,
@@ -133,7 +139,8 @@ export const executeSql = async ({
   removeWordPartDivisions,
 }) => {
   const versionInfo = getVersionInfo(versionId)
-  const queryingSingleBook = !!bookId
+  database = database || (bookId ? `verses/${bookId}` : null)
+  const queryingSingleDB = !!database
 
   if(!versionInfo) return null
 
@@ -161,10 +168,10 @@ export const executeSql = async ({
 
   const resultSets = [ statement ? getEmptyResultSet() : statements.map(() => getEmptyResultSet()) ]
 
-  const executeSqlForBook = async bookId => {
+  const executeSqlForBook = async database => {
     try {
 
-      const db = SQLite.openDatabase(`${versionId}/${bookId}.db`)
+      const db = SQLite.openDatabase(`${versionId}/${database}.db`)
 
       await new Promise(resolveAll => {
         db.transaction(
@@ -185,7 +192,8 @@ export const executeSql = async ({
               if(Number.isInteger(limit) && limit <= 0) continue
 
               let adjustedStatement = statement({
-                bookId,
+                database,
+                bookId: (database.match(/^verses\/(.*)$/) || [])[1],
                 limit,
               })
 
@@ -202,7 +210,7 @@ export const executeSql = async ({
                 adjustedStatement,
                 args,
                 (x, resultSet) => {
-                  if(queryingSingleBook) {
+                  if(queryingSingleDB) {
                     resultSets[idx] = resultSet
                   } else {
                     resultSets[idx].rows._array.splice(resultSets[idx].rows._array.length, 0, ...resultSet.rows._array)
@@ -221,8 +229,8 @@ export const executeSql = async ({
     } catch(e) {}
   }
 
-  if(queryingSingleBook) {
-    await executeSqlForBook(bookId)
+  if(queryingSingleDB) {
+    await executeSqlForBook(database)
   } else {
     const orderedBookIds = (
       versionInfo.hebrewOrdering
@@ -238,7 +246,7 @@ export const executeSql = async ({
       )
     )
     for(let idx in orderedBookIds) {
-      await executeSqlForBook(orderedBookIds[idx])
+      await executeSqlForBook(`verses/${orderedBookIds[idx]}`)
     }
   }
 
@@ -439,7 +447,7 @@ export const replaceWithJSX = (text, regexStr, getReplacement) => {
 
 }
 
-export const fixRTL = async locale => {
+export const fixRTL = async ({ locale, forceReload }={}) => {
   const alreadyFixedRTLKey = `fixedRTL`
   const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
   const i18nIsRTL = isRTL(locale)
@@ -448,9 +456,28 @@ export const fixRTL = async locale => {
     I18nManager.forceRTL(i18nIsRTL)
     I18nManager.allowRTL(i18nIsRTL)
     await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
-    return 'reload'
+    Updates.reloadAsync()
+  } else if(forceReload) {
+    Updates.reloadAsync()
   }
 }
+
+export const recordNumberOfOpens = async () => {
+  const numUserOpensKey = `numUserOpens`
+  const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
+  await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
+}
+
+let deviceId
+export const initializeDeviceId = async () => {
+  const deviceIdKey = `deviceId`
+  deviceId = await AsyncStorage.getItem(deviceIdKey)
+  if(!deviceId) {
+    deviceId = uuidv4()
+    await AsyncStorage.setItem(deviceIdKey, deviceId)
+  }
+}
+export const getDeviceId = () => deviceId
 
 const originalVersionInfoByTestament = {
   old: bibleVersions.filter(({ isOriginal, partialScope }) => (isOriginal && (!partialScope || partialScope === 'ot')))[0],
@@ -674,7 +701,7 @@ export const adjustPiecesForSpecialHebrew = ({ isOriginal, languageId, pieces })
 export const getTagStyle = ({ tag, styles }) => styles[(tag || "").replace(/^\+/, '')]
 
 export const sentry = (...params) => {
-  if(SENTRY_DSN === "[SENTRY_DSN]") {
+  if(SENTRY_DSN === "[SENTRY_DSN]" || __DEV__) {
     console.log(`sentry()`, params)
   } else {
     if(params.length === 1 && params[0].error) {
@@ -698,3 +725,47 @@ export const toggleArrayValue = (array, value) => {
 }
 
 export const getWordIdAndPartNumber = ({ id, wordPartNumber, bookId }) => `${id}${bookId <= 39 ? `|${wordPartNumber}` : ``}`
+
+export const doGraphql = async ({ query, mutation, params={} }) => {
+
+  const formattedParams = cloneObj(params)
+  for(let paramKey in formattedParams) {
+    formattedParams[paramKey] = (
+      Object.keys(formattedParams[paramKey])
+        .map(key => (
+          `${key}: ${JSON.stringify(formattedParams[paramKey][key]).replace(/([{,])"([^"]+)"/g, '$1$2')}`
+        ))
+        .join(", ")
+    )
+  }
+
+  const composedQuery = gql`
+    ${mutation ? `mutation` : ``} {
+      ${
+        (mutation || query).replace(
+          '()', 
+          `(
+            ${
+              Object.keys(formattedParams)
+                .map(paramKey => (
+                  `${paramKey}: { ${formattedParams[paramKey]} }`
+                ))
+                .join(`, `)
+            }
+          )`
+        )
+      }
+    }
+  `
+
+  const uri = (
+    __DEV__
+      ? BIBLETAGS_DATA_GRAPHQL_URI_DEV
+      : BIBLETAGS_DATA_GRAPHQL_URI
+  )
+
+  const data = await request(uri, composedQuery)
+
+  console.log('data', data)
+
+}

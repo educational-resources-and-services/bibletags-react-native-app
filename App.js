@@ -28,7 +28,7 @@ import updateDataStructure from "./src/utils/updateDataStructure"
 import syncBibleVersions from "./src/utils/syncBibleVersions"
 // import { reportReadings } from "./src/utils/syncUserData"
 import { translations, languageOptions } from "./language"
-import { fixRTL } from "./src/utils/toolbox"
+import { fixRTL, initializeDeviceId, recordNumberOfOpens } from "./src/utils/toolbox"
 import { iconFonts } from "./src/components/basic/Icon"
 import useSetTimeout from "./src/hooks/useSetTimeout"
 import * as Sentry from "./src/utils/sentry"
@@ -116,11 +116,6 @@ const App = () => {
         let initialTasksComplete = false
         let newVersionCheckComplete = false
 
-        // record number of opens
-        const numUserOpensKey = `numUserOpens`
-        const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
-        await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
-
         if(!__DEV__ && numUserOpens === 1) {
           setShowDelayText(true)
         }
@@ -154,21 +149,21 @@ const App = () => {
         }
 
         await Promise.all([
+          recordNumberOfOpens(),
+          initializeDeviceId(),
           Font.loadAsync({
             ...bibleFontLoads,
             ...iconFonts,
           }),
           (async () => {
+            // these need to be in order
             await updateDataStructure()
-            await syncBibleVersions()
+            await syncBibleVersions()  // TODO: can I have this happen while the user uses the app?
           })(),
           setLocale(),
         ])
 
-        if(await fixRTL() === 'reload') {
-          Updates.reloadAsync()
-          return
-        }
+        await fixRTL()  // may involve a reload, and so needs to be separate from the other async tasks
 
         if(Platform.OS === 'ios') {
           StatusBar.setBarStyle('dark-content')

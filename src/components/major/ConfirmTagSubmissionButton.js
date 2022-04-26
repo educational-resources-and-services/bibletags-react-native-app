@@ -2,11 +2,17 @@ import React, { useCallback, useState, useMemo } from "react"
 import { StyleSheet, View, Text } from "react-native"
 import { Button, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
+import { getLocFromRef } from "@bibletags/bibletags-versification"
+import Constants from "expo-constants"
 
-import { memo, getWordIdAndPartNumber, cloneObj } from '../../utils/toolbox'
+import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId, doGraphql, sentry } from '../../utils/toolbox'
 
 import Dialog from "./Dialog"
+import CoverAndSpin from "../basic/CoverAndSpin"
 
+const {
+  EMBEDDING_APP_ID,
+} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   firstLine: {
@@ -56,15 +62,19 @@ const ConfirmTagSubmissionButton = ({
   getTranslationWordInfoByWordIdAndPartNumbers,
   originalPieces,
   pieces,
-  bookId,
+  passage,
+  wordsHash,
 }) => {
 
+  const [ submitting, setSubmitting ] = useState(false)
   const [ dialogInfo, setDialogInfo ] = useState({ visible: false })
   const {
     untaggedWords=[],
     tagSetSubmission=[],
     wordCapitalizationOptionsByWordNumber={}
   } = dialogInfo.vars || {}
+
+  const { bookId } = passage.ref
 
   const tagSetSubmissionWithCapitalizationChoices = useMemo(
     () => {
@@ -141,7 +151,7 @@ const ConfirmTagSubmissionButton = ({
           origWordsInfo: JSON.parse(wordIdAndPartNumbersJSON).map(wordIdAndPartNumber => {
             const [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
             return {
-              [bookId <= 39 ? `uhb` : `ugnt`]: wordId,
+              [`${bookId <= 39 ? `uhb` : `ugnt`}WordId`]: wordId,
               ...(wordPartNumber ? { wordPartNumber } : {}),
             }
           }),
@@ -158,7 +168,7 @@ const ConfirmTagSubmissionButton = ({
           }),
           alignmentType,
         })),
-        untaggedTranslationWords.map(wordInfo => ({
+        ...untaggedTranslationWords.map(wordInfo => ({
           origWordsInfo: [],
           translationWordsInfo: [ wordInfo ],
           alignmentType,
@@ -190,16 +200,70 @@ const ConfirmTagSubmissionButton = ({
   )
 
   const goConfirmSubmitTags = useCallback(
-    () => {
-      console.log('tagSetSubmissionWithCapitalizationChoices', tagSetSubmissionWithCapitalizationChoices)
+    async () => {
       // do the submit online, unless offline in which I need to queue it up
-      // keep track of my submissions? Perhaps only when in the queue with the queue essentially editable
-      // (don't ask the person to confirm if they are the only submitter as it will not confirm!)
 
-      // go back
+      setSubmitting(true)
+
+      try {
+
+        await doGraphql({
+          mutation: `
+            submitTagSet() {
+              id
+              tags
+              status
+            }
+          `,
+          params: {
+            input: {
+              loc: getLocFromRef(passage.ref),
+              versionId: passage.versionId,
+              wordsHash,
+              deviceId: getDeviceId(),
+              embeddingAppId: EMBEDDING_APP_ID,
+              tagSubmissions: tagSetSubmissionWithCapitalizationChoices,
+            },
+          },
+        })
+
+        // show success and go back
+        alert('success')
+
+      } catch(error) {
+
+        if(error.message === `Network request failed`) {
+
+          // put in queue
+          alert('put in queue')
+          // alert user that it will submit when online
+          // keep track of my submissions? Perhaps only when in the queue with the queue essentially editable
+          // (don't ask the person to confirm if they are the only submitter as it will not confirm!)
+
+        } else {
+
+          sentry(({ error }))
+
+          setDialogInfo({
+            visible: true,
+            title: i18n("Error"),
+            message: i18n("Contact us if this problem persists."),
+            buttons: [{
+              onPress: () => {
+                setDialogInfo(dialogInfo)
+              },
+            }],
+            children: null,
+          })
+
+        }
+
+      }
+
+      setSubmitting(false)
 
     },
-    [ tagSetSubmissionWithCapitalizationChoices ],
+    [ tagSetSubmissionWithCapitalizationChoices, passage, wordsHash, dialogInfo ],
   )
 
   return (
@@ -313,6 +377,8 @@ const ConfirmTagSubmissionButton = ({
         goHide={goHideDialog}
         {...dialogInfo}
       />
+
+      {submitting && <CoverAndSpin />}
 
     </>
   )

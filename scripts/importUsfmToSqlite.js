@@ -3,7 +3,8 @@ const fs = require('fs-extra')
 const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
-const { wordPartDividerRegex } = require("@bibletags/bibletags-ui-helper")
+const { wordPartDividerRegex, defaultWordDividerRegex } = require("@bibletags/bibletags-ui-helper")
+const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
@@ -89,10 +90,6 @@ const readLines = ({ input }) => {
   return output
 }
 
-const getLocFromRef = ({ bookId, chapter, verse }) => (
-  `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}${('00'+verse).substr(-3)}`
-)
-
 const sliceStr = ({ str, sliceSize }) => {
   const slices = []
   for(let i=0, length=str.length; i<length; i+=sliceSize) {
@@ -121,6 +118,8 @@ const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
 const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
+const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
+const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
 const hebrewCantillationRegex = /[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g
 const hebrewVowelsRegex = /[\u05B0-\u05BC\u05C1\u05C2\u05C4]/g
@@ -142,7 +141,7 @@ const doubleSpacesRegex = /  +/g
     const folders = params
     const requires = Array(66).fill()
 
-    const tenantDir = `./tenants/${tenant}`
+    const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/assets/versions`
     versionDir = `${versionsDir}/${version}`
     const encryptedVersionDir = `${versionDir}-encrypted`
@@ -155,9 +154,27 @@ const doubleSpacesRegex = /  +/g
       throw new Error(`Invalid tenant.`)
     }
 
+    const scopeMapsById = {}
+    let versionInfo
+    if(version !== 'original') {
+      try {
+        const versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
+        const matches = (
+          versionsFile
+            .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
+            .replace(/files\s*:.*/g, '')  // get rid of files: requires
+            .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
+            .match(new RegExp(`{(?:[^}]|\\n|{(?:[^}]|\\n)+})*\\n\\s*(?:id|"id"|'id')\\s*:\\s*(?:"${version}"|'${version}')\\s*,\\s*\\n(?:[^{}]|\\n|{(?:[^{}]|\\n)+})*}`))
+        )
+        versionInfo = eval(`(${matches[0]})`)
+      } catch(err) {
+        throw new Error(`Version doesn’t exist or is malformed. Add this version to \`tenants/${tenant}/version.js\` in the proper format.`)
+      }
+    }
+
     await fs.remove(versionDir)
     await fs.remove(encryptedVersionDir)
-    await fs.ensureDir(versionDir)
+    await fs.ensureDir(`${versionDir}/verses`)
 
     if(encryptEveryXChunks) {
       await fs.ensureDir(encryptedVersionDir)
@@ -175,6 +192,7 @@ const doubleSpacesRegex = /  +/g
         const input = fs.createReadStream(`${folder}/${file}`)
         let bookId, chapter, insertMany, dbFilePath
         const verses = []
+        let wordNumber = 0
         let lastVerse = 0
         let goesWithNextVsText = []
 
@@ -189,7 +207,7 @@ const doubleSpacesRegex = /  +/g
       
             if(bookId < 1) break
 
-            dbFilePath = `${versionDir}/${bookId}.db`
+            dbFilePath = `${versionDir}/verses/${bookId}.db`
             const db = new Database(dbFilePath)
 
             const tableName = `${version}VersesBook${bookId}`
@@ -197,14 +215,13 @@ const doubleSpacesRegex = /  +/g
             const create = db.prepare(
               `CREATE TABLE ${tableName} (
                 loc TEXT PRIMARY KEY,
-                usfm TEXT COLLATE NOCASE,
-                search TEXT COLLATE NOCASE
+                usfm TEXT
               );`
             )
 
             create.run()
 
-            const insert = db.prepare(`INSERT INTO ${tableName} (loc, usfm, search) VALUES (@loc, @usfm, @search)`)
+            const insert = db.prepare(`INSERT INTO ${tableName} (loc, usfm) VALUES (@loc, @usfm)`)
 
             insertMany = db.transaction((verses) => {
               for(const verse of verses) insert.run(verse)
@@ -277,18 +294,64 @@ const doubleSpacesRegex = /  +/g
 
         verses.forEach(verse => {
           verse.usfm = verse.usfm.join("\n")
-          verse.search = verse.usfm
-            .replace(wordRegex, '$1')
-            .replace(extraBiblicalRegex, '')
-            .replace(allTagsRegex, '')
-            .replace(hebrewCantillationRegex, '')
-            .replace(hebrewVowelsRegex, '')
-            .normalizeGreek()
-            .replace(wordPartDividerRegex, '')
-            .replace(wordDividerRegex, ' ')
-            .replace(newlinesRegex, ' ')
-            .replace(doubleSpacesRegex, ' ')
-            .trim()
+
+          if(version !== 'original') {
+
+            const getOriginalLocsFromLoc = loc => {
+              const originalRefs = getCorrespondingRefs({
+                baseVersion: {
+                  info: versionInfo,
+                  ref: getRefFromLoc(loc),
+                },
+                lookupVersionInfo: {
+                  versificationModel: 'original',
+                },
+              })
+
+              if(!originalRefs) {
+                console.log(loc)
+                throw new Error(`Versification error`)
+              }
+
+              return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
+            }
+
+            const newWords = (
+              verse.usfm
+                .replace(wordRegex, '$1')
+                .replace(extraBiblicalRegex, '')
+                .replace(footnoteRegex, '')
+                .replace(crossRefRegex, '')
+                .replace(allTagsRegex, '')
+                .replace(hebrewCantillationRegex, '')
+                .replace(hebrewVowelsRegex, '')
+                .normalizeGreek()
+                .replace(wordPartDividerRegex, '')
+                .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
+                .replace(newlinesRegex, ' ')
+                .replace(doubleSpacesRegex, ' ')
+                .trim()
+                .toLowerCase()
+                .split(' ')
+                .filter(Boolean)
+            )
+
+            const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
+            let originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
+            // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
+
+            newWords.forEach(word => {
+
+              wordNumber++
+
+              scopeMapsById[`verse:${word}`] = scopeMapsById[`verse:${word}`] || {}
+              scopeMapsById[`verse:${word}`][originalLoc] = scopeMapsById[`verse:${word}`][originalLoc] || []
+              scopeMapsById[`verse:${word}`][originalLoc].push(wordNumber)
+
+            })
+
+          }
+
         })
 
         // console.log(verses.slice(0,5))
@@ -312,10 +375,89 @@ const doubleSpacesRegex = /  +/g
           await fs.writeFile(`${encryptedVersionDir}/${bookId}.db`, encryptedContents)
         }
 
-        requires[bookId-1] = `require("./${bookId}.db"),`
+        requires[bookId-1] = `require("./verses/${bookId}.db"),`
 
       }
 
+    }
+
+    let extraRequires = `
+        require("./search/uhbUnitWords-aspect.db"),
+        require("./search/uhbUnitWords-b.db"),
+        require("./search/uhbUnitWords-definitionId.db"),
+        require("./search/uhbUnitWords-form.db"),
+        require("./search/uhbUnitWords-gender.db"),
+        require("./search/uhbUnitWords-h1.db"),
+        require("./search/uhbUnitWords-h2.db"),
+        require("./search/uhbUnitWords-h3.db"),
+        require("./search/uhbUnitWords-h4.db"),
+        require("./search/uhbUnitWords-h5.db"),
+        require("./search/uhbUnitWords-isAramaic.db"),
+        require("./search/uhbUnitWords-k.db"),
+        require("./search/uhbUnitWords-l.db"),
+        require("./search/uhbUnitWords-lemma.db"),
+        require("./search/uhbUnitWords-m.db"),
+        require("./search/uhbUnitWords-n.db"),
+        require("./search/uhbUnitWords-number.db"),
+        require("./search/uhbUnitWords-person.db"),
+        require("./search/uhbUnitWords-pos.db"),
+        require("./search/uhbUnitWords-sh.db"),
+        require("./search/uhbUnitWords-state.db"),
+        require("./search/uhbUnitWords-stem.db"),
+        require("./search/uhbUnitWords-suffixGender.db"),
+        require("./search/uhbUnitWords-suffixNumber.db"),
+        require("./search/uhbUnitWords-suffixPerson.db"),
+        require("./search/uhbUnitWords-type.db"),
+        require("./search/uhbUnitWords-v.db"),
+        require("./search/uhbUnitRanges.db"),
+
+        require("./search/ugntUnitWords-aspect.db"),
+        require("./search/ugntUnitWords-attribute.db"),
+        require("./search/ugntUnitWords-case.db"),
+        require("./search/ugntUnitWords-definitionId.db"),
+        require("./search/ugntUnitWords-form.db"),
+        require("./search/ugntUnitWords-gender.db"),
+        require("./search/ugntUnitWords-lemma.db"),
+        require("./search/ugntUnitWords-mood.db"),
+        require("./search/ugntUnitWords-number.db"),
+        require("./search/ugntUnitWords-person.db"),
+        require("./search/ugntUnitWords-pos.db"),
+        require("./search/ugntUnitWords-type.db"),
+        require("./search/ugntUnitWords-voice.db"),
+        require("./search/ugntUnitRanges.db"),
+
+        require("./search/lemmas.db"),
+    `
+
+    if(version !== 'original') {
+
+      console.log(``)
+      console.log(`Creating unitWords db...`)
+
+      await fs.ensureDir(`${versionDir}/search`)
+      const db = new Database(`${versionDir}/search/unitWords.db`)
+      const tableName = `${version}UnitWords`
+
+      const create = db.prepare(
+        `CREATE TABLE ${tableName} (
+          id TEXT PRIMARY KEY,
+          scopeMap TEXT
+        );`
+      )
+      create.run()
+
+      const insert = db.prepare(`INSERT INTO ${tableName} (id, scopeMap) VALUES (@id, @scopeMap)`)
+      db.transaction(() => {
+        Object.keys(scopeMapsById).forEach(id => {
+          insert.run({ id, scopeMap: JSON.stringify(scopeMapsById[id]) })
+        })
+      })()
+
+      extraRequires = `
+        require("./search/unitWords.db"),
+      `
+
+      console.log(`  ...inserted ${Object.values(scopeMapsById).length} rows.`)
     }
 
     if(encryptEveryXChunks) {
@@ -325,6 +467,7 @@ const doubleSpacesRegex = /  +/g
     const requiresContent = removeIndent(`
       const requires = [
         ${requires.join(`\n        `)}
+        ${extraRequires}
       ]
 
       export default requires 
@@ -332,28 +475,30 @@ const doubleSpacesRegex = /  +/g
 
     await fs.writeFile(`${encryptEveryXChunks ? encryptedVersionDir : versionDir}/requires.js`, requiresContent)
 
-    console.log(removeIndent(`
-      Successfully created db files and placed them into \`${encryptEveryXChunks ? encryptedVersionDir : versionDir}\`. Use the following code in versions.js:
+    if(version !== 'original') {
+      console.log(removeIndent(`
+        Successfully created db files and placed them into \`${encryptEveryXChunks ? encryptedVersionDir : versionDir}\`. Use the following code in versions.js:
 
-        import ${version}Requires from './assets/versions/${version}${encryptEveryXChunks ? `-encrypted` : ``}/requires'
+          import ${version}Requires from './assets/versions/${version}${encryptEveryXChunks ? `-encrypted` : ``}/requires'
 
-        ...
-
-        const bibleVersions = [
           ...
-          {
-            id: '${version}',
-            files: ${version}Requires,
-            ${
-              encryptEveryXChunks
-                ? `encrypted: true,\n            ...`
-                : `...`
-            }
-          },
-          ...
-        ]
 
-    `))
+          const bibleVersions = [
+            ...
+            {
+              id: '${version}',
+              files: ${version}Requires,
+              ${
+                encryptEveryXChunks
+                  ? `encrypted: true,\n            ...`
+                  : `...`
+              }
+            },
+            ...
+          ]
+
+      `))
+    }
 
   } catch(err) {
 
@@ -362,7 +507,6 @@ const doubleSpacesRegex = /  +/g
       console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\``)
       console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt\``)
       console.log(`Example #3: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt=10\``)
-      console.log(`Example #4: \`npm run usfm-to-sqlite -- ../bibletags-usfm/usfm/uhb ../bibletags-usfm/usfm/ugnt original bibletags\`\n`)
       console.log(`Note: You may completely encrypt a version by sending encrypt=1. However, this will cause a significant performance hit when the text is first loaded. The bare \`encrypt\` flag will default to encrypting every 20 chunks. Do not include this flag to leave the file(s) unencrypted.\n`)
     }
 

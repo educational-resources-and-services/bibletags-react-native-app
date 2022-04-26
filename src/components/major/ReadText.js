@@ -185,7 +185,7 @@ const ReadText = ({
           bookId,
           statement: () => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc LIKE ? ORDER BY loc`,
           args: [
-            `${('0'+bookId).substr(-2)}${('00'+chapter).substr(-3)}%`,
+            `${('0'+bookId).slice(-2)}${('00'+chapter).slice(-3)}%`,
           ],
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
           removeWordPartDivisions: true,
