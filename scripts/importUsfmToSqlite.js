@@ -427,6 +427,8 @@ const doubleSpacesRegex = /  +/g
         require("./search/ugntUnitRanges.db"),
 
         require("./search/lemmas.db"),
+
+        require("./definitions.db"),
     `
 
     if(version !== 'original') {

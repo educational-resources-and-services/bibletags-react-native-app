@@ -113,6 +113,8 @@ const requires = [
 
   require("./search/lemmas.db"),
 
+  require("./definitions.db"),
+
 ]
 
 export default requires 
