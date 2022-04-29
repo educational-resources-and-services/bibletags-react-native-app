@@ -24,16 +24,22 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
   const versionDir = `${sqliteDir}/${id}`
   const encryptedVersionDir = `${versionDir}-encrypted`
 
-  try { await FileSystem.deleteAsync(encryptedVersionDir) } catch(e) {}
-
-  let { exists } = await FileSystem.getInfoAsync(versionDir)
+  let [ x, { exists }, storedFileRevisionKey ] = await Promise.all([
+    (async () => {
+      if((await FileSystem.getInfoAsync(encryptedVersionDir)).exists) {
+        await FileSystem.deleteAsync(encryptedVersionDir)
+      }
+    })(),
+    FileSystem.getInfoAsync(versionDir),
+    AsyncStorage.getItem(fileRevisionKey),
+  ])
 
   if(exists) {
 
     // first remove if it has an update
     if(
       !versionInfo
-      || await AsyncStorage.getItem(fileRevisionKey) !== fileRevisionNum
+      || storedFileRevisionKey !== fileRevisionNum
       || forceRemove
     ) {
 
@@ -45,8 +51,10 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
         setBibleVersionDownloadStatus({ id, downloaded: false })
       }
 
-      await AsyncStorage.removeItem(fileRevisionKey)
-      await FileSystem.deleteAsync(versionDir)
+      await Promise.all([
+        AsyncStorage.removeItem(fileRevisionKey),
+        FileSystem.deleteAsync(versionDir),
+      ])
       exists = false
 
       console.log(`...done.`)
@@ -60,12 +68,17 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
 
     console.log(`Copy ${id} to SQLite dir...`)
 
-    await FileSystem.makeDirectoryAsync(`${versionDir}/verses`, { intermediates: true })
-    await FileSystem.makeDirectoryAsync(`${versionDir}/search`, { intermediates: true })
-
-    if(encrypted) {
-      await FileSystem.makeDirectoryAsync(encryptedVersionDir, { intermediates: true })
-    }
+    await Promise.all([
+      (async () => {
+        await FileSystem.makeDirectoryAsync(`${versionDir}/verses`, { intermediates: true })
+        await FileSystem.makeDirectoryAsync(`${versionDir}/search`, { intermediates: true })
+      })(),
+      (async () => {
+        if(encrypted) {
+          await FileSystem.makeDirectoryAsync(encryptedVersionDir, { intermediates: true })
+        }
+      })(),
+    ])
 
     await Promise.all((versionInfo.files || []).map(async (file, idx) => {
 
@@ -98,17 +111,22 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, removeBibl
               : slice
           ))
           .join('')
-        await FileSystem.deleteAsync(to)
-        await FileSystem.writeAsStringAsync(`${versionDir}/${idx+1}.db`, unencryptedBase64, { encoding: FileSystem.EncodingType.Base64 })
+        await Promise.all([
+          FileSystem.deleteAsync(to),
+          FileSystem.writeAsStringAsync(`${versionDir}/${idx+1}.db`, unencryptedBase64, { encoding: FileSystem.EncodingType.Base64 }),
+        ])
       }
 
     }))
 
-    if(encrypted) {
-      FileSystem.deleteAsync(encryptedVersionDir)
-    }
-
-    await AsyncStorage.setItem(fileRevisionKey, fileRevisionNum)
+    await Promise.all([
+      AsyncStorage.setItem(fileRevisionKey, fileRevisionNum),
+      (async () => {
+        if(encrypted) {
+          await FileSystem.deleteAsync(encryptedVersionDir)
+        }
+      })(),
+    ])
 
     console.log(`...done.`)
 
@@ -122,9 +140,9 @@ const syncBibleVersions = async ({ versionIds, setBibleVersionDownloadStatus, re
 
   const { exists } = await FileSystem.getInfoAsync(sqliteDir)
 
-  try {
+  if(!exists) {
     await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true })
-  } catch(e) {}
+  }
 
   if(versionIds) {
     // Add/update all versions in versionIds

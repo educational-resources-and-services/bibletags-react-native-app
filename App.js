@@ -158,7 +158,7 @@ const App = () => {
           (async () => {
             // these need to be in order
             await updateDataStructure()
-            await syncBibleVersions()  // TODO: can I have this happen while the user uses the app?
+            await syncBibleVersions()  // when there is nothing to update, this is pretty quick
           })(),
           setLocale(),
         ])
