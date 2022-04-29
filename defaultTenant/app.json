@@ -25,11 +25,7 @@
     },
     "scheme": "[APP_SLUG]",
     "assetBundlePatterns": [
-      "assets/fonts/**",
-      "assets/icons/**",
-      "assets/images/**",
-      "assets/versions/original/verses/**",
-      "assets/versions/[PRIMARY_VERSION]/**"
+      "assets/**"
     ],
     "splash": {
       "backgroundColor": "#FFFFFF",

@@ -1,13 +1,6 @@
-// Set assetBundlePatterns and DEFAULT_BIBLE_VERSIONS in app.json to include versions which should be downloaded by default
+// Set also DEFAULT_BIBLE_VERSIONS in app.json
 
-import originalRequires from './assets/versions/original/requires'
-import kjvRequires from './assets/versions/kjv/requires'
-import synoRequires from './assets/versions/syno/requires'
-import mngRequires from './assets/versions/mng/requires'
-import schlRequires from './assets/versions/schl/requires'
-import cuvRequires from './assets/versions/cuv/requires'
-import cuvsRequires from './assets/versions/cuvs/requires'
-import vdccRequires from './assets/versions/vdcc/requires'
+import originalRequires from './assets/bundledVersions/original/requires'
 
 const removeIndentAndBlankStartEndLines = str => {
   const lines = str.replace(/(^\n|\n$)/g, '').split(`\n`)
@@ -18,6 +11,7 @@ const removeIndentAndBlankStartEndLines = str => {
 const bibleVersions = [
   {
     id: 'original',
+    bundled: true,
     files: originalRequires,
     fileRevisionNum: 16,
     abbr: 'Heb+Grk',
@@ -33,21 +27,8 @@ const bibleVersions = [
     isOriginal: true,
     required: true,  // i.e. user cannot remove this version
   },
-  {
-    id: 'kjv',
-    files: kjvRequires,
-    fileRevisionNum: 9,
-    abbr: 'KJV',
-    name: 'King James Version',
-    copyright: 'Public domain.',
-    languageId: 'eng',
-    versificationModel: 'kjv',
-    skipsUnlikelyOriginals: false,
-    extraVerseMappings: {},
-  },
   // {
   //   id: 'lxx',
-  //   files: lxxRequires,
   //   fileRevisionNum: 1,
   //   abbr: 'LXX',
   //   name: 'Septuagint',
@@ -57,8 +38,18 @@ const bibleVersions = [
   //   extraVerseMappings: {},
   // },
   {
+    id: 'kjv',
+    fileRevisionNum: 9,
+    abbr: 'KJV',
+    name: 'King James Version',
+    copyright: 'Public domain.',
+    languageId: 'eng',
+    versificationModel: 'kjv',
+    skipsUnlikelyOriginals: false,
+    extraVerseMappings: {},
+  },
+  {
     id: 'syno',
-    files: synoRequires,
     fileRevisionNum: 2,
     abbr: 'SYNO',
     name: 'Russian Synodal Bible',
@@ -70,7 +61,6 @@ const bibleVersions = [
   },
   {
     id: 'mng',
-    files: mngRequires,
     fileRevisionNum: 1,
     abbr: 'MNG',
     name: 'Die Menge-Bibel',
@@ -82,7 +72,6 @@ const bibleVersions = [
   },
   {
     id: 'schl',
-    files: schlRequires,
     fileRevisionNum: 1,
     abbr: 'SCHL',
     name: 'Schlachter 1951',
@@ -94,7 +83,6 @@ const bibleVersions = [
   },
   {
     id: 'cuv',
-    files: cuvRequires,
     fileRevisionNum: 1,
     abbr: 'CUV',
     name: 'Chinese Union Version (Traditional)',
@@ -106,7 +94,6 @@ const bibleVersions = [
   },
   {
     id: 'cuvs',
-    files: cuvsRequires,
     fileRevisionNum: 1,
     abbr: 'CUVS',
     name: 'Chinese Union Version (Simplified)',
@@ -118,7 +105,6 @@ const bibleVersions = [
   },
   {
     id: 'vdcc',
-    files: vdccRequires,
     fileRevisionNum: 1,
     abbr: 'VDCC',
     name: 'Dumitru Cornilescu',

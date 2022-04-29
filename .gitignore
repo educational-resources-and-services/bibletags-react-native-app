@@ -9,7 +9,9 @@ npm-debug.*
 /fonts.js
 /menu.js
 /versions.js
+/versions
 /RouteSwitcher.js
 /tenantComponents/*
 /src/utils/translations/current.json
 /custom-mapping.json
+/.env
