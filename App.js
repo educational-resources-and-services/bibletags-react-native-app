@@ -158,7 +158,7 @@ const App = () => {
           (async () => {
             // these need to be in order
             await updateDataStructure()
-            await syncBibleVersions()  // when there is nothing to update, this is pretty quick
+            await syncBibleVersions()  // only makes sure that the primary version is downloaded
           })(),
           setLocale(),
         ])
