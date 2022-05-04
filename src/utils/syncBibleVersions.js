@@ -40,8 +40,8 @@ NetInfo.addEventListener(state => {
   maxConcurrentDownloads = {
     "2g": 1,
     "3g": 2,
-    "4g": 5,
-  }[state.type === `cellular` && (state.details.cellularGeneration || '2g')] || 10
+    "4g": 4,
+  }[state.type === `cellular` && (state.details.cellularGeneration || '2g')] || 8
   goRerun()
 })
 
@@ -94,9 +94,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
     ])
   }
 
-  const downloadFiles = async ({ partialFilePaths }) => {
-
-    const processingPromises = []
+  const downloadFiles = async ({ partialFilePaths, maxConcurrentDownloadFactor=1 }) => {
 
     const downloadedDirFilenames = (
       await Promise.all([
@@ -112,33 +110,33 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
       ])
     ).flat()
 
-    // for each file not in /[version]/downloaded
-    for(let partialFilePath of partialFilePaths) {
+    let currentDownloadFileIdx = 0
+    const downloadAFile = async () => {
+      const partialFilePath = partialFilePaths[currentDownloadFileIdx++]
 
-      if(thisSyncProcessId !== currentSyncProcessId) return
-      if(downloadedDirFilenames.includes(partialFilePath)) continue
-
-      const localUri = unchangedBundledLocalUrisByPartialFilePath[partialFilePath]
-      const remoteUri = `${BASE_VERSIONS_URL_AFTER_SWAPS}/${id}${encryptedAddOn}/${partialFilePath}`
-      const downloadingPath = `${downloadingDir}/${partialFilePath}`
-
-      // download (or move if bundled) to /[version]/downloading
-      if(localUri) {
-        await FileSystem.copyAsync({
-          from: localUri,
-          to: downloadingPath,
-        })
-      } else {
-        await FileSystem.downloadAsync(
-          remoteUri,
-          downloadingPath,
-        )
-      }
-
+      if(!partialFilePath) return
       if(thisSyncProcessId !== currentSyncProcessId) return
 
-      // when complete, start processing this file while also moving on to download the next file
-      processingPromises.push((async () => {
+      if(!downloadedDirFilenames.includes(partialFilePath)) {
+
+        const localUri = unchangedBundledLocalUrisByPartialFilePath[partialFilePath]
+        const remoteUri = `${BASE_VERSIONS_URL_AFTER_SWAPS}/${id}${encryptedAddOn}/${partialFilePath}`
+        const downloadingPath = `${downloadingDir}/${partialFilePath}`
+
+        // download (or move if bundled) to /[version]/downloading
+        if(localUri) {
+          await FileSystem.copyAsync({
+            from: localUri,
+            to: downloadingPath,
+          })
+        } else {
+          await FileSystem.downloadAsync(
+            remoteUri,
+            downloadingPath,
+          )
+        }
+
+        if(thisSyncProcessId !== currentSyncProcessId) return
 
         const downloadedPath = `${downloadedDir}/${partialFilePath}`
 
@@ -169,11 +167,13 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
         }
 
-      })())
+      }
+
+      await downloadAFile()
 
     }
 
-    await Promise.all(processingPromises)
+    await Promise.all(partialFilePaths.slice(0, Math.ceil(maxConcurrentDownloads * maxConcurrentDownloadFactor)).map(downloadAFile))
 
     if(thisSyncProcessId !== currentSyncProcessId) return
 
@@ -237,6 +237,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
     // download files for /search
     await downloadFiles({
+      maxConcurrentDownloadFactor: .5,  // most of these are bigger files, so do half the number of concurrent requests
       partialFilePaths: (
         id === 'original'
           ? [

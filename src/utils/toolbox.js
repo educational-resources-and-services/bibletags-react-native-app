@@ -769,3 +769,17 @@ export const doGraphql = async ({ query, mutation, params={} }) => {
   console.log('data', data)
 
 }
+
+export const getNewPromiseWithExternalResolve = () => {
+  let promiseResolve, promiseReject
+
+  const promise = new Promise((resolve, reject) => {
+    promiseResolve = resolve
+    promiseReject = reject
+  })
+
+  promise.resolve = promiseResolve
+  promise.reject = promiseReject
+
+  return promise
+}
