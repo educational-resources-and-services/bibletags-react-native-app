@@ -59,6 +59,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
   const downloadingDir = `${versionDir}/downloading`
   const downloadedDir = `${versionDir}/downloaded`
   const readyDir = `${versionDir}/ready`
+  let unableToDownloadDueToNoConnection = false
 
   let [ x, storedVersionRevisionNum, storedFileRevisionBeingDownloadedNum ] = await Promise.all([
     FileSystem.deleteAsync(downloadingDir, { idempotent: true }),  // remove /[version]/downloading if exists
@@ -111,6 +112,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
     ).flat()
 
     let currentDownloadFileIdx = 0
+
     const downloadAFile = async () => {
       const partialFilePath = partialFilePaths[currentDownloadFileIdx++]
 
@@ -129,11 +131,14 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
             from: localUri,
             to: downloadingPath,
           })
-        } else {
+        } else if(isConnected) {
           await FileSystem.downloadAsync(
             remoteUri,
             downloadingPath,
           )
+        } else {
+          unableToDownloadDueToNoConnection = true
+          return
         }
 
         if(thisSyncProcessId !== currentSyncProcessId) return
@@ -175,6 +180,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
     await Promise.all(partialFilePaths.slice(0, Math.ceil(maxConcurrentDownloads * maxConcurrentDownloadFactor)).map(downloadAFile))
 
+    if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
 
     // move from /[version]/downloaded to the /[version]/ready 
@@ -221,6 +227,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
       ],
     })
 
+    if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
 
     await AsyncStorage.setItem(fileRevisionKey, versionRevisionNum)
@@ -295,6 +302,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
       ),
     })
 
+    if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
 
     setBibleVersionDownloadStatus({ id, searchDownloaded: true })
@@ -304,14 +312,6 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 }
 
 const syncBibleVersions = async ({ versionIds, setBibleVersionDownloadStatus, removeBibleVersion }={}) => {
-
-  if(!isConnected) {
-    goRerun = () => {
-      goRerun = noop
-      syncBibleVersions({ versionIds, setBibleVersionDownloadStatus, removeBibleVersion })
-    }
-    return
-  }
 
   const thisSyncProcessId = ++currentSyncProcessId
 

@@ -8,6 +8,7 @@ import syncBibleVersions from "../../utils/syncBibleVersions"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useBack from "../../hooks/useBack"
+import useNetwork from "../../hooks/useNetwork"
 
 import SideMenu from "../major/SideMenu"
 import Drawer from "../major/Drawer"
@@ -26,6 +27,7 @@ const SideMenuAndRouteSwitcher = ({
 }) => {
 
   const { pathname, historyGoBack } = useRouterState()
+  const { online } = useNetwork()
 
   const { versionIds } = useBibleVersions({ myBibleVersions })
 
@@ -37,7 +39,7 @@ const SideMenuAndRouteSwitcher = ({
         removeBibleVersion,
       })
     },
-    [ versionIds ],
+    [ versionIds, online ],
   )
 
   useBack(pathname !== '/Read' && historyGoBack)
