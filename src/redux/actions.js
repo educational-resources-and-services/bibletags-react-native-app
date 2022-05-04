@@ -81,9 +81,10 @@ export const setMyBibleVersionsOrder = ({ ids }) => ({
   ids,
 })
 
-export const setBibleVersionDownloadStatus = ({ id, download, downloaded }) => ({
+export const setBibleVersionDownloadStatus = ({ id, download, downloaded, searchDownloaded }) => ({
   type: "SET_BIBLE_VERSION_DOWNLOAD_STATUS",
   id,
   download,
   downloaded,
+  searchDownloaded,
 })

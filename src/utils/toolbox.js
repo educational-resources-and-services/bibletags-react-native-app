@@ -171,7 +171,7 @@ export const executeSql = async ({
   const executeSqlForBook = async database => {
     try {
 
-      const db = SQLite.openDatabase(`${versionId}/${database}.db`)
+      const db = SQLite.openDatabase(`${versionId}/ready/${database}.db`)
 
       await new Promise(resolveAll => {
         db.transaction(

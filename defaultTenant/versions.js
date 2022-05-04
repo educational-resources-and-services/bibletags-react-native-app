@@ -13,7 +13,7 @@ const bibleVersions = [
     id: 'original',
     bundled: true,
     files: originalRequires,
-    fileRevisionNum: 16,
+    originalRevisionNum: 3,
     abbr: 'Heb+Grk',
     name: 'unfoldingWord Hebrew Bible + unfoldingWord Greek New Testament',
     copyright: removeIndentAndBlankStartEndLines(`
@@ -29,7 +29,7 @@ const bibleVersions = [
   },
   // {
   //   id: 'lxx',
-  //   fileRevisionNum: 1,
+  //   lxxRevisionNum: 1,
   //   abbr: 'LXX',
   //   name: 'Septuagint',
   //   copyright: 'Septuaginta, ed. A. Rahlfs (Stuttgart: WŸrttembergische Bibelanstalt, 1935; repr. in 9th ed., 1971).',
@@ -39,7 +39,7 @@ const bibleVersions = [
   // },
   {
     id: 'kjv',
-    fileRevisionNum: 9,
+    kjvRevisionNum: 1,
     abbr: 'KJV',
     name: 'King James Version',
     copyright: 'Public domain.',
@@ -50,7 +50,7 @@ const bibleVersions = [
   },
   {
     id: 'syno',
-    fileRevisionNum: 2,
+    synoRevisionNum: 1,
     abbr: 'SYNO',
     name: 'Russian Synodal Bible',
     copyright: 'Public domain.',
@@ -61,7 +61,7 @@ const bibleVersions = [
   },
   {
     id: 'mng',
-    fileRevisionNum: 1,
+    mngRevisionNum: 1,
     abbr: 'MNG',
     name: 'Die Menge-Bibel',
     copyright: 'Public domain.',
@@ -72,7 +72,7 @@ const bibleVersions = [
   },
   {
     id: 'schl',
-    fileRevisionNum: 1,
+    schlRevisionNum: 1,
     abbr: 'SCHL',
     name: 'Schlachter 1951',
     copyright: 'Public domain.',
@@ -83,7 +83,7 @@ const bibleVersions = [
   },
   {
     id: 'cuv',
-    fileRevisionNum: 1,
+    cuvRevisionNum: 1,
     abbr: 'CUV',
     name: 'Chinese Union Version (Traditional)',
     copyright: 'Public domain.',
@@ -94,7 +94,7 @@ const bibleVersions = [
   },
   {
     id: 'cuvs',
-    fileRevisionNum: 1,
+    cuvsRevisionNum: 1,
     abbr: 'CUVS',
     name: 'Chinese Union Version (Simplified)',
     copyright: 'Public domain.',
@@ -105,7 +105,7 @@ const bibleVersions = [
   },
   {
     id: 'vdcc',
-    fileRevisionNum: 1,
+    vdccRevisionNum: 1,
     abbr: 'VDCC',
     name: 'Dumitru Cornilescu',
     copyright: 'Public domain.',

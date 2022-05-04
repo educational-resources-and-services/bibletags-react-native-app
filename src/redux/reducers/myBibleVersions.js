@@ -6,10 +6,11 @@ const {
   DEFAULT_BIBLE_VERSIONS=['original'],
 } = Constants.manifest.extra
 
-const defaultState = DEFAULT_BIBLE_VERSIONS.map(id => ({
+const defaultState = DEFAULT_BIBLE_VERSIONS.map((id, idx) => ({
   id,
   download: true,
-  downloaded: false,
+  downloaded: idx === 0,
+  searchDownloaded: false,
 }))
 
 const bibleVersionIds = bibleVersions.map(({ id }) => id)
@@ -37,6 +38,7 @@ export default (state = defaultState, action) => {
           id,
           download,
           downloaded: false,
+          searchDownloaded: false,
         },
       ]
     }
@@ -71,7 +73,7 @@ export default (state = defaultState, action) => {
     }
 
     case "SET_BIBLE_VERSION_DOWNLOAD_STATUS": {
-      let { id, download, downloaded } = action
+      let { id, download, downloaded, searchDownloaded } = action
 
       const newState = [ ...state ]
 
@@ -81,10 +83,12 @@ export default (state = defaultState, action) => {
             id,
             download: download != undefined ? !!download : state[idx].download,
             downloaded: downloaded != undefined ? !!downloaded : state[idx].downloaded,
+            searchDownloaded: searchDownloaded != undefined ? !!searchDownloaded : state[idx].searchDownloaded,
           }
           if(
             newState[idx].download !== state[idx].download
             || newState[idx].downloaded !== state[idx].downloaded
+            || newState[idx].searchDownloaded !== state[idx].searchDownloaded
           ) {
             return newState
           }

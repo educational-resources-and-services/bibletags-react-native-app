@@ -5,6 +5,8 @@ const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { wordPartDividerRegex, defaultWordDividerRegex } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
+const goSyncVersions = require('./goSyncVersions')
+const { exec } = require('child_process')
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
@@ -129,7 +131,38 @@ const doubleSpacesRegex = /  +/g
 
 ;(async () => {
 
-  let versionDir
+  const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey }) => {
+
+    const decrypt = encryptedContent => (
+      encryptedContent
+        .split('\n')
+        .map(slice => (
+          slice.substring(0, 1) === '@'
+            ? CryptoJS.AES.decrypt(slice.substring(1), encryptionKey).toString(CryptoJS.enc.Utf8)
+            : slice
+        ))
+        .join('')
+    )
+
+    const contents = await fs.readFile(tempPath, options)
+    let decryptedContents = contents
+    let decryptedPrevContents
+    try {
+      decryptedPrevContents = await fs.readFile(path, options)
+    } catch(e) {}
+    if(encryptionKey) {
+      decryptedContents = decrypt(decryptedContents)
+      decryptedPrevContents = decryptedPrevContents && decrypt(decryptedPrevContents)
+    }
+
+    await fs.remove(tempPath)
+
+    if(decryptedContents !== decryptedPrevContents) {
+      await fs.writeFile(path, contents, options)
+      if(decryptedPrevContents) console.log(`  > Overwriting`)
+    }
+
+  }
 
   try {
 
@@ -142,10 +175,10 @@ const doubleSpacesRegex = /  +/g
 
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
-    versionDir = `${versionsDir}/${version}`
-    const encryptedVersionDir = `${versionDir}-encrypted`
+    const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${version}-encrypted` : version
+    const versionDir = `${versionsDir}/${versionWithEncryptedIfRelevant}`
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
-    const bundledVersionDir = `${bundledVersionsDir}/${encryptEveryXChunks ? `${version}-encrypted` : version}`
+    const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
     if(!tenant) {
       throw new Error(`NO_PARAMS`)
@@ -155,31 +188,29 @@ const doubleSpacesRegex = /  +/g
       throw new Error(`Invalid tenant.`)
     }
 
+    const appJsonUri = `${tenantDir}/app.json`
+    const appJson = await fs.readJson(appJsonUri)
+    const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
+
     const scopeMapsById = {}
-    let versionInfo
-    if(version !== 'original') {
-      try {
-        const versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
-        const matches = (
-          versionsFile
-            .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
-            .replace(/files\s*:.*/g, '')  // get rid of files: requires
-            .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
-            .match(new RegExp(`{(?:[^}]|\\n|{(?:[^}]|\\n)*})*\\n\\s*(?:id|"id"|'id')\\s*:\\s*(?:"${version}"|'${version}')\\s*,\\s*\\n(?:[^{}]|\\n|{(?:[^{}]|\\n)*})*}`))
-        )
-        versionInfo = eval(`(${matches[0]})`)
-      } catch(err) {
-        throw new Error(`Version doesn’t exist or is malformed. Add this version to \`tenants/${tenant}/version.js\` in the proper format.`)
-      }
+    let versionInfo, versionsFile
+    try {
+      versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
+      const matches = (
+        versionsFile
+          .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
+          .replace(/files\s*:.*/g, '')  // get rid of files: requires
+          .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
+          .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
+      )
+      versionInfo = eval(`(${matches[0]})`)
+    } catch(err) {
+      throw new Error(`${version} doesn’t exist or is malformed. Add this version to \`tenants/${tenant}/version.js\` in the proper format.`)
     }
 
-    await fs.remove(versionDir)
-    await fs.remove(encryptedVersionDir)
+    await fs.remove(`${versionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
+    await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
     await fs.ensureDir(`${versionDir}/verses`)
-
-    if(encryptEveryXChunks) {
-      await fs.ensureDir(encryptedVersionDir)
-    }
 
     // loop through folders
     for(let folder of folders) {
@@ -191,7 +222,7 @@ const doubleSpacesRegex = /  +/g
         if(!file.match(/\.u?sfm$/i)) continue
 
         const input = fs.createReadStream(`${folder}/${file}`)
-        let bookId, chapter, insertMany, dbFilePath
+        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath
         const verses = []
         let wordNumber = 0
         let lastVerse = 0
@@ -209,7 +240,8 @@ const doubleSpacesRegex = /  +/g
             if(bookId < 1) break
 
             dbFilePath = `${versionDir}/verses/${bookId}.db`
-            const db = new Database(dbFilePath)
+            dbInFormationFilePath = `${versionDir}/verses/${bookId}-inFormation.db`
+            const db = new Database(dbInFormationFilePath)
 
             const tableName = `${version}VersesBook${bookId}`
 
@@ -267,7 +299,7 @@ const doubleSpacesRegex = /  +/g
             } else {
               verse = line.replace(verseRegex, '$1')
               if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-                console.log(`Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
+                console.log(`  > Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
               }
               lastVerse = parseInt(verse, 10)
             }  
@@ -358,25 +390,28 @@ const doubleSpacesRegex = /  +/g
         // console.log(verses.slice(0,5))
         insertMany(verses)
 
-        console.log(`  ...inserted ${verses.length} verses.`)
-
         if(encryptEveryXChunks) {
-          const appJsonUri = `./tenants/${tenant}/app.json`
-          const appJson = await fs.readJson(appJsonUri)
-          const key = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
-    
-          const base64Contents = await fs.readFile(dbFilePath, { encoding: 'base64' })
+          const base64Contents = await fs.readFile(dbInFormationFilePath, { encoding: 'base64' })
           const base64Slices = sliceStr({ str: base64Contents, sliceSize: ENCRYPT_CHUNK_SIZE })
           const base64SlicesSomeEncrypted = base64Slices.map((slice, idx) => (
             idx % encryptEveryXChunks === 0
-              ? `@${CryptoJS.AES.encrypt(slice, key).toString()}`
+              ? `@${CryptoJS.AES.encrypt(slice, encryptionKey).toString()}`
               : slice
           ))
           const encryptedContents = base64SlicesSomeEncrypted.join('\n')
-          await fs.writeFile(`${encryptedVersionDir}/${bookId}.db`, encryptedContents)
+          await fs.writeFile(dbInFormationFilePath, encryptedContents)
         }
 
+        await replaceIfUpdated({
+          path: dbFilePath,
+          tempPath: dbInFormationFilePath,
+          options: !encryptEveryXChunks ? { encoding: 'base64' } : { encoding: 'utf8' },
+          encryptionKey,
+        })
+
         requires[bookId-1] = `require("./verses/${bookId}.db"),`
+
+        console.log(`  ...inserted ${verses.length} verses.`)
 
       }
 
@@ -396,7 +431,9 @@ const doubleSpacesRegex = /  +/g
       console.log(`Creating unitWords db...`)
 
       await fs.ensureDir(`${versionDir}/search`)
-      const db = new Database(`${versionDir}/search/unitWords.db`)
+      const dbFilePath = `${versionDir}/search/unitWords.db`
+      const dbInFormationFilePath = `${versionDir}/search/unitWords-inFormation.db`
+      const db = new Database(dbInFormationFilePath)
       const tableName = `${version}UnitWords`
 
       const create = db.prepare(
@@ -414,11 +451,13 @@ const doubleSpacesRegex = /  +/g
         })
       })()
 
-      console.log(`  ...inserted ${Object.values(scopeMapsById).length} rows.`)
-    }
+      await replaceIfUpdated({
+        path: dbFilePath,
+        tempPath: dbInFormationFilePath,
+        options: { encoding: 'base64' },
+      })
 
-    if(encryptEveryXChunks) {
-      await fs.remove(versionDir)
+      console.log(`  ...inserted ${Object.values(scopeMapsById).length} rows.`)
     }
 
     if(version === 'original' || versionInfo.bundled) {
@@ -439,43 +478,74 @@ const doubleSpacesRegex = /  +/g
 
     }
 
+    // update versions.js
+    let newVersionsFile = versionsFile
+    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${version}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${version}-encrypted` : version}/requires'.*\\n`), ``)
+    const newImportLine = `import ${version}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
+    const newFilesLine = `    files: ${version}Requires,`
+
+    if(versionInfo.bundled) {
+      if(!newVersionsFile.includes(newImportLine)) {
+        newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
+      }
+      if(!newVersionsFile.includes(newFilesLine)) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
+      }
+    } else {
+      if(newVersionsFile.includes(newImportLine)) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${version}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
+      }
+      if(newVersionsFile.includes(newFilesLine)) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${version}Requires,[\\t ]*`), ``)
+      }
+    }
+
+    const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${version}RevisionNum|"${version}RevisionNum"|'${version}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
+    if(versionRevisionNumRegexp.test(newVersionsFile)) {
+      newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${version}RevisionNum`] + 1}$2`)
+    } else {
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${version}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${version}RevisionNum: 1,\n`)
+    }
+    if(encryptEveryXChunks && !versionInfo.encrypted) {
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${version}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
+    } else if(!encryptEveryXChunks && versionInfo.encrypted) {
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
+    }
+    await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
+    console.log(``)
+    console.log(`Updated ${tenantDir}/versions.js`)
+
+    // update tenant and sync them to dev
+    if(version !== 'original') {
+      console.log(``)
+      console.log(`Rerunning \`change-tenant\`...`)
+      await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
+      await new Promise((resolve, reject) => {
+        exec(
+          `npm run change-tenant ${tenant}`,
+          (error, stdout, stderr) => {
+            if(error !== null) {
+              console.log(`Error in rerunning \`change-tenant\`: ${error}`)
+              reject()
+            } else if(stdout.includes(`...done.`)) {
+              console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
+              resolve()
+            }
+          }
+        )
+      })
+    }
+
     if(version !== 'original') {
 
-      if(versionInfo.bundled) {
-
-        console.log(removeIndent(`
-          Successfully created db files and placed them into \`${encryptEveryXChunks ? encryptedVersionDir : versionDir}\` and \`${bundledVersionDir}\`.
-
-          Update the code in versions.js as follows:
-
-            import ${version}Requires from './assets/bundledVersions/${version}${encryptEveryXChunks ? `-encrypted` : ``}/requires'
-
-            ...
-
-            const bibleVersions = [
-              ...
-              {
-                id: '${version}',
-                files: ${version}Requires,
-                fileRevisionNum: ${(versionInfo.fileRevisionNum || 0) + 1},
-                ${
-                  encryptEveryXChunks
-                    ? `encrypted: true,\n            ...`
-                    : `...`
-                }
-              },
-              ...
-            ]
-
-        `))
-
-      } else {
-
-        console.log(removeIndent(`
-          Successfully created db files and placed them into \`${encryptEveryXChunks ? encryptedVersionDir : versionDir}\`.
-        `))
-
-      }
+      console.log(removeIndent(`
+        Successfully...
+          (1) created db files,
+          (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``},
+          (3) updated versions.js,
+          (4) reran change-tenant, and
+          (5) synced \`${versionsDir}\` to the cloud.
+      `))
 
     }
 
@@ -496,15 +566,7 @@ const doubleSpacesRegex = /  +/g
         break
       }
 
-      case `ENOENT: no such file or directory`: {
-        await fs.remove(versionDir)
-        console.log(`\nERROR: Invalid path supplied.\n`)
-        logSyntax()
-        break
-      }
-
       default: {
-        if(versionDir) await fs.remove(versionDir)
         console.log(`\nERROR: ${err.message}\n`)
         logSyntax()
       }

@@ -89,12 +89,14 @@
     {
       "id": "esv",
       "download": true,
-      "downloaded": false
+      "downloaded": false,
+      "searchDownloaded": false
     },
     {
       "id": "original",
       "download": true,
-      "downloaded": true
+      "downloaded": true,
+      "searchDownloaded": true
     },
     {
       "id": "kjv",
