@@ -462,9 +462,14 @@ export const fixRTL = async ({ locale, forceReload }={}) => {
   }
 }
 
-export const recordNumberOfOpens = async () => {
-  const numUserOpensKey = `numUserOpens`
-  const numUserOpens = (parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0) + 1
+const numUserOpensKey = `numUserOpens`
+
+export const getNumUserOpens = async () => (
+  parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0
+)
+
+export const recordNumUserOpens = async () => {
+  const numUserOpens = await getNumUserOpens() + 1
   await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
 }
 
