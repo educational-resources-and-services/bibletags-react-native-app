@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react"
-import { StyleSheet, View, Text } from "react-native"
+import { StyleSheet, View, Text, Alert } from "react-native"
 import { Button, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
@@ -209,7 +209,7 @@ const ConfirmTagSubmissionButton = ({
 
       setSubmitting(true)
 
-      const submittedSuccessfully = await recordAndSubmitTagSet({
+      const { success, error } = await recordAndSubmitTagSet({
         input: {
           loc: getLocFromRef(passage.ref),
           versionId: passage.versionId,
@@ -221,14 +221,24 @@ const ConfirmTagSubmissionButton = ({
         historyPush,
       })
 
-      if(!submittedSuccessfully) {
-        // alert user that it will submit when online
-        alert('Will submit when back online.')
-      }
-
       setSubmitting(false)
 
-      historyGoBack()
+      if(error) {
+        historyPush("/ErrorMessage", {
+          message: error,
+        })
+
+      } else {
+        historyGoBack()  // TODO: needs to scroll
+        Alert.alert(
+          i18n("Thanks!"),
+          (
+            success
+              ? i18n("Tags submitted successfully.")
+              : i18n("Tags will be submitted next time you are online.")
+          ),
+        )
+      }
 
     },
     [ tagSetSubmissionWithCapitalizationChoices, passage, wordsHash, dialogInfo ],

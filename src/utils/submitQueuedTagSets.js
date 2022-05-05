@@ -22,9 +22,9 @@ const submitQueuedTagSets = async () => {
   // submit them one at a time
   for(let tagSet of tagSets) {
     if(
-      await submitTagSet({
+      (await submitTagSet({
         input: tagSet.input,
-      })
+      })).success
     ) numSubmittedSuccessfully++
   }
 

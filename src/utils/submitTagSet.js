@@ -56,20 +56,23 @@ const submitTagSet = async ({ input, historyPush=noop }) => {
       ],
     })
 
-    return true
+    return {
+      success: true,
+    }
 
   } catch(error) {
 
     if(![ `Network request failed` ].includes(error.message)) {
-
       sentry({ error })
-      historyPush("/ErrorMessage", {
-        message: i18n("Unable to submit tag set. Contact us if this problem persists."),
-      })
-
+      return {
+        success: false,
+        error: i18n("Unable to submit tag set. Contact us if this problem persists."),
+      }
     }
 
-    return false
+    return {
+      success: false,
+    }
 
   }
 }
