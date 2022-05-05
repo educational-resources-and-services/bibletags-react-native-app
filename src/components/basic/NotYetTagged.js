@@ -64,6 +64,8 @@ const NotYetTagged = ({
           labelThemedStyle,
         ]}
       >
+        {/* only show this if untagged */}
+        {/* // TODO: (don't ask the person to confirm if they are the only submitter as it will not confirm!) */}
         {i18n("Not yet tagged.")}
       </Text>
 

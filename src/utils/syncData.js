@@ -25,7 +25,7 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
         await updateLanguageSpecificDefinitions({ languageId })
         languageIdsSyncedDuringThisOpen.push(languageId)
       } catch(error) {
-        sentry(({ error }))
+        sentry({ error })
       }
     }
   }
@@ -39,11 +39,10 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
       await updateTagSets({ versionId })
       versionIdsSyncedDuringThisOpen.push(versionId)
     } catch(error) {
-      sentry(({ error }))
+      sentry({ error })
     }
   }
 
-  // do queue
   submitQueuedTagSets()
 
 }

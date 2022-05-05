@@ -218,15 +218,13 @@ export const executeSql = async ({
                 args,
                 (x, resultSet) => {
                   if(jsonKeys) {
-                    resultSet.forEach(({ _array }) => {
-                      _array.forEach(row => {
-                        jsonKeys.forEach(key => {
-                          if(row[key]) {
-                            try {
-                              row[key] = JSON.parse(row[key])
-                            } catch(e) {}
-                          }
-                        })
+                    resultSet.rows._array.forEach(row => {
+                      jsonKeys.forEach(key => {
+                        if(row[key]) {
+                          try {
+                            row[key] = JSON.parse(row[key])
+                          } catch(e) {}
+                        }
                       })
                     })
                   }
@@ -765,7 +763,7 @@ export const doGraphql = async ({ query, mutation, params={} }) => {
                       `${key1}: { ${
                         Object.keys(params[key1])
                           .map(key2 => (
-                            `${key2}: ${JSON.stringify(params[key1][key2])}`
+                            `${key2}: ${JSON.stringify(params[key1][key2]).replace(/([{,])"([^"]+)"/g, '$1$2')}`
                           ))
                           .join(", ")
                       } }`

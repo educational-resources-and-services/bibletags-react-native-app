@@ -5,7 +5,9 @@ import { i18n } from "inline-i18n"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
 import Constants from "expo-constants"
 
-import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId, doGraphql, sentry } from '../../utils/toolbox'
+import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId } from '../../utils/toolbox'
+import useRouterState from "../../hooks/useRouterState"
+import { recordAndSubmitTagSet } from "../../utils/submitTagSet"
 
 import Dialog from "./Dialog"
 import CoverAndSpin from "../basic/CoverAndSpin"
@@ -65,6 +67,8 @@ const ConfirmTagSubmissionButton = ({
   passage,
   wordsHash,
 }) => {
+
+  const { historyGoBack, historyPush } = useRouterState()
 
   const [ submitting, setSubmitting ] = useState(false)
   const [ dialogInfo, setDialogInfo ] = useState({ visible: false })
@@ -149,7 +153,8 @@ const ConfirmTagSubmissionButton = ({
       const tagSetSubmission = [
         ...[ ...Object.keys(translationWordInfoByWordIdAndPartNumbers), ...untaggedWordIdAndPartNumbers ].map(wordIdAndPartNumbersJSON => ({
           origWordsInfo: JSON.parse(wordIdAndPartNumbersJSON).map(wordIdAndPartNumber => {
-            const [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
+            let [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
+            wordPartNumber = parseInt(wordPartNumber, 10)
             return {
               [`${bookId <= 39 ? `uhb` : `ugnt`}WordId`]: wordId,
               ...(wordPartNumber ? { wordPartNumber } : {}),
@@ -201,66 +206,29 @@ const ConfirmTagSubmissionButton = ({
 
   const goConfirmSubmitTags = useCallback(
     async () => {
-      // do the submit online, unless offline in which I need to queue it up
 
       setSubmitting(true)
 
-      try {
+      const submittedSuccessfully = await recordAndSubmitTagSet({
+        input: {
+          loc: getLocFromRef(passage.ref),
+          versionId: passage.versionId,
+          wordsHash,
+          deviceId: getDeviceId(),
+          embeddingAppId: EMBEDDING_APP_ID,
+          tagSubmissions: tagSetSubmissionWithCapitalizationChoices,
+        },
+        historyPush,
+      })
 
-        await doGraphql({
-          mutation: `
-            submitTagSet() {
-              id
-              tags
-              status
-            }
-          `,
-          params: {
-            input: {
-              loc: getLocFromRef(passage.ref),
-              versionId: passage.versionId,
-              wordsHash,
-              deviceId: getDeviceId(),
-              embeddingAppId: EMBEDDING_APP_ID,
-              tagSubmissions: tagSetSubmissionWithCapitalizationChoices,
-            },
-          },
-        })
-
-        // show success and go back
-        alert('success')
-
-      } catch(error) {
-
-        if(error.message === `Network request failed`) {
-
-          // put in queue
-          alert('put in queue')
-          // alert user that it will submit when online
-          // keep track of my submissions? Perhaps only when in the queue with the queue essentially editable
-          // (don't ask the person to confirm if they are the only submitter as it will not confirm!)
-
-        } else {
-
-          sentry(({ error }))
-
-          setDialogInfo({
-            visible: true,
-            title: i18n("Error"),
-            message: i18n("Contact us if this problem persists."),
-            buttons: [{
-              onPress: () => {
-                setDialogInfo(dialogInfo)
-              },
-            }],
-            children: null,
-          })
-
-        }
-
+      if(!submittedSuccessfully) {
+        // alert user that it will submit when online
+        alert('Will submit when back online.')
       }
 
       setSubmitting(false)
+
+      historyGoBack()
 
     },
     [ tagSetSubmissionWithCapitalizationChoices, passage, wordsHash, dialogInfo ],
