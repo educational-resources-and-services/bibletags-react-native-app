@@ -1,5 +1,52 @@
 import { executeSql, doGraphql, setAsyncStorage, getAsyncStorage } from "./toolbox"
 
+const attrs = {
+  id: "TEXT PRIMARY KEY",
+  tags: "TEXT",
+  status: "TEXT",
+}
+const keys = Object.keys(attrs)
+
+export const tagSetUpdateFields = `
+  tagSets {
+    ${keys.join('\n')}
+  }
+  hasMore
+  newUpdatedFrom
+`
+
+export const updateDBWithTagSets = async ({ updatedTagSets, versionId, updatedFrom }) => {
+  const { tagSets, hasMore, newUpdatedFrom } = updatedTagSets
+
+  if(
+    newUpdatedFrom <= updatedFrom
+    || (
+      hasMore
+      && tagSets.length === 0
+    )
+  ) throw new Error(`Bad response to updatedTagSets`)
+
+  const tableName = `tagSets`
+  const database = `versions/${versionId}/${tableName}`
+  const updatedFromKey = `${database}-updatedFrom`
+
+  await executeSql({
+    database,
+    statements: tagSets.map(tagSet => ({
+      statement: () => `REPLACE INTO ${tableName} (${keys.join(', ')}) VALUES ?`,
+      args: [
+        keys.map(key => (
+          [ 'tags' ].includes(key)
+            ? JSON.stringify(tagSet[key])
+            : tagSet[key]
+        ))
+      ],
+    })),
+  })
+
+  await setAsyncStorage(updatedFromKey, newUpdatedFrom)
+}
+
 const updateTagSets = async ({ versionId }) => {
 
   console.log(`Update tag sets (${versionId})...`)
@@ -7,13 +54,6 @@ const updateTagSets = async ({ versionId }) => {
   const tableName = `tagSets`
   const database = `versions/${versionId}/${tableName}`
   let numUpdates = 0
-
-  const attrs = {
-    id: "TEXT PRIMARY KEY",
-    tags: "TEXT",
-    status: "TEXT",
-  }
-  const keys = Object.keys(attrs)
 
   await executeSql({
     database,
@@ -31,14 +71,10 @@ const updateTagSets = async ({ versionId }) => {
     const updatedFrom = await getAsyncStorage(updatedFromKey, 0)
     console.log(`Get tag sets for ${versionId} from ms timestamp of ${updatedFrom}...`)
 
-    const { updatedTagSets: { tagSets, hasMore, newUpdatedFrom } } = await doGraphql({
+    const { updatedTagSets } = await doGraphql({
       query: `
         updatedTagSets() {
-          tagSets {
-            ${keys.join('\n')}
-          }
-          hasMore
-          newUpdatedFrom
+          ${tagSetUpdateFields}
         }
       `,
       params: {
@@ -47,32 +83,11 @@ const updateTagSets = async ({ versionId }) => {
       },
     })
 
-    if(
-      newUpdatedFrom <= updatedFrom
-      || (
-        hasMore
-        && tagSets.length === 0
-      )
-    ) throw new Error(`Bad response to updatedTagSets`)
+    await updateDBWithTagSets({ updatedTagSets, versionId, updatedFrom })
 
-    await executeSql({
-      database,
-      statements: tagSets.map(tagSet => ({
-        statement: () => `REPLACE INTO ${tableName} (${keys.join(', ')}) VALUES ?`,
-        args: [
-          keys.map(key => (
-            [ 'tags' ].includes(key)
-              ? JSON.stringify(tagSet[key])
-              : tagSet[key]
-          ))
-        ],
-      })),
-    })
+    numUpdates += updatedTagSets.tagSets.length
 
-    await setAsyncStorage(updatedFromKey, newUpdatedFrom)
-    numUpdates += tagSets.length
-
-    if(hasMore) {
+    if(updatedTagSets.hasMore) {
       await fetchGroup()
     }
 

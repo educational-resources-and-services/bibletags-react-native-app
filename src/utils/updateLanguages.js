@@ -7,14 +7,13 @@ const updateLanguages = async ({ languageIdsNeedingUpdate }) => {
   const tableName = `languages`
   const database = tableName
 
-  const attrs = {
-    id: "TEXT PRIMARY KEY",
-    name: "TEXT",
-    englishName: "TEXT",
-    definitionPreferencesForVerbs: "TEXT",
-    standardWordDivider: "TEXT",
-  }
-  const keys = Object.keys(attrs)
+  const keys = [
+    "id",
+    "name",
+    "englishName",
+    "definitionPreferencesForVerbs",
+    "standardWordDivider",
+  ]
 
   const { languages } = await doGraphql({
     query: `
@@ -25,16 +24,6 @@ const updateLanguages = async ({ languageIdsNeedingUpdate }) => {
     params: {
       languageIds: languageIdsNeedingUpdate,
     },
-  })
-
-  await executeSql({
-    database,
-    statement: () => `
-      CREATE TABLE IF NOT EXISTS ${tableName} (
-        ${keys.map(key => `${key} ${attrs[key]}`).join(', ')}
-      );
-      CREATE INDEX IF NOT EXISTS name_idx ON ${tableName} (name)
-    `,
   })
 
   await executeSql({

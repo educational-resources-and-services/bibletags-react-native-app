@@ -3,6 +3,7 @@ import updateLanguages from "./updateLanguages"
 import updateLanguageSpecificDefinitions from "./updateLanguageSpecificDefinitions"
 import updateTranslationBreakdowns from "./updateTranslationBreakdowns"
 import updateTagSets from "./updateTagSets"
+import submitQueuedWordHashesSets from "./submitQueuedWordHashesSets"
 import submitQueuedTagSets from "./submitQueuedTagSets"
 
 const languageIdsSyncedDuringThisOpen = []
@@ -43,7 +44,8 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
     }
   }
 
-  submitQueuedTagSets()
+  await submitQueuedWordHashesSets()
+  await submitQueuedTagSets()
 
 }
 

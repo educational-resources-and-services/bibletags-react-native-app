@@ -1,6 +1,7 @@
 import { i18n } from "inline-i18n"
 
-import { executeSql, doGraphql, sentry } from './toolbox'
+import { executeSql, doGraphql, sentry, getAsyncStorage } from './toolbox'
+import { tagSetUpdateFields, updateDBWithTagSets } from "./updateTagSets"
 
 const noop = () => {}
 
@@ -27,18 +28,24 @@ export const recordAndSubmitTagSet = async ({ input, historyPush }) => {
 const submitTagSet = async ({ input, historyPush=noop }) => {
   try {
 
-    const { submitTagSet: tagSet } = await doGraphql({
+    const { versionId } = input
+    const updatedFromKey = `versions/${versionId}/tagSets-updatedFrom`
+    const updatedFrom = await getAsyncStorage(updatedFromKey, 0)
+
+    const { submitTagSet: updatedTagSets } = await doGraphql({
       mutation: `
         submitTagSet() {
-          id
-          tags
-          status
+          ${tagSetUpdateFields}
         }
       `,
       params: {
         input,
+        updatedFrom,
       },
     })
+
+    await updateDBWithTagSets({ updatedTagSets, versionId, updatedFrom })
+    console.log(`${updatedTagSets.tagSets.length} tag sets updated for ${versionId}.`)
 
     // update tag set submission in db
     await executeSql({
@@ -46,26 +53,6 @@ const submitTagSet = async ({ input, historyPush=noop }) => {
       statement: () => `UPDATE submittedTagSets SET submitted=1 WHERE id=?`,
       args: [
         getTagSubmissionId(input),
-      ],
-    })
-
-    // update tagSet in db
-    const tableName = `tagSets`
-    const database = `versions/${input.versionId}/${tableName}`
-    const keys = [
-      "id",
-      "tags",
-      "status",
-    ]
-    await executeSql({
-      database,
-      statement: () => `REPLACE INTO ${tableName} (${keys.join(', ')}) VALUES ?`,
-      args: [
-        keys.map(key => (
-          [ 'tags' ].includes(key)
-            ? JSON.stringify(tagSet[key])
-            : tagSet[key]
-        ))
       ],
     })
 

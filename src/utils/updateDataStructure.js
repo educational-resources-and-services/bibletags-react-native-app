@@ -34,6 +34,26 @@ const dataStructureUpdateFunctions = [
       })
     }
 
+    { // submittedWordHashesSets
+      const tableName = `submittedWordHashesSets`
+      const database = tableName
+
+      const attrs = {
+        id: "TEXT PRIMARY KEY",
+        input: "TEXT",
+      }
+      const keys = Object.keys(attrs)
+
+      await executeSql({
+        database,
+        statement: () => `
+          CREATE TABLE IF NOT EXISTS ${tableName} (
+            ${keys.map(key => `${key} ${attrs[key]}`).join(', ')}
+          )
+        `,
+      })
+    }
+
     { // submittedTagSets
       const tableName = `submittedTagSets`
       const database = tableName

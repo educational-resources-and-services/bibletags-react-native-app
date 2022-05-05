@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react"
 import { StyleSheet, View, ScrollView } from "react-native"
 import Constants from "expo-constants"
-import { getPassageStr, getPiecesFromUSFM, getWordsHash } from "@bibletags/bibletags-ui-helper"
+import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 
@@ -17,9 +17,11 @@ import BasicHeader from "../major/BasicHeader"
 import CoverAndSpin from "../basic/CoverAndSpin"
 import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
 import HeaderIconButton from "../basic/HeaderIconButton"
+import { recordAndSubmitWordHashesSet } from "../../utils/submitWordHashesSet"
 
 const {
   HEBREW_CANTILLATION_MODE,
+  EMBEDDING_APP_ID,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -217,9 +219,23 @@ const VerseTagger = ({
         )
 
         if(versionId !== 'original') {
-          setWordsHash(
-            getWordsHash({ usfm: preppedUsfm, wordDividerRegex })
-          )
+          const wordsHash = getWordsHash({ usfm: preppedUsfm, wordDividerRegex })
+          setWordsHash(wordsHash)
+
+          const currentTagSet = null  // TODO
+
+          // If it is a completely untagged verse, then run recordAndSubmitWordHashesSet
+          if(!currentTagSet) {
+            await recordAndSubmitWordHashesSet({
+              input: {
+                loc: getLocFromRef(ref),
+                versionId,
+                wordsHash,
+                embeddingAppId: EMBEDDING_APP_ID,
+                wordHashes: getWordHashes({ usfm: preppedUsfm, wordDividerRegex }),
+              },
+            })
+          }
         }
 
       }
