@@ -33,7 +33,7 @@ export const removeVersion = async ({ id, removeBibleVersion=noop }) => {
 
 let goRerun = noop
 let isConnected = false
-let maxConcurrentDownloads = 1  // TODO: use this variable
+let maxConcurrentDownloads = 1
 NetInfo.addEventListener(state => {
   isConnected = state.isConnected
   maxConcurrentDownloads = {
