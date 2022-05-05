@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react"
-import { StyleSheet, TouchableWithoutFeedback, I18nManager, View, Text, Clipboard } from "react-native"
+import { StyleSheet, TouchableWithoutFeedback, I18nManager, View, Text } from "react-native"
+import * as Clipboard from 'expo-clipboard'
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
