@@ -1,11 +1,10 @@
 import Constants from "expo-constants"
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Asset } from "expo-asset"
 import * as FileSystem from "expo-file-system"
 import CryptoJS from "react-native-crypto-js"
 import NetInfo from "@react-native-community/netinfo"
 
-import { getVersionInfo } from "./toolbox"
+import { getVersionInfo, setAsyncStorage, removeAsyncStorage, getAsyncStorage } from "./toolbox"
 
 const {
   DEFAULT_BIBLE_VERSIONS=['original'],
@@ -23,12 +22,12 @@ const sqliteDir = `${FileSystem.documentDirectory}SQLite`
 
 const noop = () => {}
 
-const removeVersion = async ({ id, removeBibleVersion=noop }) => {
-  const versionDir = `${sqliteDir}/${id}`
+export const removeVersion = async ({ id, removeBibleVersion=noop }) => {
+  const versionDir = `${sqliteDir}/versions/${id}`
   const fileRevisionKey = `${id}RevisionNum`
 
   removeBibleVersion({ id })
-  await AsyncStorage.removeItem(fileRevisionKey)
+  await removeAsyncStorage(fileRevisionKey)
   await FileSystem.deleteAsync(versionDir, { idempotent: true })
 }
 
@@ -54,7 +53,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
   const versionRevisionNum = `${(versionInfo || {})[fileRevisionKey] || 0}`
   const fileRevisionBeingDownloadedKey = `${id}RevisionNumBeingDownloaded`
   const encrypted = !!(versionInfo || {}).encrypted
-  const versionDir = `${sqliteDir}/${id}`
+  const versionDir = `${sqliteDir}/versions/${id}`
   const encryptedAddOn = encrypted ? `-encrypted` : ``
   const downloadingDir = `${versionDir}/downloading`
   const downloadedDir = `${versionDir}/downloaded`
@@ -62,9 +61,9 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
   let unableToDownloadDueToNoConnection = false
 
   let [ x, storedVersionRevisionNum, storedFileRevisionBeingDownloadedNum ] = await Promise.all([
-    FileSystem.deleteAsync(downloadingDir, { idempotent: true }),  // remove /[version]/downloading if exists
-    AsyncStorage.getItem(fileRevisionKey),
-    AsyncStorage.getItem(fileRevisionBeingDownloadedKey),
+    FileSystem.deleteAsync(downloadingDir, { idempotent: true }),  // remove /versions/[version]/downloading if exists
+    getAsyncStorage(fileRevisionKey),
+    getAsyncStorage(fileRevisionBeingDownloadedKey),
   ])
 
   let unchangedBundledLocalUrisByPartialFilePath = {}
@@ -91,7 +90,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
       FileSystem.makeDirectoryAsync(`${downloadedDir}/verses`, { intermediates: true }),
       FileSystem.makeDirectoryAsync(`${downloadedDir}/search`, { intermediates: true }),
       FileSystem.makeDirectoryAsync(readyDir, { intermediates: true }),
-      AsyncStorage.setItem(fileRevisionBeingDownloadedKey, versionRevisionNum),
+      setAsyncStorage(fileRevisionBeingDownloadedKey, versionRevisionNum),
     ])
   }
 
@@ -125,7 +124,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
         const remoteUri = `${BASE_VERSIONS_URL_AFTER_SWAPS}/${id}${encryptedAddOn}/${partialFilePath}`
         const downloadingPath = `${downloadingDir}/${partialFilePath}`
 
-        // download (or move if bundled) to /[version]/downloading
+        // download (or move if bundled) to /versions/[version]/downloading
         if(localUri) {
           await FileSystem.copyAsync({
             from: localUri,
@@ -147,7 +146,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
         if(encrypted && /^verses\//.test(partialFilePath)) {
 
-          // decrypt and move to /[version]/downloaded
+          // decrypt and move to /versions/[version]/downloaded
           const encryptedContent = await FileSystem.readAsStringAsync(downloadingPath)
           const unencryptedBase64 = encryptedContent
             .split('\n')
@@ -164,7 +163,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
         } else {
 
-          // simply move to /[version]/downloaded
+          // simply move to /versions/[version]/downloaded
           await FileSystem.moveAsync({
             from: downloadingPath,
             to: downloadedPath,
@@ -183,7 +182,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
     if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
 
-    // move from /[version]/downloaded to the /[version]/ready 
+    // move from /versions/[version]/downloaded to the /versions/[version]/ready 
     const partialPathsToRemoveAndMove = [ ...new Set( partialFilePaths.map(partialFilePath => partialFilePath.split('/')[0] ) ) ]
     await Promise.all(partialPathsToRemoveAndMove.map(async partialPath => {
       const downloadedPath = `${downloadedDir}/${partialPath}`
@@ -199,7 +198,7 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
   if(thisSyncProcessId !== currentSyncProcessId) return
 
-  // remove /[version]/downloaded if exists and not the right storedFileRevisionBeingDownloadedNum
+  // remove /versions/[version]/downloaded if exists and not the right storedFileRevisionBeingDownloadedNum
   if(storedFileRevisionBeingDownloadedNum && versionRevisionNum !== storedFileRevisionBeingDownloadedNum) {
     await FileSystem.deleteAsync(downloadedDir, { idempotent: true })
   }
@@ -230,14 +229,14 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
     if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
 
-    await AsyncStorage.setItem(fileRevisionKey, versionRevisionNum)
+    await setAsyncStorage(fileRevisionKey, versionRevisionNum)
     setBibleVersionDownloadStatus({ id, downloaded: true })
 
   }
 
   if(thisSyncProcessId !== currentSyncProcessId) return
 
-  // if no /[version]/ready/search dir, then the /search dir needs to be downloaded
+  // if no /versions/[version]/ready/search dir, then the /search dir needs to be downloaded
   if(!versesDirOnly && !(await FileSystem.getInfoAsync(`${readyDir}/search`)).exists) {
 
     await prepForDownload()
@@ -315,10 +314,10 @@ const syncBibleVersions = async ({ versionIds, setBibleVersionDownloadStatus, re
 
   const thisSyncProcessId = ++currentSyncProcessId
 
-  const { exists } = await FileSystem.getInfoAsync(sqliteDir)
+  const { exists } = await FileSystem.getInfoAsync(`${sqliteDir}/versions`)
 
   if(!exists) {
-    await FileSystem.makeDirectoryAsync(sqliteDir, { intermediates: true })
+    await FileSystem.makeDirectoryAsync(`${sqliteDir}/versions`, { intermediates: true })
   }
 
   if(thisSyncProcessId !== currentSyncProcessId) return
@@ -333,7 +332,7 @@ const syncBibleVersions = async ({ versionIds, setBibleVersionDownloadStatus, re
     }
 
     // Remove any version not in versionIds
-    const dbFilenames = await FileSystem.readDirectoryAsync(sqliteDir)
+    const dbFilenames = await FileSystem.readDirectoryAsync(`${sqliteDir}/versions`)
 
     for(let idx in dbFilenames) {
       if(thisSyncProcessId !== currentSyncProcessId) return
@@ -353,7 +352,7 @@ const syncBibleVersions = async ({ versionIds, setBibleVersionDownloadStatus, re
     // This is during the splash screen, though not the first open
     // Delete any removed versions
 
-    const dbFilenames = await FileSystem.readDirectoryAsync(sqliteDir)
+    const dbFilenames = await FileSystem.readDirectoryAsync(`${sqliteDir}/versions`)
 
     for(let idx in dbFilenames) {
       if(thisSyncProcessId !== currentSyncProcessId) return

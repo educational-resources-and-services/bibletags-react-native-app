@@ -10,7 +10,7 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
-import { memo } from "../../utils/toolbox"
+import { memo, sentry } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
 
@@ -82,7 +82,7 @@ const Drawer = ({
   const goToBibleTagsMarketingSite = useCallback(
     () => {
       Linking.openURL("https://bibletags.org").catch(err => {
-        console.log('ERROR: Request to open URL failed.', err)
+        sentry({ error })
         historyPush("/ErrorMessage", {
           message: i18n("Your device is not allowing us to open this link."),
         })

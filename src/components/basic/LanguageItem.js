@@ -1,12 +1,10 @@
 import React, { useCallback } from "react"
-import * as Updates from 'expo-updates'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { StyleSheet, Text } from "react-native"
 import { ListItem } from "@ui-kitten/components"
 
 import { getLocale } from "inline-i18n"
 
-import { fixRTL, memo } from "../../utils/toolbox"
+import { fixRTL, memo, setAsyncStorage, removeAsyncStorage } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 
 const styles = StyleSheet.create({
@@ -36,8 +34,8 @@ const LanguageItem = ({
       historyGoBack()
 
       if(getLocale() !== locale) {
-        await AsyncStorage.setItem(`uiLocale`, locale)
-        await AsyncStorage.removeItem(`fixedRTL`)
+        await setAsyncStorage(`uiLocale`, locale)
+        await removeAsyncStorage(`fixedRTL`)
         await fixRTL({ locale, forceReload: true })
       }
     },

@@ -5,6 +5,7 @@ import { ListItem } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import useRouterState from "../../hooks/useRouterState"
+import { sentry } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   image: {
@@ -52,8 +53,8 @@ const DrawerItem = React.memo(({
 
       if(!href) return
 
-      Linking.openURL(href).catch(err => {
-        console.log('ERROR: Request to open URL failed.', err)
+      Linking.openURL(href).catch(error => {
+        sentry({ error })
         historyPush("/ErrorMessage", {
           message: i18n("Your device is not allowing us to open this link."),
         })

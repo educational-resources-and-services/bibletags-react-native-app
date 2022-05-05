@@ -10,6 +10,7 @@ import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { memo } from '../../utils/toolbox'
+import { removeVersion } from '../../utils/syncBibleVersions'
 import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
 
 import SafeLayout from "../basic/SafeLayout"
@@ -83,12 +84,13 @@ const Versions = ({
           },
           ...(requiredVersionIds.includes(versionId) ? [] : [{
             title: i18n("Remove"),
-            onPress: () => {
+            onPress: async () => {
               if(!getParallelIsAvailable({ versionIdToRemove: versionId })) {
                 removeParallelVersion()
               }
-              removeBibleVersion({
+              await removeVersion({
                 id: versionId,
+                removeBibleVersion,
               })
             },
           }]),

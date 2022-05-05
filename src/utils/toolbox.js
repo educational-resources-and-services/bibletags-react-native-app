@@ -133,30 +133,36 @@ export const executeSql = async ({
   bookId,
   statement,
   args,
+  jsonKeys,
   limit,
   statements,
   removeCantillation,
   removeWordPartDivisions,
 }) => {
-  const versionInfo = getVersionInfo(versionId)
+  const versionInfo = getVersionInfo(versionId) || {}
   database = database || (bookId ? `verses/${bookId}` : null)
   const queryingSingleDB = !!database
 
-  if(!versionInfo) return null
+  if(versionId && !versionInfo.id) return null
 
   const logDBError = async error => {
-    console.log(`ERROR when running executeSql: ${error}`, error)
+    console.log('ERROR when running executeSql on statement like: ', statements[0].statement({}))
+    sentry({ error: new Error(`ERROR when running executeSql: ${error.message}`) })
 
-    // For an unknown reason, a text sometimes will not load to sqlite immediately after being downloaded.
-    // Try a single reload in such a case.
+    if(versionId) {
 
-    const unableToOpenSqliteLastReloadTimeKey = `unableToOpenSqliteLastReloadTime-${versionId}`
-    const unableToOpenSqliteLastReloadTime = (parseInt(await AsyncStorage.getItem(unableToOpenSqliteLastReloadTimeKey), 10) || 0)
-    const now = Date.now()
+      // For an unknown reason, a text sometimes will not load to sqlite immediately after being downloaded.
+      // Try a single reload in such a case.
 
-    if(now - unableToOpenSqliteLastReloadTime > 1000 * 60 * 5) {
-      await AsyncStorage.setItem(unableToOpenSqliteLastReloadTimeKey, `${now}`)
-      await Updates.reloadAsync()
+      const unableToOpenSqliteLastReloadTimeKey = `unableToOpenSqliteLastReloadTime-${versionId}-${database}`
+      const unableToOpenSqliteLastReloadTime = await getAsyncStorage(unableToOpenSqliteLastReloadTimeKey, 0)
+      const now = Date.now()
+
+      if(now - unableToOpenSqliteLastReloadTime > 1000 * 60 * 5) {
+        await setAsyncStorage(unableToOpenSqliteLastReloadTimeKey, now)
+        await Updates.reloadAsync()
+      }
+
     }
   }
 
@@ -166,12 +172,12 @@ export const executeSql = async ({
     },
   })
 
-  const resultSets = [ statement ? getEmptyResultSet() : statements.map(() => getEmptyResultSet()) ]
+  const resultSets = statement ? [ getEmptyResultSet() ] : statements.map(getEmptyResultSet)
 
   const executeSqlForBook = async database => {
     try {
 
-      const db = SQLite.openDatabase(`${versionId}/ready/${database}.db`)
+      const db = SQLite.openDatabase(`${versionId ? `versions/${versionId}/ready/` : ``}${database}.db`)
 
       await new Promise(resolveAll => {
         db.transaction(
@@ -181,12 +187,13 @@ export const executeSql = async ({
               statements = [{
                 statement,
                 args,
+                jsonKeys,
                 limit,
               }]
             }
 
             for(let idx in statements) {
-              let { statement, args=[] } = statements[idx]
+              let { statement, args=[], jsonKeys } = statements[idx]
               const limit = statements[idx].limit - resultSets[idx].rows._array.length
 
               if(Number.isInteger(limit) && limit <= 0) continue
@@ -210,6 +217,19 @@ export const executeSql = async ({
                 adjustedStatement,
                 args,
                 (x, resultSet) => {
+                  if(jsonKeys) {
+                    resultSet.forEach(({ _array }) => {
+                      _array.forEach(row => {
+                        jsonKeys.forEach(key => {
+                          if(row[key]) {
+                            try {
+                              row[key] = JSON.parse(row[key])
+                            } catch(e) {}
+                          }
+                        })
+                      })
+                    })
+                  }
                   if(queryingSingleDB) {
                     resultSets[idx] = resultSet
                   } else {
@@ -449,13 +469,13 @@ export const replaceWithJSX = (text, regexStr, getReplacement) => {
 
 export const fixRTL = async ({ locale, forceReload }={}) => {
   const alreadyFixedRTLKey = `fixedRTL`
-  const alreadyFixedRTL = Boolean(await AsyncStorage.getItem(alreadyFixedRTLKey))
+  const alreadyFixedRTL = await getAsyncStorage(alreadyFixedRTLKey, false)
   const i18nIsRTL = isRTL(locale)
 
   if(!!I18nManager.isRTL !== i18nIsRTL && !alreadyFixedRTL) {
     I18nManager.forceRTL(i18nIsRTL)
     I18nManager.allowRTL(i18nIsRTL)
-    await AsyncStorage.setItem(alreadyFixedRTLKey, '1')
+    await setAsyncStorage(alreadyFixedRTLKey, true)
     Updates.reloadAsync()
   } else if(forceReload) {
     Updates.reloadAsync()
@@ -464,22 +484,20 @@ export const fixRTL = async ({ locale, forceReload }={}) => {
 
 const numUserOpensKey = `numUserOpens`
 
-export const getNumUserOpens = async () => (
-  parseInt(await AsyncStorage.getItem(numUserOpensKey), 10) || 0
-)
+export const getNumUserOpens = async () => await getAsyncStorage(numUserOpensKey, 0)
 
 export const recordNumUserOpens = async () => {
   const numUserOpens = await getNumUserOpens() + 1
-  await AsyncStorage.setItem(numUserOpensKey, `${numUserOpens}`)
+  await setAsyncStorage(numUserOpensKey, numUserOpens)
 }
 
 let deviceId
 export const initializeDeviceId = async () => {
   const deviceIdKey = `deviceId`
-  deviceId = await AsyncStorage.getItem(deviceIdKey)
+  deviceId = await getAsyncStorage(deviceIdKey)
   if(!deviceId) {
     deviceId = uuidv4()
-    await AsyncStorage.setItem(deviceIdKey, deviceId)
+    await setAsyncStorage(deviceIdKey, deviceId)
   }
 }
 export const getDeviceId = () => deviceId
@@ -733,17 +751,6 @@ export const getWordIdAndPartNumber = ({ id, wordPartNumber, bookId }) => `${id}
 
 export const doGraphql = async ({ query, mutation, params={} }) => {
 
-  const formattedParams = cloneObj(params)
-  for(let paramKey in formattedParams) {
-    formattedParams[paramKey] = (
-      Object.keys(formattedParams[paramKey])
-        .map(key => (
-          `${key}: ${JSON.stringify(formattedParams[paramKey][key]).replace(/([{,])"([^"]+)"/g, '$1$2')}`
-        ))
-        .join(", ")
-    )
-  }
-
   const composedQuery = gql`
     ${mutation ? `mutation` : ``} {
       ${
@@ -751,9 +758,19 @@ export const doGraphql = async ({ query, mutation, params={} }) => {
           '()', 
           `(
             ${
-              Object.keys(formattedParams)
-                .map(paramKey => (
-                  `${paramKey}: { ${formattedParams[paramKey]} }`
+              Object.keys(params)
+                .map(key1 => (
+                  key1 === 'input'
+                    ? (
+                      `${key1}: { ${
+                        Object.keys(params[key1])
+                          .map(key2 => (
+                            `${key2}: ${JSON.stringify(params[key1][key2])}`
+                          ))
+                          .join(", ")
+                      } }`
+                    )
+                    : `${key1}: ${JSON.stringify(params[key1])}`
                 ))
                 .join(`, `)
             }
@@ -771,7 +788,7 @@ export const doGraphql = async ({ query, mutation, params={} }) => {
 
   const data = await request(uri, composedQuery)
 
-  console.log('data', data)
+  return data
 
 }
 
@@ -787,4 +804,19 @@ export const getNewPromiseWithExternalResolve = () => {
   promise.reject = promiseReject
 
   return promise
+}
+
+export const setAsyncStorage = (key, value) => AsyncStorage.setItem(key, JSON.stringify(value))
+export const removeAsyncStorage = key => AsyncStorage.removeItem(key)
+export const getAsyncStorage = async (key, defaultValue) => {
+  let value = null
+  try {
+    value = JSON.parse(await AsyncStorage.getItem(key))
+  } catch(err) {}
+
+  return (
+    value === null
+      ? defaultValue
+      : value
+  )
 }

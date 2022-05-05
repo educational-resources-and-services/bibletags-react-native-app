@@ -28,7 +28,7 @@ import updateDataStructure from "./src/utils/updateDataStructure"
 import syncBibleVersions from "./src/utils/syncBibleVersions"
 // import { reportReadings } from "./src/utils/syncUserData"
 import { translations, languageOptions } from "./language"
-import { fixRTL, initializeDeviceId, getNumUserOpens, recordNumUserOpens } from "./src/utils/toolbox"
+import { fixRTL, initializeDeviceId, getNumUserOpens, recordNumUserOpens, getAsyncStorage } from "./src/utils/toolbox"
 import { iconFonts } from "./src/components/basic/Icon"
 import useSetTimeout from "./src/hooks/useSetTimeout"
 import * as Sentry from "./src/utils/sentry"
@@ -83,7 +83,7 @@ const setLocale = async () => {
 
   i18nSetup({
     locales: [
-      await AsyncStorage.getItem(`uiLocale`)
+      await getAsyncStorage(`uiLocale`)
       || (
         localeOptions.includes(deviceLocale)
         ? deviceLocale

@@ -5,6 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import syncBibleVersions from "../../utils/syncBibleVersions"
+import syncData from "../../utils/syncData"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useBack from "../../hooks/useBack"
@@ -33,11 +34,22 @@ const SideMenuAndRouteSwitcher = ({
 
   useEffect(
     () => {
-      syncBibleVersions({
-        versionIds,
-        setBibleVersionDownloadStatus,
-        removeBibleVersion,
-      })
+      ;(async () => {
+
+        await syncBibleVersions({
+          versionIds,
+          setBibleVersionDownloadStatus,
+          removeBibleVersion,
+        })
+
+        if(online) {
+          await syncData({
+            versionIds,
+            // setDataSyncStatus,
+          })
+        }
+
+      })()
     },
     [ versionIds, online ],
   )
