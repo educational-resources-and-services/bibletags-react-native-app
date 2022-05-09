@@ -412,6 +412,7 @@ const mapping = {
     {
       component: 'LowerPanelTranslationWord',
       parameters: {
+        labelColor: "color-basic-600",
         alt0Color: "#DDD", // phantomTextStyle
       },
     },

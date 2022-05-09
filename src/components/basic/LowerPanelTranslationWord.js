@@ -1,8 +1,10 @@
 import React, { useLayoutEffect, useMemo, useState } from "react"
+import { StyleSheet, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getLocFromRef, getCorrespondingRefs } from "@bibletags/bibletags-versification"
 import { getWordsHash } from "@bibletags/bibletags-ui-helper"
+import { i18n } from "inline-i18n"
 
 import useTagSet from "../../hooks/useTagSet"
 import useVersePieces from "../../hooks/useVersePieces"
@@ -10,8 +12,26 @@ import useMemoObject from "../../hooks/useMemoObject"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 import LowerPanelWord from "./LowerPanelWord"
+import Verse from "./Verse"
+import IPhoneXBuffer from "./IPhoneXBuffer"
 
 import { getVersionInfo, getOriginalVersionInfo, cloneObj, memo } from "../../utils/toolbox"
+
+const styles = StyleSheet.create({
+  message: {
+    paddingTop: 40,
+    paddingBottom: 10,
+    paddingHorizontal: 50,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  scrollView: {
+    minHeight: 60,
+  },
+  scrollViewContentContainer: {
+    padding: 20,
+  },
+})
 
 const LowerPanelTranslationWord = ({
   selectedInfo,
@@ -25,7 +45,7 @@ const LowerPanelTranslationWord = ({
   passage,
 }) => {
 
-  const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const { labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
     phantomTextStyle={},
   ] = altThemedStyleSets
@@ -113,6 +133,19 @@ const LowerPanelTranslationWord = ({
     [ tagSet, wordNumberInVerse, pieces ],
   )
 
+  const hasNoCoorespondingOriginalWord = (
+    originalWordsInfo.length === 0
+    && !!tagSet
+    && pieces.length > 0
+  )
+
+  useLayoutEffect(
+    () => {
+      Array(10).fill().map((x, idx) => onSizeChangeFunctions[idx](0, 0))
+    },
+    [ hasNoCoorespondingOriginalWord ],
+  )
+
   useLayoutEffect(
     () => {
       if(!tagSet || originalWordsInfo.length === 0) return
@@ -182,6 +215,42 @@ const LowerPanelTranslationWord = ({
     },
     [ originalWordsInfo, tagSet ],
   )
+
+  if(hasNoCoorespondingOriginalWord) {
+    return (
+      <>
+
+        <Text
+          style={[
+            styles.message,
+            labelThemedStyle,
+          ]}
+          onLayout={onSizeChangeFunctions[0]}
+        >
+          {i18n("This word has no corresponding original language word.")}
+        </Text>
+
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollViewContentContainer}
+          onContentSizeChange={onSizeChangeFunctions[1]}
+          alwaysBounceVertical={false}
+        >
+          <Verse
+            passageRef={originalRefs[0]}
+            versionId="original"
+            pieces={pieces}
+          />
+        </ScrollView>
+
+        <IPhoneXBuffer
+          extraSpace={true}
+          onLayout={onSizeChangeFunctions[3]}
+        />
+
+      </>
+    )
+  }
 
   const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx
   const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}

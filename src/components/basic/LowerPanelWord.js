@@ -108,7 +108,7 @@ const LowerPanelWord = ({
             pos={pos}
             gloss={gloss}
             morphPos={morphPos}
-            onLayout={onSizeChangeFunctions[3]}
+            onLayout={onSizeChangeFunctions[1]}
           />
 
           <ExtendedDefinition
@@ -118,12 +118,12 @@ const LowerPanelWord = ({
             lemmas={lemmas}
             morphLemma={lemma}
             forms={forms}
-            onContentSizeChange={onSizeChangeFunctions[4]}
+            onContentSizeChange={onSizeChangeFunctions[2]}
           />
 
           <IPhoneXBuffer
             extraSpace={true}
-            onLayout={onSizeChangeFunctions[5]}
+            onLayout={onSizeChangeFunctions[3]}
           />
 
         </View>
