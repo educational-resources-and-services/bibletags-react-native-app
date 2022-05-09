@@ -7,7 +7,7 @@ import { getMorphInfo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 1,
+    paddingVertical: 2,
   },
   morph: {
   },

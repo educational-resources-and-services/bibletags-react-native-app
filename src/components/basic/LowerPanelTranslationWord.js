@@ -60,13 +60,18 @@ const LowerPanelTranslationWord = ({
       if(!tagSet) return []
       for(let tag of tagSet.tags) {
         if(tag.t.includes(wordNumberInVerse)) {
-          return tag.o.map(wordIdAndPartNumber => {
-            const wordId = wordIdAndPartNumber.split('|')[0]
-            return {
-              ...pieces.find(piece => piece[`x-id`] === wordId),
-              status: tagSet.status,
-            }
-          })
+          return (
+            tag.o
+              .map(wordIdAndPartNumber => {
+                const wordId = wordIdAndPartNumber.split('|')[0]
+                return pieces.findIndex(piece => piece[`x-id`] === wordId)
+              })
+              .sort()
+              .map(idx => ({
+                ...pieces[idx],
+                status: tagSet.status,
+              }))
+          )
         }
       }
       return []
@@ -74,7 +79,8 @@ const LowerPanelTranslationWord = ({
     [ tagSet, wordNumberInVerse, pieces ],
   )
 
-  const { morph, strong, lemma } = originalWordsInfo[selectedWordIdx] || {}
+  const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx
+  const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}
 
   return (
     <LowerPanelWord
@@ -83,7 +89,7 @@ const LowerPanelTranslationWord = ({
       lemma={lemma}
       onSizeChangeFunctions={onSizeChangeFunctions}
       originalWordsInfo={originalWordsInfo}
-      selectedWordIdx={selectedWordIdx}
+      selectedWordIdx={adjustedSelectedWordIdx}
       setSelectedWordIdx={setSelectedWordIdx}
       versionId={versionId}
     />

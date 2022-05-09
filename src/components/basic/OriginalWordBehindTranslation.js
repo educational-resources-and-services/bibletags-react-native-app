@@ -6,7 +6,7 @@ import OriginalWordWithColoredWordParts from "./OriginalWordWithColoredWordParts
 const styles = StyleSheet.create({
   container: {
     fontSize: 16,
-    paddingVertical: 1,
+    paddingVertical: 2,
   },
 })
 
@@ -17,18 +17,24 @@ const OriginalWordBehindTranslation = ({
   onLayout,
 }) => {
 
-  const { morph, text, children, status } = originalWordsInfo[0] || {}
-
   return (
     <Text
       style={styles.container}
       onLayout={onLayout}
     >
-      <OriginalWordWithColoredWordParts
-        text={text}
-        children={children}
-        morph={morph}
-      />
+      {originalWordsInfo.map(({ morph, text, children, status }, idx) => (
+        <React.Fragment key={idx}>
+          {idx > 0 && ` `}
+          <OriginalWordWithColoredWordParts
+            text={text}
+            children={children}
+            morph={morph}
+            selected={originalWordsInfo.length > 1 && idx === selectedWordIdx}
+            wordIdx={idx}
+            setSelectedWordIdx={originalWordsInfo.length > 1 && setSelectedWordIdx}
+          />
+        </React.Fragment>
+      ))}
     </Text>
   )
 
