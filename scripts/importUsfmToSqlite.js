@@ -5,7 +5,6 @@ const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { wordPartDividerRegex, defaultWordDividerRegex } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
-const goSyncVersions = require('./goSyncVersions')
 const { exec } = require('child_process')
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
