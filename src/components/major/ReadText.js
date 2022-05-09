@@ -115,6 +115,7 @@ const ReadText = ({
   passageRef,
   selectedVerse,
   selectedInfo,
+  selectedTagInfo,
   focussedVerse,
   isVisible,
   isParallel,
@@ -406,16 +407,26 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
-            && [ 'w', 'f', 'fe', 'x' ].includes(tag)
+            && (type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag))
             && vs === selectedVerse
-            && equalObjs(selectedInfo, piece)
           ) {
-            verseTextStyles = {
-              ...verseTextStyles,
-              ...selectedWordThemedStyle,
-              textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
+            const selectedTranslationWordColor = (
+              selectedTagInfo
+              && (selectedTagInfo.words.find(({ wordNumberInVerse }) => wordNumberInVerse === piece.wordNumberInVerse) || {}).color
+            )
+  
+            if(
+              equalObjs(selectedInfo, piece)
+              || selectedTranslationWordColor
+            ) {
+              verseTextStyles = {
+                ...verseTextStyles,
+                ...selectedWordThemedStyle,
+                textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
+                ...(selectedTranslationWordColor ? { color: selectedTranslationWordColor } : {}),
+              }
+              keyForAndroid = `selectedWordThemedStyle`
             }
-            keyForAndroid = `selectedWordThemedStyle`
           }
 
           if(
@@ -536,7 +547,7 @@ const ReadText = ({
 
       return getJSXFromPieces({ pieces })
     },
-    [ pieces, displaySettings, selectedVerse, selectedInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
+    [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
   )
 
   if(!pieces) {

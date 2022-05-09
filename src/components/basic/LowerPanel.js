@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect } from "react"
+import React, { useMemo, useEffect, useCallback } from "react"
 import { StyleSheet, View, Platform } from "react-native"
 import { useDimensions } from '@react-native-community/hooks'
 import usePrevious from "react-use/lib/usePrevious"
@@ -11,6 +11,7 @@ import LowerPanelOriginalWord from "./LowerPanelOriginalWord"
 import LowerPanelTranslationWord from "./LowerPanelTranslationWord"
 import LowerPanelFootnote from "./LowerPanelFootnote"
 import LowerPanelVsComparison from "./LowerPanelVsComparison"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
 const styles = StyleSheet.create({
   container: {
@@ -29,12 +30,14 @@ const styles = StyleSheet.create({
 
 const LowerPanel = ({
   selectedData,
+  setSelectedData,
 }) => {
 
   const previousSelectedData = usePrevious(selectedData)
 
   const { selectedSection, selectedVerse, selectedInfo, selectedVerseUsfm } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
   const show = !!selectedData.selectedSection
+  const getSelectedData = useInstanceValue(selectedData)  
 
   const { contentHeight, onSizeChangeFunctions, clearRecordedHeights } = useContentHeightManager(300)
 
@@ -64,6 +67,16 @@ const LowerPanel = ({
     [ windowHeight, containerStyle ],
   )
 
+  const updateSelectedData = useCallback(
+    updates => {
+      setSelectedData({
+        ...getSelectedData(),
+        ...updates,
+      })
+    },
+    [],
+  )
+
   let contents = null
   const { type: selectedInfoType, tag: selectedInfoTag } = selectedInfo || {}
   let contentsType
@@ -82,6 +95,7 @@ const LowerPanel = ({
           selectedInfo={selectedInfo}
           selectedVerse={selectedVerse}
           selectedVerseUsfm={selectedVerseUsfm}
+          updateSelectedData={updateSelectedData}
           onSizeChangeFunctions={onSizeChangeFunctions}
         />
       )

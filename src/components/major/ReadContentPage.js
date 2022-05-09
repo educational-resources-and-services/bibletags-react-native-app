@@ -26,6 +26,7 @@ const ReadContentPage = (({
   selectedSection,
   selectedVerse,
   selectedInfo,
+  selectedTagInfo,
   onVerseTap,
   width,
   height,
@@ -255,6 +256,7 @@ const ReadContentPage = (({
             )
         }
         selectedInfo={selectedSection === 'primary' ? selectedInfo : null}
+        selectedTagInfo={selectedSection === 'primary' ? selectedTagInfo : null}
         focussedVerse={focussedVerse}
         onTouchStart={isCurrentPassagePage ? onPrimaryTouchStart : null}
         onScroll={isCurrentPassagePage ? onPrimaryScroll : null}
@@ -289,6 +291,7 @@ const ReadContentPage = (({
                 )
             }
             selectedInfo={selectedSection === 'secondary' ? selectedInfo : null}
+            selectedTagInfo={selectedSection === 'secondary' ? selectedTagInfo : null}
             focussedVerse={focussedVerse}
             onTouchStart={isCurrentPassagePage ? onSecondaryTouchStart : null}
             onScroll={isCurrentPassagePage ? onSecondaryScroll : null}

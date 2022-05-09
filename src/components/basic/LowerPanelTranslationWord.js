@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useLayoutEffect, useMemo, useState } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getLocFromRef, getCorrespondingRefs } from "@bibletags/bibletags-versification"
@@ -16,6 +16,7 @@ const LowerPanelTranslationWord = ({
   selectedInfo,
   selectedVerse,
   selectedVerseUsfm,
+  updateSelectedData,
   onSizeChangeFunctions,
 
   passage,
@@ -77,6 +78,60 @@ const LowerPanelTranslationWord = ({
       return []
     },
     [ tagSet, wordNumberInVerse, pieces ],
+  )
+
+  useLayoutEffect(
+    () => {
+      if(!tagSet || originalWordsInfo.length === 0) return
+
+      const colorByWordIdAndPartNumber = {}
+      if(ref.bookId <= 39) {
+        originalWordsInfo.forEach(wordInfo => {
+          ;(wordInfo.children || [{}]).forEach(({ color=`black` }, idx) => {
+            colorByWordIdAndPartNumber[`${wordInfo[`x-id`]}|${idx+1}`] = color
+          })
+        })
+      }
+
+      const selectedOrigWordIds = originalWordsInfo.map(wordInfo => wordInfo[`x-id`])
+
+      const selectedTagInfoWords = (
+        tagSet.tags
+          .map(tag => {
+            if(tag.o.some(wordIdAndPartNumber => selectedOrigWordIds.includes(wordIdAndPartNumber.split('|')[0]))) {
+              const color = (
+                tag.o.reduce((currentColor, wordIdAndPartNumber) => {
+                  const thisColor = colorByWordIdAndPartNumber[wordIdAndPartNumber] || `black`
+                  return (
+                    (
+                      thisColor === `black`
+                      || !currentColor
+                    )
+                      ? thisColor
+                      : currentColor
+                  )
+                }, ``)
+              )
+              return tag.t.map(wordNumberInVerse => ({
+                wordNumberInVerse,
+                color,
+              }))
+            }
+          })
+          .filter(Boolean)
+          .flat()
+      )
+
+      if(selectedTagInfoWords > 1 || (selectedTagInfoWords[0] && selectedTagInfoWords[0].color !== `black`)) {
+        updateSelectedData({
+          selectedTagInfo: {
+            words: selectedTagInfoWords,
+          },
+        })
+      }
+
+    },
+    [ originalWordsInfo, tagSet ],
   )
 
   const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx

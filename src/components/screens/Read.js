@@ -126,6 +126,7 @@ const Read = () => {
               <RecentSection />
               <LowerPanel
                 selectedData={selectedData}
+                setSelectedData={setSelectedData}
               />
               {!!showingPassageChooser &&
                 <TouchableWithoutFeedback
