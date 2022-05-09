@@ -1,6 +1,7 @@
 import { useMemo, useCallback } from "react"
 
 import bibleVersions from "../../versions"
+import useMemoObject from "./useMemoObject"
 
 const getVersion = id => (bibleVersions.filter(version => version.id === id)[0] || {})
 
@@ -67,6 +68,12 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [],
   )
 
+  const languageIds = useMemoObject([
+    ...new Set(
+      versionIds.map(({ languageId }) => languageId)
+    )
+  ])
+
   const getVersionStatus = useCallback(
     id => myBibleVersions.filter(version => version.id === id)[0],
     [ myBibleVersions ],
@@ -91,6 +98,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
 
   return {
     versionIds,
+    languageIds,
     downloadedVersionIds,
     primaryVersionIds,
     secondaryVersionIds,

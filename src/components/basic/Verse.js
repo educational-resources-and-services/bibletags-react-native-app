@@ -124,7 +124,7 @@ const Verse = ({
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
         const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? piece : null
 
-        if(info) {
+        if(info && versionId !== 'original') {
           if(doSmallCaps) {
             info.text = info.text.toUpperCase()
           } else if(

@@ -1,23 +1,18 @@
 import React, { useState, useEffect, useMemo, useRef } from "react"
-import Constants from "expo-constants"
 import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import { getLocFromRef, getCorrespondingRefs } from "@bibletags/bibletags-versification"
-import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
+import { getCorrespondingRefs } from "@bibletags/bibletags-versification"
 import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { getVersionInfo, executeSql, equalObjs, getOriginalVersionInfo } from "../../utils/toolbox"
+import useVersePieces from "../../hooks/useVersePieces"
+import { getVersionInfo, equalObjs, getOriginalVersionInfo } from "../../utils/toolbox"
 
 import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
 import NotYetTagged from "./NotYetTagged"
-
-const {
-  HEBREW_CANTILLATION_MODE,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
@@ -48,8 +43,6 @@ const LowerPanelVsComparison = ({
 }) => {
 
   const [ index, setIndex ] = useState(0)
-  const [ pieces, setPieces ] = useState([])
-  const [ piecesVersionId, setPiecesVersionId ] = useState()
   const { versionIds } = useBibleVersions({ myBibleVersions })
   const scrollRef = useRef()
 
@@ -131,45 +124,10 @@ const LowerPanelVsComparison = ({
     [ passage, versionIdsToShow, selectedVerse ],
   )
 
-  useEffect(
-    () => {
-      (async () => {
-        const { rows: { _array: [ verse ] } } = await executeSql({
-          versionId: versionIdShowing,
-          bookId: passage.ref.bookId,
-          statement: ({ bookId, limit }) => `SELECT * FROM ${versionIdShowing}VersesBook${bookId} WHERE loc IN ? ORDER BY loc LIMIT ${limit}`,
-          args: [
-            correspondingRefsByVersion[versionIdShowing].map(ref => getLocFromRef(ref)),
-          ],
-          limit: 1,
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-          removeWordPartDivisions: true,
-        })
-
-        if(!verse) {
-          setPieces([])
-          return
-        }
-
-        const { wordDividerRegex } = getVersionInfo(versionIdShowing)
-
-        const preppedUsfm = verse.usfm
-          .replace(/\\m(?:t[0-9]?|te[0-9]?|s[0-9]?|r) .*\n?/g, '')  // get rid of book headings
-          .replace(/\\c ([0-9]+)\n?/g, '')  // get rid of chapter marker, since it is put in below
-
-        setPieces(
-          getPiecesFromUSFM({
-            usfm: `\\c ${passage.ref.chapter}\n${preppedUsfm}`,
-            inlineMarkersOnly: true,
-            wordDividerRegex,
-          })
-        )
-        setPiecesVersionId(versionIdShowing)
-
-      })()
-    },
-    [ versionIdShowing, correspondingRefsByVersion[versionIdShowing], selectedVerse ],
-  )
+  const { pieces, piecesVersionId } = useVersePieces({
+    versionId: versionIdShowing,
+    refs: correspondingRefsByVersion[versionIdShowing],
+  })
 
   if(versionIdsToShow.length === 0) {
     return (

@@ -131,7 +131,7 @@ const ReadContent = React.memo(({
   )
 
   const onVerseTap = useCallback(
-    ({ selectedSection, selectedVerse, selectedTextContent, selectedInfo, pageX, pageY }={}) => {
+    ({ selectedSection, selectedVerse, selectedVerseUsfm, selectedTextContent, selectedInfo, pageX, pageY }={}) => {
 
       const currentSelectedData = getSelectedData()
 
@@ -151,6 +151,7 @@ const ReadContent = React.memo(({
       setSelectedData({
         selectedSection,
         selectedVerse,
+        selectedVerseUsfm,
         selectedTextContent,
         selectedTapX: pageX,
         selectedTapY: pageY,

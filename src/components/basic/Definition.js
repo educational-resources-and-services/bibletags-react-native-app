@@ -4,8 +4,6 @@ import { StyleSheet, View, Text, I18nManager } from "react-native"
 import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
-import IPhoneXBuffer from "./IPhoneXBuffer"
-
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 15,
@@ -14,7 +12,7 @@ const styles = StyleSheet.create({
   line: {
     paddingBottom: 5,
   },
-  lemma: {
+  lex: {
     fontSize: 24,
   },
   transliteration: {
@@ -36,16 +34,21 @@ const styles = StyleSheet.create({
 })
 
 const Definition = ({
-  selectedInfo,
+  id,
+  lex,
+  vocal,
+  hits,
+  pos,
+  gloss,
+  morphPos,
+  onLayout,
 
   eva: { style: themedStyle={} },
 }) => {
 
-  const { lemma, strong, morph } = selectedInfo || {}
-
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
-    lemmaThemedStyle={},
+    lexThemedStyle={},
     transliterationThemedStyle={},
     strongsThemedStyle={},
     numThemedStyle={},
@@ -53,20 +56,15 @@ const Definition = ({
     posThemedStyle={},
   ] = altThemedStyleSets
 
-  const lemmaStyle = useMemo(
+  const lexStyle = useMemo(
     () => ([
-      styles.lemma,
+      styles.lex,
       {
-        fontFamily: `original-${/G/.test(strong) ? `grk` : `heb`}`,
+        fontFamily: `original-${/G/.test(id) ? `grk` : `heb`}`,
       },
     ]),
-    [ strong ],
+    [ id ],
   )
-
-  const strongs = strong
-    // .split('-')[0]  // get rid of -eng or the like
-    .replace(/^.*:/, '')  // get rid of prefix
-    .replace(/^G0+/, 'G')  // get rid of leading zeros
 
   return (
     <View
@@ -74,16 +72,17 @@ const Definition = ({
         styles.container,
         baseThemedStyle,
       ]}
+      onLayout={onLayout}
     >
       <Text style={styles.line}>
         <Text
           style={[
-            lemmaStyle,
-            lemmaThemedStyle,
+            lexStyle,
+            lexThemedStyle,
           ]}
         >
           {I18nManager.isRTL ? `\u2067`: `\u2066`}
-          {lemma}
+          {lex}
         </Text>
         {`  `}
         {/* <Text
@@ -101,7 +100,7 @@ const Definition = ({
             strongsThemedStyle,
           ]}
         >
-          {strongs}
+          {id}
         </Text>
         {/* {`  `}
         <Text
@@ -136,7 +135,6 @@ const Definition = ({
           noun
         </Text>
       </Text> */}
-      <IPhoneXBuffer extraSpace={true} />
     </View>
   )
 

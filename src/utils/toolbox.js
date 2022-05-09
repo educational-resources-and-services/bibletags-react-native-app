@@ -6,7 +6,7 @@ import NetInfo from "@react-native-community/netinfo"
 import Constants from "expo-constants"
 import * as SQLite from "expo-sqlite"
 import { isIphoneX } from "react-native-iphone-x-helper"
-import { getPassageStr, wordPartDividerRegex } from "@bibletags/bibletags-ui-helper"
+import { getPassageStr, wordPartDividerRegex, getNormalizedPOSCode, getMainWordPartIndex } from "@bibletags/bibletags-ui-helper"
 import { i18n, isRTL } from "inline-i18n"
 import { getBookIdListWithCorrectOrdering } from "@bibletags/bibletags-versification"
 import { styled } from "@ui-kitten/components"
@@ -296,6 +296,17 @@ export const escapeLike = like => (
   like
     .replace(/%/g, '\\%')
     .replace(/_/g, '\\_')
+)
+
+export const safelyExecuteSelects = async paramsArray => (
+  await Promise.all(paramsArray.map(async params => {
+    try {
+      const { rows: { _array }} = await executeSql(params)
+      return _array
+    } catch(err) {
+      return []
+    }
+  }))
 )
 
 export const getVersionInfo = versionId => {
@@ -817,4 +828,29 @@ export const getAsyncStorage = async (key, defaultValue) => {
       ? defaultValue
       : value
   )
+}
+
+export const getMorphInfo = morph => {
+
+  const morphLang = morph.substr(0,2)
+  let morphParts
+  let mainPartIdx
+  let morphPos
+
+  if(['He','Ar'].includes(morphLang)) {
+    morphParts = morph.substr(3).split(':')
+    mainPartIdx = getMainWordPartIndex(morphParts)
+    morphPos = morphParts[mainPartIdx].substr(0,1)
+  } else {
+    morphParts = [ morph.substr(3) ]
+    mainPartIdx = 0
+    morphPos = getNormalizedPOSCode({ morphLang, morphPos: morph.substr(3,2) })
+  }
+
+  return {
+    morphLang,
+    morphParts,
+    mainPartIdx,
+    morphPos,
+  }
 }

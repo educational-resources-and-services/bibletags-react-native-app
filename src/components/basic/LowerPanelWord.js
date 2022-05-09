@@ -1,38 +1,147 @@
 import React from "react"
-import { StyleSheet, ScrollView } from "react-native"
+import { StyleSheet, View } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
+
+import useDefinition from "../../hooks/useDefinition"
+import useBibleVersions from "../../hooks/useBibleVersions"
+import { getMorphInfo } from "../../utils/toolbox"
 
 import Parsing from "./Parsing"
 import Definition from "./Definition"
+import TranslationsOfWordInMyVersions from "./TranslationsOfWordInMyVersions"
+import OriginalWordBehindTranslation from "./OriginalWordBehindTranslation"
+import ExtendedDefinition from "./ExtendedDefinition"
+import TranslationBreakdown from "./TranslationBreakdown"
+import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
-  scrollView: {
+  wordAndParsing: {
+    paddingVertical: 15,
+    paddingHorizontal: 18,
+  },
+  translationAndParsingScrollView: {
+  },
+  horizontalContainer: {
     flex: 1,
+    borderColor: 'rgba(0, 0, 0, .15)',
+    borderTopWidth: 1,
+    flexDirection: 'row',
+  },
+  leftSide: {
+    flex: 1,
+  },
+  definitionScrollView: {
   },
 })
 
 const LowerPanelWord = ({
-  selectedInfo,
+  morph=``,
+  strong=``,
+  lemma=``,
   onSizeChangeFunctions,
+  translationsOfWordInMyVersions,  // optional (sent by LowerPanelTranslationWord)
+  originalWordsInfo,  // optional (sent by LowerPanelOriginalWord)
+  setSelectedWordIdx,  // optional (sent by LowerPanelOriginalWord)
+  selectedWordIdx,  // optional (sent by LowerPanelOriginalWord)
+  versionId,  // optional
+
+  myBibleVersions,
 }) => {
+
+  const { versionIds } = useBibleVersions({ myBibleVersions })
+  versionId = versionIds.find(versionId => versionId !== 'original')
+
+  const definitionId = (strong.match(/[GH][0-9]{5}/) || [])[0] || strong
+
+  const { definition } = useDefinition({
+    definitionId,
+    versionId,
+    myBibleVersions,
+  })
+  const { id, lex, vocal, hits, lemmas, forms, pos, gloss, lexEntry, syn, rel, breakdown, lxx } = definition
+
+  const { morphPos } = getMorphInfo(morph)
 
   return (
     <>
-      <Parsing
-        selectedInfo={selectedInfo}
+
+      <View
+        style={styles.wordAndParsing}
         onLayout={onSizeChangeFunctions[0]}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        onContentSizeChange={onSizeChangeFunctions[1]}
-        alwaysBounceVertical={false}
       >
-        <Definition
-          selectedInfo={selectedInfo}
+
+        {translationsOfWordInMyVersions &&
+          <TranslationsOfWordInMyVersions
+            translationsOfWordInMyVersions={translationsOfWordInMyVersions}
+          />
+        }
+
+        {originalWordsInfo &&
+          <OriginalWordBehindTranslation
+            originalWordsInfo={originalWordsInfo}
+            selectedWordIdx={selectedWordIdx}
+            setSelectedWordIdx={setSelectedWordIdx}
+          />
+        }
+
+        <Parsing
+          morph={morph}
+          strong={strong}
         />
-      </ScrollView>
+
+      </View>
+
+      <View
+        style={styles.horizontalContainer}
+      >
+        <View style={styles.leftSide}>
+
+          <Definition
+            id={id}
+            lex={lex}
+            vocal={vocal}
+            hits={hits}
+            pos={pos}
+            gloss={gloss}
+            morphPos={morphPos}
+            onLayout={onSizeChangeFunctions[3]}
+          />
+
+          <ExtendedDefinition
+            lexEntry={lexEntry}
+            syn={syn}
+            rel={rel}
+            lemmas={lemmas}
+            morphLemma={lemma}
+            forms={forms}
+            onContentSizeChange={onSizeChangeFunctions[4]}
+          />
+
+          <IPhoneXBuffer
+            extraSpace={true}
+            onLayout={onSizeChangeFunctions[5]}
+          />
+
+        </View>
+
+        <TranslationBreakdown
+          breakdown={breakdown}
+          lxx={lxx}
+        />
+
+      </View>
+
     </>
   )
 
 }
 
-export default LowerPanelWord
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+}, dispatch)
+
+export default connect(mapStateToProps, matchDispatchToProps)(LowerPanelWord)

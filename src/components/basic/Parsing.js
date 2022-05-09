@@ -1,50 +1,34 @@
 import React from "react"
 import { StyleSheet, Text, View } from "react-native"
-import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix,
-         getNormalizedPOSCode, getMainWordPartIndex } from "@bibletags/bibletags-ui-helper"
+import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
+
+import { getMorphInfo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {
-    borderColor: 'rgba(0, 0, 0, .15)',
-    borderBottomWidth: 1,
-    paddingVertical: 15,
-    paddingHorizontal: 18,
+    paddingVertical: 1,
   },
   morph: {
   },
 })
 
 const Parsing = ({
-  selectedInfo,
+  morph,
+  strong,
   onLayout,
 }) => {
 
-  const { morph } = selectedInfo || {}
-
   const resetAndReturn = () => {
-    onLayout(0, 0)
+    onLayout && onLayout(0, 0)
     return null
   }
 
   if(!morph) return resetAndReturn()
 
-  const isEntirelyPrefixAndSuffix = getIsEntirelyPrefixAndSuffix(selectedInfo)
+  const isEntirelyPrefixAndSuffix = getIsEntirelyPrefixAndSuffix({ strong })
 
-  const morphLang = morph.substr(0,2)
-  let morphParts
-  let mainPartIdx
-  let morphPos
-
-  if(['He','Ar'].includes(morphLang)) {
-    morphParts = morph.substr(3).split(':')
-    mainPartIdx = getMainWordPartIndex(morphParts)
-    morphPos = morphParts[mainPartIdx].substr(0,1)
-  } else {
-    morphParts = [ morph.substr(3) ]
-    mainPartIdx = 0
-    morphPos = getNormalizedPOSCode({ morphLang, morphPos: morph.substr(3,2) })
-  }
+  const { morphLang, morphParts, mainPartIdx } = getMorphInfo(morph)
 
   const contents = morphParts.map((morphPart, idx) => {
 

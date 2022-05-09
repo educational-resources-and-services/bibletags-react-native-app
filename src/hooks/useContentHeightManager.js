@@ -1,9 +1,11 @@
 import { useRef, useMemo, useState, useCallback } from "react"
+import useSetTimeout from "./useSetTimeout"
 
 const useContentHeightManager = defaultHeight => {
 
   const heights = useRef([])
   const [ contentHeight, setContentHeight ] = useState(defaultHeight)
+  const [ setUpdateTimeout ] = useSetTimeout()
 
   const onSizeChangeFunctions = useMemo(
     () => (
@@ -21,7 +23,11 @@ const useContentHeightManager = defaultHeight => {
               heights.current[idx] = params[1]
             }
 
-            setContentHeight(heights.current.reduce((total, ht) => total + ht, 0))
+            // The timeout is needed so that only one state change is made though
+            // several onSizeChangeFunctions may come in at once.
+            setUpdateTimeout(() => {
+              setContentHeight(heights.current.reduce((total, ht) => total + ht, 0))
+            })
           }
         ))
     ),

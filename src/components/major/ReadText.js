@@ -188,7 +188,6 @@ const ReadText = ({
             `${('0'+bookId).slice(-2)}${('00'+chapter).slice(-3)}%`,
           ],
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
-          removeWordPartDivisions: true,
         })
 
         if(unloaded.current) return
@@ -202,6 +201,7 @@ const ReadText = ({
         const pieces = getPiecesFromUSFM({
           usfm: vss.map(({ usfm }) => usfm).join('\n'),
           wordDividerRegex,
+          splitIntoWords: versionId !== 'original',
         })
 
         setState({
@@ -253,6 +253,7 @@ const ReadText = ({
         }
       })
 
+      const selectedVerseUsfm = verseUsfm
       let selectedTextContent
 
       if(verseUsfm) {
@@ -280,7 +281,7 @@ const ReadText = ({
 
       }
 
-      onVerseTap({ selectedVerse, ...otherParams, selectedTextContent })
+      onVerseTap({ selectedVerse, ...otherParams, selectedVerseUsfm, selectedTextContent })
     },
     [ versionId, passageRef ],
   )
@@ -298,7 +299,7 @@ const ReadText = ({
 
         const simplifiedPieces = []
         pieces.forEach(piece => {
-          const { tag, text } = piece
+          const { tag, text, type } = piece
           const previousPiece = simplifiedPieces.slice(-1)[0]
 
           if(
@@ -307,6 +308,8 @@ const ReadText = ({
             && !previousPiece.tag
             && text
             && previousPiece.text
+            && type !== 'word'
+            && previousPiece.type !== 'word'
           ) {
             previousPiece.text += text
           } else {
@@ -497,7 +500,7 @@ const ReadText = ({
               style={verseTextStyles}
               onPress={goVerseTap}
               verseNumber={vs}
-              info={[ 'w', 'f', 'fe', 'x' ].includes(tag) ? piece : null}
+              info={(type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag)) ? piece : null}
               // delayRenderMs={vs > 1 ? 500 : 0}
               ignoreChildrenChanging={ignoreChildrenChanging}
             >

@@ -7,7 +7,8 @@ import { BoxShadow } from 'react-native-shadow'
 import useContentHeightManager from "../../hooks/useContentHeightManager"
 
 import RevealContainer from "../basic/RevealContainer"
-import LowerPanelWord from "./LowerPanelWord"
+import LowerPanelOriginalWord from "./LowerPanelOriginalWord"
+import LowerPanelTranslationWord from "./LowerPanelTranslationWord"
 import LowerPanelFootnote from "./LowerPanelFootnote"
 import LowerPanelVsComparison from "./LowerPanelVsComparison"
 
@@ -32,7 +33,7 @@ const LowerPanel = ({
 
   const previousSelectedData = usePrevious(selectedData)
 
-  const { selectedSection, selectedVerse, selectedInfo } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
+  const { selectedSection, selectedVerse, selectedInfo, selectedVerseUsfm } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
   const show = !!selectedData.selectedSection
 
   const { contentHeight, onSizeChangeFunctions, clearRecordedHeights } = useContentHeightManager(300)
@@ -43,7 +44,7 @@ const LowerPanel = ({
     () => StyleSheet.flatten([
       styles.container,
       {
-        height: Math.min(contentHeight, windowHeight/2),
+        height: Math.max(Math.min(contentHeight, windowHeight/2), 1),
       },
     ]),
     [ windowHeight, contentHeight ],
@@ -68,12 +69,23 @@ const LowerPanel = ({
   let contentsType
 
   if(selectedInfoType === 'word') {
-    contents = (
-      <LowerPanelWord
-        selectedInfo={selectedInfo}
-        onSizeChangeFunctions={onSizeChangeFunctions}
-      />
-    )
+    if(selectedInfoTag === 'w') {
+      contents = (
+        <LowerPanelOriginalWord
+          selectedInfo={selectedInfo}
+          onSizeChangeFunctions={onSizeChangeFunctions}
+        />
+      )
+    } else {
+      contents = (
+        <LowerPanelTranslationWord
+          selectedInfo={selectedInfo}
+          selectedVerse={selectedVerse}
+          selectedVerseUsfm={selectedVerseUsfm}
+          onSizeChangeFunctions={onSizeChangeFunctions}
+        />
+      )
+    }
     contentsType = 'word'
 
   } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
