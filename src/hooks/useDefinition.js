@@ -31,7 +31,7 @@ const useDefinition = ({
           args: [
             definitionId,
           ],
-          jsonKeys: [ 'lxx', 'lemmas', 'forms' ],
+          jsonKeys: [ 'lxx', 'lemmas', 'forms', 'pos' ],
         },
       ])
 

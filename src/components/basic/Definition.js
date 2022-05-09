@@ -1,5 +1,7 @@
 import React, { useMemo } from "react"
 import { StyleSheet, View, Text, I18nManager } from "react-native"
+import { i18n } from "inline-i18n"
+import { getGreekPOSTerm, getHebrewPOSTerm } from "@bibletags/bibletags-ui-helper"
 
 import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -10,26 +12,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   line: {
-    paddingBottom: 5,
+    paddingVertical: 2,
   },
   lex: {
-    fontSize: 24,
+    fontSize: 16,
   },
-  transliteration: {
+  vocal: {
+    fontSize: 14,
+  },
+  strongsHash: {
+    fontWeight: '300',
     fontSize: 14,
   },
   strongs: {
-    fontWeight: '600',
-    fontSize: 17,
+    fontSize: 14,
   },
   num: {
   },
   definition: {
-    fontWeight: 'bold',
-    fontSize: 17,
+    fontWeight: '600',
+    fontSize: 14,
   },
   pos: {
-    fontSize: 17,
+    fontSize: 14,
   },
 })
 
@@ -38,7 +43,7 @@ const Definition = ({
   lex,
   vocal,
   hits,
-  pos,
+  pos=[],
   gloss,
   morphPos,
   onLayout,
@@ -49,11 +54,13 @@ const Definition = ({
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
     lexThemedStyle={},
-    transliterationThemedStyle={},
+    vocalThemedStyle={},
+    strongsHashThemedStyle={},
     strongsThemedStyle={},
     numThemedStyle={},
     definitionThemedStyle={},
     posThemedStyle={},
+    selectedPosThemedStyle={},
   ] = altThemedStyleSets
 
   const lexStyle = useMemo(
@@ -85,15 +92,23 @@ const Definition = ({
           {lex}
         </Text>
         {`  `}
-        {/* <Text
+        <Text
           style={[
-            styles.transliteration,
-            transliterationThemedStyle,
+            styles.vocal,
+            vocalThemedStyle,
           ]}
         >
-          transliteration
-        </Text> */}
+          {vocal}
+        </Text>
         {`  `}
+        <Text
+          style={[
+            styles.strongsHash,
+            strongsHashThemedStyle,
+          ]}
+        >
+          #
+        </Text>
         <Text
           style={[
             styles.strongs,
@@ -102,39 +117,44 @@ const Definition = ({
         >
           {id}
         </Text>
-        {/* {`  `}
+        {`  `}
         <Text
           style={[
             styles.num,
             numThemedStyle,
           ]}
         >
-          314x
-        </Text> */}
+          {i18n("{{hits}}x", { hits })}
+        </Text>
       </Text>
-      {/* <Text
-          style={[
-            styles.line,
-          ]}
-        >
+      <Text
+        style={[
+          styles.line,
+        ]}
+      >
         <Text
           style={[
             styles.definition,
             definitionThemedStyle,
           ]}
         >
-          Boy
+          {gloss}
         </Text>
         {`  `}
-        <Text
-          style={[
-            styles.pos,
-            posThemedStyle,
-          ]}
-        >
-          noun
-        </Text>
-      </Text> */}
+        {pos.map((posAbbr, idx) => (
+          <React.Fragment key={idx}>
+            {idx > 0 && ` `}
+            <Text
+              style={[
+                styles.pos,
+                (posAbbr === morphPos ? selectedPosThemedStyle : posThemedStyle),
+              ]}
+            >
+              {/^G/.test(id) ? getGreekPOSTerm(posAbbr) : getHebrewPOSTerm(posAbbr)}
+            </Text>
+          </React.Fragment>
+        ))}
+      </Text>
     </View>
   )
 

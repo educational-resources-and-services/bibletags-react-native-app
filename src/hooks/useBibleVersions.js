@@ -70,7 +70,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
 
   const languageIds = useMemoObject([
     ...new Set(
-      versionIds.map(({ languageId }) => languageId)
+      versionIds.map(versionId => getVersion(versionId).languageId).filter(Boolean)
     )
   ])
 

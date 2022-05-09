@@ -390,15 +390,32 @@ const mapping = {
       },
     },
     {
+      component: 'LowerPanelWord',
+      parameters: {
+        backgroundColor: '#E9E9E9',
+      },
+    },
+    {
       component: 'Definition',
       parameters: {
-        borderTopColor: "rgba(0, 0, 0, .15)",
-        // alt0Color: "", // lemmaThemedStyle
-        alt1Color: "color-basic-600", // transliterationThemedStyle
-        // alt2Color: "", // strongsThemedStyle
-        alt3Color: "color-basic-700", // numThemedStyle
-        // alt4Color: "", // definitionThemedStyle
-        // alt5Color: "", // posThemedStyle
+        backgroundColor: '#CCC',
+        // alt0Color: "", // lexThemedStyle
+        alt1Color: "rgba(0,0,0,.5)", // vocalThemedStyle
+        alt2Color: "rgba(0,0,0,.5)", // strongsHashThemedStyle
+        // alt3Color: "", // strongsThemedStyle
+        alt4Color: "rgba(0,0,0,.5)", // numThemedStyle
+        // alt5Color: "", // definitionThemedStyle
+        alt6Color: "rgba(0,0,0,.3)", // posThemedStyle
+        alt7Color: "rgba(0,0,0,.5)", // selectedPosThemedStyle
+      },
+    },
+    {
+      component: 'ExtendedDefinition',
+    },
+    {
+      component: 'TranslationBreakdown',
+      parameters: {
+        backgroundColor: '#DADADA',
       },
     },
     {
@@ -493,6 +510,12 @@ const mapping = {
     },
     {
       component: 'VerseTaggerHelp',
+    },
+    {
+      component: 'OriginalWordBehindTranslation',
+      parameters: {
+        labelColor: "color-basic-600",
+      },
     },
     ...MAPPING_CUSTOMIZATION,
   ]),

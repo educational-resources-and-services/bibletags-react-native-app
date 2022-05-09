@@ -1,11 +1,11 @@
 import React from "react"
 import { ScrollView, StyleSheet, Text } from "react-native"
 
+import { memo } from "../../utils/toolbox"
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    borderColor: 'rgba(0, 0, 0, .15)',
-    borderTopWidth: 1,
   },
   content: {
     paddingVertical: 15,
@@ -21,11 +21,16 @@ const ExtendedDefinition = ({
   morphLemma,
   forms,
   onContentSizeChange,
+
+  eva: { style: themedStyle={} },
 }) => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[
+        styles.container,
+        themedStyle,
+      ]}
       contentContainerStyle={styles.content}
       onContentSizeChange={onContentSizeChange}
     >
@@ -36,4 +41,4 @@ const ExtendedDefinition = ({
 
 }
 
-export default ExtendedDefinition
+export default memo(ExtendedDefinition, { name: 'ExtendedDefinition' })

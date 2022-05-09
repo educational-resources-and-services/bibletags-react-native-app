@@ -5,7 +5,7 @@ import { connect } from "react-redux"
 
 import useDefinition from "../../hooks/useDefinition"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { getMorphInfo } from "../../utils/toolbox"
+import { getMorphInfo, memo } from "../../utils/toolbox"
 
 import Parsing from "./Parsing"
 import Definition from "./Definition"
@@ -24,8 +24,6 @@ const styles = StyleSheet.create({
   },
   horizontalContainer: {
     flex: 1,
-    borderColor: 'rgba(0, 0, 0, .15)',
-    borderTopWidth: 1,
     flexDirection: 'row',
   },
   leftSide: {
@@ -45,6 +43,8 @@ const LowerPanelWord = ({
   setSelectedWordIdx,  // optional (sent by LowerPanelOriginalWord)
   selectedWordIdx,  // optional (sent by LowerPanelOriginalWord)
   versionId,  // optional
+
+  eva: { style: themedStyle={} },
 
   myBibleVersions,
 }) => {
@@ -93,7 +93,10 @@ const LowerPanelWord = ({
       </View>
 
       <View
-        style={styles.horizontalContainer}
+        style={[
+          styles.horizontalContainer,
+          themedStyle,
+        ]}
       >
         <View style={styles.leftSide}>
 
@@ -144,4 +147,4 @@ const mapStateToProps = ({ myBibleVersions }) => ({
 const matchDispatchToProps = dispatch => bindActionCreators({
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(LowerPanelWord)
+export default memo(connect(mapStateToProps, matchDispatchToProps)(LowerPanelWord), { name: 'LowerPanelWord' })
