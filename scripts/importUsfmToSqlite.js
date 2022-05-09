@@ -524,8 +524,8 @@ const doubleSpacesRegex = /  +/g
         exec(
           `npm run change-tenant ${tenant}`,
           (error, stdout, stderr) => {
-            if(error !== null) {
-              console.log(`Error in rerunning \`change-tenant\`: ${error}`)
+            if(error !== null || stderr) {
+              console.log(`Error in rerunning \`change-tenant\`: ${error || stderr}`)
               reject()
             } else if(stdout.includes(`...done.`)) {
               console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
