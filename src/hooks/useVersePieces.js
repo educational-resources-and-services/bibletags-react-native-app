@@ -19,6 +19,9 @@ const useVersePieces = ({
 
   useEffectAsync(
     async () => {
+
+      setPiecesInfo({ pieces: [] })
+
       const { rows: { _array: [ verse ] } } = await executeSql({
         versionId,
         bookId: refs[0].bookId,
@@ -30,10 +33,7 @@ const useVersePieces = ({
         removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
       })
 
-      if(!verse) {
-        setPiecesInfo({ pieces: [] })
-        return
-      }
+      if(!verse) return
 
       const { wordDividerRegex } = getVersionInfo(versionId)
 
