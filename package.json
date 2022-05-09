@@ -18,6 +18,7 @@
     "url": "https://gofundme.com/f/yarn4-bible-tags"
   },
   "scripts": {
+    "dev": "concurrently -k 'npm start' 'cd ../bibletags-data && npm start'",
     "android": "expo start --android",
     "build-android-beta": "npm run sync-versions beta && npm run build-custom-mapping && expo build:android --release-channel beta",
     "build-android-production": "npm run sync-versions && npm run build-custom-mapping && expo build:android --release-channel production",
@@ -64,6 +65,7 @@
     "babel-plugin-transform-remove-console": "6.9.4",
     "babel-preset-expo": "9.0.2",
     "better-sqlite3": "7.5.0",
+    "concurrently": "^7.1.0",
     "deepmerge": "4.2.2",
     "dotenv": "^16.0.0",
     "expo": "^44.0.0",
@@ -71,6 +73,7 @@
     "expo-app-loading": "~1.3.0",
     "expo-application": "~4.0.1",
     "expo-asset": "~8.4.6",
+    "expo-clipboard": "~2.1.0",
     "expo-constants": "~13.0.1",
     "expo-device": "~4.1.0",
     "expo-file-system": "~13.1.4",
@@ -112,7 +115,6 @@
     "redux-persist": "6.0.0",
     "s3-sync-client": "^3.0.0",
     "sentry-expo": "^4.0.0",
-    "uuid": "^8.3.2",
-    "expo-clipboard": "~2.1.0"
+    "uuid": "^8.3.2"
   }
 }

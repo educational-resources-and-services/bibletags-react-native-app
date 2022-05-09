@@ -517,6 +517,9 @@ const doubleSpacesRegex = /  +/g
     // update tenant and sync them to dev
     if(version !== 'original') {
       console.log(``)
+      console.log(`Starting \`bibletags-data\` to be able to submit word hashes locally...`)
+      exec(`cd ../bibletags-data && npm start`)
+      console.log(``)
       console.log(`Rerunning \`change-tenant\`...`)
       await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
       await new Promise((resolve, reject) => {
@@ -533,17 +536,19 @@ const doubleSpacesRegex = /  +/g
           }
         )
       })
+      exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`)  // kills the npm start on /bibletags-data
     }
 
     if(version !== 'original') {
 
       console.log(removeIndent(`
         Successfully...
-          (1) created db files,
-          (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``},
-          (3) updated versions.js,
-          (4) reran change-tenant, and
-          (5) synced \`${versionsDir}\` to the cloud.
+          (1) created sqlite db files
+          (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
+          (3) updated versions.js
+          (4) reran change-tenant
+          (5) synced \`${versionsDir}\` to the cloud for use in dev
+          (6) submitted word hashes for ${version} to the dev db for bibletags-data
       `))
 
     }
