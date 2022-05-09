@@ -7,10 +7,11 @@ import { getWordsHash } from "@bibletags/bibletags-ui-helper"
 import useTagSet from "../../hooks/useTagSet"
 import useVersePieces from "../../hooks/useVersePieces"
 import useMemoObject from "../../hooks/useMemoObject"
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 import LowerPanelWord from "./LowerPanelWord"
 
-import { getVersionInfo, getOriginalVersionInfo } from "../../utils/toolbox"
+import { getVersionInfo, getOriginalVersionInfo, cloneObj, memo } from "../../utils/toolbox"
 
 const LowerPanelTranslationWord = ({
   selectedInfo,
@@ -19,8 +20,15 @@ const LowerPanelTranslationWord = ({
   updateSelectedData,
   onSizeChangeFunctions,
 
+  eva: { style: themedStyle={} },
+
   passage,
 }) => {
+
+  const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [
+    phantomTextStyle={},
+  ] = altThemedStyleSets
 
   const { wordNumberInVerse } = selectedInfo
   const { ref, versionId } = passage
@@ -58,20 +66,45 @@ const LowerPanelTranslationWord = ({
 
   const originalWordsInfo = useMemo(
     () => {
-      if(!tagSet) return []
+      if(!tagSet || pieces.length === 0) return []
       for(let tag of tagSet.tags) {
         if(tag.t.includes(wordNumberInVerse)) {
+
+          const selectedPieceIdxs = []
+          const wordPartNumbersByWordId = {}
+
+          tag.o.forEach(wordIdAndPartNumber => {
+            const [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
+            wordPartNumbersByWordId[wordId] = wordPartNumbersByWordId[wordId] || []
+            wordPartNumbersByWordId[wordId].push(parseInt(wordPartNumber, 10))
+            const selectedPieceIdx = pieces.findIndex(piece => piece[`x-id`] === wordId)
+            if(!selectedPieceIdxs.includes(selectedPieceIdx)) {
+              selectedPieceIdxs.push(selectedPieceIdx)
+            }
+          })
+
+          selectedPieceIdxs.sort((a,b) => a-b ? 1 : -1)
+
           return (
-            tag.o
-              .map(wordIdAndPartNumber => {
-                const wordId = wordIdAndPartNumber.split('|')[0]
-                return pieces.findIndex(piece => piece[`x-id`] === wordId)
-              })
-              .sort()
-              .map(idx => ({
-                ...pieces[idx],
+            selectedPieceIdxs.map(idx => {
+              let piece = pieces[idx]
+              if(wordPartNumbersByWordId[piece[`x-id`]].length < (piece.children || []).length) {
+                piece = cloneObj(piece)
+                piece.children = piece.children.map((word, idx) => (
+                  wordPartNumbersByWordId[piece[`x-id`]].includes(idx+1)
+                    ? word
+                    : {
+                      ...word,
+                      ...phantomTextStyle,
+                      notIncludedInTag: true,
+                    }
+                ))
+              }
+              return {
+                ...piece,
                 status: tagSet.status,
-              }))
+              }
+            })
           )
         }
       }
@@ -93,12 +126,28 @@ const LowerPanelTranslationWord = ({
         })
       }
 
-      const selectedOrigWordIds = originalWordsInfo.map(wordInfo => wordInfo[`x-id`])
+      const selectedOrigWordIdAndPartNumbers = (
+        originalWordsInfo
+          .map(wordInfo => (
+            ref.bookId <= 39
+              ? (
+                wordInfo.children
+                  ? (
+                    wordInfo.children
+                      .map(({ notIncludedInTag }, idx) => !notIncludedInTag ? `${wordInfo[`x-id`]}|${idx+1}` : null)
+                      .filter(Boolean)
+                  )
+                  : `${wordInfo[`x-id`]}|1`
+              )
+              : wordInfo[`x-id`]
+          ))
+          .flat()
+      )
 
       const selectedTagInfoWords = (
         tagSet.tags
           .map(tag => {
-            if(tag.o.some(wordIdAndPartNumber => selectedOrigWordIds.includes(wordIdAndPartNumber.split('|')[0]))) {
+            if(tag.o.some(wordIdAndPartNumber => selectedOrigWordIdAndPartNumbers.includes(wordIdAndPartNumber))) {
               const color = (
                 tag.o.reduce((currentColor, wordIdAndPartNumber) => {
                   const thisColor = colorByWordIdAndPartNumber[wordIdAndPartNumber] || `black`
@@ -122,7 +171,7 @@ const LowerPanelTranslationWord = ({
           .flat()
       )
 
-      if(selectedTagInfoWords > 1 || (selectedTagInfoWords[0] && selectedTagInfoWords[0].color !== `black`)) {
+      if(selectedTagInfoWords.length > 1 || (selectedTagInfoWords[0] && selectedTagInfoWords[0].color !== `black`)) {
         updateSelectedData({
           selectedTagInfo: {
             words: selectedTagInfoWords,
@@ -160,4 +209,4 @@ const mapStateToProps = ({ passage, myBibleVersions }) => ({
 const matchDispatchToProps = dispatch => bindActionCreators({
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(LowerPanelTranslationWord)
+export default memo(connect(mapStateToProps, matchDispatchToProps)(LowerPanelTranslationWord), { name: 'LowerPanelTranslationWord' })

@@ -410,6 +410,12 @@ const mapping = {
       },
     },
     {
+      component: 'LowerPanelTranslationWord',
+      parameters: {
+        alt0Color: "#DDD", // phantomTextStyle
+      },
+    },
+    {
       component: 'ExtendedDefinition',
     },
     {

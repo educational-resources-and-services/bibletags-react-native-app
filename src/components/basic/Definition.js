@@ -22,12 +22,13 @@ const styles = StyleSheet.create({
   },
   strongsHash: {
     fontWeight: '300',
-    fontSize: 14,
+    fontSize: 13,
   },
   strongs: {
-    fontSize: 14,
+    fontSize: 13,
   },
   num: {
+    fontSize: 10,
   },
   definition: {
     fontWeight: '600',
