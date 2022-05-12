@@ -3,9 +3,13 @@ const fs = require('fs-extra')
 const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
-const { wordPartDividerRegex, defaultWordDividerRegex } = require("@bibletags/bibletags-ui-helper")
+const { i18n, i18nNumber } = require("inline-i18n")
+const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
+
+passOverI18n(i18n)
+passOverI18nNumber(i18nNumber)
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
@@ -517,9 +521,6 @@ const doubleSpacesRegex = /  +/g
     // update tenant and sync them to dev
     if(version !== 'original') {
       console.log(``)
-      console.log(`Starting \`bibletags-data\` to be able to submit word hashes locally...`)
-      exec(`cd ../bibletags-data && npm start`)
-      console.log(``)
       console.log(`Rerunning \`change-tenant\`...`)
       await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
       await new Promise((resolve, reject) => {
@@ -536,7 +537,6 @@ const doubleSpacesRegex = /  +/g
           }
         )
       })
-      exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`)  // kills the npm start on /bibletags-data
     }
 
     if(version !== 'original') {

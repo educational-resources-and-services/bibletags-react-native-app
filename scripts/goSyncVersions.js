@@ -3,8 +3,13 @@ require('dotenv').config()
 const { S3Client } = require('@aws-sdk/client-s3')
 const S3SyncClient = require('s3-sync-client')
 const Database = require('better-sqlite3')
-const { getWordsHash, getWordHashes } = require("@bibletags/bibletags-ui-helper")
+const { i18n, i18nNumber } = require("inline-i18n")
+const { getWordsHash, getWordHashes, passOverI18n, passOverI18nNumber } = require("@bibletags/bibletags-ui-helper")
 const { request, gql } = require('graphql-request')
+const { exec } = require('child_process')
+
+passOverI18n(i18n)
+passOverI18nNumber(i18nNumber)
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION || `us-east-1`,
@@ -23,9 +28,18 @@ const goSyncVersions = async ({ stage }) => {
 
   const { uploads } = await sync(syncDir, s3Dir)
 
+  console.log(``)
+  console.log(`Starting \`bibletags-data\` to be able to submit word hashes locally...`)
+  await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
+  exec(`cd ../bibletags-data && npm start`)
+  await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
+
   for(let upload of uploads) {
     const { id, path } = upload
     const [ x1, embeddingAppId, stage, x2, versionId, x3, fileName ] = id.split('/')
+
+    if(versionId === 'original') continue
+
     const bookId = parseInt(fileName.split('.')[0], 10)
     const uri = (
       process.env.BIBLETAGS_DATA_GRAPHQL_URI
@@ -37,20 +51,16 @@ const goSyncVersions = async ({ stage }) => {
     )
 
     if(bookId) {
-      console.log(`  - submit word hash sets for bookId:${bookId}, versionId:${versionId}`)
+      console.log(`  - submit word hash sets for bookId:${bookId} (${versionId})`)
 
       const db = new Database(path)
       const tableName = `${versionId}VersesBook${bookId}`
 
       const verses = db.prepare(`SELECT * FROM ${tableName}`).all()
 
-      let idx = 0
+      const input = verses.map(verse => {
 
-      const goSubmitWordHashesSet = async () => {
-
-        if(idx >= verses.length - 1) return
-
-        const { loc, usfm } = verses[++idx]
+        const { loc, usfm } = verse
         const params = {
           usfm,
         }
@@ -58,22 +68,23 @@ const goSyncVersions = async ({ stage }) => {
         const wordsHash = getWordsHash(params)
         const wordHashes = JSON.stringify(getWordHashes(params)).replace(/([{,])"([^"]+)"/g, '$1$2')
 
-        const composedQuery = gql`
-          mutation {
-            submitWordHashesSet(input: { loc: "${loc}", versionId: "${versionId}", wordsHash: "${wordsHash}", embeddingAppId: "${embeddingAppId}", wordHashes: ${wordHashes}}) {
-              id
-            }
-          }
-        `
+        return `{ loc: "${loc}", versionId: "${versionId}", wordsHash: "${wordsHash}", embeddingAppId: "${embeddingAppId}", wordHashes: ${wordHashes}}`
 
-        await request(uri, composedQuery)
-        await goSubmitWordHashesSet()
+      })
 
-      }
+      const composedQuery = gql`
+        mutation {
+          submitWordHashesSets(input: [${input.join(',')}])
+        }
+      `
 
-      await Promise.all(Array(10).fill().map(goSubmitWordHashesSet))
+      await request(uri, composedQuery)
+
     }
+
   }
+
+  await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
 
   uploads.forEach(({ path }) => {
     console.log(`  > updated ${path.slice(syncDir.length)}`)
