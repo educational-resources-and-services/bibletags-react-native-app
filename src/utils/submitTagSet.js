@@ -5,7 +5,7 @@ import { tagSetUpdateFields, updateDBWithTagSets } from "./updateTagSets"
 
 const noop = () => {}
 
-export const getTagSubmissionId = async ({ loc, versionId, wordsHash }) => `${loc} ${versionId} ${wordsHash}`
+export const getTagSubmissionId = ({ loc, versionId, wordsHash }) => `${loc} ${versionId} ${wordsHash}`
 
 export const recordAndSubmitTagSet = async ({ input, historyPush }) => {
 

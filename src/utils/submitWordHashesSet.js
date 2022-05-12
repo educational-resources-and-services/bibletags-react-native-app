@@ -1,6 +1,6 @@
 import { executeSql, doGraphql, sentry } from './toolbox'
 
-export const getWordHashesSetSubmissionId = async ({ loc, versionId, wordsHash }) => `${loc} ${versionId} ${wordsHash}`
+export const getWordHashesSetSubmissionId = ({ loc, versionId, wordsHash }) => `${loc} ${versionId} ${wordsHash}`
 
 export const recordAndSubmitWordHashesSet = async ({ input }) => {
 
