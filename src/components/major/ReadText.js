@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from "react"
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import Constants from "expo-constants"
-import { View, ScrollView, StyleSheet, Platform } from "react-native"
+import { View, FlatList, StyleSheet, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "@bibletags/bibletags-ui-helper"
 import usePrevious from "react-use/lib/usePrevious"
+import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs,
@@ -135,6 +136,7 @@ const ReadText = ({
   displaySettings,
 }) => {
 
+  const { width: windowWidth, height: windowHeight } = useDimensions().window
   const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
 
@@ -159,6 +161,7 @@ const ReadText = ({
 
   const verses = useRef()
   const contentSizeParams = useRef()
+  const blockIdxByVerse = useRef([0])
 
   const previousSelectedVerse = usePrevious(selectedVerse)
   const previousFocussedVerse = usePrevious(focussedVerse)
@@ -287,12 +290,15 @@ const ReadText = ({
     [ versionId, passageRef ],
   )
 
-  const getJSX = useCallback(
+  const data = useMemo(
     () => {
+      if(!pieces) return null
+
       let vs = null
       let textAlreadyDisplayedInThisView = false
+      let currentPrimaryBlockIdx = 0
 
-      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps }) => {
+      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps, isTopLevel }) => {
 
         const { font, textSize, lineSpacing, theme } = displaySettings
 
@@ -365,6 +371,10 @@ const ReadText = ({
             const nextPiece = simplifiedPieces[idx+1] || {}
             if(tag === "v" && nextPiece.tag === "vp") return null
             content = `${textAlreadyDisplayedInThisView ? ` ` : ``}${content}\u00A0`
+          }
+
+          if(tag === "v" && content) {
+            blockIdxByVerse.current[parseInt(content, 10)] = currentPrimaryBlockIdx
           }
 
           let { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({
@@ -540,14 +550,37 @@ const ReadText = ({
             )
           }
 
+          if(isTopLevel) currentPrimaryBlockIdx++
+
           return component
 
         })
       }
 
-      return getJSXFromPieces({ pieces })
+      return getJSXFromPieces({ pieces, isTopLevel: true })
     },
     [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
+  )
+
+  const initialNumBlocksToRender = useMemo(
+    () => {
+      if(!pieces) return 1
+
+      const area = windowWidth * windowHeight
+      const roughNumVersesToDoInInitialRender = parseInt(
+        Math.max(
+          2,
+          Math.min(
+            20,
+            (35 - 20 * (displaySettings.textSize * displaySettings.lineSpacing)) * (330000 / area),
+          )
+        )
+      )
+
+      return (blockIdxByVerse.current[roughNumVersesToDoInInitialRender] || 2) + 1
+    
+    },
+    [ windowWidth, windowHeight, displaySettings, pieces ],
   )
 
   if(!pieces) {
@@ -559,7 +592,13 @@ const ReadText = ({
   }
 
   return (
-    <ScrollView
+    <FlatList
+      data={data}
+      extraData={data}
+      renderItem={({ item: block }) => block}
+      initialNumToRender={initialNumBlocksToRender}
+      maxToRenderPerBatch={1}
+      windowSize={5}
       style={viewStyles.container}
       scrollEventThrottle={16}
       onTouchStart={onTouchStart}
@@ -568,28 +607,23 @@ const ReadText = ({
       onLayout={onLayout}
       onContentSizeChange={goContentSizeChange}
       ref={forwardRef}
-    >
-      <View
-        style={[
-          viewStyles.content,
-          isParallel ? viewStyles.parallelContent : null,
-          {
-            paddingBottom: (
-              height - (
-                (
-                  isParallel
-                    ? 0
-                    : (readHeaderMarginTop + readHeaderHeight)
-                )
-                + 75
+      contentContainerStyle={[
+        viewStyles.content,
+        isParallel ? viewStyles.parallelContent : null,
+        {
+          paddingBottom: (
+            height - (
+              (
+                isParallel
+                  ? 0
+                  : (readHeaderMarginTop + readHeaderHeight)
               )
-            ),
-          },
-        ]}
-      >
-        {getJSX()}
-      </View>
-    </ScrollView>
+              + 75
+            )
+          ),
+        },
+      ]}
+    />
   )
 
 }
