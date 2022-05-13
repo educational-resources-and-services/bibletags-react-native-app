@@ -348,10 +348,13 @@ const ReadText = ({
             && !previousPiece.tag
             && text
             && previousPiece.text
-            && type !== 'word'
-            && previousPiece.type !== 'word'
+            && (
+              selectedVerse === null
+              || vs !== selectedVerse
+            )
           ) {
             previousPiece.text += text
+            delete previousPiece.type
           } else {
             simplifiedPieces.push({ ...piece })
           }
