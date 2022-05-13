@@ -120,7 +120,7 @@ const ReadText = ({
   selectedInfo,
   selectedTagInfo,
   focussedVerse,
-  isVisible,
+  // isVisible,
   isParallel,
   forwardRef,
   onContentSizeChange,
@@ -132,11 +132,16 @@ const ReadText = ({
   onLayout,
   height,
   reportNumberOfVerses,
+  waitOnInitialRender,
+  setIsRendered,
 
   eva: { style: themedStyle={} },
 
   displaySettings,
 }) => {
+
+  const waitOnRender = useRef(waitOnInitialRender)
+  waitOnRender.current = waitOnRender.current && waitOnInitialRender
 
   const { width: windowWidth, height: windowHeight } = useDimensions().window
   const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
@@ -584,7 +589,7 @@ const ReadText = ({
 
       return getJSXFromPieces({ pieces, isTopLevel: true })
     },
-    [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal, isVisible ],
+    [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal ],
   )
 
   const initialNumBlocksToRender = useMemo(
@@ -608,7 +613,31 @@ const ReadText = ({
     [ windowWidth, windowHeight, displaySettings, pieces ],
   )
 
-  if(!pieces) {
+  const readyToRender = !!data && !waitOnRender.current
+
+  useEffect(
+    () => {
+      if(readyToRender) {
+        setIsRendered({
+          ...passageRef,
+          isRendered: true,
+        })
+      }
+    },
+    [ readyToRender ]
+  )
+
+  useEffect(
+    () => () => {
+      setIsRendered({
+        ...passageRef,
+        isRendered: false,
+      })
+    },
+    []
+  )
+
+  if(!readyToRender) {
     return (
       <View style={viewStyles.viewContainer}>
         <CoverAndSpin />

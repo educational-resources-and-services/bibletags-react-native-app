@@ -31,6 +31,8 @@ const ReadContentPage = (({
   width,
   height,
   style,
+  waitOnInitialRender,
+  setIsRendered,
 
   eva: { style: themedStyle={} },
 
@@ -112,8 +114,8 @@ const ReadContentPage = (({
       if(scrollController.current !== 'primary') return
       if(!parallelVersionId) return
 
-      const y = primaryScrollY.current / getScrollFactor()
-      secondaryRef.current.scrollTo({ y, animated: false })
+      // const offset = primaryScrollY.current / getScrollFactor()
+      // secondaryRef.current.scrollToOffset({ offset, animated: false })
     }
     ,
     [ !parallelVersionId, getScrollFactor ],
@@ -125,8 +127,8 @@ const ReadContentPage = (({
       if(scrollController.current !== 'secondary') return
       if(!parallelVersionId) return
 
-      const y = nativeEvent.contentOffset.y * getScrollFactor()
-      primaryRef.current.scrollTo({ y, animated: false })
+      // const offset = nativeEvent.contentOffset.y * getScrollFactor()
+      // primaryRef.current.scrollToOffset({ offset, animated: false })
     },
     [ !parallelVersionId, getScrollFactor ],
   )
@@ -189,7 +191,7 @@ const ReadContentPage = (({
 
       const doInitialScroll = () => {
         if(primaryRef.current) {
-          primaryRef.current.scrollTo({ y: primaryScrollY.current, animated: false })
+          // primaryRef.current.scrollToOffset({ offset: primaryScrollY.current, animated: false })
         }
       }
 
@@ -265,8 +267,10 @@ const ReadContentPage = (({
         onContentSizeChange={onPrimaryContentSizeChange}
         onVerseTap={isCurrentPassagePage ? onPrimaryVerseTap : null}
         forwardRef={primaryRef}
-        isVisible={isCurrentPassagePage}
+        // isVisible={isCurrentPassagePage}
         reportNumberOfVerses={reportNumberOfVerses}
+        waitOnInitialRender={waitOnInitialRender}
+        setIsRendered={setIsRendered}
       />
       {!!parallelVersionId &&
         <>
@@ -300,7 +304,7 @@ const ReadContentPage = (({
             onContentSizeChange={onSecondaryContentSizeChange}
             onVerseTap={isCurrentPassagePage ? onSecondaryVerseTap : null}
             forwardRef={secondaryRef}
-            isVisible={isCurrentPassagePage}
+            // isVisible={isCurrentPassagePage}
             isParallel={true}
           />
         </>

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useMemo, useState } from "react"
-import { FlatList, StyleSheet, I18nManager, View } from "react-native"
+import { FlatList, StyleSheet, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { useDimensions } from "@react-native-community/hooks"
@@ -51,6 +51,17 @@ const ReadContent = React.memo(({
 
   const [ initialScrollExecuted, setInitialScrollExecuted ] = useState(false)
   const getInitialScrollExecuted = useInstanceValue(initialScrollExecuted)
+
+  const [ renderedBooksAndChapters, setRenderedBooksAndChapters ] = useState({})
+  const setIsRendered = useCallback(
+    ({ bookId, chapter, isRendered }) => {
+      setRenderedBooksAndChapters(renderedBooksAndChapters => ({
+        ...renderedBooksAndChapters,
+        [`${bookId} ${chapter}`]: !!isRendered,
+      }))
+    },
+    [],
+  )
 
   const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
@@ -161,6 +172,7 @@ const ReadContent = React.memo(({
     [ setSelectedData ],
   )
 
+  const currentIsRendered = !!renderedBooksAndChapters[`${passage.ref.bookId} ${passage.ref.chapter}`]
   const renderItem = useCallback(
     ({ item: ref }) => {
 
@@ -183,10 +195,12 @@ const ReadContent = React.memo(({
           onVerseTap={onVerseTap}
           height={height}
           width={width}
+          waitOnInitialRender={!isCurrentPassagePage && !currentIsRendered}
+          setIsRendered={setIsRendered}
         />
       )
     },
-    [ versionId, parallelVersionId, passage, selectedData, height, onVerseTap, width, initialScrollExecuted ],
+    [ versionId, parallelVersionId, passage, selectedData, height, onVerseTap, width, initialScrollExecuted, setIsRendered, currentIsRendered ],
   )
 
   useEffect(
