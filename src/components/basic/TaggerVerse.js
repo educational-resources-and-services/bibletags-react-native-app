@@ -48,6 +48,10 @@ const styles = StyleSheet.create({
   },
   slash: {
   },
+  wordText: {
+    marginHorizontal: -7,
+    paddingHorizontal: 7,
+  },
 })
 
 const TaggerVerse = ({
