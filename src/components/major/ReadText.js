@@ -143,6 +143,9 @@ const ReadText = ({
   const waitOnRender = useRef(waitOnInitialRender)
   waitOnRender.current = waitOnRender.current && waitOnInitialRender
 
+  const hasBeenVisible = useRef(isVisible)
+  hasBeenVisible.current = hasBeenVisible.current || isVisible
+
   const { width: windowWidth, height: windowHeight } = useDimensions().window
   const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
@@ -652,7 +655,7 @@ const ReadText = ({
       renderItem={({ item: block }) => block}
       initialNumToRender={initialNumBlocksToRender}
       maxToRenderPerBatch={1}
-      windowSize={isVisible ? 3 : 1}
+      windowSize={hasBeenVisible.current ? 3 : 1}
       style={viewStyles.container}
       scrollEventThrottle={16}
       onTouchStart={onTouchStart}
