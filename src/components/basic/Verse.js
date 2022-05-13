@@ -1,6 +1,6 @@
 import React from "react"
 import Constants from "expo-constants"
-import { View, StyleSheet, Text } from "react-native"
+import { View, StyleSheet, Text, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
@@ -139,9 +139,10 @@ const Verse = ({
 
         if(text && Object.keys(verseTextStyles).length === 0 && !isMatch && type !== 'word') return text
 
+        const keyForAndroid = selectedWordNumbers.includes(wordNumberInVerse) ? `selectedWordNumbers` : (usedWordNumbers.includes(wordNumberInVerse) ? `usedWordNumbers` : ``)
         return (
           <VerseText
-            key={`${idx}-${idx2}`}
+            key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}-${idx2}` : `${idx}-${idx2}`}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
             style={StyleSheet.flatten([
               verseTextStyles,
               ((usedWordNumbers.includes(wordNumberInVerse) && !selectedWordNumbers.includes(wordNumberInVerse)) ? usedWordThemedStyle : null),

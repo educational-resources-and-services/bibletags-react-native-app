@@ -51,6 +51,8 @@ const styles = StyleSheet.create({
   wordText: {
     marginHorizontal: -7,
     paddingHorizontal: 7,
+    marginBottom: -15,
+    paddingBottom: 15,
   },
 })
 

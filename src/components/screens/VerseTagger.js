@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
 
 const displaySettingsOverride = {
   textSize: 1,
-  lineSpacing: 1.3,
+  lineSpacing: 1.5,
 }
 
 const VerseTagger = ({
