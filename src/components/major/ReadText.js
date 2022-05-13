@@ -21,6 +21,8 @@ import useComponentUnloadedRef from "../../hooks/useComponentUnloadedRef"
 
 const {
   HEBREW_CANTILLATION_MODE,
+  MAX_AVG_PARAGRAPH_LENGTH_IN_VERSES=10,
+  MAX_PARAGRAPH_LENGTH_IN_VERSES=15,
 } = Constants.manifest.extra
 
 const viewStyles = StyleSheet.create({
@@ -195,6 +197,29 @@ const ReadText = ({
         })
 
         if(unloaded.current) return
+
+        // cut up extra-long paragraphs for performance reasons
+        const blockUsfmMarkerRegex = new RegExp(`\\\\(?:${blockUsfmMarkers.join('|').replace(/#/g, '[0-9]*')})`, 'g')
+        const numBlocks = (vss.map(({ usfm }) => usfm).join('\n').match(blockUsfmMarkerRegex) || []).length
+        const exceedsMaxAvg = vss.length / numBlocks > MAX_AVG_PARAGRAPH_LENGTH_IN_VERSES
+        let verseIdxWithLastParagraphBreak = -1
+        vss.forEach((verse, idx) => {
+          if(
+            (
+              idx - verseIdxWithLastParagraphBreak >= MAX_PARAGRAPH_LENGTH_IN_VERSES
+              || (
+                exceedsMaxAvg
+                && idx - verseIdxWithLastParagraphBreak >= MAX_AVG_PARAGRAPH_LENGTH_IN_VERSES
+              )
+            )
+            && !blockUsfmMarkerRegex.test(verse.usfm)
+          ) {
+            verse.usfm = `\\nb\n${verse.usfm}`
+          }
+          if(blockUsfmMarkerRegex.test(verse.usfm)) {
+            verseIdxWithLastParagraphBreak = idx
+          }
+        })
 
         verses.current = vss
 
@@ -637,3 +662,5 @@ const matchDispatchToProps = dispatch => bindActionCreators({
 }, dispatch)
 
  export default memo(connect(mapStateToProps, matchDispatchToProps)(ReadText), { name: 'ReadText' })
+
+//  Check Ps 103
