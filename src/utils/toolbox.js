@@ -146,8 +146,7 @@ export const executeSql = async ({
   if(versionId && !versionInfo.id) return null
 
   const logDBError = async error => {
-    console.log('ERROR when running executeSql on statement like: ', statements[0].statement({}))
-    sentry({ error: new Error(`ERROR when running executeSql: ${error.message}`) })
+    sentry({ error: new Error(`ERROR ${error.message ? `(${error.message}) ` : ``}}when running executeSql: ${statements[0].statement({})}`) })
 
     if(versionId) {
 
