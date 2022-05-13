@@ -32,11 +32,13 @@ const goSyncVersions = async ({ stage }) => {
     console.log(`  > updated ${path.slice(syncDir.length)}`)
   })
 
-  console.log(``)
-  console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
-  await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
-  exec(`cd ../bibletags-data && npm start`)
-  await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
+  if(stage === 'dev') {
+    console.log(``)
+    console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
+    await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
+    exec(`cd ../bibletags-data && npm start`)
+    await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
+  }
 
   for(let upload of uploads) {
     const { id, path } = upload
@@ -106,7 +108,9 @@ const goSyncVersions = async ({ stage }) => {
 
   }
 
-  await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
+  if(stage === 'dev') {
+    await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
+  }
 
   console.log(``)
   console.log(`  ...done with sync.`)
