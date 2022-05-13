@@ -120,7 +120,7 @@ const ReadText = ({
   selectedInfo,
   selectedTagInfo,
   focussedVerse,
-  // isVisible,
+  isVisible,
   isParallel,
   forwardRef,
   onContentSizeChange,
@@ -652,7 +652,7 @@ const ReadText = ({
       renderItem={({ item: block }) => block}
       initialNumToRender={initialNumBlocksToRender}
       maxToRenderPerBatch={1}
-      windowSize={5}
+      windowSize={isVisible ? 3 : 1}
       style={viewStyles.container}
       scrollEventThrottle={16}
       onTouchStart={onTouchStart}

@@ -267,7 +267,7 @@ const ReadContentPage = (({
         onContentSizeChange={onPrimaryContentSizeChange}
         onVerseTap={isCurrentPassagePage ? onPrimaryVerseTap : null}
         forwardRef={primaryRef}
-        // isVisible={isCurrentPassagePage}
+        isVisible={isCurrentPassagePage}
         reportNumberOfVerses={reportNumberOfVerses}
         waitOnInitialRender={waitOnInitialRender}
         setIsRendered={setIsRendered}
@@ -304,7 +304,7 @@ const ReadContentPage = (({
             onContentSizeChange={onSecondaryContentSizeChange}
             onVerseTap={isCurrentPassagePage ? onSecondaryVerseTap : null}
             forwardRef={secondaryRef}
-            // isVisible={isCurrentPassagePage}
+            isVisible={isCurrentPassagePage}
             isParallel={true}
           />
         </>
