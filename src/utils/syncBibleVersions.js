@@ -68,11 +68,11 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
   let unchangedBundledLocalUrisByPartialFilePath = {}
   if(storedVersionRevisionNum === versionRevisionNum) {
-    ;(versionInfo.files || []).map(async (file, idx) => {
+    const partialScopeAddn = versionInfo.partialScope === 'nt' ? 39 : 0
+    ;(versionInfo.files || []).forEach((file, idx) => {
       if(file) {
-        const { localUri, uri } = Asset.fromModule(file)
-        const partialFilePath = uri.split(`/${id}${encryptedAddOn}/`)[1].replace(/\?.*$/, '')
-        unchangedBundledLocalUrisByPartialFilePath[partialFilePath] = localUri
+        const { localUri } = Asset.fromModule(file)
+        unchangedBundledLocalUrisByPartialFilePath[`verses/${partialScopeAddn + idx + 1}.db`] = localUri
       }
     })
   }
