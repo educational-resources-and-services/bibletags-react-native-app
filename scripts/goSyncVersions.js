@@ -28,8 +28,12 @@ const goSyncVersions = async ({ stage }) => {
 
   const { uploads } = await sync(syncDir, s3Dir)
 
+  uploads.forEach(({ path }) => {
+    console.log(`  > updated ${path.slice(syncDir.length)}`)
+  })
+
   console.log(``)
-  console.log(`Starting \`bibletags-data\` to be able to submit word hashes locally...`)
+  console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
   await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
   exec(`cd ../bibletags-data && npm start`)
   await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
@@ -72,13 +76,31 @@ const goSyncVersions = async ({ stage }) => {
 
       })
 
-      const composedQuery = gql`
-        mutation {
-          submitWordHashesSets(input: [${input.join(',')}])
-        }
-      `
+      const inputInBlocks = [ input.slice(0, 100) ]
+      for(let i=100; i<input.length; i+=100) {
+        inputInBlocks.push(input.slice(i, i+100))
+      }
 
-      await request(uri, composedQuery)
+      await Promise.all(inputInBlocks.map(async inputBlock => {
+
+        const composedQuery = gql`
+          mutation {
+            submitWordHashesSets(input: [${inputBlock.join(',')}])
+          }
+        `
+
+        try {
+          await request(uri, composedQuery)
+        } catch(err) {
+          await new Promise(resolve => setTimeout(resolve, 1000))  // give it a second
+          try {
+            await request(uri, composedQuery)  // and try again
+          } catch(err) {
+            throw new Error(err.message.slice(0,200))
+          }
+        }
+
+      }))
 
     }
 
@@ -86,11 +108,8 @@ const goSyncVersions = async ({ stage }) => {
 
   await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
 
-  uploads.forEach(({ path }) => {
-    console.log(`  > updated ${path.slice(syncDir.length)}`)
-  })
-
-  console.log(`  ...done.`)
+  console.log(``)
+  console.log(`  ...done with sync.`)
   console.log(``)
 
 }
