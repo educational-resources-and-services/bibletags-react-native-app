@@ -8,16 +8,17 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    paddingTop: 14,
-    paddingBottom: 8,
+    paddingTop: 0,
+    paddingBottom: 35,
+    paddingHorizontal: 50,
   },
   firstLine: {
     paddingBottom: 2,
+    textAlign: 'center'
   },
   secondLine: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    justifyContent: "center",
   },
   label: {
     fontStyle: 'italic',
@@ -108,7 +109,7 @@ const NotYetTagged = ({
             >
               {iHaveSubmittedATagSet && i18n("Retag this verse")}
               {!iHaveSubmittedATagSet && (notTagged || partiallyTagged) && i18n("Help us tag it")}
-              {(unconfirmedTags || wordNotYetTagged) && i18n("Tag this verse")}
+              {!iHaveSubmittedATagSet && (unconfirmedTags || wordNotYetTagged) && i18n("Tag this verse")}
             </Text>
           </TouchableOpacity>
         </View>

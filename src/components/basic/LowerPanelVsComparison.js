@@ -167,7 +167,6 @@ const LowerPanelVsComparison = ({
     bookId: passage.ref.bookId,
     updateSelectedData,
   })
-  console.log('originalWordsInfo', originalWordsInfo)
 
   const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx
   const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}
