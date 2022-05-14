@@ -176,7 +176,7 @@ const LowerPanelVsComparison = ({
 
   const wordNotYetTagged = !!(
     (tagSet || {}).status === 'automatch'
-    && selectedTagInfo
+    && selectedInfo
     && hasNoCoorespondingOriginalWord
   )
 

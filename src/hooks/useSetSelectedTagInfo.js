@@ -113,12 +113,18 @@ const useSetSelectedTagInfo = ({
           .flat()
       )
 
-      updateSelectedData({
-        selectedTagInfo: {
-          [selectedVersionId]: selectedTagInfoWords,
-          original: originalWordsInfo,
-        },
-      })
+      if(selectedTagInfoWords.length === 0 && originalWordsInfo.length === 0) {
+        updateSelectedData({
+          selectedTagInfo: null,
+        })
+      } else {
+        updateSelectedData({
+          selectedTagInfo: {
+            [selectedVersionId]: selectedTagInfoWords,
+            original: originalWordsInfo,
+          },
+        })
+      }
 
     },
     [ tagSet, updateSelectedData ],
