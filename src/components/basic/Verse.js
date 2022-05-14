@@ -25,6 +25,9 @@ const styles = StyleSheet.create({
   rtl: {
     writingDirection: "rtl",
   },
+  textContainer: {
+    color: "black",
+  },
 })
 
 const Verse = ({
@@ -163,7 +166,12 @@ const Verse = ({
           )
         }
 
-        const keyForAndroid = selectedWordNumbers.includes(wordNumberInVerse) ? `selectedWordNumbers` : (usedWordNumbers.includes(wordNumberInVerse) ? `usedWordNumbers` : ``)
+        const keyForAndroid = (
+          (selectedWordNumbers.includes(wordNumberInVerse) && `selectedWordNumbers`)
+          || (usedWordNumbers.includes(wordNumberInVerse) && `usedWordNumbers`)
+          || ``
+        )
+
         return (
           <VerseText
             key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}-${idx2}` : `${idx}-${idx2}`}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
@@ -173,7 +181,6 @@ const Verse = ({
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
-              (originalWordsInfo.length > 0 ? semiSelectedVsThemedStyle : null),
             ])}
             onPress={info ? onVerseTap : null}
             verseNumber={verse}
@@ -233,6 +240,7 @@ const Verse = ({
     <View style={containerStyle}>
       <Text
         style={[
+          styles.textContainer,
           baseThemedStyle,
           style,
           (isRTLText({ languageId, bookId }) ? styles.rtl : null),
