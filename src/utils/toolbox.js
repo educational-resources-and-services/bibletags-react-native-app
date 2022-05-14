@@ -138,6 +138,7 @@ export const executeSql = async ({
   statements,
   removeCantillation,
   removeWordPartDivisions,
+  doNotLogError=false,
 }) => {
   const versionInfo = getVersionInfo(versionId) || {}
   database = database || (bookId ? `verses/${bookId}` : null)
@@ -146,7 +147,9 @@ export const executeSql = async ({
   if(versionId && !versionInfo.id) return null
 
   const logDBError = async error => {
-    sentry({ error: new Error(`ERROR ${error.message ? `(${error.message}) ` : ``}}when running executeSql: ${statements[0].statement({})}`) })
+    if(doNotLogError) return
+
+    sentry({ error: new Error(`ERROR ${error.message ? `(${error.message}) ` : ``}when running executeSql: ${statements[0].statement({})}`) })
 
     if(versionId) {
 
@@ -300,7 +303,7 @@ export const escapeLike = like => (
 export const safelyExecuteSelects = async paramsArray => (
   await Promise.all(paramsArray.map(async params => {
     try {
-      const { rows: { _array }} = await executeSql(params)
+      const { rows: { _array }} = await executeSql({ ...params, doNotLogError: true })
       return _array
     } catch(err) {
       return []

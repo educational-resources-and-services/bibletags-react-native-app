@@ -22,6 +22,8 @@ const useVersePieces = ({
 
       setPiecesInfo({ pieces: [] })
 
+      if(refs[0].verse === undefined) return
+
       const { rows: { _array: [ verse ] } } = await executeSql({
         versionId,
         bookId: refs[0].bookId,
