@@ -463,7 +463,11 @@ const ReadText = ({
             )
 
             if(
-              (!selectedTagInfo && equalObjs(selectedInfo, piece))
+              (
+                !selectedTagInfo
+                && equalObjs(selectedInfo, piece)
+                && ![ "xt", "f", "fe", "fk" ].includes(tag)
+              )
               || selectedTranslationWordColor
             ) {
               verseTextStyles = {
@@ -497,6 +501,22 @@ const ReadText = ({
             verseTextStyles = {
               ...verseTextStyles,
               ...unselectedThemedStyle,
+            }
+            keyForAndroid = `unselectedThemedStyle`
+          }
+
+          if(
+            selectedVerse !== null
+            && [ "peh", "samech", "selah", "x", "xt", "f", "fe", "fk" ].includes(tag)
+            && !equalObjs(selectedInfo, piece)
+            && (
+              vs !== selectedVerse
+              || !!selectedInfo
+            )
+          ) {
+            verseTextStyles = {
+              ...verseTextStyles,
+              ...unselectedBlockThemedStyle,
             }
             keyForAndroid = `unselectedThemedStyle`
           }
