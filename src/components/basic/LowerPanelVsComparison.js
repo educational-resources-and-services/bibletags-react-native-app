@@ -180,9 +180,6 @@ const LowerPanelVsComparison = ({
     && hasNoCoorespondingOriginalWord
   )
 
-  const hasNoTags = [ undefined, 'none' ].includes((tagSet || {}).status)
-  const showNotTaggedComponent = !selectedInfo || wordNotYetTagged || hasNoTags
-
   if(versionIdsToShow.length === 0) {
     return (
       <>
@@ -250,7 +247,7 @@ const LowerPanelVsComparison = ({
           onVerseTap={onOriginalWordVerseTap}
         />
       </ScrollView>
-      {piecesVersionId === 'original' && showNotTaggedComponent &&
+      {piecesVersionId === 'original' && !selectedTagInfo &&
         <NotYetTagged
           passage={passageWithVerse}
           tagSet={tagSet}
@@ -259,7 +256,7 @@ const LowerPanelVsComparison = ({
           onLayout={onSizeChangeFunctions[6]}
         />
       }
-      {piecesVersionId === 'original' && !showNotTaggedComponent &&
+      {piecesVersionId === 'original' && !!selectedTagInfo &&
         <OriginalWordInfo
           morph={morph}
           strong={strong}
