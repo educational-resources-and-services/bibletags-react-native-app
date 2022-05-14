@@ -3,16 +3,22 @@ import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
-import { getCorrespondingRefs } from "@bibletags/bibletags-versification"
+import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
+import { getWordsHash } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useVersePieces from "../../hooks/useVersePieces"
-import { getVersionInfo, equalObjs, getOriginalVersionInfo } from "../../utils/toolbox"
+import useMemoObject from "../../hooks/useMemoObject"
+import useTagSet from "../../hooks/useTagSet"
+import useOriginalWordsInfo from "../../hooks/useOriginalWordsInfo"
+// import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import { getVersionInfo, equalObjs, getOriginalVersionInfo, memo } from "../../utils/toolbox"
 
 import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
 import NotYetTagged from "./NotYetTagged"
+import OriginalWordInfo from "./OriginalWordInfo"
 
 const styles = StyleSheet.create({
   container: {
@@ -35,12 +41,22 @@ const styles = StyleSheet.create({
 const LowerPanelVsComparison = ({
   selectedSection,
   selectedVerse,
+  selectedVerseUsfm,
+  selectedInfo,
+  updateSelectedData,
   onSizeChangeFunctions,
   style,
+
+  eva: { style: themedStyle={} },
 
   passage,
   myBibleVersions,
 }) => {
+
+  // const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  // const [
+  //   // phantomTextStyle={},
+  // ] = altThemedStyleSets
 
   const [ index, setIndex ] = useState(0)
   const { versionIds } = useBibleVersions({ myBibleVersions })
@@ -52,12 +68,26 @@ const LowerPanelVsComparison = ({
       : passage.parallelVersionId
   )
 
+  const bothVersionIds = useMemoObject([ passage.versionId, passage.parallelVersionId ].filter(Boolean))
   const versionIdsToShow = useMemo(
-    () => versionIds.filter(id => id !== selectedVersionId),
-    [ versionIds, selectedVersionId ],
+    () => versionIds.filter(id => !bothVersionIds.includes(id)),
+    [ versionIds, bothVersionIds ],
   )
 
   const versionIdShowing = versionIdsToShow[index]
+
+  const [ selectedWordIdx, setSelectedWordIdx ] = useState(0)
+
+  const { wordDividerRegex, isOriginal } = getVersionInfo(versionIdShowing)
+  const selectedRef = useMemoObject({ versionId: selectedVersionId, ...passage.ref, verse: selectedVerse })
+  const wordsHash = getWordsHash({ usfm: selectedVerseUsfm, wordDividerRegex })
+
+  const { tagSet, iHaveSubmittedATagSet } = useTagSet({
+    loc: getLocFromRef(selectedRef),
+    versionId: selectedVersionId,
+    wordsHash,
+    skip: !isOriginal,
+  })
 
   const passageWithVerse = useMemo(
     () => ({
@@ -129,6 +159,26 @@ const LowerPanelVsComparison = ({
     refs: correspondingRefsByVersion[versionIdShowing],
   })
 
+  const { originalWordsInfo, hasNoCoorespondingOriginalWord } = useOriginalWordsInfo({
+    skip: !isOriginal,
+    tagSet,
+    wordNumberInVerse: (selectedInfo || {}).wordNumberInVerse,
+    pieces,
+    bookId: passage.ref.bookId,
+    updateSelectedData,
+  })
+  console.log('originalWordsInfo', originalWordsInfo)
+
+  const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx
+  const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}
+
+  const wordNotYetTagged = !!(
+    tagSet
+    && selectedInfo
+    && !morph
+    && !hasNoCoorespondingOriginalWord
+  )
+
   if(versionIdsToShow.length === 0) {
     return (
       <>
@@ -154,7 +204,7 @@ const LowerPanelVsComparison = ({
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContentContainer}
-        onContentSizeChange={onSizeChangeFunctions[0]}
+        onContentSizeChange={onSizeChangeFunctions[5]}
         alwaysBounceVertical={false}
         ref={scrollRef}
       >
@@ -166,17 +216,32 @@ const LowerPanelVsComparison = ({
             styles.verse,
             style,
           ]}
+          originalWordsInfo={originalWordsInfo}
+          selectedWordIdx={selectedWordIdx}
+          setSelectedWordIdx={setSelectedWordIdx}
         />
-        {piecesVersionId === 'original' &&
-          <NotYetTagged
-            passage={passageWithVerse}
-          />
-        }
       </ScrollView>
+      {piecesVersionId === 'original' && !selectedInfo &&
+        <NotYetTagged
+          passage={passageWithVerse}
+          tagSet={tagSet}
+          iHaveSubmittedATagSet={iHaveSubmittedATagSet}
+          wordNotYetTagged={wordNotYetTagged}
+          onLayout={onSizeChangeFunctions[6]}
+        />
+      }
+      {!!selectedInfo && !wordNotYetTagged &&
+        <OriginalWordInfo
+          morph={morph}
+          strong={strong}
+          lemma={lemma}
+          onSizeChange={onSizeChangeFunctions[6]}
+        />
+      }
       <BottomNavigation
         selectedIndex={index}
         onSelect={setIndex}
-        onLayout={onSizeChangeFunctions[1]}
+        onLayout={onSizeChangeFunctions[7]}
       >
         {versionIdsToShow.map(id => (
           <BottomNavigationTab
@@ -187,7 +252,7 @@ const LowerPanelVsComparison = ({
       </BottomNavigation>
       <IPhoneXBuffer
         extraSpace={true}
-        onLayout={onSizeChangeFunctions[2]}
+        onLayout={onSizeChangeFunctions[8]}
       />
     </View>
   )
@@ -202,4 +267,4 @@ const mapStateToProps = ({ passage, myBibleVersions }) => ({
 const matchDispatchToProps = dispatch => bindActionCreators({
 }, dispatch)
 
-export default connect(mapStateToProps, matchDispatchToProps)(LowerPanelVsComparison)
+export default memo(connect(mapStateToProps, matchDispatchToProps)(LowerPanelVsComparison), { name: 'LowerPanelVsComparison' })

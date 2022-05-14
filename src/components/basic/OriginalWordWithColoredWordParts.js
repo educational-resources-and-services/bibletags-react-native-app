@@ -10,6 +10,7 @@ const OriginalWordWithColoredWordParts = ({
   selected,
   wordIdx,
   setSelectedWordIdx,
+  semiSelectedVsThemedStyle,
 }) => {
 
   const { morphLang } = getMorphInfo(morph)
@@ -17,12 +18,12 @@ const OriginalWordWithColoredWordParts = ({
 
   const goSetSelectedWordIdx = useCallback(() => setSelectedWordIdx(wordIdx), [ setSelectedWordIdx, wordIdx ])
 
-  return (text ? [{ text }] : children).map(({ text, color }, idx) => (
+  return (text ? [{ text }] : children).map(({ text, color=`black`, notIncludedInTag }, idx) => (
     <Text
       key={`${idx} ${color}`}
       style={{
-        ...(color ? { color } : {}),
-        ...(selected ? { textDecorationLine: 'underline' } : {}),
+        ...(notIncludedInTag ? semiSelectedVsThemedStyle : { color }),
+        ...(selected ? { backgroundColor: '#F2F2F2' } : {}),
         fontFamily: `original-${language}`,
       }}
       onPress={setSelectedWordIdx ? goSetSelectedWordIdx : undefined}

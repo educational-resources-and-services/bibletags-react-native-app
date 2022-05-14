@@ -15,6 +15,7 @@ import { getValidFontName } from "../../utils/bibleFonts"
 // import { setRef, setVersionId } from "../../redux/actions"
 
 import VerseText from "./VerseText"
+import OriginalWordWithColoredWordParts from "./OriginalWordWithColoredWordParts"
 
 const {
   DEFAULT_FONT_SIZE,
@@ -47,6 +48,9 @@ const Verse = ({
   selectedWordNumbers=[],
   displaySettingsOverride,
   hideSuperscripts,
+  originalWordsInfo=[],
+  selectedWordIdx,
+  setSelectedWordIdx,
 
   eva: { style: themedStyle={} },
 
@@ -139,6 +143,26 @@ const Verse = ({
 
         if(text && Object.keys(verseTextStyles).length === 0 && !isMatch && type !== 'word') return text
 
+        const originalWordsInfoIdx = originalWordsInfo.findIndex(word => word[`x-id`] === piece[`x-id`])
+        if(originalWordsInfoIdx !== -1) {
+          textContent += (
+            originalWordsInfo[originalWordsInfoIdx].text
+            || originalWordsInfo[originalWordsInfoIdx].children.map(({ text=`` }) => text).join('')
+          )
+          return (
+            <React.Fragment key={`${idx}-${idx2}`}>
+              <OriginalWordWithColoredWordParts
+                {...originalWordsInfo[originalWordsInfoIdx]}
+                selected={originalWordsInfo.length > 1 && originalWordsInfoIdx === selectedWordIdx}
+                wordIdx={originalWordsInfoIdx}
+                setSelectedWordIdx={originalWordsInfo.length > 1 && setSelectedWordIdx}
+                semiSelectedVsThemedStyle={semiSelectedVsThemedStyle}
+              />
+              {nextChar || ``}
+            </React.Fragment>
+          )
+        }
+
         const keyForAndroid = selectedWordNumbers.includes(wordNumberInVerse) ? `selectedWordNumbers` : (usedWordNumbers.includes(wordNumberInVerse) ? `usedWordNumbers` : ``)
         return (
           <VerseText
@@ -149,6 +173,7 @@ const Verse = ({
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
+              (originalWordsInfo.length > 0 ? semiSelectedVsThemedStyle : null),
             ])}
             onPress={info ? onVerseTap : null}
             verseNumber={verse}
@@ -214,6 +239,7 @@ const Verse = ({
           { fontSize },
           { lineHeight },
           { fontFamily },
+          (originalWordsInfo.length > 0 ? semiSelectedVsThemedStyle : null),
         ]}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}

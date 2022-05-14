@@ -40,10 +40,10 @@ const textStyles = StyleSheet.create({
     letterSpacing: 2,
   },
   'xt:selected': {  // crossref
-    textShadowOffset: {
-      height: 1,
-    },
-    textShadowRadius: 3,
+    // textShadowOffset: {
+    //   height: 1,
+    // },
+    // textShadowRadius: 3,
   },
 
   mt: { //major title

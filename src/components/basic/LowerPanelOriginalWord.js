@@ -5,7 +5,7 @@ import { getLocFromRef } from "@bibletags/bibletags-versification"
 
 import useTranslationsOfWordInMyVersions from "../../hooks/useTranslationsOfWordInMyVersions"
 
-import LowerPanelWord from "./LowerPanelWord"
+import OriginalWordInfo from "./OriginalWordInfo"
 
 const LowerPanelOriginalWord = ({
   selectedInfo,
@@ -28,11 +28,12 @@ const LowerPanelOriginalWord = ({
   })
 
   return (
-    <LowerPanelWord
+    <OriginalWordInfo
       morph={morph}
       strong={strong}
       lemma={lemma}
       onSizeChangeFunctions={onSizeChangeFunctions}
+      doIPhoneBuffer={true}
       translationsOfWordInMyVersions={translationsOfWordInMyVersions}
     />
   )

@@ -468,7 +468,7 @@ const ReadText = ({
               verseTextStyles = {
                 ...verseTextStyles,
                 ...selectedWordThemedStyle,
-                textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
+                // textShadowRadius: Platform.OS === 'ios' ? 20 : 50,
                 ...(selectedTranslationWordColor ? { color: selectedTranslationWordColor } : {}),
               }
               keyForAndroid = `selectedWordThemedStyle`

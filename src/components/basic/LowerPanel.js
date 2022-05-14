@@ -8,7 +8,6 @@ import useContentHeightManager from "../../hooks/useContentHeightManager"
 
 import RevealContainer from "../basic/RevealContainer"
 import LowerPanelOriginalWord from "./LowerPanelOriginalWord"
-import LowerPanelTranslationWord from "./LowerPanelTranslationWord"
 import LowerPanelFootnote from "./LowerPanelFootnote"
 import LowerPanelVsComparison from "./LowerPanelVsComparison"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -81,25 +80,13 @@ const LowerPanel = ({
   const { type: selectedInfoType, tag: selectedInfoTag } = selectedInfo || {}
   let contentsType
 
-  if(selectedInfoType === 'word') {
-    if(selectedInfoTag === 'w') {
-      contents = (
-        <LowerPanelOriginalWord
-          selectedInfo={selectedInfo}
-          onSizeChangeFunctions={onSizeChangeFunctions}
-        />
-      )
-    } else {
-      contents = (
-        <LowerPanelTranslationWord
-          selectedInfo={selectedInfo}
-          selectedVerse={selectedVerse}
-          selectedVerseUsfm={selectedVerseUsfm}
-          updateSelectedData={updateSelectedData}
-          onSizeChangeFunctions={onSizeChangeFunctions}
-        />
-      )
-    }
+  if(selectedInfoTag === 'w') {
+    contents = (
+      <LowerPanelOriginalWord
+        selectedInfo={selectedInfo}
+        onSizeChangeFunctions={onSizeChangeFunctions}
+      />
+    )
     contentsType = 'word'
 
   } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
@@ -118,6 +105,9 @@ const LowerPanel = ({
       <LowerPanelVsComparison
         selectedSection={selectedSection}
         selectedVerse={selectedVerse}
+        selectedVerseUsfm={selectedVerseUsfm}
+        selectedInfo={selectedInfo}
+        updateSelectedData={updateSelectedData}
         onSizeChangeFunctions={onSizeChangeFunctions}
       />
     )

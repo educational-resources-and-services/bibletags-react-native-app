@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
 
 const NotYetTagged = ({
   passage,
+  tagSet={},
+  iHaveSubmittedATagSet,
+  wordNotYetTagged,
+  onLayout,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -50,12 +54,19 @@ const NotYetTagged = ({
     [ historyPush, passage ],
   )
 
+  const notTagged = [ undefined, 'none' ].includes(tagSet.status)
+  const partiallyTagged = tagSet.status === 'automatch'
+  const unconfirmedTags = tagSet.status === 'unconfirmed'
+  const confirmedTags = tagSet.status === 'confirmed'
+  wordNotYetTagged = !!wordNotYetTagged
+
   return (
     <View
       style={[
         styles.container,
         baseThemedStyle,
       ]}
+      onLayout={onLayout}
     >
 
       <Text
@@ -64,34 +75,44 @@ const NotYetTagged = ({
           labelThemedStyle,
         ]}
       >
-        {/* only show this if untagged */}
-        {/* // TODO: (don't ask the person to confirm if they are the only submitter as it will not confirm!) */}
-        {i18n("Not yet tagged.")}
+
+        {notTagged && i18n("Not yet tagged.")}
+        {partiallyTagged && i18n("Partially tagged.")}
+        {unconfirmedTags && i18n("Contains unconfirmed tags.")}
+        {confirmedTags && i18n("Tap a word in the translation or original to see its parsing and definition.")}
+        {wordNotYetTagged && i18n("This word is not yet tagged.")}
+
       </Text>
 
-      <View style={styles.secondLine}>
-        <Text
-          style={[
-            styles.label,
-            labelThemedStyle,
-          ]}
-        >
-          {passage.ref.bookId <= 39 ? i18n("Know Hebrew?") : i18n("Know Greek?")}
-          {` `}
-        </Text>
-        <TouchableOpacity
-          onPress={goTag}
-        >
-          <Text
-            style={[
-              styles.linkLike,
-              linkThemedStyle,
-            ]}
+      {!confirmedTags &&
+        <View style={styles.secondLine}>
+          {!iHaveSubmittedATagSet &&
+            <Text
+              style={[
+                styles.label,
+                labelThemedStyle,
+              ]}
+            >
+              {passage.ref.bookId <= 39 ? i18n("Know Hebrew?") : i18n("Know Greek?")}
+              {` `}
+            </Text>
+          }
+          <TouchableOpacity
+            onPress={goTag}
           >
-            {i18n("Help us tag it")}
-          </Text>
-        </TouchableOpacity>
-      </View>
+            <Text
+              style={[
+                styles.linkLike,
+                linkThemedStyle,
+              ]}
+            >
+              {iHaveSubmittedATagSet && i18n("Retag this verse")}
+              {!iHaveSubmittedATagSet && (notTagged || partiallyTagged) && i18n("Help us tag it")}
+              {(unconfirmedTags || wordNotYetTagged) && i18n("Tag this verse")}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      }
 
     </View>
   )

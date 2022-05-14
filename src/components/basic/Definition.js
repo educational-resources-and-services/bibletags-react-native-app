@@ -1,10 +1,12 @@
 import React, { useMemo } from "react"
-import { StyleSheet, View, Text, I18nManager } from "react-native"
+import { StyleSheet, View, Text, I18nManager, TouchableOpacity } from "react-native"
 import { i18n } from "inline-i18n"
 import { getGreekPOSTerm, getHebrewPOSTerm } from "@bibletags/bibletags-ui-helper"
 
 import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+
+import Icon from "./Icon"
 
 const styles = StyleSheet.create({
   container: {
@@ -37,6 +39,14 @@ const styles = StyleSheet.create({
   pos: {
     fontSize: 14,
   },
+  extendedInfoContainer: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+  },
+  extendedInfo: {
+    height: 20,
+  },
 })
 
 const Definition = ({
@@ -48,11 +58,14 @@ const Definition = ({
   gloss,
   morphPos,
   onLayout,
+  showExtended,
+  toggleShowExtended,
+  iconStyle,
 
   eva: { style: themedStyle={} },
 }) => {
 
-  const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const { baseThemedStyle, altThemedStyleSets, iconThemedStyle } = useThemedStyleSets(themedStyle)
   const [
     lexThemedStyle={},
     vocalThemedStyle={},
@@ -82,6 +95,7 @@ const Definition = ({
       ]}
       onLayout={onLayout}
     >
+
       <Text style={styles.line}>
         <Text
           style={[
@@ -128,6 +142,7 @@ const Definition = ({
           {i18n("{{hits}}x", { hits })}
         </Text>
       </Text>
+
       <Text
         style={[
           styles.line,
@@ -156,6 +171,21 @@ const Definition = ({
           </React.Fragment>
         ))}
       </Text>
+
+      {/* <TouchableOpacity
+        style={styles.extendedInfoContainer}
+        onPress={toggleShowExtended}
+      >
+        <Icon
+          name={showExtended ? `md-information-circle` : `md-information-circle-outline`}
+          style={[
+            styles.extendedInfo,
+            iconThemedStyle,
+            iconStyle,
+          ]}
+        />
+      </TouchableOpacity> */}
+      
     </View>
   )
 

@@ -7,14 +7,16 @@ const useTagSet = ({
   loc,
   versionId,
   wordsHash,
+  skip,
 }) => {
 
   const [ tagSetInfo, setTagSetInfo ] = useState({})
 
   useEffectAsync(
     async () => {
-
       setTagSetInfo({})
+
+      if(skip) return
 
       let [ [ tagSet ], [ submittedTagSet ] ] = await safelyExecuteSelects([
         {
@@ -53,7 +55,7 @@ const useTagSet = ({
       })
 
     },
-    [ loc, versionId, wordsHash ],
+    [ loc, versionId, wordsHash, skip ],
   )
 
   return tagSetInfo

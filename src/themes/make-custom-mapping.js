@@ -95,7 +95,7 @@ const readTextAndVerseParameters = {
   alt1Color: "rgba(0, 0, 0, .2)", // unfocussedThemedStyle
   alt2Opacity: 0.1, // unselectedBlockThemedStyle
   alt3Color: "rgba(0, 0, 0, .1)", // unselectedThemedStyle
-  alt4Color: "rgba(0, 0, 0, .3)", // semiSelectedVsThemedStyle
+  alt4Color: "rgba(0, 0, 0, .2)", // semiSelectedVsThemedStyle
   alt5Color: "black", // selectedWordThemedStyle
   alt6TextShadowColor: "black", // selectedWordThemedStyle
   alt6Color: "black", // selectedVsThemedStyle
@@ -390,7 +390,7 @@ const mapping = {
       },
     },
     {
-      component: 'LowerPanelWord',
+      component: 'OriginalWordInfo',
       parameters: {
         backgroundColor: '#E9E9E9',
       },
@@ -410,11 +410,7 @@ const mapping = {
       },
     },
     {
-      component: 'LowerPanelTranslationWord',
-      parameters: {
-        labelColor: "color-basic-600",
-        alt0Color: "#DDD", // phantomTextStyle
-      },
+      component: 'LowerPanelVsComparison',
     },
     {
       component: 'ExtendedDefinition',
