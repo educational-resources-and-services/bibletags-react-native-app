@@ -34,7 +34,7 @@ const LowerPanel = ({
 
   const previousSelectedData = usePrevious(selectedData)
 
-  const { selectedSection, selectedVerse, selectedInfo, selectedVerseUsfm } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
+  const { selectedSection, selectedVerse, selectedInfo, selectedTagInfo, selectedVerseUsfm } = (selectedData.selectedSection ? selectedData : previousSelectedData) || {}
   const show = !!selectedData.selectedSection
   const getSelectedData = useInstanceValue(selectedData)  
 
@@ -107,6 +107,7 @@ const LowerPanel = ({
         selectedVerse={selectedVerse}
         selectedVerseUsfm={selectedVerseUsfm}
         selectedInfo={selectedInfo}
+        selectedTagInfo={selectedTagInfo}
         updateSelectedData={updateSelectedData}
         onSizeChangeFunctions={onSizeChangeFunctions}
       />

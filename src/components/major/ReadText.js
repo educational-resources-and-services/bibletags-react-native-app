@@ -458,11 +458,12 @@ const ReadText = ({
           ) {
             const selectedTranslationWordColor = (
               selectedTagInfo
-              && (selectedTagInfo.words.find(({ wordNumberInVerse }) => wordNumberInVerse === piece.wordNumberInVerse) || {}).color
+              && selectedTagInfo[versionId]
+              && (selectedTagInfo[versionId].find(({ wordNumberInVerse }) => wordNumberInVerse === piece.wordNumberInVerse) || {}).color
             )
-  
+
             if(
-              equalObjs(selectedInfo, piece)
+              (!selectedTagInfo && equalObjs(selectedInfo, piece))
               || selectedTranslationWordColor
             ) {
               verseTextStyles = {
@@ -595,7 +596,7 @@ const ReadText = ({
 
       return getJSXFromPieces({ pieces, isTopLevel: true })
     },
-    [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal ],
+    [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal, versionId ],
   )
 
   const initialNumBlocksToRender = useMemo(

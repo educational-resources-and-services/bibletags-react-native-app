@@ -11,7 +11,7 @@ import useBibleVersions from "../../hooks/useBibleVersions"
 import useVersePieces from "../../hooks/useVersePieces"
 import useMemoObject from "../../hooks/useMemoObject"
 import useTagSet from "../../hooks/useTagSet"
-import useOriginalWordsInfo from "../../hooks/useOriginalWordsInfo"
+import useSetSelectedTagInfo from "../../hooks/useSetSelectedTagInfo"
 // import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo, equalObjs, getOriginalVersionInfo, memo } from "../../utils/toolbox"
 
@@ -43,6 +43,7 @@ const LowerPanelVsComparison = ({
   selectedVerse,
   selectedVerseUsfm,
   selectedInfo,
+  selectedTagInfo,
   updateSelectedData,
   onSizeChangeFunctions,
   style,
@@ -159,11 +160,13 @@ const LowerPanelVsComparison = ({
     refs: correspondingRefsByVersion[versionIdShowing],
   })
 
-  const { originalWordsInfo, hasNoCoorespondingOriginalWord } = useOriginalWordsInfo({
+  const { originalWordsInfo, hasNoCoorespondingOriginalWord, onOriginalWordVerseTap } = useSetSelectedTagInfo({
     skip: !isOriginal,
     tagSet,
-    wordNumberInVerse: (selectedInfo || {}).wordNumberInVerse,
     pieces,
+    selectedInfo,
+    selectedTagInfo,
+    selectedVersionId,
     bookId: passage.ref.bookId,
     updateSelectedData,
   })
@@ -173,12 +176,12 @@ const LowerPanelVsComparison = ({
 
   const wordNotYetTagged = !!(
     (tagSet || {}).status === 'automatch'
-    && selectedInfo
+    && selectedTagInfo
     && hasNoCoorespondingOriginalWord
   )
 
   const hasNoTags = [ undefined, 'none' ].includes((tagSet || {}).status)
-  const showNotTagged = !selectedInfo || wordNotYetTagged || hasNoTags
+  const showNotTaggedComponent = !selectedInfo || wordNotYetTagged || hasNoTags
 
   if(versionIdsToShow.length === 0) {
     return (
@@ -244,9 +247,10 @@ const LowerPanelVsComparison = ({
           originalWordsInfo={originalWordsInfo}
           selectedWordIdx={selectedWordIdx}
           setSelectedWordIdx={setSelectedWordIdx}
+          onVerseTap={onOriginalWordVerseTap}
         />
       </ScrollView>
-      {piecesVersionId === 'original' && showNotTagged &&
+      {piecesVersionId === 'original' && showNotTaggedComponent &&
         <NotYetTagged
           passage={passageWithVerse}
           tagSet={tagSet}
@@ -255,7 +259,7 @@ const LowerPanelVsComparison = ({
           onLayout={onSizeChangeFunctions[6]}
         />
       }
-      {piecesVersionId === 'original' && !showNotTagged &&
+      {piecesVersionId === 'original' && !showNotTaggedComponent &&
         <OriginalWordInfo
           morph={morph}
           strong={strong}
