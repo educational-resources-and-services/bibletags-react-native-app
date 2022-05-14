@@ -169,12 +169,19 @@ const useSetSelectedTagInfo = ({
         return
       }
 
-      const allWordIdAndPartNumbersInTag = (
-        tagSet.tags
-          .filter(tag => tag.o.some(wordIdAndPartNumber => wordIdAndPartNumber.split('|')[0] === selectedInfo[`x-id`]))
-          .map(tag => tag.o)
-          .flat()
-      )
+      const allWordIdAndPartNumbersInTag = [ ...new Set([
+        ...(
+          bookId <= 39
+            ? Array((selectedInfo.children || [null]).length).fill().map((x, idx) => `${selectedInfo[`x-id`]}|${idx+1}`)
+            : [ selectedInfo[`x-id`] ]
+        ),
+        ...(
+          tagSet.tags
+            .filter(tag => tag.o.some(wordIdAndPartNumber => wordIdAndPartNumber.split('|')[0] === selectedInfo[`x-id`]))
+            .map(tag => tag.o)
+            .flat()
+        ),
+      ])]
 
       determineAndSetSelectedTagInfo({
         originalWordsInfo: getOriginalWordsInfoFromWordIdAndPartNumbers(allWordIdAndPartNumbersInTag),
