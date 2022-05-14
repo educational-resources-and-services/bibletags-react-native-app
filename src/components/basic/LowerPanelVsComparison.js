@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo, useRef, useLayoutEffect } from "react"
 import { StyleSheet, View, ScrollView, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -197,6 +197,30 @@ const LowerPanelVsComparison = ({
     [ pieces ],
   )
 
+  useLayoutEffect(
+    () => {
+      if(!isOriginal) {
+        onSizeChangeFunctions[6](0,0)
+        updateSelectedData({
+          selectedInfo: null,
+          selectedTagInfo: null,
+        })
+      }
+    },
+    [ isOriginal ],
+  )
+
+  const hasSelectedInfo = !!selectedInfo
+  const originalIdxInVersionIdsToShow = versionIdsToShow.indexOf(`original`)
+  useLayoutEffect(
+    () => {
+      if(!isOriginal && hasSelectedInfo && originalIdxInVersionIdsToShow !== -1) {
+        setIndex(originalIdxInVersionIdsToShow)
+      }
+    },
+    [ hasSelectedInfo ],
+  )
+
   // TODO: show vs num (and chapter when different) before each verse when not the same
 
   return (
@@ -230,7 +254,7 @@ const LowerPanelVsComparison = ({
           onLayout={onSizeChangeFunctions[6]}
         />
       }
-      {!!selectedInfo && !wordNotYetTagged &&
+      {piecesVersionId === 'original' && !!selectedInfo && !wordNotYetTagged &&
         <OriginalWordInfo
           morph={morph}
           strong={strong}
