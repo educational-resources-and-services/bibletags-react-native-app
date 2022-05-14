@@ -98,6 +98,15 @@ const ReadContent = React.memo(({
     [],
   )
 
+  const onScroll = useCallback(
+    () => {
+      if((getSelectedData() || {}).selectedVerse !== undefined) {
+        setSelectedData({})
+      }
+    },
+    [],
+  )
+
   const onViewableItemsChanged = useCallback(
     ({ viewableItems }) => {
       if(viewableItems.length === 1 && getInitialScrollExecuted()) {
@@ -249,6 +258,7 @@ const ReadContent = React.memo(({
         horizontal={true}
         pagingEnabled={true}
         showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
         onViewableItemsChanged={onViewableItemsChanged}
         onLayout={initialScrollExecuted ? onLayout : onLayoutAndSetInitialScrollIndex}
         ref={containerRef}
