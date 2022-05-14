@@ -78,10 +78,10 @@ const NotYetTagged = ({
       >
 
         {notTagged && i18n("Not yet tagged.")}
-        {partiallyTagged && i18n("Partially tagged.")}
+        {partiallyTagged && !wordNotYetTagged && i18n("Unconfirmed, partial tagging.")}
         {unconfirmedTags && i18n("Contains unconfirmed tags.")}
         {confirmedTags && i18n("Tap a word in the translation or original to see its parsing and definition.")}
-        {wordNotYetTagged && i18n("This word is not yet tagged.")}
+        {wordNotYetTagged && i18n("Word not yet tagged.")}
 
       </Text>
 
@@ -108,7 +108,7 @@ const NotYetTagged = ({
               ]}
             >
               {iHaveSubmittedATagSet && i18n("Retag this verse")}
-              {!iHaveSubmittedATagSet && (notTagged || partiallyTagged) && i18n("Help us tag it")}
+              {!iHaveSubmittedATagSet && !wordNotYetTagged && (notTagged || partiallyTagged) && i18n("Help us tag it")}
               {!iHaveSubmittedATagSet && (unconfirmedTags || wordNotYetTagged) && i18n("Tag this verse")}
             </Text>
           </TouchableOpacity>

@@ -172,11 +172,13 @@ const LowerPanelVsComparison = ({
   const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}
 
   const wordNotYetTagged = !!(
-    tagSet
+    (tagSet || {}).status === 'automatch'
     && selectedInfo
-    && !morph
-    && !hasNoCoorespondingOriginalWord
+    && hasNoCoorespondingOriginalWord
   )
+
+  const hasNoTags = [ undefined, 'none' ].includes((tagSet || {}).status)
+  const showNotTagged = !selectedInfo || wordNotYetTagged || hasNoTags
 
   if(versionIdsToShow.length === 0) {
     return (
@@ -244,7 +246,7 @@ const LowerPanelVsComparison = ({
           setSelectedWordIdx={setSelectedWordIdx}
         />
       </ScrollView>
-      {piecesVersionId === 'original' && !selectedInfo &&
+      {piecesVersionId === 'original' && showNotTagged &&
         <NotYetTagged
           passage={passageWithVerse}
           tagSet={tagSet}
@@ -253,7 +255,7 @@ const LowerPanelVsComparison = ({
           onLayout={onSizeChangeFunctions[6]}
         />
       }
-      {piecesVersionId === 'original' && !!selectedInfo && !wordNotYetTagged &&
+      {piecesVersionId === 'original' && !showNotTagged &&
         <OriginalWordInfo
           morph={morph}
           strong={strong}
