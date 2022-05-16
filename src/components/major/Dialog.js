@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useCallback } from "react"
 import { Modal } from "@ui-kitten/components"
 import { StyleSheet, Text, View, ScrollView } from "react-native"
 import { i18n } from "inline-i18n"
@@ -8,6 +8,9 @@ import { useDimensions } from "@react-native-community/hooks"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useBack from "../../hooks/useBack"
 import { memo } from '../../utils/toolbox'
+
+import CoverAndSpin from "../basic/CoverAndSpin"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
 const styles = StyleSheet.create({
   container: {
@@ -47,6 +50,7 @@ const Dialog = ({
   title=i18n("Confirm"),
   message,
   children,
+  submitting,
   buttons=[],
   goHide,
   style,
@@ -61,9 +65,19 @@ const Dialog = ({
 
   const { width, height } = useDimensions().window
 
-  useBack(goHide)
+  useBack(submitting ? null : goHide)
 
   const messageArray = message instanceof Array ? message : [ message ].filter(Boolean)
+
+  const getSubmitting = useInstanceValue(submitting)
+  const onBackdropPress = useCallback(
+    () => {
+      if(!getSubmitting()) {
+        goHide()
+      }
+    },
+    [],
+  )
 
   return (
     <Modal
@@ -73,7 +87,7 @@ const Dialog = ({
         maxHeight: parseInt(height * .85, 10),
         minWidth: 240,
       }}
-      onBackdropPress={goHide}
+      onBackdropPress={onBackdropPress}
       visible={true}
       {...otherProps}
     >
@@ -133,6 +147,9 @@ const Dialog = ({
           </View>
 
         </ScrollView>
+
+        {submitting && <CoverAndSpin translucent />}
+
       </View>
     </Modal>
   )

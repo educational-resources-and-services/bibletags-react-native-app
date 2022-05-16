@@ -6,6 +6,9 @@ import { memo } from "../../utils/toolbox"
 import Spin from "./Spin"
 
 const styles = StyleSheet.create({
+  translucent: {
+    opacity: .5,
+  },
   spinnerContainer: {
     position: 'absolute',
     top: 0,
@@ -26,10 +29,12 @@ const CoverAndSpin = ({
   text,
   percentage,
   style,
+  translucent,
 
   eva: { style: themedStyle={} },
 }) => (
   <View style={[
+    (translucent ? styles.translucent : null),
     styles.spinnerContainer,
     themedStyle,
     style,

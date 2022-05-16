@@ -10,7 +10,6 @@ import useRouterState from "../../hooks/useRouterState"
 import { recordAndSubmitTagSet } from "../../utils/submitTagSet"
 
 import Dialog from "./Dialog"
-import CoverAndSpin from "../basic/CoverAndSpin"
 
 const {
   EMBEDDING_APP_ID,
@@ -353,10 +352,9 @@ const ConfirmTagSubmissionButton = ({
           },
         ]}
         goHide={goHideDialog}
+        submitting={submitting}
         {...dialogInfo}
       />
-
-      {submitting && <CoverAndSpin />}
 
     </>
   )
