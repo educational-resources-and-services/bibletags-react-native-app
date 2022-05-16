@@ -10,6 +10,7 @@ import OriginalWordInfo from "./OriginalWordInfo"
 const LowerPanelOriginalWord = ({
   selectedInfo,
   onSizeChangeFunctions,
+  maxHeight,
 
   passage,
   myBibleVersions,
@@ -31,9 +32,10 @@ const LowerPanelOriginalWord = ({
       morph={morph}
       strong={strong}
       lemma={lemma}
-      onSizeChange={onSizeChangeFunctions[0]}
+      onSizeChangeFunctions={onSizeChangeFunctions}
       doIPhoneBuffer={true}
       translationsOfWordInMyVersions={translationsOfWordInMyVersions}
+      extendedHeight={maxHeight - 210}
     />
   )
 

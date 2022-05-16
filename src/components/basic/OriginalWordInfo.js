@@ -20,6 +20,8 @@ const minWordAndParsingHeight = 60
 const styles = StyleSheet.create({
   container: {
   },
+  containerSelfContained: {
+  },
   wordAndParsing: {
     marginTop: -15,
     paddingBottom: 15,
@@ -27,10 +29,14 @@ const styles = StyleSheet.create({
     minHeight: minWordAndParsingHeight,
     justifyContent: 'flex-end',
   },
+  wordAndParsingSelfContained: {
+    marginTop: 0,
+    minHeight: 0,
+    paddingVertical: 15,
+  },
   translationAndParsingScrollView: {
   },
   horizontalContainer: {
-    flex: 1,
     flexDirection: 'row',
   },
   leftSide: {
@@ -54,17 +60,22 @@ const OriginalWordInfo = ({
   strong=``,
   lemma=``,
   onSizeChange,
+  onSizeChangeFunctions,
   doIPhoneBuffer=false,
   translationsOfWordInMyVersions,
+  extendedHeight,
 
   eva: { style: themedStyle={} },
 
   myBibleVersions,
 }) => {
 
+  extendedHeight = Math.min(280, extendedHeight)
+
   const [ showExtended, setShowExtended ] = useState(false)
   const toggleShowExtended = useCallback(() => setShowExtended(!showExtended), [ showExtended ])
-  const height = (showExtended ? 250 : minWordAndParsingHeight + 63) + getIPhoneXBufferHeight({ extraSpace: true })
+  const height = minWordAndParsingHeight + 63 + (showExtended ? extendedHeight : 0)
+  const adjShowExtended = showExtended && extendedHeight > 150
 
   const { versionIds } = useBibleVersions({ myBibleVersions })
   const versionId = versionIds.find(versionId => versionId !== 'original')
@@ -82,7 +93,7 @@ const OriginalWordInfo = ({
 
   useLayoutEffect(
     () => {
-      onSizeChange(0, height)
+      onSizeChange && onSizeChange(0, height)
     },
     [ height ],
   )
@@ -113,12 +124,16 @@ const OriginalWordInfo = ({
     <View
       style={[
         styles.container,
-        { height },
+        (onSizeChange ? { height } : styles.containerSelfContained),
       ]}
     >
 
       <View
-        style={styles.wordAndParsing}
+        style={[
+          styles.wordAndParsing,
+          (!onSizeChange ? styles.wordAndParsingSelfContained : null),
+        ]}
+        onLayout={onSizeChangeFunctions ? onSizeChangeFunctions[0] : null}
       >
 
         {translationsOfWordInMyVersions &&
@@ -139,6 +154,7 @@ const OriginalWordInfo = ({
           styles.horizontalContainer,
           themedStyle,
         ]}
+        onLayout={onSizeChangeFunctions ? onSizeChangeFunctions[1] : null}
       >
         <View style={styles.leftSide}>
 
@@ -150,12 +166,13 @@ const OriginalWordInfo = ({
             pos={pos}
             gloss={gloss}
             morphPos={morphPos}
-            showExtended={showExtended}
+            showExtended={adjShowExtended}
+            showExtendedOption={extendedHeight > 150}
             toggleShowExtended={toggleShowExtended}
             doIPhoneBuffer={showExtended ? false : doIPhoneBuffer}
           />
 
-          {showExtended &&
+          {adjShowExtended &&
             <ExtendedDefinition
               lexEntry={lexEntry}
               syn={syn}
@@ -164,12 +181,13 @@ const OriginalWordInfo = ({
               morphLemma={lemma}
               forms={forms}
               doIPhoneBuffer={doIPhoneBuffer}
+              height={extendedHeight}
             />
           }
 
         </View>
 
-        {showExtended &&
+        {adjShowExtended &&
           <TranslationBreakdown
             breakdown={breakdown}
             lxx={lxx}

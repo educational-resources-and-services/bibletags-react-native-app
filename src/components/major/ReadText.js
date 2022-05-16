@@ -331,7 +331,7 @@ const ReadText = ({
       let textAlreadyDisplayedInThisView = false
       let currentPrimaryBlockIdx = 0
 
-      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps, isTopLevel }) => {
+      const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps, isTopLevel, noOnPress }) => {
 
         const { font, textSize, lineSpacing, theme } = displaySettings
 
@@ -572,15 +572,16 @@ const ReadText = ({
             textAlreadyDisplayedInThisView = true
           }
 
+          const info = (type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag)) ? piece : null
           let component = (
             <VerseText
               key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
               style={verseTextStyles}
-              onPress={goVerseTap}
+              onPress={noOnPress ? null : goVerseTap}
               verseNumber={vs}
-              info={(type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag)) ? piece : null}
+              info={info}
               // delayRenderMs={vs > 1 ? 500 : 0}
-              ignoreChildrenChanging={ignoreChildrenChanging}
+              ignoreChildrenChanging={ignoreChildrenChanging} 
             >
               {adjustedChildren
                 ? getJSXFromPieces({
@@ -588,6 +589,7 @@ const ReadText = ({
                   sharesBlockWithSelectedVerse: hasSelectedVerseChild,
                   sharesBlockWithFocussedVerse: hasFocussedVerseChild,
                   doSmallCaps,
+                  noOnPress: !!info,
                 })
                 : (text || content)
               }

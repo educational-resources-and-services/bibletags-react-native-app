@@ -7,7 +7,6 @@ import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
   },
   content: {
     paddingVertical: 15,
@@ -24,6 +23,7 @@ const ExtendedDefinition = ({
   forms,
   onContentSizeChange,
   doIPhoneBuffer,
+  height,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -33,6 +33,7 @@ const ExtendedDefinition = ({
       style={[
         styles.container,
         themedStyle,
+        { height },
       ]}
       contentContainerStyle={styles.content}
       onContentSizeChange={onContentSizeChange}

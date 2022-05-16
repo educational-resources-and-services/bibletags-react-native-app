@@ -47,6 +47,7 @@ const LowerPanelVsComparison = ({
   updateSelectedData,
   onSizeChangeFunctions,
   style,
+  maxHeight,
 
   eva: { style: themedStyle={} },
 
@@ -262,6 +263,7 @@ const LowerPanelVsComparison = ({
           strong={strong}
           lemma={lemma}
           onSizeChange={onSizeChangeFunctions[6]}
+          extendedHeight={maxHeight - 310}
         />
       }
       <BottomNavigation

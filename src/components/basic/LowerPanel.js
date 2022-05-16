@@ -42,14 +42,16 @@ const LowerPanel = ({
 
   const { width: windowWidth, height: windowHeight } = useDimensions().window
 
+  const maxHeight = parseInt((windowHeight - 46) * .7, 10)  // i.e. 70% of non-header height
+
   const containerStyle = useMemo(
     () => StyleSheet.flatten([
       styles.container,
       {
-        height: Math.max(Math.min(contentHeight, windowHeight/2), 1),
+        height: Math.max(Math.min(contentHeight, maxHeight), 1),
       },
     ]),
-    [ windowHeight, contentHeight ],
+    [ maxHeight, contentHeight ],
   )
 
   const shadowSetting = useMemo(
@@ -77,7 +79,7 @@ const LowerPanel = ({
   )
 
   let contents = null
-  const { type: selectedInfoType, tag: selectedInfoTag } = selectedInfo || {}
+  const { tag: selectedInfoTag } = selectedInfo || {}
   let contentsType
 
   if(selectedInfoTag === 'w') {
@@ -85,6 +87,7 @@ const LowerPanel = ({
       <LowerPanelOriginalWord
         selectedInfo={selectedInfo}
         onSizeChangeFunctions={onSizeChangeFunctions}
+        maxHeight={maxHeight}
       />
     )
     contentsType = 'word'
@@ -110,6 +113,7 @@ const LowerPanel = ({
         selectedTagInfo={selectedTagInfo}
         updateSelectedData={updateSelectedData}
         onSizeChangeFunctions={onSizeChangeFunctions}
+        maxHeight={maxHeight}
       />
     )
     contentsType = 'vscomparison'

@@ -65,6 +65,7 @@ const Definition = ({
   toggleShowExtended,
   iconStyle,
   doIPhoneBuffer,
+  showExtendedOption=false,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -178,19 +179,21 @@ const Definition = ({
           ))}
         </Text>
 
-        {/* <TouchableOpacity
-          style={styles.extendedInfoContainer}
-          onPress={toggleShowExtended}
-        >
-          <Icon
-            name={showExtended ? `md-information-circle` : `md-information-circle-outline`}
-            style={[
-              styles.extendedInfo,
-              iconThemedStyle,
-              iconStyle,
-            ]}
-          />
-        </TouchableOpacity> */}
+        {showExtendedOption &&
+          <TouchableOpacity
+            style={styles.extendedInfoContainer}
+            onPress={toggleShowExtended}
+          >
+            <Icon
+              name={showExtended ? `md-information-circle` : `md-information-circle-outline`}
+              style={[
+                styles.extendedInfo,
+                iconThemedStyle,
+                iconStyle,
+              ]}
+            />
+          </TouchableOpacity>
+        }
 
       </View>
 
