@@ -19,6 +19,7 @@ const minWordAndParsingHeight = 60
 
 const styles = StyleSheet.create({
   container: {
+    justifyContent: 'flex-end',
   },
   containerSelfContained: {
   },
