@@ -70,7 +70,7 @@ const OriginalWordInfo = ({
   myBibleVersions,
 }) => {
 
-  extendedHeight = Math.min(280, extendedHeight)
+  extendedHeight = Math.min(220, extendedHeight)
 
   const [ showExtended, setShowExtended ] = useState(false)
   const toggleShowExtended = useCallback(() => setShowExtended(!showExtended), [ showExtended ])
