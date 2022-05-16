@@ -578,7 +578,7 @@ const ReadText = ({
               key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
               style={verseTextStyles}
               onPress={noOnPress ? null : goVerseTap}
-              verseNumber={vs}
+              verseNumber={tagInList({ tag, list: blockUsfmMarkers }) ? null : vs}
               info={info}
               // delayRenderMs={vs > 1 ? 500 : 0}
               ignoreChildrenChanging={ignoreChildrenChanging} 
