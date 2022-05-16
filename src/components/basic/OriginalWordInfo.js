@@ -168,7 +168,8 @@ const OriginalWordInfo = ({
             gloss={gloss}
             morphPos={morphPos}
             showExtended={adjShowExtended}
-            showExtendedOption={extendedHeight > 150}
+            // showExtendedOption={extendedHeight > 150}
+            showExtendedOption={false}
             toggleShowExtended={toggleShowExtended}
             doIPhoneBuffer={showExtended ? false : doIPhoneBuffer}
           />
