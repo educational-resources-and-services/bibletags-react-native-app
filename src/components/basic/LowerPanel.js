@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useCallback } from "react"
+import React, { useMemo, useCallback } from "react"
 import { StyleSheet, View, Platform } from "react-native"
 import { useDimensions } from '@react-native-community/hooks'
 import usePrevious from "react-use/lib/usePrevious"
@@ -115,7 +115,9 @@ const LowerPanel = ({
     contentsType = 'vscomparison'
   }
 
-  useEffect(clearRecordedHeights, [ contentsType ])
+  // Need to use useMemo (instead of useLayoutEffect) so that it fires
+  // before any of the new heights are set.
+  useMemo(() => clearRecordedHeights(), [ contentsType ])
 
   if(Platform.OS === 'android') {
     contents = (

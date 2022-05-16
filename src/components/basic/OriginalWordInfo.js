@@ -7,13 +7,13 @@ import { i18n } from "inline-i18n"
 import useDefinition from "../../hooks/useDefinition"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import { getMorphInfo, memo } from "../../utils/toolbox"
+import { getIPhoneXBufferHeight } from "./IPhoneXBuffer"
 
 import Parsing from "./Parsing"
 import Definition from "./Definition"
 import TranslationsOfWordInMyVersions from "./TranslationsOfWordInMyVersions"
 import ExtendedDefinition from "./ExtendedDefinition"
 import TranslationBreakdown from "./TranslationBreakdown"
-import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const minWordAndParsingHeight = 60
 
@@ -64,7 +64,7 @@ const OriginalWordInfo = ({
 
   const [ showExtended, setShowExtended ] = useState(false)
   const toggleShowExtended = useCallback(() => setShowExtended(!showExtended), [ showExtended ])
-  const height = showExtended ? 250 : minWordAndParsingHeight + 63
+  const height = (showExtended ? 250 : minWordAndParsingHeight + 63) + getIPhoneXBufferHeight({ extraSpace: true })
 
   const { versionIds } = useBibleVersions({ myBibleVersions })
   const versionId = versionIds.find(versionId => versionId !== 'original')
@@ -152,6 +152,7 @@ const OriginalWordInfo = ({
             morphPos={morphPos}
             showExtended={showExtended}
             toggleShowExtended={toggleShowExtended}
+            doIPhoneBuffer={showExtended ? false : doIPhoneBuffer}
           />
 
           {showExtended &&
@@ -162,12 +163,7 @@ const OriginalWordInfo = ({
               lemmas={lemmas}
               morphLemma={lemma}
               forms={forms}
-            />
-          }
-
-          {doIPhoneBuffer &&
-            <IPhoneXBuffer
-              extraSpace={true}
+              doIPhoneBuffer={doIPhoneBuffer}
             />
           }
 

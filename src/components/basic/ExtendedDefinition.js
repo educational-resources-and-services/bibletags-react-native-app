@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text } from "react-native"
 
 import { memo } from "../../utils/toolbox"
 
+import IPhoneXBuffer from "./IPhoneXBuffer"
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -21,6 +23,7 @@ const ExtendedDefinition = ({
   morphLemma,
   forms,
   onContentSizeChange,
+  doIPhoneBuffer,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -36,6 +39,12 @@ const ExtendedDefinition = ({
     >
       <Text>
       </Text>
+
+      {doIPhoneBuffer &&
+        <IPhoneXBuffer
+          extraSpace={true}
+        />
+      }
     </ScrollView>
   )
 

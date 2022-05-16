@@ -22,7 +22,6 @@ const LowerPanelOriginalWord = ({
 
   const translationsOfWordInMyVersions = useTranslationsOfWordInMyVersions({
     wordId,
-    wordPartNumber,
     originalLoc: getLocFromRef(ref),
     myBibleVersions,
   })
@@ -32,7 +31,7 @@ const LowerPanelOriginalWord = ({
       morph={morph}
       strong={strong}
       lemma={lemma}
-      onSizeChangeFunctions={onSizeChangeFunctions}
+      onSizeChange={onSizeChangeFunctions[0]}
       doIPhoneBuffer={true}
       translationsOfWordInMyVersions={translationsOfWordInMyVersions}
     />

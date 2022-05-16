@@ -7,9 +7,12 @@ import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 import Icon from "./Icon"
+import IPhoneXBuffer from "./IPhoneXBuffer"
 
 const styles = StyleSheet.create({
   container: {
+  },
+  innerContainer: {
     paddingVertical: 15,
     paddingHorizontal: 18,
   },
@@ -61,6 +64,7 @@ const Definition = ({
   showExtended,
   toggleShowExtended,
   iconStyle,
+  doIPhoneBuffer,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -96,96 +100,106 @@ const Definition = ({
       onLayout={onLayout}
     >
 
-      <Text style={styles.line}>
-        <Text
-          style={[
-            lexStyle,
-            lexThemedStyle,
-          ]}
-        >
-          {I18nManager.isRTL ? `\u2067`: `\u2066`}
-          {lex}
-        </Text>
-        {`  `}
-        <Text
-          style={[
-            styles.vocal,
-            vocalThemedStyle,
-          ]}
-        >
-          {vocal}
-        </Text>
-        {`  `}
-        <Text
-          style={[
-            styles.strongsHash,
-            strongsHashThemedStyle,
-          ]}
-        >
-          #
-        </Text>
-        <Text
-          style={[
-            styles.strongs,
-            strongsThemedStyle,
-          ]}
-        >
-          {id}
-        </Text>
-        {`  `}
-        <Text
-          style={[
-            styles.num,
-            numThemedStyle,
-          ]}
-        >
-          {i18n("{{hits}}x", { hits })}
-        </Text>
-      </Text>
+      <View style={styles.innerContainer}>
 
-      <Text
-        style={[
-          styles.line,
-        ]}
-      >
+        <Text style={styles.line}>
+          <Text
+            style={[
+              lexStyle,
+              lexThemedStyle,
+            ]}
+          >
+            {I18nManager.isRTL ? `\u2067`: `\u2066`}
+            {lex}
+          </Text>
+          {`  `}
+          <Text
+            style={[
+              styles.vocal,
+              vocalThemedStyle,
+            ]}
+          >
+            {vocal}
+          </Text>
+          {`  `}
+          <Text
+            style={[
+              styles.strongsHash,
+              strongsHashThemedStyle,
+            ]}
+          >
+            #
+          </Text>
+          <Text
+            style={[
+              styles.strongs,
+              strongsThemedStyle,
+            ]}
+          >
+            {id}
+          </Text>
+          {`  `}
+          <Text
+            style={[
+              styles.num,
+              numThemedStyle,
+            ]}
+          >
+            {i18n("{{hits}}x", { hits })}
+          </Text>
+        </Text>
+
         <Text
           style={[
-            styles.definition,
-            definitionThemedStyle,
+            styles.line,
           ]}
         >
-          {gloss}
+          <Text
+            style={[
+              styles.definition,
+              definitionThemedStyle,
+            ]}
+          >
+            {gloss}
+          </Text>
+          {`  `}
+          {pos.map((posAbbr, idx) => (
+            <React.Fragment key={idx}>
+              {idx > 0 && ` `}
+              <Text
+                style={[
+                  styles.pos,
+                  (posAbbr === morphPos ? selectedPosThemedStyle : posThemedStyle),
+                ]}
+              >
+                {/^G/.test(id) ? getGreekPOSTerm(posAbbr) : getHebrewPOSTerm(posAbbr)}
+              </Text>
+            </React.Fragment>
+          ))}
         </Text>
-        {`  `}
-        {pos.map((posAbbr, idx) => (
-          <React.Fragment key={idx}>
-            {idx > 0 && ` `}
-            <Text
-              style={[
-                styles.pos,
-                (posAbbr === morphPos ? selectedPosThemedStyle : posThemedStyle),
-              ]}
-            >
-              {/^G/.test(id) ? getGreekPOSTerm(posAbbr) : getHebrewPOSTerm(posAbbr)}
-            </Text>
-          </React.Fragment>
-        ))}
-      </Text>
 
-      {/* <TouchableOpacity
-        style={styles.extendedInfoContainer}
-        onPress={toggleShowExtended}
-      >
-        <Icon
-          name={showExtended ? `md-information-circle` : `md-information-circle-outline`}
-          style={[
-            styles.extendedInfo,
-            iconThemedStyle,
-            iconStyle,
-          ]}
+        {/* <TouchableOpacity
+          style={styles.extendedInfoContainer}
+          onPress={toggleShowExtended}
+        >
+          <Icon
+            name={showExtended ? `md-information-circle` : `md-information-circle-outline`}
+            style={[
+              styles.extendedInfo,
+              iconThemedStyle,
+              iconStyle,
+            ]}
+          />
+        </TouchableOpacity> */}
+
+      </View>
+
+      {doIPhoneBuffer &&
+        <IPhoneXBuffer
+          extraSpace={true}
         />
-      </TouchableOpacity> */}
-      
+      }
+
     </View>
   )
 
