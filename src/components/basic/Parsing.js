@@ -11,6 +11,9 @@ const styles = StyleSheet.create({
   },
   morph: {
   },
+  indeclinable: {
+    color: '#999',
+  },
 })
 
 const Parsing = ({
@@ -30,7 +33,7 @@ const Parsing = ({
 
   const { morphLang, morphParts, mainPartIdx } = getMorphInfo(morph)
 
-  const contents = morphParts.map((morphPart, idx) => {
+  let contents = morphParts.map((morphPart, idx) => {
 
     const isPrefixOrSuffix = isEntirelyPrefixAndSuffix || idx !== mainPartIdx
     const wordIsMultiPart = morphParts.length > 1
@@ -52,7 +55,13 @@ const Parsing = ({
 
   })
 
-  if(contents.filter(Boolean).length === 0) return resetAndReturn()
+  if(contents.filter(Boolean).length === 0) {
+    contents = (
+      <Text style={styles.indeclinable}>
+        {i18n("indeclinable")}
+      </Text>
+    )
+  }
 
   return (
     <View
