@@ -38,12 +38,12 @@ const useTagSet = ({
       ])
 
       if(submittedTagSet && !submittedTagSet.submitted) {
-        // assume their tagging with superceded the existing tagSet
+        // assume their tagging will supersede the existing tagSet
         tagSet = {
           id: `${loc}-${versionId}-${wordsHash}`,
-          tags: submittedTagSet.input.map(({ origWordsInfo, translationWordsInfo }) => ({
+          tags: submittedTagSet.input.tagSubmissions.map(({ origWordsInfo, translationWordsInfo }) => ({
             o: origWordsInfo.map(({ uhbWordId, wordPartNumber }) => `${uhbWordId}${wordPartNumber ? `|${wordPartNumber}` : ``}`),
-            t: origWordsInfo.map(({ wordNumberInVerse }) => wordNumberInVerse),
+            t: translationWordsInfo.map(({ wordNumberInVerse }) => wordNumberInVerse),
           })),
           status: `unconfirmed`,
         }
