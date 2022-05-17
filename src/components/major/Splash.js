@@ -77,7 +77,7 @@ const Splash = ({
       if(isReady && (!showDelayText || textAnimationComplete)) {
 
         if(updateExists) {
-          Updates.reloadAsync()
+          setTimeout(Updates.reloadAsync, 100)  // without the timeout, it kills the app (not sure why)
         } else {
           Animated.timing(splashAnimation, {
             toValue: 1,
