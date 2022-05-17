@@ -113,6 +113,8 @@ const viewStyles = StyleSheet.create({
   // },
 })
 
+const noop = () => {}
+
 const ReadText = ({
   versionId,
   passageRef,
@@ -133,7 +135,7 @@ const ReadText = ({
   height,
   reportNumberOfVerses,
   waitOnInitialRender,
-  setIsRendered,
+  setIsRendered=noop,
 
   eva: { style: themedStyle={} },
 
