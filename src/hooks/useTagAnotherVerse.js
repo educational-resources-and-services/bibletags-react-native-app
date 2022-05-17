@@ -1,4 +1,4 @@
-import { useCallback } from "react"
+import { useCallback, useState } from "react"
 import { getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
 
 import { safelyExecuteSelects } from "../utils/toolbox"
@@ -26,6 +26,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
   const { historyPush, historyReplace } = useRouterState()
   const { versionIds } = useBibleVersions({ myBibleVersions })
+  const [ somethingToTag, setSomethingToTag ] = useState(false)
 
   const getPassageToTag = useCallback(
     async passageToFirstRemove => {
@@ -34,10 +35,13 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
         indicatedVersesTagged(passageToFirstRemove)
       }
 
-      const getPassage = () => ({
-        versionId: currentVersionId,
-        ref: getRefFromLoc(currentLocsToTag[0]),
-      })
+      const getPassage = () => {
+        setSomethingToTag(true)
+        return {
+          versionId: currentVersionId,
+          ref: getRefFromLoc(currentLocsToTag[0]),
+        }
+      }
 
       if(currentLocsToTag.length > 0) return getPassage()
 
@@ -46,6 +50,31 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
         const status = statusesToDo[currentStatusIdx]
 
         const getCurrentLocsToTag = async () => {
+
+          // this first query set speeds things up
+
+          const [ [{ tagSetsCount }], [{ versesCount }]=[{}] ] = await safelyExecuteSelects([
+            {
+              database: `versions/${currentVersionId}/tagSets`,
+              statement: () => (
+                status === 'none'
+                  ? `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status!=?`
+                  : `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status=?`
+              ),
+              args: [
+                `${`0${currentBookId}`.slice(-2)}%`,
+                status,
+              ],
+            },
+            ...(status !== 'none' ? [] : [{
+              versionId: currentVersionId,
+              bookId: currentBookId,
+              statement: () => `SELECT COUNT(*) AS versesCount FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
+            }]),
+          ])
+
+          if(status === 'none' && tagSetsCount >= versesCount) return
+          if(status !== 'none' && tagSetsCount === 0) return
 
           const [ verses, tagSets ] = await safelyExecuteSelects([
             {
@@ -85,6 +114,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
         const currentVersionIdIdx = Math.max(versionIds.indexOf(currentVersionId), 0)
         for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<versionIds.length; versionIdsIdx++) {
           currentVersionId = versionIds[versionIdsIdx]
+          if(currentVersionId === 'original') continue
           while(++currentBookId <= 66) {
             await getCurrentLocsToTag()
             if(currentLocsToTag.length > 0) {
@@ -93,11 +123,15 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
           }
           currentBookId = 0
         }
+        currentVersionId = versionIds[0]
+
 
       }
 
+      setSomethingToTag(false)
+
     },
-    [],
+    [ versionIds ],
   )
 
   useEffectAsync(getPassageToTag, [])
@@ -112,7 +146,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
   )
 
   return {
-    tagAnotherVerse,
+    tagAnotherVerse: somethingToTag ? tagAnotherVerse : null,
   }
 
 }

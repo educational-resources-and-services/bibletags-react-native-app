@@ -243,11 +243,11 @@ const ConfirmTagSubmissionButton = ({
                 historyGoBack()  // TODO: needs to scroll
               },
             },
-            {
+            ...(!tagAnotherVerse ? [] : [{
               text: i18n("Tag another verse"),
               onPress: tagAnotherVerse,
               style: 'cancel',
-            },
+            }]),
           ]
         )
       }

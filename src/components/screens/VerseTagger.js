@@ -35,9 +35,10 @@ const styles = StyleSheet.create({
   },
   confirmButtonContainer: {
     paddingTop: 26,
+    paddingBottom: 20,
   },
   skipButtonContainer: {
-    paddingTop: 10,
+    marginTop: -10,
     paddingBottom: 20,
   },
 })
@@ -380,14 +381,16 @@ const VerseTagger = ({
               />
             </View>
 
-            <View style={styles.skipButtonContainer}>
-              <Button
-                onPress={tagAnotherVerse}
-                appearance='ghost'
-              >
-                {i18n("Skip and tag a different verse")}
-              </Button>
-            </View>
+            {!!tagAnotherVerse &&
+              <View style={styles.skipButtonContainer}>
+                <Button
+                  onPress={tagAnotherVerse}
+                  appearance='ghost'
+                >
+                  {i18n("Skip and tag a different verse")}
+                </Button>
+              </View>
+            }
 
             {instructionsCover}
 
