@@ -30,8 +30,10 @@ const {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     flex: 1,
+  },
+  contentContainer: {
+    padding: 20,
   },
   confirmButtonContainer: {
     paddingTop: 26,
@@ -333,8 +335,9 @@ const VerseTagger = ({
       />
 
       <ScrollView
+        style={styles.container}
         contentContainerStyle={[
-          styles.container,
+          styles.contentContainer,
           baseThemedStyle,
           style,
         ]}
