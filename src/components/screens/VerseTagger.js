@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react"
+import React, { useState, useLayoutEffect, useCallback, useMemo } from "react"
 import { StyleSheet, View, ScrollView } from "react-native"
 import Constants from "expo-constants"
 import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 
-import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj, getWordIdAndPartNumber } from "../../utils/toolbox"
+import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj, getWordIdAndPartNumber, equalObjs } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import useTagSet from "../../hooks/useTagSet"
 
 import SafeLayout from "../basic/SafeLayout"
 import Verse from "../basic/Verse"
@@ -59,6 +60,13 @@ const VerseTagger = ({
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
   const [ wordsHash, setWordsHash ] = useState()
+
+  const { tagSet, myTagSet } = useTagSet({
+    loc: getLocFromRef(ref),
+    versionId,
+    wordsHash,
+    skip: !wordsHash,
+  })
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
@@ -179,7 +187,7 @@ const VerseTagger = ({
     [],
   )
 
-  useEffect(
+  useLayoutEffect(
     () => {
 
       const version = getVersionInfo(versionId)
@@ -258,6 +266,44 @@ const VerseTagger = ({
     [ JSON.stringify(ref), versionId ],
   )
 
+  useLayoutEffect(
+    () => {
+      if(
+        tagSet
+        && pieces
+        && equalObjs(selectedWordIdAndPartNumbers, [])
+        && (
+          myTagSet
+          || tagSet.status === 'automatch'
+        )
+      ) {
+
+        const wordByWordNumberInVerse = {}
+        pieces
+          .map(({ children }) => children)
+          .filter(Boolean)
+          .flat()
+          .forEach(({ wordNumberInVerse, text }) => {
+            if(wordNumberInVerse) {
+              wordByWordNumberInVerse[wordNumberInVerse] = text
+            }
+          })
+
+        const newTranslationWordInfoByWordIdAndPartNumbers = {}
+        ;(myTagSet || tagSet).tags.forEach(tag => {
+          newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => ({
+            wordNumberInVerse,
+            word: wordByWordNumberInVerse[wordNumberInVerse],
+            hasUnknownCapitalization: false,
+          }))
+        })
+        setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
+
+      }
+    },
+    [ !!(tagSet && pieces) ],
+  )
+
   const extraButtons = useMemo(
     () => [
       <HeaderIconButton
@@ -269,6 +315,8 @@ const VerseTagger = ({
     ],
     [ historyPush ],
   )
+
+  const ready = !!(pieces && originalPieces && tagSet)
 
   return (
     <SafeLayout>
@@ -291,9 +339,9 @@ const VerseTagger = ({
         ]}
       >
 
-        {!(pieces && originalPieces) && <CoverAndSpin />}
+        {!ready && <CoverAndSpin />}
 
-        {!!(pieces && originalPieces) &&
+        {ready &&
           <>
 
             <TaggerVerse
