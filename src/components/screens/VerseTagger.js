@@ -1,9 +1,12 @@
 import React, { useState, useLayoutEffect, useCallback, useMemo } from "react"
 import { StyleSheet, View, ScrollView } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import Constants from "expo-constants"
 import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
+import { Button } from "@ui-kitten/components"
 
 import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj, getWordIdAndPartNumber, equalObjs } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
@@ -11,6 +14,7 @@ import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useTagSet from "../../hooks/useTagSet"
 import useTaggingInstructions from "../../hooks/useTaggingInstructions"
+import useTagAnotherVerse from "../../hooks/useTagAnotherVerse"
 
 import SafeLayout from "../basic/SafeLayout"
 import Verse from "../basic/Verse"
@@ -29,8 +33,11 @@ const styles = StyleSheet.create({
     padding: 20,
     flex: 1,
   },
-  buttonContainer: {
+  confirmButtonContainer: {
     paddingTop: 26,
+  },
+  skipButtonContainer: {
+    paddingTop: 10,
     paddingBottom: 20,
   },
 })
@@ -44,6 +51,8 @@ const VerseTagger = ({
   style,
 
   eva: { style: themedStyle={} },
+
+  myBibleVersions,
 }) => {
 
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
@@ -54,7 +63,9 @@ const VerseTagger = ({
   const { routerState } = useRouterState()
   const { passage } = routerState
   const { ref, versionId } = passage
-  const alignmentType = "without-suggestion"  // TODO
+  const alignmentType = "without-suggestion"  // TODO (if I ever present existing tagSets to new taggers of that verse; other options: affirmation, correction)
+
+  const { tagAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage })
 
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
@@ -356,7 +367,7 @@ const VerseTagger = ({
               hideSuperscripts={true}
             />
 
-            <View style={styles.buttonContainer}>
+            <View style={styles.confirmButtonContainer}>
               <ConfirmTagSubmissionButton
                 alignmentType={alignmentType}
                 getUsedWordNumbers={getUsedWordNumbers}
@@ -365,7 +376,17 @@ const VerseTagger = ({
                 pieces={pieces}
                 passage={passage}
                 wordsHash={wordsHash}
+                tagAnotherVerse={tagAnotherVerse}
               />
+            </View>
+
+            <View style={styles.skipButtonContainer}>
+              <Button
+                onPress={tagAnotherVerse}
+                appearance='ghost'
+              >
+                {i18n("Skip and tag a different verse")}
+              </Button>
             </View>
 
             {instructionsCover}
@@ -380,4 +401,11 @@ const VerseTagger = ({
 
 }
 
-export default memo(VerseTagger, { name: 'VerseTagger' })
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+}, dispatch)
+
+export default memo(connect(mapStateToProps, matchDispatchToProps)(VerseTagger), { name: 'VerseTagger' })

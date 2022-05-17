@@ -1,4 +1,5 @@
 import { executeSql, doGraphql, setAsyncStorage, getAsyncStorage } from "./toolbox"
+import { indicatedVersesTagged } from "../hooks/useTagAnotherVerse"
 
 const attrs = {
   id: "TEXT PRIMARY KEY",
@@ -43,6 +44,7 @@ export const updateDBWithTagSets = async ({ updatedTagSets, versionId, updatedFr
       ],
     })),
   })
+  indicatedVersesTagged({ versionId, locs: tagSets.map(({ id }) => id.split('-')[0]) })
 
   await setAsyncStorage(updatedFromKey, newUpdatedFrom)
 }

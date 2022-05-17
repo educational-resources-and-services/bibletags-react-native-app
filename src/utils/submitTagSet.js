@@ -2,6 +2,7 @@ import { i18n } from "inline-i18n"
 
 import { executeSql, doGraphql, sentry, getAsyncStorage } from './toolbox'
 import { tagSetUpdateFields, updateDBWithTagSets } from "./updateTagSets"
+import { indicatedVersesTagged } from "../hooks/useTagAnotherVerse"
 
 const noop = () => {}
 
@@ -21,6 +22,7 @@ export const recordAndSubmitTagSet = async ({ input, historyPush }) => {
       ],
     ],
   })
+  indicatedVersesTagged(input)
 
   return submitTagSet({ input, historyPush })
 }

@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
 
 const Read = () => {
 
-  const { historyPush } = useRouterState()
+  const { historyPush, routerState } = useRouterState()
 
   const [ showingDisplaySettings, setShowingDisplaySettings ] = useState(false)
   const [ showingPassageChooser, setShowingPassageChooser ] = useState(false)
@@ -82,7 +82,7 @@ const Read = () => {
   return (
     <Routes>
       <Route path="/Search" element={<Search />} />
-      <Route path="/VerseTagger" element={<VerseTagger />} />
+      <Route path="/VerseTagger" element={<VerseTagger key={JSON.stringify(routerState.passage)} />} />
       <Route path="/VerseTagger/Help" element={<VerseTaggerHelp />} />
       <Route path="/VerseFocus" element={<VerseFocus />} />
       <Route path="/Versions/*" element={<Versions />} />

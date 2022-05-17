@@ -65,6 +65,7 @@ const ConfirmTagSubmissionButton = ({
   pieces,
   passage,
   wordsHash,
+  tagAnotherVerse,
 }) => {
 
   const { historyGoBack, historyPush } = useRouterState()
@@ -228,7 +229,6 @@ const ConfirmTagSubmissionButton = ({
         })
 
       } else {
-        historyGoBack()  // TODO: needs to scroll
         Alert.alert(
           i18n("Thanks!"),
           (
@@ -236,6 +236,19 @@ const ConfirmTagSubmissionButton = ({
               ? i18n("Tags submitted successfully.")
               : i18n("Tags will be submitted next time you are online.")
           ),
+          [
+            {
+              text: i18n("Back to reading"),
+              onPress: () => {
+                historyGoBack()  // TODO: needs to scroll
+              },
+            },
+            {
+              text: i18n("Tag another verse"),
+              onPress: tagAnotherVerse,
+              style: 'cancel',
+            },
+          ]
         )
       }
 

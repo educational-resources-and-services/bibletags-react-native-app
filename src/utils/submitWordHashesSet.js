@@ -1,4 +1,5 @@
 import { executeSql, doGraphql, sentry } from './toolbox'
+import { indicatedVersesTagged } from "../hooks/useTagAnotherVerse"
 
 export const getWordHashesSetSubmissionId = ({ loc, versionId, wordsHash }) => `${loc}-${versionId}-${wordsHash}`
 
@@ -65,6 +66,7 @@ const submitWordHashesSet = async ({ input }) => {
         ))
       ],
     })
+    indicatedVersesTagged({ versionId: input.versionId, loc: tagSet.id.split('-')[0] })
 
     return true
 
