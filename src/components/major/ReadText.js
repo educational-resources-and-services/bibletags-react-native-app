@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import Constants from "expo-constants"
-import { View, FlatList, StyleSheet, Platform } from "react-native"
+import { View, FlatList, StyleSheet, Platform, TouchableWithoutFeedback } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "@bibletags/bibletags-ui-helper"
@@ -34,7 +34,7 @@ const viewStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
-    padding: 20,
+    paddingBottom: 20,
     paddingTop: (
       Platform.OS === 'android'
         ? 65
@@ -48,64 +48,67 @@ const viewStyles = StyleSheet.create({
   parallelContent: {
     paddingTop: 20,
   },
+  block: {
+    paddingHorizontal: 20,
+  },
   mt: {
-    marginTop: 10,
-    marginBottom: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   ms: {
-    marginTop: 7,
-    marginBottom: 5,
+    paddingTop: 7,
+    paddingBottom: 5,
   },
   s1: {
-    marginTop: 10,
-    marginBottom: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   s2: {
-    marginTop: 10,
-    marginBottom: 5,
+    paddingTop: 10,
+    paddingBottom: 5,
   },
   s3: {
-    marginTop: 5,
-    marginBottom: 5,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   d: {
-    marginTop: 5,
-    marginBottom: 12,
+    paddingTop: 5,
+    paddingBottom: 12,
   },
   p: {
-    marginTop: 5,
-    marginBottom: 5,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   q: {
-    marginLeft: 20,
+    paddingLeft: 20,
   },
   q1: {
-    marginLeft: 20,
+    paddingLeft: 20,
   },
   q2: {
-    marginLeft: 40,
+    paddingLeft: 40,
   },
   q3: {
-    marginLeft: 60,
+    paddingLeft: 60,
   },
   q4: {
-    marginLeft: 80,
+    paddingLeft: 80,
   },
   q5: {
-    marginLeft: 100,
+    paddingLeft: 100,
   },
   q6: {
-    marginLeft: 120,
+    paddingLeft: 120,
   },
   q7: {
-    marginLeft: 140,
+    paddingLeft: 140,
   },
   qd: {
-    marginTop: 20,
+    paddingTop: 20,
   },
   qa: {
-    marginTop: 20,
-    marginBottom: 5,
+    paddingTop: 20,
+    paddingBottom: 5,
   },
   // sup: {
   //   position: "relative",
@@ -444,7 +447,7 @@ const ReadText = ({
             selectedVerse !== null
             && verse !== undefined
             && verse === selectedVerse
-            && !!selectedInfo
+            && !!(selectedInfo || selectedTagInfo)
           ) {
             verseTextStyles = {
               ...verseTextStyles,
@@ -518,7 +521,7 @@ const ReadText = ({
           ) {
             verseTextStyles = {
               ...verseTextStyles,
-              ...unselectedBlockThemedStyle,
+              ...unfocussedBlockThemedStyle,
             }
             keyForAndroid = `unselectedThemedStyle`
           }
@@ -577,7 +580,8 @@ const ReadText = ({
           const info = (type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag)) ? piece : null
           let component = (
             <VerseText
-              key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
+              // key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
+              key={`${keyForAndroid}-${idx}`}  // NOTE: replaced the top line with this due to the footnote dots in Gen 2:6 ESV not getting updated properly on iOS
               style={verseTextStyles}
               onPress={noOnPress ? null : goVerseTap}
               verseNumber={tagInList({ tag, list: blockUsfmMarkers }) ? null : vs}
@@ -600,14 +604,19 @@ const ReadText = ({
 
           if(wrapInView) {
             component = (
-              <View
+              <TouchableWithoutFeedback
                 key={idx}
-                style={[
-                  getTagStyle({ tag, styles: viewStyles }),
-                ]}
+                onPress={onVerseTap}
               >
-                {component}
-              </View>
+                <View
+                  style={[
+                    viewStyles.block,
+                    getTagStyle({ tag, styles: viewStyles }),
+                  ]}
+                >
+                  {component}
+                </View>
+              </TouchableWithoutFeedback>
             )
           }
 
