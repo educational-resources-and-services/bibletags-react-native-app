@@ -10,6 +10,7 @@ import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useTagSet from "../../hooks/useTagSet"
+import useTaggingInstructions from "../../hooks/useTaggingInstructions"
 
 import SafeLayout from "../basic/SafeLayout"
 import Verse from "../basic/Verse"
@@ -52,7 +53,7 @@ const VerseTagger = ({
     translationThemedStyle={},
   ] = altThemedStyleSets
 
-  const { routerState, historyPush } = useRouterState()
+  const { routerState } = useRouterState()
   const { passage } = routerState
   const { ref, versionId } = passage
   const alignmentType = "without-suggestion"  // TODO
@@ -67,6 +68,8 @@ const VerseTagger = ({
     wordsHash,
     skip: !wordsHash,
   })
+
+  const { instructionsCover, openInstructions } = useTaggingInstructions()
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
@@ -308,12 +311,12 @@ const VerseTagger = ({
     () => [
       <HeaderIconButton
         key="help"
-        name="md-help-circle"
-        onPress={() => historyPush("/Read/VerseTagger/Help")}
+        name="md-information-circle-outline"
+        onPress={openInstructions}
         uiStatus="unselected"
       />,
     ],
-    [ historyPush ],
+    [ openInstructions ],
   )
 
   const ready = !!(pieces && originalPieces && tagSet)
@@ -378,6 +381,8 @@ const VerseTagger = ({
                 wordsHash={wordsHash}
               />
             </View>
+
+            {instructionsCover}
 
           </>
         }

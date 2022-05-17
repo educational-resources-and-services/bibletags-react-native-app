@@ -57,7 +57,16 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            1. DO NOT tag the indefinite article in a translation.
+            1. Tap an original language word, then its associated translation words. Repeat. Do this for the entire verse before submitting.
+          </Text>
+          <Text style={styles.example}>
+            Eg. In Genesis 1:1, you would tap “<Text style={styles.hebrew}>בְּ</Text>” then “In”. Next, you would tap “<Text style={styles.hebrew}>רֵאשִׁ֖ית</Text>” then “beginning”. And so on until the end of the verse.
+          </Text>
+        </View>
+
+        <View style={styles.point}>
+          <Text style={styles.line}>
+            2. DO NOT tag the indefinite article in a translation.
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>ἄνθρωπος</Text>” in John 1:6 should be tagged to “man” even though it is translated “a man”.
@@ -66,7 +75,7 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            2. DO include a translation’s genitive or dative helper words (eg. “of” and “to” in English) when you tag Hebrew in the construct form or Greek genitives.
+            3. DO include a translation’s genitive or dative helper words (eg. “of” and “to” in English) when you tag Hebrew in the construct form or Greek genitives.
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>τῶν ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men”.
@@ -78,7 +87,7 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            3. Long press on original language words to select more than one at a time. Do this when multiple words correspond to the translation word(s).
+            4. Long press on original language words to select more than one at a time. Do this when multiple words correspond to the translation word(s).
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.hebrew}>מ֥וֹת תָּמֽוּת</Text>” in Genesis 2:17 should be tagged to “shall surely die”. (It would be incorrect to say that “<Text style={styles.hebrew}>מ֥וֹת</Text>” is translated “surely” even though that is the effect of the infinitive absolute in this context.)

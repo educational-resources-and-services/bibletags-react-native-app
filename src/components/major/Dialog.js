@@ -46,15 +46,18 @@ const styles = StyleSheet.create({
   },
 })
 
+const noop = () => {}
+
 const Dialog = ({
   title=i18n("Confirm"),
   message,
   children,
   submitting,
   buttons=[],
-  goHide,
+  goHide=noop,
   style,
   labelStyle,
+  backdropStyle,
 
   eva: { style: themedStyle={} },
 
@@ -81,7 +84,10 @@ const Dialog = ({
 
   return (
     <Modal
-      backdropStyle={styles.cover}
+      backdropStyle={[
+        styles.cover,
+        backdropStyle,
+      ]}
       style={{
         maxWidth: parseInt(width * .9, 10),
         maxHeight: parseInt(height * .85, 10),
