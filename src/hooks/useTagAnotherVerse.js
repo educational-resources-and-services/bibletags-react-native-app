@@ -8,7 +8,7 @@ import useEffectAsync from "./useEffectAsync"
 
 let currentVersionId
 let currentStatusIdx = 0
-let currentBookId = 1
+let currentBookId = 0
 let currentLocsToTag = []
 
 const statusesToDo = [ 'none', 'automatch' ]
@@ -85,13 +85,13 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
         const currentVersionIdIdx = Math.max(versionIds.indexOf(currentVersionId), 0)
         for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<versionIds.length; versionIdsIdx++) {
           currentVersionId = versionIds[versionIdsIdx]
-          for(currentBookId; currentBookId<=66; currentBookId++) {
+          while(++currentBookId <= 66) {
             await getCurrentLocsToTag()
             if(currentLocsToTag.length > 0) {
               return getPassage()
             }
           }
-          currentBookId = 1
+          currentBookId = 0
         }
 
       }
