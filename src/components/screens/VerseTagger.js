@@ -19,11 +19,9 @@ import BasicHeader from "../major/BasicHeader"
 import CoverAndSpin from "../basic/CoverAndSpin"
 import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
 import HeaderIconButton from "../basic/HeaderIconButton"
-import { recordAndSubmitWordHashesSet } from "../../utils/submitWordHashesSet"
 
 const {
   HEBREW_CANTILLATION_MODE,
-  EMBEDDING_APP_ID,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -60,12 +58,13 @@ const VerseTagger = ({
 
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
-  const [ wordsHash, setWordsHash ] = useState()
+  const [ { wordsHash, wordHashes }, setHashes ] = useState({})
 
   const { tagSet, myTagSet } = useTagSet({
     loc: getLocFromRef(ref),
     versionId,
     wordsHash,
+    wordHashes,
     skip: !wordsHash,
   })
 
@@ -230,23 +229,10 @@ const VerseTagger = ({
         )
 
         if(versionId !== 'original') {
-          const wordsHash = getWordsHash({ usfm: preppedUsfm, wordDividerRegex })
-          setWordsHash(wordsHash)
-
-          const currentTagSet = null  // TODO
-
-          // If it is a completely untagged verse, then run recordAndSubmitWordHashesSet
-          if(!currentTagSet) {
-            await recordAndSubmitWordHashesSet({
-              input: {
-                loc: getLocFromRef(ref),
-                versionId,
-                wordsHash,
-                embeddingAppId: EMBEDDING_APP_ID,
-                wordHashes: getWordHashes({ usfm: preppedUsfm, wordDividerRegex }),
-              },
-            })
-          }
+          setHashes({
+            wordsHash: getWordsHash({ usfm: preppedUsfm, wordDividerRegex }),
+            wordHashes: getWordHashes({ usfm: preppedUsfm, wordDividerRegex }),
+          })
         }
 
       }

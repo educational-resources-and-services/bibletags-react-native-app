@@ -1,12 +1,19 @@
 import { useState } from "react"
+import Constants from "expo-constants"
 
 import { safelyExecuteSelects } from "../utils/toolbox"
 import useEffectAsync from "./useEffectAsync"
+import { recordAndSubmitWordHashesSet } from "../utils/submitWordHashesSet"
+
+const {
+  EMBEDDING_APP_ID,
+} = Constants.manifest.extra
 
 const useTagSet = ({
   loc,
   versionId,
   wordsHash,
+  wordHashes,
   skip,
 }) => {
 
@@ -18,15 +25,17 @@ const useTagSet = ({
 
       if(skip) return
 
+      const tagSetSelectObj = {
+        database: `versions/${versionId}/tagSets`,
+        statement: () => `SELECT * FROM tagSets WHERE id=?`,
+        args: [
+          `${loc}-${versionId}-${wordsHash}`,
+        ],
+        jsonKeys: [ 'tags' ],
+      }
+
       let [ [ tagSet ], [ submittedTagSet ] ] = await safelyExecuteSelects([
-        {
-          database: `versions/${versionId}/tagSets`,
-          statement: () => `SELECT * FROM tagSets WHERE id=?`,
-          args: [
-            `${loc}-${versionId}-${wordsHash}`,
-          ],
-          jsonKeys: [ 'tags' ],
-        },
+        tagSetSelectObj,
         {
           database: `submittedTagSets`,
           statement: () => `SELECT * FROM submittedTagSets WHERE id=?`,
@@ -36,6 +45,23 @@ const useTagSet = ({
           jsonKeys: [ 'input' ],
         },
       ])
+
+      if(!tagSet && !submittedTagSet && wordHashes) {
+
+        // might need wordHashesSet (though probably not)
+        await recordAndSubmitWordHashesSet({
+          input: {
+            loc,
+            versionId,
+            wordsHash,
+            embeddingAppId: EMBEDDING_APP_ID,
+            wordHashes,
+          },
+        })
+
+        tagSet = (await safelyExecuteSelects([ tagSetSelectObj ]))[0][0]
+
+      }
 
       let myTagSet
 
