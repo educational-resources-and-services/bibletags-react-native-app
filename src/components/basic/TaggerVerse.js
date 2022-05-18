@@ -15,6 +15,14 @@ const {
   DEFAULT_FONT_SIZE,
 } = Constants.manifest.extra
 
+const phraseBackgroundColors = [
+  "#f4e8f7",
+  "#faf0dc",
+  "#f4f7e2",
+  "#e1f4e4",
+  "#ffe7e5",
+]
+
 const wordMargin = 7
 
 const styles = StyleSheet.create({
@@ -86,12 +94,20 @@ const TaggerVerse = ({
 
   const { font, textSize } = { ...displaySettings, ...displaySettingsOverride }
 
-  const usedWordIdAndPartNumbers = useMemo(
-    () => (
+  const usedWordPhraseStyleByWordIdAndPartNumbers = useMemo(
+    () => {
+      const usedWordPhraseStyleByWordIdAndPartNumbers = {}
+      let phraseIdx = 0
       Object.keys(translationWordInfoByWordIdAndPartNumbers)
         .map(wordIdAndPartNumbersJSON => JSON.parse(wordIdAndPartNumbersJSON))
-        .flat()
-    ),
+        .forEach(phraseOfWordIdAndPartNumbers => {
+          const phraseStyle = phraseOfWordIdAndPartNumbers.length > 1 ? { backgroundColor: phraseBackgroundColors[phraseIdx++ % phraseBackgroundColors.length] } : null
+          phraseOfWordIdAndPartNumbers.forEach(wordIdAndPartNumber => {
+            usedWordPhraseStyleByWordIdAndPartNumbers[wordIdAndPartNumber] = phraseStyle
+          })
+        })
+      return usedWordPhraseStyleByWordIdAndPartNumbers
+    },
     [ translationWordInfoByWordIdAndPartNumbers ],
   )
 
@@ -118,7 +134,7 @@ const TaggerVerse = ({
       const getPartOfPiece = (text, wordPartNumber, includeSlash) => {
         const wordIdAndPartNumber =  getWordIdAndPartNumber({ id, wordPartNumber, bookId })
         const isSelected = selectedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
-        const isUsed = usedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
+        const isUsed = usedWordPhraseStyleByWordIdAndPartNumbers[wordIdAndPartNumber] !== undefined
 
         const key = Object.keys(translationWordInfoByWordIdAndPartNumbers).find(wordIdAndPartNumbersJSON => {
           if(
@@ -133,7 +149,6 @@ const TaggerVerse = ({
         return (
           <React.Fragment key={`${id}-${wordPartNumber}`}>
             <VerseText
-              style={styles.wordPiece}
               onPress={onPress}
               onLongPress={onLongPress}
               info={{
@@ -142,7 +157,7 @@ const TaggerVerse = ({
               }}
               Component={TouchableOpacity}
             >
-              <View>
+              <View style={styles.wordPiece}>
                 <Text
                   style={StyleSheet.flatten([
                     { fontSize },
@@ -152,6 +167,7 @@ const TaggerVerse = ({
                     wordThemedStyle,
                     (isSelected ? selectedWordThemedStyle : null),
                     (!isUsed ? unusedWordThemedStyle : null),
+                    (usedWordPhraseStyleByWordIdAndPartNumbers[wordIdAndPartNumber] || null),
                   ])}
                 >
                   {text}
