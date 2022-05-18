@@ -41,8 +41,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textDecorationLine: 'underline',
     alignSelf: "flex-end",
-    paddingVertical: 10,
-    marginVertical: -10,
   },
 })
 
@@ -104,42 +102,42 @@ const NotYetTagged = ({
       }
 
       {!confirmedTags &&
-        <View
-          style={[
-            styles.statusBox,
-            statusBoxThemedStyle,
-          ]}
+        <TouchableOpacity
+          onPress={goTag}
         >
-
-          <Text
+          <View
             style={[
-              styles.firstLine,
-              statusThemedStyle,
+              styles.statusBox,
+              statusBoxThemedStyle,
             ]}
           >
 
-            {notTagged && i18n("Not yet tagged.")}
-            {partiallyTagged && !wordNotYetTagged && i18n("Unconfirmed, partial tagging.")}
-            {unconfirmedTags && i18n("Contains unconfirmed tags.")}
-            {wordNotYetTagged && i18n("Word not yet tagged.")}
-
-          </Text>
-
-          <View style={styles.secondLine}>
-            {!iHaveSubmittedATagSet &&
-              <Text
-                style={[
-                  styles.label,
-                  statusThemedStyle,
-                ]}
-              >
-                {i18n("Know {{language}}?", { language })}
-                {i18n(" ", "word separator")}
-              </Text>
-            }
-            <TouchableOpacity
-              onPress={goTag}
+            <Text
+              style={[
+                styles.firstLine,
+                statusThemedStyle,
+              ]}
             >
+
+              {notTagged && i18n("Not yet tagged.")}
+              {partiallyTagged && !wordNotYetTagged && i18n("Unconfirmed, partial tagging.")}
+              {unconfirmedTags && i18n("Contains unconfirmed tags.")}
+              {wordNotYetTagged && i18n("Word not yet tagged.")}
+
+            </Text>
+
+            <View style={styles.secondLine}>
+              {!iHaveSubmittedATagSet &&
+                <Text
+                  style={[
+                    styles.label,
+                    statusThemedStyle,
+                  ]}
+                >
+                  {i18n("Know {{language}}?", { language })}
+                  {i18n(" ", "word separator")}
+                </Text>
+              }
               <Text
                 style={[
                   styles.linkLike,
@@ -150,10 +148,10 @@ const NotYetTagged = ({
                 {!iHaveSubmittedATagSet && !wordNotYetTagged && (notTagged || partiallyTagged) && i18n("Help us tag it")}
                 {!iHaveSubmittedATagSet && (unconfirmedTags || wordNotYetTagged) && i18n("Tag this verse")}
               </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
 
-        </View>
+          </View>
+        </TouchableOpacity>
       }
 
     </View>
