@@ -492,16 +492,22 @@ const mapping = {
       component: 'VerseTagger',
       parameters: {
         alt0Color: "color-basic-600",  // translationThemedStyle
+        alt1Color: "text-danger-color",  // unselectedWordThemedStyle
+        alt2TextDecorationLine: "line-through",  // selectedWordThemedStyle
       },
     },
     {
       component: 'TaggerVerse',
       parameters: {
         alt0Color: "color-basic-600",  // wordThemedStyle
-        alt1Color: "color-basic-1100",  // selectedWordThemedStyle
-        alt2Color: "color-basic-500",  // slashThemedStyle
-        alt3Color: "color-basic-600",  // translationWordsThemedStyle
-        alt4Color: "color-basic-1100",  // selectedTranslationWordThemedStyle
+        alt1Color: "text-danger-color",  // unusedWordThemedStyle
+        alt2Color: "color-basic-1100",  // selectedWordThemedStyle
+        alt2BackgroundColor: "background-basic-color-2",  // selectedWordThemedStyle
+        alt2BorderColor: "border-alternative-color-5",  // selectedWordThemedStyle
+        alt2Color: "color-basic-1100",  // selectedWordThemedStyle
+        alt3Color: "color-basic-500",  // slashThemedStyle
+        alt4Color: "color-basic-600",  // translationWordsThemedStyle
+        alt5Color: "color-basic-1100",  // selectedTranslationWordThemedStyle
       },
     },
     {

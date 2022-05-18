@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     paddingTop: 26,
     paddingBottom: 20,
   },
-  skipButtonContainer: {
+  extraButtonContainer: {
     marginTop: -10,
     paddingBottom: 20,
   },
@@ -64,6 +64,8 @@ const VerseTagger = ({
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
     translationThemedStyle={},
+    unselectedWordThemedStyle={},
+    selectedWordThemedStyle={},
   ] = altThemedStyleSets
 
   const { routerState } = useRouterState()
@@ -90,6 +92,7 @@ const VerseTagger = ({
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
+  const clearTranslationWordInfoByWordIdAndPartNumbers = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers({}), [])
   const getSelectedWordIdAndPartNumbers = useInstanceValue(selectedWordIdAndPartNumbers)
   const getTranslationWordInfoByWordIdAndPartNumbers = useInstanceValue(translationWordInfoByWordIdAndPartNumbers)
 
@@ -305,11 +308,13 @@ const VerseTagger = ({
 
         const newTranslationWordInfoByWordIdAndPartNumbers = {}
         ;(myTagSet || tagSet).tags.forEach(tag => {
-          newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => ({
-            wordNumberInVerse,
-            word: wordByWordNumberInVerse[wordNumberInVerse],
-            hasUnknownCapitalization: false,
-          }))
+          if(tag.o.length > 0 && tag.t.length > 0) {
+            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => ({
+              wordNumberInVerse,
+              word: wordByWordNumberInVerse[wordNumberInVerse],
+              hasUnknownCapitalization: false,
+            }))
+          }
         })
         setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
         tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
@@ -381,6 +386,8 @@ const VerseTagger = ({
               style={translationThemedStyle}
               onVerseTap={onPress}
               hideSuperscripts={true}
+              selectedWordStyle={selectedWordThemedStyle}
+              unselectedWordStyle={unselectedWordThemedStyle}
             />
 
             <View style={styles.confirmButtonContainer}>
@@ -396,16 +403,29 @@ const VerseTagger = ({
               />
             </View>
 
-            {!!tagAnotherVerse &&
-              <View style={styles.skipButtonContainer}>
-                <Button
-                  onPress={tagAnotherVerse}
-                  appearance='ghost'
-                >
-                  {i18n("Skip and tag a different verse")}
-                </Button>
-              </View>
-            }
+
+            <View style={styles.extraButtonContainer}>
+
+              {!!tagAnotherVerse &&
+                <View>
+                  <Button
+                    onPress={tagAnotherVerse}
+                    appearance='ghost'
+                  >
+                    {i18n("Skip and tag a different verse")}
+                  </Button>
+                </View>
+              }
+
+              <Button
+                onPress={clearTranslationWordInfoByWordIdAndPartNumbers}
+                appearance='ghost'
+                status='basic'
+              >
+                {i18n("Clear tags")}
+              </Button>
+
+            </View>
 
             {instructionsCover}
 

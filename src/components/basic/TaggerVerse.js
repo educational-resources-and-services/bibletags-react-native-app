@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useMemo } from "react"
 import Constants from "expo-constants"
 import { View, StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
@@ -50,9 +50,12 @@ const styles = StyleSheet.create({
   },
   wordText: {
     marginHorizontal: -7,
-    paddingHorizontal: 7,
+    paddingHorizontal: 6,
     marginBottom: -15,
-    paddingBottom: 15,
+    paddingBottom: 14,
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: 'transparent',
   },
 })
 
@@ -74,6 +77,7 @@ const TaggerVerse = ({
   const { baseThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
     wordThemedStyle={},
+    unusedWordThemedStyle={},
     selectedWordThemedStyle={},
     slashThemedStyle={},
     translationWordsThemedStyle={},
@@ -81,6 +85,15 @@ const TaggerVerse = ({
   ] = altThemedStyleSets
 
   const { font, textSize } = { ...displaySettings, ...displaySettingsOverride }
+
+  const usedWordIdAndPartNumbers = useMemo(
+    () => (
+      Object.keys(translationWordInfoByWordIdAndPartNumbers)
+        .map(wordIdAndPartNumbersJSON => JSON.parse(wordIdAndPartNumbersJSON))
+        .flat()
+    ),
+    [ translationWordInfoByWordIdAndPartNumbers ],
+  )
 
   const isOriginal = true
   const languageId = 'heb+grk'
@@ -105,6 +118,7 @@ const TaggerVerse = ({
       const getPartOfPiece = (text, wordPartNumber, includeSlash) => {
         const wordIdAndPartNumber =  getWordIdAndPartNumber({ id, wordPartNumber, bookId })
         const isSelected = selectedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
+        const isUsed = usedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
 
         const key = Object.keys(translationWordInfoByWordIdAndPartNumbers).find(wordIdAndPartNumbersJSON => {
           if(
@@ -128,6 +142,7 @@ const TaggerVerse = ({
                   styles.wordText,
                   wordThemedStyle,
                   (isSelected ? selectedWordThemedStyle : null),
+                  (!isUsed ? unusedWordThemedStyle : null),
                 ])}
                 onPress={onPress}
                 onLongPress={onLongPress}

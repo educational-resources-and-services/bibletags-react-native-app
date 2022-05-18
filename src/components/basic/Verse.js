@@ -54,6 +54,8 @@ const Verse = ({
   originalWordsInfo=[],
   selectedWordIdx,
   setSelectedWordIdx,
+  selectedWordStyle=null,
+  unselectedWordStyle=null,
 
   eva: { style: themedStyle={} },
 
@@ -177,8 +179,10 @@ const Verse = ({
             key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}-${idx2}` : `${idx}-${idx2}`}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
             style={StyleSheet.flatten([
               verseTextStyles,
+              ((wordNumberInVerse && !usedWordNumbers.includes(wordNumberInVerse)) ? unselectedWordStyle : null),
               ((usedWordNumbers.includes(wordNumberInVerse) && !selectedWordNumbers.includes(wordNumberInVerse)) ? usedWordThemedStyle : null),
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
+              (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
 // flex wrap a view
