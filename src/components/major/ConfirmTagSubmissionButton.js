@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
   boldLine: {
-    fontWeight: '600',
+    fontWeight: '700',
     marginTop: 15,
   },
   untaggedWords: {

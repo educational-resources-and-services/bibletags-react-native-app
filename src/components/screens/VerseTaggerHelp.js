@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   line: {
     marginVertical: 4,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   example: {
     marginVertical: 4,

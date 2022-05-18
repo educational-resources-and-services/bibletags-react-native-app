@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   definition: {
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 14,
   },
   pos: {
