@@ -1,6 +1,6 @@
 import React, { useMemo } from "react"
 import Constants from "expo-constants"
-import { View, StyleSheet, Text } from "react-native"
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
@@ -132,38 +132,42 @@ const TaggerVerse = ({
 
         return (
           <React.Fragment key={`${id}-${wordPartNumber}`}>
-            <View style={styles.wordPiece}>
-              <VerseText
-                key={wordIdAndPartNumber}
-                style={StyleSheet.flatten([
-                  { fontSize },
-                  { fontFamily },
-                  (isRTL ? styles.rtlText : null),
-                  styles.wordText,
-                  wordThemedStyle,
-                  (isSelected ? selectedWordThemedStyle : null),
-                  (!isUsed ? unusedWordThemedStyle : null),
-                ])}
-                onPress={onPress}
-                onLongPress={onLongPress}
-                info={{
-                  id,
-                  wordPartNumber,
-                }}
-              >
-                {text}
-              </VerseText>
-              <Text
-                style={[
-                  styles.translationWords,
-                  (isRTL ? styles.rtlTranslationWords : null),
-                  translationWordsThemedStyle,
-                  (isSelected ? selectedTranslationWordThemedStyle : null),
-                ]}
-              >
-                {key && translationWordInfoByWordIdAndPartNumbers[key].map(({ word }) => word).join(standardWordDivider)}
-              </Text>
-            </View>
+            <VerseText
+              style={styles.wordPiece}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              info={{
+                id,
+                wordPartNumber,
+              }}
+              Component={TouchableOpacity}
+            >
+              <View>
+                <Text
+                  style={StyleSheet.flatten([
+                    { fontSize },
+                    { fontFamily },
+                    (isRTL ? styles.rtlText : null),
+                    styles.wordText,
+                    wordThemedStyle,
+                    (isSelected ? selectedWordThemedStyle : null),
+                    (!isUsed ? unusedWordThemedStyle : null),
+                  ])}
+                >
+                  {text}
+                </Text>
+                <Text
+                  style={[
+                    styles.translationWords,
+                    (isRTL ? styles.rtlTranslationWords : null),
+                    translationWordsThemedStyle,
+                    (isSelected ? selectedTranslationWordThemedStyle : null),
+                  ]}
+                >
+                  {key && translationWordInfoByWordIdAndPartNumbers[key].map(({ word }) => word).join(standardWordDivider)}
+                </Text>
+              </View>
+            </VerseText>
             {includeSlash &&
               <Text
                 style={StyleSheet.flatten([

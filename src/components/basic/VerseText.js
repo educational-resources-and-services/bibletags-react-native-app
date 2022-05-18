@@ -10,6 +10,7 @@ const VerseText = ({
   info,
   onPress,
   onLongPress,
+  Component=Text,
   children,
 }) => {
 
@@ -39,13 +40,13 @@ const VerseText = ({
   )
 
   return (
-    <Text
+    <Component
       style={style}
       onPress={onPress ? goPress : null}
       onLongPress={onLongPress ? goLongPress : null}
     >
       {children}
-    </Text>
+    </Component>
   )
  
 }
