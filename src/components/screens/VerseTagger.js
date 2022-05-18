@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
+    minHeight: 400,
   },
   confirmButtonContainer: {
     paddingTop: 26,
