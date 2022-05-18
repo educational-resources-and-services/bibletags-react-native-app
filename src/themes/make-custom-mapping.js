@@ -483,6 +483,9 @@ const mapping = {
       parameters: {
         labelColor: "color-basic-600",
         alt0Color: "color-primary-500",  // linkThemedStyle
+        alt1Color: "color-basic-900",  // statusThemedStyle
+        alt2BackgroundColor: 'background-basic-color-2',  // statusBoxThemedStyle
+        alt2BorderColor: 'border-basic-color-5',  // statusBoxThemedStyle
       },
     },
     {

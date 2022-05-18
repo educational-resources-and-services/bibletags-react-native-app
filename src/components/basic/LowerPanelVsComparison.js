@@ -225,6 +225,8 @@ const LowerPanelVsComparison = ({
 
   // TODO: show vs num (and chapter when different) before each verse when not the same
 
+  const showNotYetTagged = !selectedTagInfo && (!selectedInfo || [ 'automatch', 'none', undefined ].includes((tagSet || {}).status))
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -248,7 +250,7 @@ const LowerPanelVsComparison = ({
           onVerseTap={onOriginalWordVerseTap}
         />
       </ScrollView>
-      {piecesVersionId === 'original' && !selectedTagInfo &&
+      {piecesVersionId === 'original' && showNotYetTagged &&
         <NotYetTagged
           passage={passageWithVerse}
           tagSet={tagSet}
@@ -257,7 +259,7 @@ const LowerPanelVsComparison = ({
           onLayout={onSizeChangeFunctions[6]}
         />
       }
-      {piecesVersionId === 'original' && !!selectedTagInfo &&
+      {piecesVersionId === 'original' && !showNotYetTagged &&
         <OriginalWordInfo
           morph={morph}
           strong={strong}
