@@ -78,8 +78,8 @@ const OriginalWordInfo = ({
   const height = minWordAndParsingHeight + 63 + (showExtended ? extendedHeight : 0)
   const adjShowExtended = showExtended && extendedHeight > 150
 
-  const { versionIds } = useBibleVersions({ myBibleVersions })
-  const versionId = versionIds.find(versionId => versionId !== 'original')
+  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
+  const versionId = downloadedVersionIds.find(versionId => versionId !== 'original')
 
   const definitionId = (strong.match(/[GH][0-9]{5}/) || [])[0] || strong
 

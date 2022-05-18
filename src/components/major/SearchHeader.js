@@ -72,7 +72,7 @@ const SearchHeader = React.memo(({
 
   const [ editedVersionId, setEditedVersionId ] = useState(versionId)
 
-  const { versionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
 
   useEffect(
     () => {
@@ -165,7 +165,7 @@ const SearchHeader = React.memo(({
             />
           </View>
           <VersionChooser
-            versionIds={versionIds}
+            versionIds={downloadedVersionIds}
             update={setEditedVersionId}
             selectedVersionId={editedVersionId}
             type="search"

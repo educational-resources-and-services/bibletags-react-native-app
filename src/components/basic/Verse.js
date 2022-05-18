@@ -181,6 +181,10 @@ const Verse = ({
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
+// flex wrap a view
+// put all text formatting into top level text components
+// flatten out grouped words
+// get rid of the top level verse
             ])}
             onPress={info ? onVerseTap : null}
             verseNumber={verse}

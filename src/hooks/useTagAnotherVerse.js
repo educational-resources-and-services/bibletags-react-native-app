@@ -25,7 +25,7 @@ export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
 const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
   const { historyPush, historyReplace } = useRouterState()
-  const { versionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
   const [ somethingToTag, setSomethingToTag ] = useState(false)
 
   const getPassageToTag = useCallback(
@@ -111,9 +111,9 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
         }
 
-        const currentVersionIdIdx = Math.max(versionIds.indexOf(currentVersionId), 0)
-        for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<versionIds.length; versionIdsIdx++) {
-          currentVersionId = versionIds[versionIdsIdx]
+        const currentVersionIdIdx = Math.max(downloadedVersionIds.indexOf(currentVersionId), 0)
+        for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<downloadedVersionIds.length; versionIdsIdx++) {
+          currentVersionId = downloadedVersionIds[versionIdsIdx]
           if(currentVersionId === 'original') continue
           while(++currentBookId <= 66) {
             await getCurrentLocsToTag()
@@ -123,7 +123,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
           }
           currentBookId = 0
         }
-        currentVersionId = versionIds[0]
+        currentVersionId = downloadedVersionIds[0]
 
 
       }
@@ -131,7 +131,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
       setSomethingToTag(false)
 
     },
-    [ versionIds ],
+    [ downloadedVersionIds ],
   )
 
   useEffectAsync(getPassageToTag, [])
