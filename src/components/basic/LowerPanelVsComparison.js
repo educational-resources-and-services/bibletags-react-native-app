@@ -61,7 +61,7 @@ const LowerPanelVsComparison = ({
   // ] = altThemedStyleSets
 
   const [ index, setIndex ] = useState(0)
-  const { versionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
   const scrollRef = useRef()
 
   const selectedVersionId = (
@@ -72,8 +72,8 @@ const LowerPanelVsComparison = ({
 
   const bothVersionIds = useMemoObject([ passage.versionId, passage.parallelVersionId ].filter(Boolean))
   const versionIdsToShow = useMemo(
-    () => versionIds.filter(id => !bothVersionIds.includes(id)),
-    [ versionIds, bothVersionIds ],
+    () => downloadedVersionIds.filter(id => !bothVersionIds.includes(id)),
+    [ downloadedVersionIds, bothVersionIds ],
   )
 
   const versionIdShowing = versionIdsToShow[index]
