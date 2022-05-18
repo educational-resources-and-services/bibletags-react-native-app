@@ -68,7 +68,7 @@ const VerseTaggerHelp = ({
             Eg. In Genesis 1:1, you would tap “<Text style={styles.hebrew}>בְּ</Text>” then “In.” Next, you would tap “<Text style={styles.hebrew}>רֵאשִׁ֖ית</Text>” then “beginning.” And so on until the end of the verse.
           </Text>
           <Text style={styles.example}>
-            Eg. In Romans 1:2, you would tap “<Text style={styles.greek}>ὃ</Text>” then “which.” Next, you would tap “<Text style={styles.greek}>προεπηγγείλατο</Text>” followed by tapping “he,” “promised,” and “beforehand.” Etc.
+            Eg. In Romans 1:2, you would tap “<Text style={styles.greek}>ὃ</Text>” then “which.” Next, you would tap “<Text style={styles.greek}>προεπηγγείλατο</Text>” followed by tapping “he,” “promised,” and “beforehand.” And so forth.
           </Text>
         </View>
 
@@ -113,7 +113,7 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            6. DO NOT include translation words indicated by grammatical constructions not found in the specific original word(s) you are currenting tagging.
+            6. DO NOT include translation words indicated by grammatical constructions not found in the specific original word(s) you are currently tagging.
           </Text>
           <Text style={styles.example}>
             Eg. From the previous point, note that “face of” and not “the face of” should be tagged to “<Text style={styles.hebrew}>פְּנֵ֣י</Text>.” The entire phrase is “<Text style={styles.hebrew}>פְּנֵ֥י הַ/מָּֽיִם</Text>” translated to “the face of the deep.” Without “<Text style={styles.hebrew}>הַ/מָּֽיִם</Text>” it is unclear whether “<Text style={styles.hebrew}>פְּנֵ֥י</Text>” is definite or not. Therefore, the “the” before “face of” should simply remain untagged.
