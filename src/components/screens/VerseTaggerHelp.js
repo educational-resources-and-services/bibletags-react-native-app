@@ -8,13 +8,17 @@ import BasicHeader from "../major/BasicHeader"
 import { i18n } from "inline-i18n"
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+  },
   body: {
-    marginVertical: 10,
+    paddingTop: 20,
+    paddingBottom: 150,
     paddingHorizontal: 20,
     width: '100%',
   },
   intro: {
-    marginVertical: 7,
+    marginBottom: 7,
     fontStyle: 'italic',
   },
   point: {
@@ -48,6 +52,7 @@ const VerseTaggerHelp = ({
         title={i18n("Instructions for Tagging")}
       />
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.body}
       >
 
@@ -75,7 +80,16 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            3. DO include a translation’s genitive or dative helper words (eg. “of” and “to” in English) when you tag Hebrew in the construct form or Greek genitives.
+            3. Leave words untagged when they are repeated in the translation or original language, but not in both.
+          </Text>
+          <Text style={styles.example}>
+            Eg. In Genesis 9:12, where we find “<Text style={styles.hebrew}>בֵּינִ/י֙ וּ/בֵ֣ינֵי/כֶ֔ם</Text>” translated to “between me and you”, the second “<Text style={styles.hebrew}>בֵּין</Text>” (inflected to “<Text style={styles.hebrew}>בֵ֣ינֵי</Text>”) should be left untagged.
+          </Text>
+        </View>
+
+        <View style={styles.point}>
+          <Text style={styles.line}>
+            4. Include a translation’s genitive or dative helper words (eg. “of” and “to” in English).
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>τῶν ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men”.
@@ -87,13 +101,31 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            4. Long press on original language words to select more than one at a time. Do this when multiple words correspond to the translation word(s).
+            5. DO NOT include translation words indicated by grammatical constructions not found in the specific original word(s) you are currenting tagging.
+          </Text>
+          <Text style={styles.example}>
+            Eg. From the previous point, note that “face of” and not “the face of” should be tagged to “<Text style={styles.hebrew}>פְּנֵ֣י</Text>”. The entire phrase is “<Text style={styles.hebrew}>פְּנֵ֥י הַ/מָּֽיִם</Text>” translated to “the face of the deep”. Without “<Text style={styles.hebrew}>הַ/מָּֽיִם</Text>” it is unclear whether “<Text style={styles.hebrew}>פְּנֵ֥י</Text>” is definite or not. Therefore, the “the” before “face of” should simply remain untagged.
+          </Text>
+        </View>
+
+        <View style={styles.point}>
+          <Text style={styles.line}>
+            6. Long press on original language words to select more than one at a time. Do this when multiple words correspond to the translation word(s).
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.hebrew}>מ֥וֹת תָּמֽוּת</Text>” in Genesis 2:17 should be tagged to “shall surely die”. (It would be incorrect to say that “<Text style={styles.hebrew}>מ֥וֹת</Text>” is translated “surely” even though that is the effect of the infinitive absolute in this context.)
           </Text>
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>τὸν Θεόν</Text>” in John 1:1 should be tagged to “God”.
+          </Text>
+        </View>
+
+        <View style={styles.point}>
+          <Text style={styles.line}>
+            7. Only tag phrases to phrases when you must.
+          </Text>
+          <Text style={styles.example}>
+            Eg. In Genesis 9:14, we find “<Text style={styles.hebrew}>בְּ/עַֽנְנִ֥/י עָנָ֖ן</Text>” translated to “When I bring clouds”. “<Text style={styles.hebrew}>בְּ</Text>” should be tagged to “when” and “י” should be tagged to “I”. However, the entire phrase “<Text style={styles.hebrew}>עַֽנְנִ֥– עָנָ֖ן</Text>” should be tagged to “bring clouds” since the verb does not mean “to bring” but rather “to cloud”.
           </Text>
         </View>
 
