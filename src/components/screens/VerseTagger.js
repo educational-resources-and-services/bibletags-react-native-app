@@ -51,6 +51,8 @@ const displaySettingsOverride = {
   lineSpacing: 1.5,
 }
 
+const tagSetsInProgress = {}
+
 const VerseTagger = ({
   style,
 
@@ -67,6 +69,7 @@ const VerseTagger = ({
   const { routerState } = useRouterState()
   const { passage } = routerState
   const { ref, versionId } = passage
+  const inProgressKey = JSON.stringify({ ref, versionId })
   const alignmentType = "without-suggestion"  // TODO (if I ever present existing tagSets to new taggers of that verse; other options: affirmation, correction)
 
   const { tagAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage })
@@ -154,6 +157,7 @@ const VerseTagger = ({
 
       setSelectedWordIdAndPartNumbers(newSelectedWordIdAndPartNumbers)
       setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
+      tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
 
     },
     [],
@@ -199,6 +203,7 @@ const VerseTagger = ({
       }
 
       setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
+      tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
 
     },
     [],
@@ -272,7 +277,10 @@ const VerseTagger = ({
 
   useLayoutEffect(
     () => {
-      if(
+      if(tagSetsInProgress[inProgressKey]) {
+        setTranslationWordInfoByWordIdAndPartNumbers(tagSetsInProgress[inProgressKey])
+
+      } else if(
         tagSet
         && pieces
         && equalObjs(selectedWordIdAndPartNumbers, [])
@@ -302,6 +310,7 @@ const VerseTagger = ({
           }))
         })
         setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
+        tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
 
       }
     },
