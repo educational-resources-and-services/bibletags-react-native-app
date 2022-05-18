@@ -355,7 +355,7 @@ const ConfirmTagSubmissionButton = ({
         buttons={[
           {
             onPress: goHideDialog,
-            label: i18n("Cancel"),
+            label: i18n("Go back"),
             status: "basic",
           },
           {
