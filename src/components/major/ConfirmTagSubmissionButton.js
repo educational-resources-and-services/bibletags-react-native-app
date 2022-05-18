@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo } from "react"
-import { StyleSheet, View, Text, Alert } from "react-native"
+import { StyleSheet, View, Text, Alert, TouchableOpacity } from "react-native"
 import { Button, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
@@ -9,6 +9,7 @@ import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId } from '../../utils
 import useRouterState from "../../hooks/useRouterState"
 import { recordAndSubmitTagSet } from "../../utils/submitTagSet"
 
+import Icon from "../basic/Icon"
 import Dialog from "./Dialog"
 
 const {
@@ -18,6 +19,16 @@ const {
 const styles = StyleSheet.create({
   firstLine: {
     marginTop: 5,
+  },
+  questionLine: {
+    marginTop: 15,
+    fontStyle: 'italic',
+  },
+  info: {
+    height: 16,
+    marginHorizontal: 10,
+    marginVertical: -6,
+    padding: 3,
   },
   line: {
     marginTop: 15,
@@ -57,6 +68,9 @@ const styles = StyleSheet.create({
   },
 })
 
+let initialShowExtraNonTaggedWordsInfo = true  // will force show once every session
+let initialShowExtraCapitalizationInfo = true  // will force show once every session
+
 const ConfirmTagSubmissionButton = ({
   alignmentType,
   getUsedWordNumbers,
@@ -70,6 +84,22 @@ const ConfirmTagSubmissionButton = ({
 
   const { historyGoBack, historyPush } = useRouterState()
 
+  const [ showExtraNonTaggedWordsInfo, setShowExtraNonTaggedWordsInfo ] = useState(initialShowExtraNonTaggedWordsInfo)
+  const toggleShowExtraNonTaggedWordsInfo = useCallback(
+    () => {
+      setShowExtraNonTaggedWordsInfo(!showExtraNonTaggedWordsInfo)
+      initialShowExtraNonTaggedWordsInfo = !showExtraNonTaggedWordsInfo
+    },
+    [ showExtraNonTaggedWordsInfo ],
+  )
+  const [ showExtraCapitalizationInfo, setShowExtraCapitalizationInfo ] = useState(initialShowExtraCapitalizationInfo)
+  const toggleShowExtraCapitalizationInfo = useCallback(
+    () => {
+      setShowExtraCapitalizationInfo(!showExtraCapitalizationInfo)
+      initialShowExtraCapitalizationInfo = !showExtraCapitalizationInfo
+    },
+    [ showExtraCapitalizationInfo ],
+  )
   const [ submitting, setSubmitting ] = useState(false)
   const [ dialogInfo, setDialogInfo ] = useState({ visible: false })
   const {
@@ -229,6 +259,7 @@ const ConfirmTagSubmissionButton = ({
         })
 
       } else {
+        initialShowExtraNonTaggedWordsInfo = initialShowExtraCapitalizationInfo = false
         Alert.alert(
           i18n("Thanks!"),
           (
@@ -286,12 +317,31 @@ const ConfirmTagSubmissionButton = ({
                   ))}
                 </View>
 
-                <Text style={styles.line}>
-                  {i18n("You should only leave words untagged when an original word is left untranslated, or a translation word is supplied without an original word counterpart. Please double-check this is the case before confirming.")}
+                <Text style={styles.questionLine}>
+                  <Text>
+                    {i18n("Does that look right?")}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={toggleShowExtraNonTaggedWordsInfo}
+                  >
+                    <Icon
+                      name={showExtraNonTaggedWordsInfo ? `md-information-circle` : `md-information-circle-outline`}
+                      style={styles.info}
+                    />
+                  </TouchableOpacity>
                 </Text>
-                <Text style={styles.boldLine}>
-                  {i18n("If words have been left untagged simply because you do not know the proper tagging, please do NOT submit this tag set.")}
-                </Text>
+
+                {showExtraNonTaggedWordsInfo &&
+                  <>
+                    <Text style={styles.line}>
+                      {i18n("You should only leave words untagged when an original word is left untranslated, or a translation word is supplied without an original word counterpart. Please double-check this is the case before confirming.")}
+                    </Text>
+                    <Text style={styles.boldLine}>
+                      {i18n("If words have been left untagged simply because you do not know the proper tagging, please do NOT submit this tag set.")}
+                    </Text>
+                  </>
+                }
+
 
               </>
             }
@@ -302,8 +352,27 @@ const ConfirmTagSubmissionButton = ({
             {Object.values(wordCapitalizationOptionsByWordNumber).length > 0 &&
               <>
                 <Text style={styles.capitalizationInstructions}>
-                  {i18n("Choose the proper capitalization for the following translation word(s) when they do NOT begin a sentence or clause:")}
+                  <Text>
+                    {i18n("Choose the proper capitalization for the following translation word(s) when they do NOT begin a sentence or clause:")}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={toggleShowExtraCapitalizationInfo}
+                  >
+                    <Icon
+                      name={showExtraCapitalizationInfo ? `md-information-circle` : `md-information-circle-outline`}
+                      style={styles.info}
+                    />
+                  </TouchableOpacity>
                 </Text>
+
+                {showExtraCapitalizationInfo &&
+                  <>
+                    <Text style={styles.boldLine}>
+                      {i18n("Context is irrelevant. Simply indicate how this word would appear in a dictionary.")}
+                    </Text>
+                  </>
+                }
+
                 <View style={styles.capitalizationOptions}>
                   {Object.keys(wordCapitalizationOptionsByWordNumber).map(wordNumberInVerse => {
                     const { options, choice } = wordCapitalizationOptionsByWordNumber[wordNumberInVerse]
