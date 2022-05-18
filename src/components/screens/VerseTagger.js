@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useCallback, useMemo } from "react"
-import { StyleSheet, View, ScrollView } from "react-native"
+import { StyleSheet, View, ScrollView, Vibration } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import Constants from "expo-constants"
@@ -139,6 +139,8 @@ const VerseTagger = ({
 
   const onOriginalLongPress = useCallback(
     ({ selectedInfo: { id, wordPartNumber }}) => {
+
+      Vibration.vibrate(100)
 
       // update group selection
       const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ id, wordPartNumber, bookId: ref.bookId })
