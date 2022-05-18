@@ -519,6 +519,9 @@ const mapping = {
     },
     {
       component: 'ConfirmTagSubmissionButton',
+      parameters: {
+        alt0Color: "text-danger-color",  // untaggedWordThemedStyle
+      },
     },
     {
       component: 'VerseTaggerHelp',

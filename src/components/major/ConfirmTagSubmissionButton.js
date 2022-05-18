@@ -3,10 +3,12 @@ import { StyleSheet, View, Text, Alert, TouchableOpacity } from "react-native"
 import { Button, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
+import { containsHebrewChars, containsGreekChars } from "@bibletags/bibletags-ui-helper"
 import Constants from "expo-constants"
 
 import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId } from '../../utils/toolbox'
 import useRouterState from "../../hooks/useRouterState"
+import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { recordAndSubmitTagSet } from "../../utils/submitTagSet"
 
 import Icon from "../basic/Icon"
@@ -66,6 +68,12 @@ const styles = StyleSheet.create({
   divider: {
     marginVertical: 15,
   },
+  greek: {
+    fontFamily: `original-grk`,
+  },
+  hebrew: {
+    fontFamily: `original-heb`,
+  },
 })
 
 let initialShowExtraNonTaggedWordsInfo = true  // will force show once every session
@@ -80,7 +88,14 @@ const ConfirmTagSubmissionButton = ({
   passage,
   wordsHash,
   tagAnotherVerse,
+
+  eva: { style: themedStyle={} },
 }) => {
+
+  const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [
+    untaggedWordThemedStyle={},
+  ] = altThemedStyleSets
 
   const { historyGoBack, historyPush } = useRouterState()
 
@@ -311,7 +326,15 @@ const ConfirmTagSubmissionButton = ({
 
                 <View style={styles.untaggedWords}>
                   {untaggedWords.map((word, idx) => (
-                    <Text key={idx} style={styles.untaggedWord}>
+                    <Text
+                      key={idx}
+                      style={[
+                        styles.untaggedWord,
+                        untaggedWordThemedStyle,
+                        (containsHebrewChars(word) ? styles.hebrew : null),
+                        (containsGreekChars(word) ? styles.greek : null),
+                      ]}
+                    >
                       {word}
                     </Text>
                   ))}
