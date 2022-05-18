@@ -134,8 +134,8 @@ const ConfirmTagSubmissionButton = ({
         })
       })
 
-      // check that at least 70% of orig words are tagged
-      if(untaggedOrigWords.length / numOrigWords > .4) {
+      // check that at least 40% of orig words are tagged
+      if(untaggedOrigWords.length / numOrigWords > (1 - .4)) {
         setDialogInfo({
           visible: true,
           title: i18n("Finish Tagging"),
