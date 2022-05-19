@@ -80,6 +80,7 @@ const VerseTagger = ({
   const [ originalPieces, setOriginalPieces ] = useState()
   const [ { wordsHash, wordHashes }, setHashes ] = useState({})
 
+console.log('originalPieces', originalPieces)
   const { tagSet, myTagSet } = useTagSet({
     loc: getLocFromRef(ref),
     versionId,
@@ -249,7 +250,7 @@ const VerseTagger = ({
             usfm: `\\c ${refs[0].chapter}\n${preppedUsfm}`,
             inlineMarkersOnly: true,
             wordDividerRegex,
-            splitIntoWords: true,
+            splitIntoWords: versionId !== 'original',
           })
         )
 
