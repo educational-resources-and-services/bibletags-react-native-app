@@ -170,22 +170,48 @@ const ConfirmTagSubmissionButton = ({
       // get untagged translation words
       const usedWordNumbers = getUsedWordNumbers()
       const untaggedTranslationWords = []
-      let numTranslationWords = 0
-      pieces.filter(({ children }) => children).forEach(({ children }) => {
-        children.filter(({ type }) => type === 'word').forEach(({ text, wordNumberInVerse }) => {
-          numTranslationWords++
-          if(!usedWordNumbers.includes(wordNumberInVerse)) {
-            untaggedTranslationWords.push({
-              word: text,
-              wordNumberInVerse,
-            })
+
+      const getWordsWithNumber = unitObjs => {
+        let words = []
+
+        const getWordText = unitObj => {
+          const { text, children } = unitObj
+          return text || (children && children.map(child => getWordText(child)).join("")) || ""
+        }
+
+        unitObjs.forEach(unitObj => {
+          const { type, children, wordNumberInVerse, tag } = unitObj
+
+          if(type === "word") {
+            let text = getWordText(unitObj)
+            if([ 'nd', 'sc' ].includes(tag)) {
+              text = text.toUpperCase()
+            }
+            words.push({ wordNumberInVerse, text })
+          } else if(children) {
+            words = [
+              ...words,
+              ...getWordsWithNumber(children),
+            ]
           }
         })
+
+        return words
+      }
+
+      const translationWords = getWordsWithNumber(pieces)
+      translationWords.forEach(({ text, wordNumberInVerse }) => {
+        if(!usedWordNumbers.includes(wordNumberInVerse)) {
+          untaggedTranslationWords.push({
+            word: text,
+            wordNumberInVerse,
+          })
+        }
       })
 
       // check that an average of at least 50% of words are tagged between the original and translation
       if(
-        (((untaggedOrigWords.length / numOrigWords) + (untaggedTranslationWords.length / numTranslationWords)) / 2) > (1 - .5)
+        (((untaggedOrigWords.length / numOrigWords) + (untaggedTranslationWords.length / translationWords.length)) / 2) > (1 - .5)
       ) {
         setDialogInfo({
           visible: true,
@@ -294,6 +320,10 @@ const ConfirmTagSubmissionButton = ({
               onPress: () => {
                 historyGoBack()  // TODO: needs to scroll
               },
+            },
+            {
+              text: i18n("Retag this verse"),
+              onPress: goHideDialog,
             },
             ...(!tagAnotherVerse ? [] : [{
               text: i18n("Tag another verse"),
