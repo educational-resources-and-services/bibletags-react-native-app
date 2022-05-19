@@ -80,7 +80,6 @@ const VerseTagger = ({
   const [ originalPieces, setOriginalPieces ] = useState()
   const [ { wordsHash, wordHashes }, setHashes ] = useState({})
 
-console.log('originalPieces', originalPieces)
   const { tagSet, myTagSet } = useTagSet({
     loc: getLocFromRef(ref),
     versionId,

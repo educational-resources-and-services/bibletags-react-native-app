@@ -7,11 +7,8 @@ import useBibleVersions from "./useBibleVersions"
 import useEffectAsync from "./useEffectAsync"
 
 let currentVersionId
-let currentStatusIdx = 0
 let currentBookId = 0
 let currentLocsToTag = []
-
-const statusesToDo = [ 'none', 'automatch' ]
 
 export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
   if(versionId === currentVersionId) {
@@ -45,88 +42,68 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
       if(currentLocsToTag.length > 0) return getPassage()
 
-      for(currentStatusIdx; currentStatusIdx < statusesToDo.length; currentStatusIdx++) {
+      const getCurrentLocsToTag = async () => {
 
-        const status = statusesToDo[currentStatusIdx]
+        // this first query set speeds things up
 
-        const getCurrentLocsToTag = async () => {
+        const [ [{ tagSetsCount }], [{ versesCount }]=[{}] ] = await safelyExecuteSelects([
+          {
+            database: `versions/${currentVersionId}/tagSets`,
+            statement: () => `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status NOT IN ('none', 'automatch')`,
+            args: [
+              `${`0${currentBookId}`.slice(-2)}%`,
+            ],
+          },
+          {
+            versionId: currentVersionId,
+            bookId: currentBookId,
+            statement: () => `SELECT COUNT(*) AS versesCount FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
+          },
+        ])
 
-          // this first query set speeds things up
+        if(tagSetsCount >= versesCount) return
 
-          const [ [{ tagSetsCount }], [{ versesCount }]=[{}] ] = await safelyExecuteSelects([
-            {
-              database: `versions/${currentVersionId}/tagSets`,
-              statement: () => (
-                status === 'none'
-                  ? `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status!=?`
-                  : `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status=?`
-              ),
-              args: [
-                `${`0${currentBookId}`.slice(-2)}%`,
-                status,
-              ],
-            },
-            ...(status !== 'none' ? [] : [{
-              versionId: currentVersionId,
-              bookId: currentBookId,
-              statement: () => `SELECT COUNT(*) AS versesCount FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
-            }]),
-          ])
+        const [ tagSets, verses ] = await safelyExecuteSelects([
+          {
+            database: `versions/${currentVersionId}/tagSets`,
+            statement: () => `SELECT id FROM tagSets WHERE id LIKE ? AND status NOT IN ('none', 'automatch')`,
+            args: [
+              `${`0${currentBookId}`.slice(-2)}%`,
+            ],
+          },
+          {
+            versionId: currentVersionId,
+            bookId: currentBookId,
+            statement: () => `SELECT loc FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
+          },
+        ])
 
-          if(status === 'none' && tagSetsCount >= versesCount) return
-          if(status !== 'none' && tagSetsCount === 0) return
+        const tagSetLocsObj = {}
+        tagSets.forEach(({ id }) => {
+          tagSetLocsObj[id.split('-')[0]] = true
+        })
 
-          const [ verses, tagSets ] = await safelyExecuteSelects([
-            {
-              versionId: currentVersionId,
-              bookId: currentBookId,
-              statement: () => `SELECT loc FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
-            },
-            {
-              database: `versions/${currentVersionId}/tagSets`,
-              statement: () => (
-                status === 'none'
-                  ? `SELECT id FROM tagSets WHERE id LIKE ? AND status!=?`
-                  : `SELECT id FROM tagSets WHERE id LIKE ? AND status=?`
-              ),
-              args: [
-                `${`0${currentBookId}`.slice(-2)}%`,
-                status,
-              ],
-            },
-          ])
-
-          const tagSetLocsObj = {}
-          tagSets.forEach(({ id }) => {
-            tagSetLocsObj[id.split('-')[0]] = true
-          })
-
-          currentLocsToTag = (
-            verses
-              .filter(({ loc }) => (
-                (status === 'none') === !tagSetLocsObj[loc]
-              ))
-              .map(({ loc }) => loc)
-          )
-
-        }
-
-        const currentVersionIdIdx = Math.max(downloadedVersionIds.indexOf(currentVersionId), 0)
-        for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<downloadedVersionIds.length; versionIdsIdx++) {
-          currentVersionId = downloadedVersionIds[versionIdsIdx]
-          if(currentVersionId === 'original') continue
-          while(++currentBookId <= 66) {
-            await getCurrentLocsToTag()
-            if(currentLocsToTag.length > 0) {
-              return getPassage()
-            }
-          }
-          currentBookId = 0
-        }
-        currentVersionId = downloadedVersionIds[0]
-
+        currentLocsToTag = (
+          verses
+            .filter(({ loc }) => !tagSetLocsObj[loc])
+            .map(({ loc }) => loc)
+        )
 
       }
+
+      const currentVersionIdIdx = Math.max(downloadedVersionIds.indexOf(currentVersionId), 0)
+      for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<downloadedVersionIds.length; versionIdsIdx++) {
+        currentVersionId = downloadedVersionIds[versionIdsIdx]
+        if(currentVersionId === 'original') continue
+        while(++currentBookId <= 66) {
+          await getCurrentLocsToTag()
+          if(currentLocsToTag.length > 0) {
+            return getPassage()
+          }
+        }
+        currentBookId = 0
+      }
+      currentVersionId = downloadedVersionIds[0]
 
       setSomethingToTag(false)
 
