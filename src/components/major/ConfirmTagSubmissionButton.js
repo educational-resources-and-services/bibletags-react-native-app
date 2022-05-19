@@ -20,24 +20,28 @@ const {
 
 const styles = StyleSheet.create({
   firstLine: {
-    marginTop: 5,
   },
-  questionLine: {
-    marginTop: 15,
+  mainLine: {
+    marginVertical: 15,
+  },
+  question: {
     fontStyle: 'italic',
   },
   info: {
     height: 16,
-    marginHorizontal: 10,
-    marginVertical: -6,
-    padding: 3,
+  },
+  extraBlock: {
+    marginBottom: 15,
+    borderLeftWidth: 1,
+    borderColor: 'rgba(0, 0, 0, .15)',
+    marginLeft: 5,
+    paddingLeft: 10,
   },
   line: {
     marginTop: 15,
   },
-  boldLine: {
+  bold: {
     fontWeight: '700',
-    marginTop: 15,
   },
   untaggedWords: {
     flexDirection: "row",
@@ -55,7 +59,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   capitalizationOptions: {
-    marginTop: 15,
   },
   capitalizationOptionSet: {
     flexDirection: "row",
@@ -66,7 +69,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   divider: {
-    marginVertical: 15,
   },
   greek: {
     fontFamily: `original-grk`,
@@ -340,29 +342,30 @@ const ConfirmTagSubmissionButton = ({
                   ))}
                 </View>
 
-                <Text style={styles.questionLine}>
-                  <Text>
-                    {i18n("Does that look right?")}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={toggleShowExtraNonTaggedWordsInfo}
-                  >
+                <TouchableOpacity
+                  onPress={toggleShowExtraNonTaggedWordsInfo}
+                >
+                  <Text style={styles.mainLine}>
+                    <Text style={styles.question}>
+                      {i18n("Does that look right?")}
+                    </Text>
+                    {`   `}
                     <Icon
                       name={showExtraNonTaggedWordsInfo ? `md-information-circle` : `md-information-circle-outline`}
                       style={styles.info}
                     />
-                  </TouchableOpacity>
-                </Text>
+                  </Text>
+                </TouchableOpacity>
 
                 {showExtraNonTaggedWordsInfo &&
-                  <>
-                    <Text style={styles.line}>
+                  <View style={styles.extraBlock}>
+                    <Text style={styles.firstLine}>
                       {i18n("You should only leave words untagged when an original word is left untranslated, or a translation word is supplied without an original word counterpart. Please double-check this is the case before confirming.")}
                     </Text>
-                    <Text style={styles.boldLine}>
+                    <Text style={[ styles.line, styles.bold ]}>
                       {i18n("If words have been left untagged simply because you do not know the proper tagging, please do NOT submit this tag set.")}
                     </Text>
-                  </>
+                  </View>
                 }
 
 
@@ -374,26 +377,30 @@ const ConfirmTagSubmissionButton = ({
             {/* ask about any with hasUnknownCapitalization */}
             {Object.values(wordCapitalizationOptionsByWordNumber).length > 0 &&
               <>
-                <Text style={styles.capitalizationInstructions}>
-                  <Text>
-                    {i18n("Choose the proper capitalization for the following translation word(s) when they do NOT begin a sentence or clause:")}
-                  </Text>
                   <TouchableOpacity
                     onPress={toggleShowExtraCapitalizationInfo}
                   >
+                  <Text style={styles.mainLine}>
+                    <Text>
+                      {i18n("Choose the proper capitalization for the following translation word(s) when they do NOT begin a sentence or clause.")}
+                    </Text>
+                    {`   `}
                     <Icon
                       name={showExtraCapitalizationInfo ? `md-information-circle` : `md-information-circle-outline`}
                       style={styles.info}
                     />
-                  </TouchableOpacity>
-                </Text>
+                  </Text>
+                </TouchableOpacity>
 
                 {showExtraCapitalizationInfo &&
-                  <>
-                    <Text style={styles.boldLine}>
+                  <View style={styles.extraBlock}>
+                    <Text style={[ styles.firstLine, styles.bold ]}>
                       {i18n("Context is irrelevant. Simply indicate how this word would appear in a dictionary.")}
                     </Text>
-                  </>
+                    <Text style={styles.line}>
+                      {i18n("Eg. “I” and “Paul” should be capitalized whereas “then” and “so” should not.")}
+                    </Text>
+                  </View>
                 }
 
                 <View style={styles.capitalizationOptions}>
