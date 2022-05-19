@@ -105,7 +105,9 @@ const Verse = ({
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
       if(hideSuperscripts && [ 'f', 'fe', 'x', 'xt' ].includes(tag)) return null
 
-      text = adjustTextForSups({ tag, text, pieces, idx })
+      if(!hideSuperscripts) {
+        text = adjustTextForSups({ tag, text, pieces, idx })
+      }
 
       if(text && text === i18n(" ", "word separator") && textContent === ``) return null
       const previousTextContent = textContent
