@@ -8,7 +8,7 @@ import { i18n } from "inline-i18n"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
          adjustFontSize, memo, getVersionInfo, adjustTextForSups,
-         adjustPiecesForSpecialHebrew } from "../../utils/toolbox"
+         adjustPiecesForSpecialHebrew, cloneObj } from "../../utils/toolbox"
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
@@ -131,7 +131,7 @@ const Verse = ({
 
         const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
-        const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? piece : null
+        const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? cloneObj(piece) : null
 
         if(info && versionId !== 'original') {
           if(doSmallCaps) {
@@ -185,9 +185,10 @@ const Verse = ({
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordStyle : null),
               (isMatch ? matchThemedStyle : null),
               (isMatch ? matchStyle : null),
+// TODO
 // flex wrap a view
 // put all text formatting into top level text components
-// flatten out grouped words
+// flatten out grouped words (test with Gen 4:10 since it has LORD)
 // get rid of the top level verse
             ])}
             onPress={info ? onVerseTap : null}
