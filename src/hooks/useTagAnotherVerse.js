@@ -1,29 +1,34 @@
 import { useCallback, useState } from "react"
 import { getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
 
-import { safelyExecuteSelects } from "../utils/toolbox"
+import { cloneObj, safelyExecuteSelects } from "../utils/toolbox"
 import useRouterState from "./useRouterState"
 import useBibleVersions from "./useBibleVersions"
 import useEffectAsync from "./useEffectAsync"
 
-let currentVersionId
-let currentBookId = 0
-let currentLocsToTag = []
+const currentVersionIdByTestament = {}
+const startBookIdByTestament = { ot: 1, nt: 40 }
+const endBookIdByTestament = { ot: 39, nt: 66 }
+const currentBookIdByTestament = cloneObj(startBookIdByTestament)
+const currentLocsToTagByTestament = { ot: [], nt: [] }
 
 export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
-  if(versionId === currentVersionId) {
+  if(Object.values(currentVersionIdByTestament).includes(versionId)) {
     locs = locs || (loc ? [ loc ] : [ getLocFromRef(ref) ])
     if(locs.length > 0) {
-      currentLocsToTag = currentLocsToTag.filter(locToTag => !locs.includes(locToTag))
+      currentLocsToTagByTestament.ot = currentLocsToTagByTestament.ot.filter(locToTag => !locs.includes(locToTag))
+      currentLocsToTagByTestament.nt = currentLocsToTagByTestament.nt.filter(locToTag => !locs.includes(locToTag))
     }
   }
 }
 
-const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
+const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush }) => {
 
   const { historyPush, historyReplace } = useRouterState()
   const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
   const [ somethingToTag, setSomethingToTag ] = useState(false)
+
+  testament = testament || (currentPassage.ref.bookId <= 39 ? `ot` : `nt`)
 
   const getPassageToTag = useCallback(
     async passageToFirstRemove => {
@@ -35,12 +40,12 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
       const getPassage = () => {
         setSomethingToTag(true)
         return {
-          versionId: currentVersionId,
-          ref: getRefFromLoc(currentLocsToTag[0]),
+          versionId: currentVersionIdByTestament[testament],
+          ref: getRefFromLoc(currentLocsToTagByTestament[testament][0]),
         }
       }
 
-      if(currentLocsToTag.length > 0) return getPassage()
+      if(currentLocsToTagByTestament[testament].length > 0) return getPassage()
 
       const getCurrentLocsToTag = async () => {
 
@@ -48,16 +53,16 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
         const [ [{ tagSetsCount }], [{ versesCount }]=[{}] ] = await safelyExecuteSelects([
           {
-            database: `versions/${currentVersionId}/tagSets`,
+            database: `versions/${currentVersionIdByTestament[testament]}/tagSets`,
             statement: () => `SELECT COUNT(*) AS tagSetsCount FROM tagSets WHERE id LIKE ? AND status NOT IN ('none', 'automatch')`,
             args: [
-              `${`0${currentBookId}`.slice(-2)}%`,
+              `${`0${currentBookIdByTestament[testament]}`.slice(-2)}%`,
             ],
           },
           {
-            versionId: currentVersionId,
-            bookId: currentBookId,
-            statement: () => `SELECT COUNT(*) AS versesCount FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
+            versionId: currentVersionIdByTestament[testament],
+            bookId: currentBookIdByTestament[testament],
+            statement: () => `SELECT COUNT(*) AS versesCount FROM ${currentVersionIdByTestament[testament]}VersesBook${currentBookIdByTestament[testament]} ORDER BY loc`,
           },
         ])
 
@@ -65,16 +70,16 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
         const [ tagSets, verses ] = await safelyExecuteSelects([
           {
-            database: `versions/${currentVersionId}/tagSets`,
+            database: `versions/${currentVersionIdByTestament[testament]}/tagSets`,
             statement: () => `SELECT id FROM tagSets WHERE id LIKE ? AND status NOT IN ('none', 'automatch')`,
             args: [
-              `${`0${currentBookId}`.slice(-2)}%`,
+              `${`0${currentBookIdByTestament[testament]}`.slice(-2)}%`,
             ],
           },
           {
-            versionId: currentVersionId,
-            bookId: currentBookId,
-            statement: () => `SELECT loc FROM ${currentVersionId}VersesBook${currentBookId} ORDER BY loc`,
+            versionId: currentVersionIdByTestament[testament],
+            bookId: currentBookIdByTestament[testament],
+            statement: () => `SELECT loc FROM ${currentVersionIdByTestament[testament]}VersesBook${currentBookIdByTestament[testament]} ORDER BY loc`,
           },
         ])
 
@@ -83,7 +88,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
           tagSetLocsObj[id.split('-')[0]] = true
         })
 
-        currentLocsToTag = (
+        currentLocsToTagByTestament[testament] = (
           verses
             .filter(({ loc }) => !tagSetLocsObj[loc])
             .map(({ loc }) => loc)
@@ -91,27 +96,28 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
 
       }
 
-      const currentVersionIdIdx = Math.max(downloadedVersionIds.indexOf(currentVersionId), 0)
+      const currentVersionIdIdx = Math.max(downloadedVersionIds.indexOf(currentVersionIdByTestament[testament]), 0)
       for(let versionIdsIdx=currentVersionIdIdx; versionIdsIdx<downloadedVersionIds.length; versionIdsIdx++) {
-        currentVersionId = downloadedVersionIds[versionIdsIdx]
-        if(currentVersionId === 'original') continue
-        while(++currentBookId <= 66) {
+        currentVersionIdByTestament[testament] = downloadedVersionIds[versionIdsIdx]
+        if(currentVersionIdByTestament[testament] === 'original') continue
+        while(currentBookIdByTestament[testament] <= endBookIdByTestament[testament]) {
           await getCurrentLocsToTag()
-          if(currentLocsToTag.length > 0) {
+          currentBookIdByTestament[testament]++
+          if(currentLocsToTagByTestament[testament].length > 0) {
             return getPassage()
           }
         }
-        currentBookId = 0
+        currentBookIdByTestament[testament] = startBookIdByTestament[testament]
       }
-      currentVersionId = downloadedVersionIds[0]
+      currentVersionIdByTestament[testament] = downloadedVersionIds[0]
 
       setSomethingToTag(false)
 
     },
-    [ downloadedVersionIds ],
+    [ downloadedVersionIds, testament ],
   )
 
-  useEffectAsync(getPassageToTag, [])
+  useEffectAsync(getPassageToTag, [ testament ])
 
   const tagAnotherVerse = useCallback(
     async () => {
@@ -119,7 +125,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, doPush }) => {
         passage: await getPassageToTag(currentPassage),
       })
     },
-    [ historyPush, historyReplace, currentPassage ],
+    [ historyPush, historyReplace, currentPassage, getPassageToTag ],
   )
 
   return {
