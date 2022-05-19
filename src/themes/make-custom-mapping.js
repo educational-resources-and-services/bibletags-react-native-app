@@ -527,6 +527,9 @@ const mapping = {
       component: 'VerseTaggerHelp',
     },
     {
+      component: 'DrawerItem',
+    },
+    {
       component: 'OriginalWordBehindTranslation',
       parameters: {
         labelColor: "color-basic-600",

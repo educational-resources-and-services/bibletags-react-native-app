@@ -1,11 +1,14 @@
 import React, { useCallback } from "react"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import * as StoreReview from "expo-store-review"
 import { Image, StyleSheet, Linking } from "react-native"
 import { ListItem } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
 import useRouterState from "../../hooks/useRouterState"
-import { sentry } from "../../utils/toolbox"
+import useTagAnotherVerse from "../../hooks/useTagAnotherVerse"
+import { sentry, memo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   image: {
@@ -33,9 +36,14 @@ const DrawerItem = React.memo(({
   imageHeight,
   onPress,
   locales,
+
+  myBibleVersions,
 }) => {
 
   const { historyPush, historyReplace } = useRouterState()
+
+  const { tagAnotherVerse: tagAnotherVerseOT } = useTagAnotherVerse({ myBibleVersions, testament: `ot` })
+  const { tagAnotherVerse: tagAnotherVerseNT } = useTagAnotherVerse({ myBibleVersions, testament: `nt` })
 
   const changeLanguage = useCallback(() => historyReplace("/LanguageChooser"), [])
   const goVersions = useCallback(() => historyReplace("/Read/Versions"), [])
@@ -83,6 +91,16 @@ const DrawerItem = React.memo(({
       typeAction = goVersions
       break
     }
+    case 'tag-ot': {
+      typeText = i18n("Tag {{language}} verses", { language: i18n("Hebrew") })
+      typeAction = tagAnotherVerseOT
+      break
+    }
+    case 'tag-nt': {
+      typeText = i18n("Tag {{language}} verses", { language: i18n("Greek") })
+      typeAction = tagAnotherVerseNT
+      break
+    }
   }
 
   return (
@@ -116,4 +134,11 @@ const DrawerItem = React.memo(({
 
 })
 
-export default DrawerItem
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+}, dispatch)
+
+export default memo(connect(mapStateToProps, matchDispatchToProps)(DrawerItem), { name: 'DrawerItem' })

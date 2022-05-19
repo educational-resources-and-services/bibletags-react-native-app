@@ -3,7 +3,7 @@ import Constants from "expo-constants"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Image, StyleSheet, Linking, TouchableOpacity, Text, View } from "react-native"
-import { List, Layout } from "@ui-kitten/components"
+import { List, Layout, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -58,6 +58,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: 20,
   },
+  divider: {
+    marginVertical: 10,
+  },
 })
 
 const Drawer = ({
@@ -92,11 +95,17 @@ const Drawer = ({
   )
 
   const renderItem = ({ item, index }) => (
-    <DrawerItem
-      key={index}
-      offline={!online}
-      {...item}
-    />
+    item.type === 'divider'
+      ? (
+        <Divider style={styles.divider} />
+      )
+      : (
+        <DrawerItem
+          key={index}
+          offline={!online}
+          {...item}
+        />
+      )
   )
 
   return (
