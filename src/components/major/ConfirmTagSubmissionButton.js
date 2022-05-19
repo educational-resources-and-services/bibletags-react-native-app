@@ -170,8 +170,10 @@ const ConfirmTagSubmissionButton = ({
       // get untagged translation words
       const usedWordNumbers = getUsedWordNumbers()
       const untaggedTranslationWords = []
+      let numTranslationWords = 0
       pieces.filter(({ children }) => children).forEach(({ children }) => {
         children.filter(({ type }) => type === 'word').forEach(({ text, wordNumberInVerse }) => {
+          numTranslationWords++
           if(!usedWordNumbers.includes(wordNumberInVerse)) {
             untaggedTranslationWords.push({
               word: text,
@@ -181,8 +183,10 @@ const ConfirmTagSubmissionButton = ({
         })
       })
 
-      // check that at least 40% of orig words are tagged
-      if(untaggedOrigWords.length / numOrigWords > (1 - .4)) {
+      // check that an average of at least 50% of words are tagged between the original and translation
+      if(
+        (((untaggedOrigWords.length / numOrigWords) + (untaggedTranslationWords.length / numTranslationWords)) / 2) > (1 - .5)
+      ) {
         setDialogInfo({
           visible: true,
           title: i18n("Finish Tagging"),
