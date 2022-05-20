@@ -115,6 +115,7 @@ const App = () => {
 
         let initialTasksComplete = false
         let newVersionCheckComplete = false
+        let updateExists = false
         const numUserOpens = await getNumUserOpens()
 
         if(!__DEV__ && numUserOpens === 1) {
@@ -122,7 +123,10 @@ const App = () => {
         }
 
         const setIsReadyIfReady = force => {
-          if(
+          if(updateExists) {
+            Updates.reloadAsync()
+
+          } else if(
             force
             || (
               initialTasksComplete
@@ -130,6 +134,7 @@ const App = () => {
             )
           ) {
 
+            setIsLoaded(true)
             setIsReady(true)
             logEvent({ eventName: `OpenApp` })
 
@@ -140,6 +145,7 @@ const App = () => {
           Updates.fetchUpdateAsync()
             .then(({ isNew }) => {
               if(isNew) {
+                updateExists = true
                 setUpdateExists(true)
               }
             })
@@ -170,8 +176,6 @@ const App = () => {
           StatusBar.setBarStyle('dark-content')
         }
 
-        setIsLoaded(true)
-
         initialTasksComplete = true
 
         if(!__DEV__ && numUserOpens === 1 && !newVersionCheckComplete) {
@@ -201,13 +205,14 @@ const App = () => {
           <Splash
             showDelayText={showDelayText}
             isReady={isReady}
-            updateExists={updateExists}
           />
           {!!isLoaded &&
             <SafeAreaProvider>
               <Provider store={store}>
                 <PersistGate persistor={persistor}>
-                  <SideMenuAndRouteSwitcher />
+                  <SideMenuAndRouteSwitcher
+                    updateExists={updateExists}
+                  />
                 </PersistGate>
               </Provider>
             </SafeAreaProvider>
