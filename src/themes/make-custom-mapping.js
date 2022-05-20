@@ -502,7 +502,7 @@ const mapping = {
         alt0Color: "color-basic-600",  // wordThemedStyle
         alt1Color: "text-danger-color",  // unusedWordThemedStyle
         alt2Color: "color-basic-1100",  // selectedWordThemedStyle
-        alt2BackgroundColor: "background-basic-color-2",  // selectedWordThemedStyle
+        alt2BackgroundColor: "color-basic-transparent-100",  // selectedWordThemedStyle
         alt2BorderColor: "border-alternative-color-5",  // selectedWordThemedStyle
         alt2Color: "color-basic-1100",  // selectedWordThemedStyle
         alt3Color: "color-basic-500",  // slashThemedStyle

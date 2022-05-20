@@ -16,31 +16,26 @@ const {
 } = Constants.manifest.extra
 
 const phraseBackgroundColors = [
-  "#f4e8f7",
-  "#faf0dc",
-  "#f4f7e2",
-  "#e1f4e4",
-  "#ffe7e5",
+  "#9414b21c",
+  "#de940026",
+  "#b4d10021",
+  "#00bf1e1f",
+  "#cd10001f",
 ]
-
-const wordMargin = 7
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginHorizontal: -wordMargin,
     marginBottom: 7,
   },
   rtl: {
     flexDirection: "row-reverse",
   },
   word: {
-    marginHorizontal: wordMargin * .8,
     flexDirection: "row",
   },
   wordPiece: {
-    marginHorizontal: wordMargin * .2,
   },
   rtlText: {
     writingDirection: "rtl",
@@ -50,16 +45,23 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: -2,
     marginBottom: 4,
+    paddingHorizontal: 8,
   },
   rtlTranslationWords: {
     textAlign: "right",
   },
   slash: {
+    paddingTop: 4,
+    marginHorizontal: -10,
+    width: 20,
+    textAlign: 'center',
+    zIndex: -1,
   },
   wordText: {
-    marginHorizontal: -7,
-    paddingHorizontal: 6,
+    paddingHorizontal: 8,
+    minWidth: 30,
     marginBottom: -15,
+    paddingTop: 4,
     paddingBottom: 14,
     borderWidth: 1,
     borderRadius: 5,
