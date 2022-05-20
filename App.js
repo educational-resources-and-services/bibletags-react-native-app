@@ -123,10 +123,7 @@ const App = () => {
         }
 
         const setIsReadyIfReady = force => {
-          if(updateExists) {
-            Updates.reloadAsync()
-
-          } else if(
+          if(
             force
             || (
               initialTasksComplete
@@ -134,9 +131,13 @@ const App = () => {
             )
           ) {
 
-            setIsLoaded(true)
-            setIsReady(true)
-            logEvent({ eventName: `OpenApp` })
+            if(updateExists) {
+              Updates.reloadAsync()
+            } else {
+              setIsLoaded(true)
+              setIsReady(true)
+              logEvent({ eventName: `OpenApp` })
+            }  
 
           }
         }
