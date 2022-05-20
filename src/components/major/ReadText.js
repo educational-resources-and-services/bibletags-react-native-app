@@ -421,6 +421,7 @@ const ReadText = ({
           let { verseTextStyles, adjustedChildren } = adjustChildrenAndGetStyles({
             bookId,
             tag,
+            type,
             text,
             content,
             children,

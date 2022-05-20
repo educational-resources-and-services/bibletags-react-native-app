@@ -97,6 +97,7 @@ const lightStyles = [
 export const adjustChildrenAndGetStyles = ({
   bookId,
   tag,
+  type,
   text,
   content,
   children,
@@ -108,6 +109,7 @@ export const adjustChildrenAndGetStyles = ({
   doSmallCaps,
   languageId,
   isOriginal,
+  wrapWordsInNbsp,
   tagThemedStyles,
 }) => {
 
@@ -141,6 +143,23 @@ export const adjustChildrenAndGetStyles = ({
       ))
   }
 
+  if(wrapWordsInNbsp && type === 'word') {
+    // \u00A0 is an &nbsp;
+    if(children) {
+      children = [
+        {
+          text: `\u00A0`,
+        },
+        ...children,
+        {
+          text: `\u00A0`,
+        },
+      ]
+    } else if(text) {
+      text = `\u00A0${text}\u00A0`
+    }
+  }
+
   const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa' ]
 
   const verseTextStyles = StyleSheet.flatten([
@@ -157,5 +176,6 @@ export const adjustChildrenAndGetStyles = ({
   return {
     verseTextStyles,
     adjustedChildren: children,
+    adjustedText: text,
   }
 }

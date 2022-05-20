@@ -388,6 +388,7 @@ const VerseTagger = ({
               hideSuperscripts={true}
               selectedWordStyle={selectedWordThemedStyle}
               unselectedWordStyle={unselectedWordThemedStyle}
+              wrapWordsInNbsp={true}
             />
 
             <View style={styles.confirmButtonContainer}>
