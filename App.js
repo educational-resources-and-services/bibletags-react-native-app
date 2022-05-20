@@ -35,6 +35,7 @@ import * as Sentry from "./src/utils/sentry"
 
 import SideMenuAndRouteSwitcher from "./src/components/major/SideMenuAndRouteSwitcher"
 import Splash from "./src/components/major/Splash"
+import PreventTopAndBottomSwipeEvents from "./src/components/basic/PreventTopAndBottomSwipeEvents"
 
 const {
   SENTRY_DSN="[SENTRY_DSN]",
@@ -215,6 +216,7 @@ const App = () => {
                   />
                 </PersistGate>
               </Provider>
+            <PreventTopAndBottomSwipeEvents />
             </SafeAreaProvider>
           } 
         </ApplicationProvider>
