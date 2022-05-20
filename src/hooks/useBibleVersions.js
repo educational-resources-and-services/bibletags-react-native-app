@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from "react"
 
 import bibleVersions from "../../versions"
-import useMemoObject from "./useMemoObject"
+import useEqualObjsMemo from "./useEqualObjsMemo"
 
 const getVersion = id => (bibleVersions.filter(version => version.id === id)[0] || {})
 
@@ -68,7 +68,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [],
   )
 
-  const languageIds = useMemoObject([
+  const languageIds = useEqualObjsMemo([
     ...new Set(
       versionIds.map(versionId => getVersion(versionId).languageId).filter(Boolean)
     )

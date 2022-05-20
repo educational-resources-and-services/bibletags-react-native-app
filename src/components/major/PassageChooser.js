@@ -10,7 +10,7 @@ import useBibleVersions from "../../hooks/useBibleVersions"
 import { getVersionInfo, isIPhoneX, memo } from "../../utils/toolbox"
 import useBack from "../../hooks/useBack"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import useMemoObject from "../../hooks/useMemoObject"
+import useEqualObjsMemo from "../../hooks/useEqualObjsMemo"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import { setRef, setVersionId, setParallelVersionId, removeParallelVersion } from "../../redux/actions"
 
@@ -305,7 +305,7 @@ const PassageChooser = ({
     [],
   )
 
-  const extraData = useMemoObject({
+  const extraData = useEqualObjsMemo({
     bookId,
     paddingBottom,
   })

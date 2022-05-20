@@ -9,7 +9,7 @@ import { i18n } from "inline-i18n"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useVersePieces from "../../hooks/useVersePieces"
-import useMemoObject from "../../hooks/useMemoObject"
+import useEqualObjsMemo from "../../hooks/useEqualObjsMemo"
 import useTagSet from "../../hooks/useTagSet"
 import useSetSelectedTagInfo from "../../hooks/useSetSelectedTagInfo"
 // import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -70,7 +70,7 @@ const LowerPanelVsComparison = ({
       : passage.parallelVersionId
   )
 
-  const bothVersionIds = useMemoObject([ passage.versionId, passage.parallelVersionId ].filter(Boolean))
+  const bothVersionIds = useEqualObjsMemo([ passage.versionId, passage.parallelVersionId ].filter(Boolean))
   const versionIdsToShow = useMemo(
     () => downloadedVersionIds.filter(id => !bothVersionIds.includes(id)),
     [ downloadedVersionIds, bothVersionIds ],
@@ -81,7 +81,7 @@ const LowerPanelVsComparison = ({
   const [ selectedWordIdx, setSelectedWordIdx ] = useState(0)
 
   const { wordDividerRegex, isOriginal } = getVersionInfo(versionIdShowing)
-  const selectedRef = useMemoObject({ versionId: selectedVersionId, ...passage.ref, verse: selectedVerse })
+  const selectedRef = useEqualObjsMemo({ versionId: selectedVersionId, ...passage.ref, verse: selectedVerse })
   const wordsHash = getWordsHash({ usfm: selectedVerseUsfm, wordDividerRegex })
 
   const { tagSet, iHaveSubmittedATagSet } = useTagSet({
@@ -181,20 +181,11 @@ const LowerPanelVsComparison = ({
     && hasNoCoorespondingOriginalWord
   )
 
-  if(versionIdsToShow.length === 0) {
-    return (
-      <>
-        <Text style={styles.noCompareVersions}>
-          {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
-        </Text>
-        <IPhoneXBuffer extraSpace={true} />
-      </>
-    )
-  }
-
   useEffect(
     () => {
-      scrollRef.current.scrollTo({ y: 0, animated: false })
+      if(scrollRef.current) {
+        scrollRef.current.scrollTo({ y: 0, animated: false })
+      }
     },
     [ pieces ],
   )
@@ -222,6 +213,22 @@ const LowerPanelVsComparison = ({
     },
     [ hasSelectedInfo ],
   )
+
+  if(versionIdsToShow.length === 0) {
+    return (
+      <View
+        onLayout={onSizeChangeFunctions[5]}
+      >
+        <Text style={styles.noCompareVersions}>
+          {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
+        </Text>
+        <IPhoneXBuffer
+          extraSpace={true}
+          onLayout={onSizeChangeFunctions[8]}
+        />
+      </View>
+    )
+  }
 
   // TODO: show vs num (and chapter when different) before each verse when not the same
 
