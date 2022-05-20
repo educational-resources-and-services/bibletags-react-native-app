@@ -92,11 +92,13 @@ const DrawerItem = React.memo(({
       break
     }
     case 'tag-ot': {
+      if(!tagAnotherVerseOT) return null
       typeText = i18n("Tag {{language}} verses", { language: i18n("Hebrew") })
       typeAction = tagAnotherVerseOT
       break
     }
     case 'tag-nt': {
+      if(!tagAnotherVerseNT) return null
       typeText = i18n("Tag {{language}} verses", { language: i18n("Greek") })
       typeAction = tagAnotherVerseNT
       break

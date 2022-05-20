@@ -12,6 +12,16 @@ const endBookIdByTestament = { ot: 39, nt: 66 }
 const currentBookIdByTestament = cloneObj(startBookIdByTestament)
 const currentLocsToTagByTestament = { ot: [], nt: [] }
 
+// TODO: Improve this by:
+  // get all tags for a version (do their versions in order)
+  // test by wordsHash in addition to loc and versionId
+  // remove unconfirmed/confirmed tags when updated from sync
+  // tag another verse should bring them to the first tag after currentPassage
+  // tag Hebrew/Greek from drawer should have its own bookmark
+  // (make sure skipping still works)
+  // think about queuing up unconfirmed tags after no automatch/none left
+  // (make sure words with adding/removing versions)
+
 export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
   if(Object.values(currentVersionIdByTestament).includes(versionId)) {
     locs = locs || (loc ? [ loc ] : [ getLocFromRef(ref) ])
@@ -117,7 +127,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush
     [ downloadedVersionIds, testament ],
   )
 
-  useEffectAsync(getPassageToTag, [ testament ])
+  useEffectAsync(getPassageToTag, [ downloadedVersionIds, testament ])
 
   const tagAnotherVerse = useCallback(
     async () => {
