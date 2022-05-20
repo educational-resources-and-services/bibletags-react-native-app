@@ -495,11 +495,10 @@ export const fixRTL = async ({ locale, forceReload }={}) => {
 
 const numUserOpensKey = `numUserOpens`
 
-export const getNumUserOpens = async () => await getAsyncStorage(numUserOpensKey, 0)
-
-export const recordNumUserOpens = async () => {
-  const numUserOpens = await getNumUserOpens() + 1
+export const updateAndGetNumUserOpens = async () => {
+  const numUserOpens = (await getAsyncStorage(numUserOpensKey, 0)) + 1
   await setAsyncStorage(numUserOpensKey, numUserOpens)
+  return numUserOpens
 }
 
 let deviceId

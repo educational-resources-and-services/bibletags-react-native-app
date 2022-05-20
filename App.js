@@ -28,7 +28,7 @@ import updateDataStructure from "./src/utils/updateDataStructure"
 import syncBibleVersions from "./src/utils/syncBibleVersions"
 // import { reportReadings } from "./src/utils/syncUserData"
 import { translations, languageOptions } from "./language"
-import { fixRTL, initializeDeviceId, getNumUserOpens, recordNumUserOpens, getAsyncStorage } from "./src/utils/toolbox"
+import { fixRTL, initializeDeviceId, updateAndGetNumUserOpens, getAsyncStorage } from "./src/utils/toolbox"
 import { iconFonts } from "./src/components/basic/Icon"
 import useSetTimeout from "./src/hooks/useSetTimeout"
 import * as Sentry from "./src/utils/sentry"
@@ -116,7 +116,7 @@ const App = () => {
         let initialTasksComplete = false
         let newVersionCheckComplete = false
         let updateExists = false
-        const numUserOpens = await getNumUserOpens()
+        const numUserOpens = await updateAndGetNumUserOpens()
 
         if(!__DEV__ && numUserOpens === 1) {
           setShowDelayText(true)
@@ -156,7 +156,6 @@ const App = () => {
         }
 
         await Promise.all([
-          recordNumUserOpens(),
           initializeDeviceId(),
           Font.loadAsync({
             ...bibleFontLoads,
