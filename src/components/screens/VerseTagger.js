@@ -214,6 +214,8 @@ const VerseTagger = ({
     [],
   )
 
+  const undoClear = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers(tagSetsInProgress[inProgressKey]), [ inProgressKey ])
+
   useLayoutEffect(
     () => {
 
@@ -337,6 +339,7 @@ const VerseTagger = ({
   )
 
   const ready = !!(pieces && originalPieces && tagSet)
+  const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(tagSetsInProgress).length !== 0
 
   return (
     <SafeLayout>
@@ -419,11 +422,11 @@ const VerseTagger = ({
               }
 
               <Button
-                onPress={clearTranslationWordInfoByWordIdAndPartNumbers}
+                onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
                 appearance='ghost'
                 status='basic'
               >
-                {i18n("Clear tags")}
+                {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
               </Button>
 
             </View>
