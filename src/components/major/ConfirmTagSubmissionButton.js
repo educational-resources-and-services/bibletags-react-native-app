@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Alert, TouchableOpacity } from "react-native"
 import { Button, Divider } from "@ui-kitten/components"
 import { i18n } from "inline-i18n"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
-import { containsHebrewChars, containsGreekChars } from "@bibletags/bibletags-ui-helper"
+import { containsHebrewChars, containsGreekChars, splitVerseIntoWords } from "@bibletags/bibletags-ui-helper"
 import Constants from "expo-constants"
 
 import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId } from '../../utils/toolbox'
@@ -171,35 +171,7 @@ const ConfirmTagSubmissionButton = ({
       const usedWordNumbers = getUsedWordNumbers()
       const untaggedTranslationWords = []
 
-      const getWordsWithNumber = unitObjs => {
-        let words = []
-
-        const getWordText = unitObj => {
-          const { text, children } = unitObj
-          return text || (children && children.map(child => getWordText(child)).join("")) || ""
-        }
-
-        unitObjs.forEach(unitObj => {
-          const { type, children, wordNumberInVerse, tag } = unitObj
-
-          if(type === "word") {
-            let text = getWordText(unitObj)
-            if([ 'nd', 'sc' ].includes(tag)) {
-              text = text.toUpperCase()
-            }
-            words.push({ wordNumberInVerse, text })
-          } else if(children) {
-            words = [
-              ...words,
-              ...getWordsWithNumber(children),
-            ]
-          }
-        })
-
-        return words
-      }
-
-      const translationWords = getWordsWithNumber(pieces)
+      const translationWords = splitVerseIntoWords({ pieces })
       translationWords.forEach(({ text, wordNumberInVerse }) => {
         if(!usedWordNumbers.includes(wordNumberInVerse)) {
           untaggedTranslationWords.push({

@@ -3,7 +3,7 @@ import { StyleSheet, View, ScrollView, Vibration } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import Constants from "expo-constants"
-import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes } from "@bibletags/bibletags-ui-helper"
+import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes, splitVerseIntoWords } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 import { Button } from "@ui-kitten/components"
@@ -297,23 +297,13 @@ const VerseTagger = ({
         )
       ) {
 
-        const wordByWordNumberInVerse = {}
-        pieces
-          .map(({ children }) => children)
-          .filter(Boolean)
-          .flat()
-          .forEach(({ wordNumberInVerse, text }) => {
-            if(wordNumberInVerse) {
-              wordByWordNumberInVerse[wordNumberInVerse] = text
-            }
-          })
-
+        const words = splitVerseIntoWords({ pieces }).map(({ text }) => text)
         const newTranslationWordInfoByWordIdAndPartNumbers = {}
         ;(myTagSet || tagSet).tags.forEach(tag => {
           if(tag.o.length > 0 && tag.t.length > 0) {
             newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => ({
               wordNumberInVerse,
-              word: wordByWordNumberInVerse[wordNumberInVerse],
+              word: words[wordNumberInVerse - 1],
               hasUnknownCapitalization: false,
             }))
           }
