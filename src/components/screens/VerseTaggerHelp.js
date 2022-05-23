@@ -130,6 +130,9 @@ const VerseTaggerHelp = ({
           <Text style={styles.example}>
             Eg. “<Text style={styles.greek}>τὸν Θεόν</Text>” in John 1:1 should be tagged to “God.”
           </Text>
+          <Text style={styles.example}>
+            Eg. However, in Matthew 1:11, we find “<Text style={styles.greek}>τοὺς ἀδελφοὺς αὐτοῦ</Text>” translated to “his brothers.” In this case, the article should be left untagged since it is not contributing to the translation of “his” or “brothers.”
+          </Text>
         </View>
 
         <View style={styles.point}>
