@@ -74,7 +74,10 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            2. Tag all translated words, including helping verbs and translations you disagree with.
+            2. Tag all translated words. This includes pronouns designated by a verb’s inflection, helping verbs, and translations you disagree with.
+          </Text>
+          <Text style={styles.example}>
+            Eg. In John 1:43, “<Text style={styles.greek}>εὑρίσκει</Text>” should be tagged to both “He” and “found.”
           </Text>
           <Text style={styles.example}>
             Eg. In Genesis 2:5, “<Text style={styles.hebrew}>לֹ֨א הִמְטִ֜יר</Text>” is translated “had not caused it to rain.” In this case, “<Text style={styles.hebrew}>לֹ֨א</Text>” should be tagged to “not” and “<Text style={styles.hebrew}>הִמְטִ֜יר</Text>” should be tagged to “had ... caused it to rain.”
