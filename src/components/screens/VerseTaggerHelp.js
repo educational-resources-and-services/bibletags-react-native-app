@@ -143,10 +143,25 @@ const VerseTaggerHelp = ({
 
         <View style={styles.point}>
           <Text style={styles.line}>
-            9. DO NOT include a paragogic <Text style={styles.hebrew}>נ</Text> or <Text style={styles.hebrew}>ה</Text> in your tagging.
+            9. Only tag a preposition with a verb, if its presence changes the verb’s meaning.
+          </Text>
+          <Text style={styles.example}>
+            Eg. You should NOT include the “<Text style={styles.hebrew}>לְ</Text>” in your tagging of the verbs in these phrases: “<Text style={styles.hebrew}>מִ֚י הִגִּ֣יד לְ/ךָ֔</Text>” “who told you” (Genesis 3:4) and “<Text style={styles.hebrew}>נָתַ֨תִּי לָ/כֶ֜ם</Text>” “I gave you” (Genesis 9:3). This is because they still mean “told” and “gave” without the “<Text style={styles.hebrew}>לְ</Text>.”
+          </Text>
+          <Text style={styles.example}>
+            Eg. However, for “<Text style={styles.hebrew}>וְ/הָי֖וּ לְ/בָשָׂ֥ר אֶחָֽד</Text>” “and they shall become one flash” (Genesis 2:24) both “<Text style={styles.hebrew}>הָי֖וּ</Text>” and “<Text style={styles.hebrew}>לְ</Text>” should be tagged to “become” since “<Text style={styles.hebrew}>הָיָה</Text>” only carries that meaning when paired with “<Text style={styles.hebrew}>לְ</Text>”.
+          </Text>
+        </View>
+
+        <View style={styles.point}>
+          <Text style={styles.line}>
+            10. DO NOT include a paragogic <Text style={styles.hebrew}>נ</Text> or <Text style={styles.hebrew}>ה</Text> in your tagging. DO NOT tag the particle <Text style={styles.hebrew}>אֵת</Text>.
           </Text>
           <Text style={styles.example}>
             Eg. For “<Text style={styles.hebrew}>תְּמֻתֽוּ/ן</Text>” in Genesis 3:4, only “<Text style={styles.hebrew}>תְּמֻתֽוּ</Text>” should be tagged to “you will die.” The “<Text style={styles.hebrew}>ן</Text>” should be left untagged.
+          </Text>
+          <Text style={styles.example}>
+            Eg. For “<Text style={styles.hebrew}>בָּרָ֣א אֹת֑/וֹ</Text>” in Genesis 1:27, only “<Text style={styles.hebrew}>וֹ</Text>” should be tagged to “him.”
           </Text>
         </View>
 
