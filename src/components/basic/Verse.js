@@ -143,7 +143,7 @@ const Verse = ({
             info.text = info.text.toUpperCase()
           } else if(
             info.text
-            && /^$|[.;:,¿?!¡"“’(]/.test(previousTextContent.slice(-1))  // relevant punctuation in the previous char, or first word in verse
+            && /^$|[.;:,¿?!¡"“’(]/.test(previousTextContent.trim().slice(-1))  // relevant punctuation in the previous non-space char, or first word in verse
             && info.text.slice(0,1) !== info.text.slice(0,1).toLowerCase()  // first char is capitalized
             && info.text.slice(1) === info.text.slice(1).toLowerCase()  // remaining chars are not capitalized
           ) {
