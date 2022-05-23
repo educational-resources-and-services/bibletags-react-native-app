@@ -66,7 +66,9 @@ const submitWordHashesSet = async ({ input }) => {
         ))
       ],
     })
-    indicatedVersesTagged({ versionId: input.versionId, loc: tagSet.id.split('-')[0] })
+    if([ 'confirmed', 'unconfirmed' ].includes(tagSet.status)) {
+      indicatedVersesTagged({ versionId: input.versionId, loc: tagSet.id.split('-')[0] })
+    }
 
     return true
 

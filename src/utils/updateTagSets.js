@@ -44,7 +44,8 @@ export const updateDBWithTagSets = async ({ updatedTagSets, versionId, updatedFr
       ],
     })),
   })
-  indicatedVersesTagged({ versionId, locs: tagSets.map(({ id }) => id.split('-')[0]) })
+  const confirmedTagSets = tagSets.filter(({ status }) => [ 'confirmed', 'unconfirmed' ].includes(status))
+  indicatedVersesTagged({ versionId, locs: confirmedTagSets.map(({ id }) => id.split('-')[0]) })
 
   await setAsyncStorage(updatedFromKey, newUpdatedFrom)
 }
