@@ -32,6 +32,17 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     fontWeight: '200',
   },
+  note: {
+    marginTop: 8,
+    marginBottom: 4,
+    fontWeight: '200',
+    borderWidth: 1,
+    borderRadius: 3,
+    borderColor: 'rgba(0, 0, 0, .15)',
+    backgroundColor: 'rgba(0, 0, 0, .03)',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+  },
   greek: {
     fontFamily: `original-grk`,
   },
@@ -69,6 +80,9 @@ const VerseTaggerHelp = ({
           </Text>
           <Text style={styles.example}>
             Eg. In Romans 1:2, you would tap “<Text style={styles.greek}>ὃ</Text>” then “which.” Next, you would tap “<Text style={styles.greek}>προεπηγγείλατο</Text>” followed by tapping “he,” “promised,” and “beforehand.” And so forth.
+          </Text>
+          <Text style={styles.note}>
+            Note: You will often find a number of words pre-tagged by our auto-tagger. You should check (and correct, when needed) these tags before submitting.
           </Text>
         </View>
 
