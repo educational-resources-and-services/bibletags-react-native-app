@@ -20,101 +20,107 @@ const { sync } = new S3SyncClient({ client: s3Client })
 
 const goSyncVersions = async ({ stage }) => {
 
-  const s3Dir = `s3://cdn.bibletags.org/tenants/${process.env.EMBEDDING_APP_ID}/${stage}/versions`
-  const syncDir = `tenants/${process.env.TENANT_NAME}/versions`
+  try {
 
-  console.log(``)
-  console.log(`Sync ${syncDir} to ${s3Dir}...`)
+    const s3Dir = `s3://cdn.bibletags.org/tenants/${process.env.EMBEDDING_APP_ID}/${stage}/versions`
+    const syncDir = `tenants/${process.env.TENANT_NAME}/versions`
 
-  const { uploads } = await sync(syncDir, s3Dir)
-
-  uploads.forEach(({ path }) => {
-    console.log(`  > updated ${path.slice(syncDir.length)}`)
-  })
-
-  if(stage === 'dev') {
     console.log(``)
-    console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
-    await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
-    exec(`cd ../bibletags-data && npm start`)
-    await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
-  }
+    console.log(`Sync ${syncDir} to ${s3Dir}...`)
 
-  for(let upload of uploads) {
-    const { id, path } = upload
-    const [ x1, embeddingAppId, stage, x2, versionId, x3, fileName ] = id.split('/')
+    const { uploads } = await sync(syncDir, s3Dir)
 
-    if(versionId === 'original') continue
+    uploads.forEach(({ path }) => {
+      console.log(`  > updated ${path.slice(syncDir.length)}`)
+    })
 
-    const bookId = parseInt(fileName.split('.')[0], 10)
-    const uri = (
-      process.env.BIBLETAGS_DATA_GRAPHQL_URI
-      || (
-        stage === 'dev'
-          ? "http://localhost:8082/graphql"
-          : "https://data.bibletags.org/graphql"
+    if(stage === 'dev') {
+      console.log(``)
+      console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
+      await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
+      exec(`cd ../bibletags-data && npm start`)
+      await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
+    }
+
+    for(let upload of uploads) {
+      const { id, path } = upload
+      const [ x1, embeddingAppId, stage, x2, versionId, x3, fileName ] = id.split('/')
+
+      if(versionId === 'original') continue
+
+      const bookId = parseInt(fileName.split('.')[0], 10)
+      const uri = (
+        process.env.BIBLETAGS_DATA_GRAPHQL_URI
+        || (
+          stage === 'dev'
+            ? "http://localhost:8082/graphql"
+            : "https://data.bibletags.org/graphql"
+        )
       )
-    )
 
-    if(bookId) {
-      console.log(`  - submit word hash sets for bookId:${bookId} (${versionId})`)
+      if(bookId) {
+        console.log(`  - submit word hash sets for bookId:${bookId} (${versionId})`)
 
-      const db = new Database(path)
-      const tableName = `${versionId}VersesBook${bookId}`
+        const db = new Database(path)
+        const tableName = `${versionId}VersesBook${bookId}`
 
-      const verses = db.prepare(`SELECT * FROM ${tableName}`).all()
+        const verses = db.prepare(`SELECT * FROM ${tableName}`).all()
 
-      const input = verses.map(verse => {
+        const input = verses.map(verse => {
 
-        const { loc, usfm } = verse
-        const params = {
-          usfm,
+          const { loc, usfm } = verse
+          const params = {
+            usfm,
+          }
+
+          const wordsHash = getWordsHash(params)
+          const wordHashes = JSON.stringify(getWordHashes(params)).replace(/([{,])"([^"]+)"/g, '$1$2')
+
+          return `{ loc: "${loc}", versionId: "${versionId}", wordsHash: "${wordsHash}", embeddingAppId: "${embeddingAppId}", wordHashes: ${wordHashes}}`
+
+        })
+
+        const inputInBlocks = [ input.slice(0, 100) ]
+        for(let i=100; i<input.length; i+=100) {
+          inputInBlocks.push(input.slice(i, i+100))
         }
 
-        const wordsHash = getWordsHash(params)
-        const wordHashes = JSON.stringify(getWordHashes(params)).replace(/([{,])"([^"]+)"/g, '$1$2')
+        await Promise.all(inputInBlocks.map(async inputBlock => {
 
-        return `{ loc: "${loc}", versionId: "${versionId}", wordsHash: "${wordsHash}", embeddingAppId: "${embeddingAppId}", wordHashes: ${wordHashes}}`
+          const composedQuery = gql`
+            mutation {
+              submitWordHashesSets(input: [${inputBlock.join(',')}])
+            }
+          `
 
-      })
-
-      const inputInBlocks = [ input.slice(0, 100) ]
-      for(let i=100; i<input.length; i+=100) {
-        inputInBlocks.push(input.slice(i, i+100))
-      }
-
-      await Promise.all(inputInBlocks.map(async inputBlock => {
-
-        const composedQuery = gql`
-          mutation {
-            submitWordHashesSets(input: [${inputBlock.join(',')}])
-          }
-        `
-
-        try {
-          await request(uri, composedQuery)
-        } catch(err) {
-          await new Promise(resolve => setTimeout(resolve, 1000))  // give it a second
           try {
-            await request(uri, composedQuery)  // and try again
+            await request(uri, composedQuery)
           } catch(err) {
-            throw new Error(err.message.slice(0,200))
+            await new Promise(resolve => setTimeout(resolve, 1000))  // give it a second
+            try {
+              await request(uri, composedQuery)  // and try again
+            } catch(err) {
+              throw new Error(err.message.slice(0,200))
+            }
           }
-        }
 
-      }))
+        }))
+
+      }
 
     }
 
-  }
+    if(stage === 'dev') {
+      await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
+    }
 
-  if(stage === 'dev') {
-    await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // kills the npm start on /bibletags-data
-  }
+    console.log(``)
+    console.log(`  ...done with sync.`)
+    console.log(``)
 
-  console.log(``)
-  console.log(`  ...done with sync.`)
-  console.log(``)
+  } catch(err) {
+    console.log(err)
+  }
 
 }
 

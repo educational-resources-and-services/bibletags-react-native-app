@@ -7,7 +7,7 @@ THIS_SCRIPT=$0
 TENANT_TO_SWITCH_TO=$1
 
 if [ ! -d "tenants/$TENANT_TO_SWITCH_TO" ]; then
-  echo "This tenant does not exist."
+  echo "This tenant ($TENANT_TO_SWITCH_TO) does not exist."
   echo "If you would like to create this tenant from a copy of an existing tenant, enter the existing tenant and hit ENTER. Otherwise, just hit ENTER."
 
   read CREATE_FROM_THIS_TENANT

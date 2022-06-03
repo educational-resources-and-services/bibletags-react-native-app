@@ -537,6 +537,8 @@ const doubleSpacesRegex = /  +/g
             } else if(stdout.includes(`...done.`)) {
               console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
               resolve()
+            } else if(stdout) {
+              console.log(stdout)
             }
           }
         )
