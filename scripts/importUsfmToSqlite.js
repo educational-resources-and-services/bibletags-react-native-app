@@ -114,7 +114,8 @@ const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|h|toc[0-9]*)(?: .*)?$/
 const majorTitleRegex = /^\\mt[0-9]? .*$/
 const majorSectionRegex = /^\\ms[0-9]? .*$/
-const sectionRegex = /^\\s[0-9]? .*$/
+const majorSectionReferenceRegex = /^\\mr[0-9]? .*$/
+const sectionHeadingRegex = /^\\s[0-9pr]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9])(?: .*)?$/
@@ -244,6 +245,7 @@ const doubleSpacesRegex = /  +/g
 
             dbFilePath = `${versionDir}/verses/${bookId}.db`
             dbInFormationFilePath = `${versionDir}/verses/${bookId}-inFormation.db`
+            await fs.remove(dbInFormationFilePath)
             const db = new Database(dbInFormationFilePath)
 
             const tableName = `${version}VersesBook${bookId}`
@@ -280,7 +282,8 @@ const doubleSpacesRegex = /  +/g
           if(
             majorTitleRegex.test(line)
             || majorSectionRegex.test(line)
-            || sectionRegex.test(line)
+            || majorSectionReferenceRegex.test(line)
+            || sectionHeadingRegex.test(line)
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
             || paragraphRegex.test(line)
@@ -318,7 +321,8 @@ const doubleSpacesRegex = /  +/g
             continue
           }
 
-          // add on verse text
+          if(verses.length === 0) throw new Error(`File contains unknown marker prior to first verse.`)
+
           verses[verses.length - 1].usfm = [
             ...verses[verses.length - 1].usfm,
             ...goesWithNextVsText,
@@ -571,7 +575,10 @@ const doubleSpacesRegex = /  +/g
       }
 
       default: {
-        console.log(`\nERROR: ${err.message}\n`)
+        // console.log(``)
+        console.log(`ERROR: ${err.message}`)
+        // console.log(err)
+        // console.log(``)
         logSyntax()
       }
 
