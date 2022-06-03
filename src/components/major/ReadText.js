@@ -9,7 +9,7 @@ import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo,
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, getColorWithOpacity,
          adjustTextForSups, getTagStyle, adjustPiecesForSpecialHebrew } from '../../utils/toolbox'
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import bibleVersions from "../../../versions"
@@ -522,7 +522,7 @@ const ReadText = ({
           ) {
             verseTextStyles = {
               ...verseTextStyles,
-              ...unfocussedBlockThemedStyle,
+              color: getColorWithOpacity(verseTextStyles.color, .2),
             }
             keyForAndroid = `unselectedThemedStyle`
           }
