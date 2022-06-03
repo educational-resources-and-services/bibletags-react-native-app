@@ -425,7 +425,7 @@ export const getCopyVerseText = ({ pieces, ref, versionAbbr }) => {
       return
     }
 
-    selectedTextContent += text
+    selectedTextContent += [ 'nd', 'sc' ].includes(tag) ? text.toUpperCase() : text
   })
 
   return i18n("{{verse}} ({{passage_reference}} {{version}})", {
