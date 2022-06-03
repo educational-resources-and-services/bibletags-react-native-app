@@ -345,63 +345,59 @@ const PassageChooser = ({
           goVersions={goVersions}
         />
       }
-      {getParallelIsAvailable() &&
-        <>
-          {!!passage.parallelVersionId &&
-            <View style={styles.versionChooserContainer}>
-              <View 
-                style={[
-                  styles.parallelLabelContainer,
-                  parallelLabelContainerThemedStyle,
-                  parallelLabelContainerStyle,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.parallelLabel,
-                    labelThemedStyle,
-                    labelStyle,
-                  ]}
-                  numberOfLines={1}
-                >
-                  {i18n("Parallel")}
-                </Text>
-              </View>
-              <VersionChooser
-                versionIds={secondaryVersionIds}
-                update={updateParallelVersion}
-                selectedVersionId={passage.parallelVersionId}
-                type="secondary"
-                goVersions={goVersions}
-                closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
-                hideEditVersions={true}
-              />
-            </View>
-          }
-          {!passage.parallelVersionId &&
-            <TouchableOpacity
-              onPress={readInParallel}
+      {getParallelIsAvailable() && !!passage.parallelVersionId &&
+        <View style={styles.versionChooserContainer}>
+          <View 
+            style={[
+              styles.parallelLabelContainer,
+              parallelLabelContainerThemedStyle,
+              parallelLabelContainerStyle,
+            ]}
+          >
+            <Text
+              style={[
+                styles.parallelLabel,
+                labelThemedStyle,
+                labelStyle,
+              ]}
+              numberOfLines={1}
             >
-              <View
-                style={[
-                  styles.addParallelContainer,
-                  addParallelContainerThemedStyle,
-                  addParallelContainerStyle,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.addParallelButton,
-                    addParallelButtonThemedStyle,
-                    addParallelButtonStyle,
-                  ]}
-                >
-                  {i18n("+ Add a parallel reading panel")}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          }
-        </>
+              {i18n("Parallel")}
+            </Text>
+          </View>
+          <VersionChooser
+            versionIds={secondaryVersionIds}
+            update={updateParallelVersion}
+            selectedVersionId={passage.parallelVersionId}
+            type="secondary"
+            goVersions={goVersions}
+            closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
+            hideEditVersions={true}
+          />
+        </View>
+      }
+      {getParallelIsAvailable() && !passage.parallelVersionId &&
+        <TouchableOpacity
+          onPress={readInParallel}
+        >
+          <View
+            style={[
+              styles.addParallelContainer,
+              addParallelContainerThemedStyle,
+              addParallelContainerStyle,
+            ]}
+          >
+            <Text
+              style={[
+                styles.addParallelButton,
+                addParallelButtonThemedStyle,
+                addParallelButtonStyle,
+              ]}
+            >
+              {i18n("+ Add a parallel reading panel")}
+            </Text>
+          </View>
+        </TouchableOpacity>
       }
       <View
         style={[
