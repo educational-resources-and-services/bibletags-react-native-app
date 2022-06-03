@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
   },
   addParallelContainer: {
     paddingHorizontal: 5,
-    paddingTop: 2,
     paddingBottom: 7,
     flexDirection: 'row',
   },
