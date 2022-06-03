@@ -388,7 +388,7 @@ const ConfirmTagSubmissionButton = ({
                   >
                   <Text style={styles.mainLine}>
                     <Text>
-                      {i18n("Choose the proper capitalization for the following translation word(s) when they do NOT begin a sentence or clause.")}
+                      {i18n("Indicate how each of these words would appear in a dictionary entry—capitalized or not.")}
                     </Text>
                     {`   `}
                     <Icon
@@ -400,10 +400,7 @@ const ConfirmTagSubmissionButton = ({
 
                 {showExtraCapitalizationInfo &&
                   <View style={styles.extraBlock}>
-                    <Text style={[ styles.firstLine, styles.bold ]}>
-                      {i18n("Context is irrelevant. Simply indicate how this word would appear in a dictionary.")}
-                    </Text>
-                    <Text style={styles.line}>
+                    <Text style={styles.firstLine}>
                       {i18n("Eg. “I” and “Paul” should be capitalized whereas “then” and “so” should not.")}
                     </Text>
                   </View>
