@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react"
-import { StyleSheet, ScrollView, FlatList, Text, View, I18nManager } from "react-native"
+import { StyleSheet, ScrollView, FlatList, Text, View, I18nManager, TouchableOpacity } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getNumberOfChapters, getBookIdListWithCorrectOrdering } from "@bibletags/bibletags-versification"
@@ -61,6 +61,20 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
   },
+  addParallelContainer: {
+    paddingHorizontal: 5,
+    paddingTop: 2,
+    paddingBottom: 7,
+    flexDirection: 'row',
+  },
+  addParallelButton: {
+    fontSize: 13,
+    lineHeight: 30,
+    overflow: 'hidden',
+    borderRadius: 15,
+    paddingLeft: I18nManager.isRTL ? 15 : 10,
+    paddingRight: I18nManager.isRTL ? 10 : 15,
+  },
 })
 
 const PassageChooser = ({
@@ -70,6 +84,8 @@ const PassageChooser = ({
   goVersions,
   style,
   labelStyle,
+  addParallelContainerStyle,
+  addParallelButtonStyle,
   bookListStyle,
   parallelLabelContainerStyle,
 
@@ -100,7 +116,7 @@ const PassageChooser = ({
   const [ setUpdatePassageInUITimeout ] = useSetTimeout()
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ parallelLabelContainerThemedStyle={}, bookListThemedStyle={}, extras={} ] = altThemedStyleSets
+  const [ parallelLabelContainerThemedStyle={}, addParallelContainerThemedStyle={}, addParallelButtonThemedStyle={}, bookListThemedStyle={}, extras={} ] = altThemedStyleSets
   const chooserBookLineHeight = extras.bookLineHeight || 40
 
   useEffect(
@@ -180,6 +196,8 @@ const PassageChooser = ({
 
   const updateParallelVersion = useCallback(
     parallelVersionId => {
+      const previousParallelVersionId = passage.parallelVersionId
+
       setParallelVersionId({ parallelVersionId })
 
       if(parallelVersionId === passage.versionId && primaryVersionIds.length > 1) {
@@ -196,10 +214,14 @@ const PassageChooser = ({
         })
       }
 
-      hidePassageChooser()
+      if(previousParallelVersionId) {
+        hidePassageChooser()
+      }
     },
     [ hidePassageChooser, passage ],
   )
+
+  const readInParallel = useCallback(() => updateParallelVersion(secondaryVersionIds[0]), [ updateParallelVersion, secondaryVersionIds ])
 
   const closeParallelMode = useCallback(
     () => {
@@ -324,35 +346,62 @@ const PassageChooser = ({
         />
       }
       {getParallelIsAvailable() &&
-        <View style={styles.versionChooserContainer}>
-          <View 
-            style={[
-              styles.parallelLabelContainer,
-              parallelLabelContainerThemedStyle,
-              parallelLabelContainerStyle,
-            ]}
-          >
-            <Text
-              style={[
-                styles.parallelLabel,
-                labelThemedStyle,
-                labelStyle,
-              ]}
-              numberOfLines={1}
+        <>
+          {!!passage.parallelVersionId &&
+            <View style={styles.versionChooserContainer}>
+              <View 
+                style={[
+                  styles.parallelLabelContainer,
+                  parallelLabelContainerThemedStyle,
+                  parallelLabelContainerStyle,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.parallelLabel,
+                    labelThemedStyle,
+                    labelStyle,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {i18n("Parallel")}
+                </Text>
+              </View>
+              <VersionChooser
+                versionIds={secondaryVersionIds}
+                update={updateParallelVersion}
+                selectedVersionId={passage.parallelVersionId}
+                type="secondary"
+                goVersions={goVersions}
+                closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
+                hideEditVersions={true}
+              />
+            </View>
+          }
+          {!passage.parallelVersionId &&
+            <TouchableOpacity
+              onPress={readInParallel}
             >
-              {i18n("Parallel")}
-            </Text>
-          </View>
-          <VersionChooser
-            versionIds={secondaryVersionIds}
-            update={updateParallelVersion}
-            selectedVersionId={passage.parallelVersionId}
-            type="secondary"
-            goVersions={goVersions}
-            closeParallelMode={!!passage.parallelVersionId && closeParallelMode}
-            hideEditVersions={true}
-          />
-        </View>
+              <View
+                style={[
+                  styles.addParallelContainer,
+                  addParallelContainerThemedStyle,
+                  addParallelContainerStyle,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.addParallelButton,
+                    addParallelButtonThemedStyle,
+                    addParallelButtonStyle,
+                  ]}
+                >
+                  {i18n("+ Add a parallel reading panel")}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          }
+        </>
       }
       <View
         style={[

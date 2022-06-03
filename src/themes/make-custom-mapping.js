@@ -337,8 +337,11 @@ const mapping = {
       parameters: {
         backgroundColor: "background-basic-color-4",
         labelColor: "text-basic-color",
-        alt0BackgroundColor: "color-basic-transparent-600",
-        alt1BackgroundColor: "background-basic-color-2",
+        alt0BackgroundColor: "color-basic-transparent-600",  // parallelLabelContainerThemedStyle
+        alt1BackgroundColor: "background-basic-color-1",  // addParallelContainerThemedStyle
+        alt2BackgroundColor: "background-basic-color-3",  // addParallelButtonThemedStyle
+        alt3BackgroundColor: "background-basic-color-2",  // bookListThemedStyle
+        // alt4: "",  // extras
       },
     },
     {
