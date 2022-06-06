@@ -212,6 +212,8 @@ const doubleSpacesRegex = /  +/g
       throw new Error(`${version} doesn’t exist or is malformed. Add this version to \`tenants/${tenant}/version.js\` in the proper format.`)
     }
 
+    await fs.remove(`${versionsDir}/temp`)
+    await fs.ensureDir(`${versionsDir}/temp`)
     await fs.remove(`${versionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
     await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
     await fs.ensureDir(`${versionDir}/verses`)
@@ -244,8 +246,7 @@ const doubleSpacesRegex = /  +/g
             if(bookId < 1) break
 
             dbFilePath = `${versionDir}/verses/${bookId}.db`
-            dbInFormationFilePath = `${versionDir}/verses/${bookId}-inFormation.db`
-            await fs.remove(dbInFormationFilePath)
+            dbInFormationFilePath = `${versionsDir}/temp/${bookId}-inFormation.db`
             const db = new Database(dbInFormationFilePath)
 
             const tableName = `${version}VersesBook${bookId}`
@@ -439,7 +440,7 @@ const doubleSpacesRegex = /  +/g
 
       await fs.ensureDir(`${versionDir}/search`)
       const dbFilePath = `${versionDir}/search/unitWords.db`
-      const dbInFormationFilePath = `${versionDir}/search/unitWords-inFormation.db`
+      const dbInFormationFilePath = `${versionsDir}/temp/unitWords-inFormation.db`
       const db = new Database(dbInFormationFilePath)
       const tableName = `${version}UnitWords`
 
@@ -466,6 +467,8 @@ const doubleSpacesRegex = /  +/g
 
       console.log(`  ...inserted ${Object.values(scopeMapsById).length} rows.`)
     }
+
+    await fs.remove(`${versionsDir}/temp`)
 
     if(version === 'original' || versionInfo.bundled) {
 
