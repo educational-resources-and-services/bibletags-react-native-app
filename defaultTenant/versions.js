@@ -13,14 +13,13 @@ const bibleVersions = [
     id: 'original',
     bundled: true,
     files: originalRequires,
-    originalRevisionNum: 5,
+    originalRevisionNum: 6,
     abbr: 'Heb+Grk',
     name: 'unfoldingWord Hebrew Bible + unfoldingWord Greek New Testament',
     copyright: removeIndentAndBlankStartEndLines(`
       This work is designed by unfoldingWord® and developed by the Door43 World Missions Community; it is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
       The UHB is based on the Open Scriptures Hebrew Bible.
     `),
-    copyright: 'This work is designed by unfoldingWord® and developed by the Door43 World Missions Community; it is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License. The UHB is based on the Open Scriptures Hebrew Bible.',
     languageId: 'heb+grk',
     versificationModel: 'original',
     hebrewOrdering: true,  // typically `true` when versificationModel is 'original'

@@ -158,7 +158,7 @@ const Drawer = ({
             subversionThemedStyle,
           ]}
         >
-          Updated PUSH_DATE_STRING
+          Updated Jun 10, 2022 at 10:39
         </Text>
       </View>
     </Layout>
