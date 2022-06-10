@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 
 const displaySettingsOverride = {
   textSize: 1,
-  lineSpacing: 1.5,
+  lineSpacing: 1.7,
 }
 
 const tagSetsInProgress = {}
