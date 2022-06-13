@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const useTaggingInstructions = () => {
+const useTaggingInstructions = ({ defaultOrigLangForExamples }) => {
 
   const [ haveSeenTaggingInstructions, setHaveSeenTaggingInstructions ] = useState(true)
   const { historyPush } = useRouterState()
@@ -63,14 +63,14 @@ const useTaggingInstructions = () => {
   const openInstructions = useCallback(
     async () =>  {
 
-      historyPush("/Read/VerseTagger/Help")
+      historyPush("/Read/VerseTagger/Help", { defaultOrigLangForExamples })
 
       if(!haveSeenTaggingInstructions) {
         await setAsyncStorage(ASYNC_STORAGE_KEY, true)
       }
 
     },
-    [ haveSeenTaggingInstructions ],
+    [ haveSeenTaggingInstructions, defaultOrigLangForExamples ],
   )
 
   const instructionsCover = useMemo(
@@ -84,13 +84,7 @@ const useTaggingInstructions = () => {
                 {i18n("We thank God for your desire to help!")}
               </Text>
               <Text style={styles.p}>
-                {i18n("The more people who tag, the better tagging data becomes. So we invite you to tag often!")}
-              </Text>
-              <Text style={styles.p}>
-                {i18n("At the same time, good data relies on us all using the same tagging principles. So please follow the instructions carefully.")}
-              </Text>
-              <Text style={styles.p}>
-                {i18n("Click the information icon in the top right corner to view the instructions before you begin.")}
+                {i18n("To get started, click the information icon in the top right corner for an orientation.")}
               </Text>
             </View>
             <View style={styles.spacer3} />

@@ -8,7 +8,9 @@ import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 import { Button } from "@ui-kitten/components"
 
-import { getVersionInfo, memo, getOriginalVersionInfo, executeSql, toggleArrayValue, cloneObj, getWordIdAndPartNumber, equalObjs } from "../../utils/toolbox"
+import { getVersionInfo, memo, getOriginalVersionInfo,
+         executeSql, toggleArrayValue, cloneObj,
+         getWordIdAndPartNumber, equalObjs, getTextLanguageId } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -88,7 +90,9 @@ const VerseTagger = ({
     skip: !wordsHash,
   })
 
-  const { instructionsCover, openInstructions } = useTaggingInstructions()
+  const { instructionsCover, openInstructions } = useTaggingInstructions({
+    defaultOrigLangForExamples: getTextLanguageId({ languageId: 'heb+grk', ...ref }),
+  })
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})

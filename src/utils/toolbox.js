@@ -863,3 +863,9 @@ export const getColorWithOpacity = (color='rgba(0,0,0,1)', opacity) => (
     .replace(/^rgb\( *([0-9]+) *, *([0-9]+) *, *([0-9]+) *\)$/i, `rgba($1,$2,$3,1)`)  // if it is rgb()
     .replace(/^rgba\( *([0-9]+) *, *([0-9]+) *, *([0-9]+) *, *[0-9]+ *\)$/i, `rgba($1,$2,$3,${opacity})`)
 )
+
+export const removeIndentAndBlankStartEndLines = str => {
+  const lines = str.replace(/(^\n|\n$)/g, '').split(`\n`)
+  const numSpacesInIndent = (lines[0] || lines[1]).match(/^ */)[0].length
+  return lines.map(line => line.replace(new RegExp(` {1,${numSpacesInIndent}}`), ``)).join(`\n`)
+}
