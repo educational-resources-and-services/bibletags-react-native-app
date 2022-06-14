@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginLeft: 10,
     fontSize,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   liFollowUp: {
     marginLeft: 10,
@@ -231,7 +231,7 @@ const VerseTaggerHelpHow = ({
           fontSize={fontSize}
         />
         {i18n(" ", "word separator")}
-        {i18n("incorrect parsing or versification. (Incorrect versification refers to when the original and translation are misaligned by a verse or so.)")}
+        {i18n("incorrect parsing or versification. (Incorrect versification refers to when the original and translation are misaligned.)")}
       </Text>
 
       <Button

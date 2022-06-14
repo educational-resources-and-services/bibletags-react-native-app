@@ -235,7 +235,10 @@ const ReadHeader = React.memo(({
       {selectedVerse != null &&
         <AppHeader
           hideStatusBar={hideStatusBar}
-          style={styles.header}
+          style={[
+            styles.header,
+            !phoneSize ? styles.headerTablet : null,
+          ]}
           uiStatus="selected"
         >
           <HeaderIconButton

@@ -493,10 +493,14 @@ const mapping = {
     },
     {
       component: 'VerseTagger',
+    },
+    {
+      component: 'VerseTaggerContent',
       parameters: {
         alt0Color: "color-basic-600",  // translationThemedStyle
         alt1Color: "text-danger-color",  // unselectedWordThemedStyle
         alt2TextDecorationLine: "line-through",  // selectedWordThemedStyle
+        alt3Color: "color-primary-500",  // confirmedIconThemedStyle
       },
     },
     {

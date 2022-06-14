@@ -298,7 +298,7 @@ const VerseTaggerHelpRules = ({
               Eg. In Genesis 30:29, some translations read “Jacob said” even though the original only has “<Text style={styles.hebrew}>וַיֹּ֣אמֶר</Text>.” In such a case, “Jacob” should be left untagged.
             </Text>
             <Text style={styles.example}>
-              Eg. In Genesis 29:23, some translations read “to Jacob even though the original only has “<Text style={styles.hebrew}>אֵלָ֑י/ו</Text>.” In such a case, “Jacob” and “<Text style={styles.hebrew}>ו</Text>” should be left untagged.
+              Eg. In Genesis 29:23, some translations read “to Jacob” even though the original only has “<Text style={styles.hebrew}>אֵלָ֑י/ו</Text>.” In such a case, “Jacob” and “<Text style={styles.hebrew}>ו</Text>” should be left untagged.
             </Text>
             {/* <Text style={styles.example}>
               Eg. 
@@ -442,7 +442,7 @@ const VerseTaggerHelpRules = ({
               Eg. In Mark 3:20, we find “<Text style={styles.greek}>ἔρχεται εἰς οἶκον</Text>” translated to “he went home.” Only “<Text style={styles.greek}>ἔρχεται</Text>” should be tagged to “he went” since that is the meaning of this verb with or without the “<Text style={styles.greek}>εἰς</Text>.” Thus, “<Text style={styles.greek}>εἰς</Text>” should be left untagged while “<Text style={styles.greek}>οἶκον</Text>” should be tagged to “home.”
             </Text>
             <Text style={styles.example}>
-              Eg. In Matthew 12:9, we find “<Text style={styles.greek}>ἦλθεν εἰς</Text>” translated to entered.” In this case, “<Text style={styles.greek}>ἦλθεν</Text>” and “<Text style={styles.greek}>εἰς</Text>” should be combined together and then tagged to “entered” since “<Text style={styles.greek}>ἦλθεν</Text>” only carries that meaning when paired with the preposition “<Text style={styles.greek}>εἰς</Text>.”
+              Eg. In Matthew 12:9, we find “<Text style={styles.greek}>ἦλθεν εἰς</Text>” translated to “entered.” In this case, “<Text style={styles.greek}>ἦλθεν</Text>” and “<Text style={styles.greek}>εἰς</Text>” should be combined together and then tagged to “entered” since “<Text style={styles.greek}>ἦλθεν</Text>” only carries that meaning when paired with the preposition “<Text style={styles.greek}>εἰς</Text>.”
             </Text>
           </>
         }
