@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useCallback, useMemo } from "react"
-import { StyleSheet, View, ScrollView, Vibration } from "react-native"
+import { StyleSheet, View, ScrollView, Vibration, TouchableWithoutFeedback } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import Constants from "expo-constants"
@@ -7,6 +7,7 @@ import { getPassageStr, getPiecesFromUSFM, getWordsHash, getWordHashes, splitVer
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 import { Button } from "@ui-kitten/components"
+import { useDimensions } from "@react-native-community/hooks"
 
 import { getVersionInfo, memo, getOriginalVersionInfo,
          executeSql, toggleArrayValue, cloneObj,
@@ -36,7 +37,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    minHeight: 400,
     maxWidth: 600,
     alignSelf: 'center',
   },
@@ -78,6 +78,9 @@ const VerseTagger = ({
   const inProgressKey = JSON.stringify({ ref, versionId })
   const alignmentType = "without-suggestion"  // TODO (if I ever present existing tagSets to new taggers of that verse; other options: affirmation, correction)
 
+  const { height: windowHeight } = useDimensions().window
+  const minHeight = windowHeight - 50 - 1
+
   const { tagAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage })
 
   const [ pieces, setPieces ] = useState()
@@ -97,6 +100,7 @@ const VerseTagger = ({
   })
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
+  const clearSelectedWordIdAndPartNumbers = useCallback(() => setSelectedWordIdAndPartNumbers([]), [])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
   const clearTranslationWordInfoByWordIdAndPartNumbers = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers({}), [])
   const getSelectedWordIdAndPartNumbers = useInstanceValue(selectedWordIdAndPartNumbers)
@@ -360,6 +364,7 @@ const VerseTagger = ({
         style={styles.container}
         contentContainerStyle={[
           styles.contentContainer,
+          { minHeight },
           baseThemedStyle,
           style,
         ]}
@@ -368,75 +373,79 @@ const VerseTagger = ({
         {!ready && <CoverAndSpin />}
 
         {ready &&
-          <>
+          <TouchableWithoutFeedback
+            onPress={clearSelectedWordIdAndPartNumbers}
+          >
+            <View style={{ minHeight }}>
 
-            <TaggerVerse
-              bookId={ref.bookId}
-              pieces={originalPieces}
-              translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
-              selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
-              displaySettingsOverride={displaySettingsOverride}
-              translationLanguageId={languageId}
-              onPress={onOriginalPress}
-              onLongPress={onOriginalLongPress}
-            />
-
-            <Verse
-              passageRef={ref}
-              versionId={versionId}
-              pieces={pieces}
-              usedWordNumbers={usedWordNumbers}
-              selectedWordNumbers={selectedWordNumbers}
-              displaySettingsOverride={displaySettingsOverride}
-              style={translationThemedStyle}
-              onVerseTap={onPress}
-              hideSuperscripts={true}
-              selectedWordStyle={selectedWordThemedStyle}
-              unselectedWordStyle={unselectedWordThemedStyle}
-              wrapWordsInNbsp={true}
-            />
-
-            <View style={styles.confirmButtonContainer}>
-              <ConfirmTagSubmissionButton
-                alignmentType={alignmentType}
-                getUsedWordNumbers={getUsedWordNumbers}
-                getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
-                originalPieces={originalPieces}
-                pieces={pieces}
-                passage={passage}
-                wordsHash={wordsHash}
-                tagAnotherVerse={tagAnotherVerse}
+              <TaggerVerse
+                bookId={ref.bookId}
+                pieces={originalPieces}
+                translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
+                selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
+                displaySettingsOverride={displaySettingsOverride}
+                translationLanguageId={languageId}
+                onPress={onOriginalPress}
+                onLongPress={onOriginalLongPress}
               />
+
+              <Verse
+                passageRef={ref}
+                versionId={versionId}
+                pieces={pieces}
+                usedWordNumbers={usedWordNumbers}
+                selectedWordNumbers={selectedWordNumbers}
+                displaySettingsOverride={displaySettingsOverride}
+                style={translationThemedStyle}
+                onVerseTap={onPress}
+                hideSuperscripts={true}
+                selectedWordStyle={selectedWordThemedStyle}
+                unselectedWordStyle={unselectedWordThemedStyle}
+                wrapWordsInNbsp={true}
+              />
+
+              <View style={styles.confirmButtonContainer}>
+                <ConfirmTagSubmissionButton
+                  alignmentType={alignmentType}
+                  getUsedWordNumbers={getUsedWordNumbers}
+                  getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
+                  originalPieces={originalPieces}
+                  pieces={pieces}
+                  passage={passage}
+                  wordsHash={wordsHash}
+                  tagAnotherVerse={tagAnotherVerse}
+                />
+              </View>
+
+
+              <View style={styles.extraButtonContainer}>
+
+                {!!tagAnotherVerse &&
+                  <View>
+                    <Button
+                      onPress={tagAnotherVerse}
+                      appearance='ghost'
+                    >
+                      {i18n("Skip and tag a different verse")}
+                    </Button>
+                  </View>
+                }
+
+                <Button
+                  onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
+                  appearance='ghost'
+                  status='basic'
+                >
+                  {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
+                </Button>
+
+              </View>
             </View>
+          </TouchableWithoutFeedback>
 
-
-            <View style={styles.extraButtonContainer}>
-
-              {!!tagAnotherVerse &&
-                <View>
-                  <Button
-                    onPress={tagAnotherVerse}
-                    appearance='ghost'
-                  >
-                    {i18n("Skip and tag a different verse")}
-                  </Button>
-                </View>
-              }
-
-              <Button
-                onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
-                appearance='ghost'
-                status='basic'
-              >
-                {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
-              </Button>
-
-            </View>
-
-            {instructionsCover}
-
-          </>
         }
+
+        {ready && instructionsCover}
 
       </ScrollView>
 
