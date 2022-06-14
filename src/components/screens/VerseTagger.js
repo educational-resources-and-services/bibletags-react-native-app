@@ -305,11 +305,17 @@ const VerseTagger = ({
         const newTranslationWordInfoByWordIdAndPartNumbers = {}
         ;(myTagSet || tagSet).tags.forEach(tag => {
           if(tag.o.length > 0 && tag.t.length > 0) {
-            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => ({
-              wordNumberInVerse,
-              word: words[wordNumberInVerse - 1],
-              hasUnknownCapitalization: false,
-            }))
+            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => {
+              const word = words[wordNumberInVerse - 1]
+              return {
+                wordNumberInVerse,
+                word,
+                hasUnknownCapitalization: (
+                  word.slice(0,1) !== word.slice(0,1).toLowerCase()  // first char is capitalized
+                  && word.slice(1) === word.slice(1).toLowerCase()  // remaining chars are not capitalized
+                ),
+              }
+            })
           }
         })
         setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
