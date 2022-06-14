@@ -77,6 +77,7 @@ const VerseTaggerContent = ({
   instructionsCover,
   viewOnly=false,
   incrementExampleIndex,
+  setSelectedData,
   style,
 
   eva: { style: themedStyle={} },
@@ -114,7 +115,6 @@ const VerseTaggerContent = ({
   })
 
   const [ selectedWordIdAndPartNumbers, setSelectedWordIdAndPartNumbers ] = useState([])
-  const clearSelectedWordIdAndPartNumbers = useCallback(() => setSelectedWordIdAndPartNumbers([]), [])
   const [ translationWordInfoByWordIdAndPartNumbers, setTranslationWordInfoByWordIdAndPartNumbers ] = useState({})
   const clearTranslationWordInfoByWordIdAndPartNumbers = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers({}), [])
   const getSelectedWordIdAndPartNumbers = useInstanceValue(selectedWordIdAndPartNumbers)
@@ -143,11 +143,31 @@ const VerseTaggerContent = ({
   const passageStr = useMemo(() => getPassageStr({ refs: [ passage.ref ] }), [ passage.ref ])
   const versionStr = `${I18nManager.isRTL ? `\u2067` : `\u2066`}${abbr}`
 
-  const onOriginalPress = useCallback(
-    ({ selectedInfo: { id, wordPartNumber }}) => {
+  const clearSelectedWordIdAndPartNumbers = useCallback(
+    () => {
+      setSelectedWordIdAndPartNumbers([])
+      setSelectedData({})
+    },
+    [],
+  )
 
-      const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ id, wordPartNumber, bookId: ref.bookId })
+  const onOriginalPress = useCallback(
+    ({ selectedInfo }) => {
+
+      const selectedWordIdAndPartNumbers = getSelectedWordIdAndPartNumbers()
+      const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ ...selectedInfo, bookId: ref.bookId })
       const translationWordInfoByWordIdAndPartNumbers = getTranslationWordInfoByWordIdAndPartNumbers()
+
+      // if it is already selected, open the lower panel
+      if(selectedWordIdAndPartNumbers.includes(newSelectedWordIdAndPartNumber)) {
+        setSelectedData({
+          selectedSection: 'tagger',
+          selectedInfo,
+        })
+        return
+      }
+
+      setSelectedData({})
 
       // first try to select an existing group
       if(
@@ -354,7 +374,6 @@ const VerseTaggerContent = ({
     [ !!(tagSet && pieces) ],
   )
 
-console.log('tagSet', tagSet)
   const ready = !!(pieces && originalPieces && tagSet)
   const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(tagSetsInProgress).length !== 0
 

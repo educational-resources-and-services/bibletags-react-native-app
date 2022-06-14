@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { getPassageStr } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
@@ -10,6 +10,7 @@ import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import VerseTaggerContent from "./VerseTaggerContent"
+import LowerPanel from "../basic/LowerPanel"
 
 const VerseTagger = ({
   style,
@@ -24,6 +25,8 @@ const VerseTagger = ({
   const { instructionsCover, openInstructions } = useTaggingInstructions({
     defaultOrigLangForExamples: getTextLanguageId({ languageId: 'heb+grk', ...ref }),
   })
+
+  const [ selectedData, setSelectedData ] = useState({})
 
   const { abbr } = getVersionInfo(versionId)
 
@@ -55,6 +58,11 @@ const VerseTagger = ({
       <VerseTaggerContent
         passage={passage}
         instructionsCover={instructionsCover}
+        setSelectedData={setSelectedData}
+      />
+
+      <LowerPanel
+        selectedData={selectedData}
       />
 
     </SafeLayout>

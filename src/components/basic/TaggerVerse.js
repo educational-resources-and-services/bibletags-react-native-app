@@ -154,6 +154,7 @@ const TaggerVerse = ({
               onPress={onPress}
               onLongPress={onLongPress}
               info={{
+                ...piece,
                 id,
                 wordPartNumber,
               }}
