@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
+import { StyleSheet, View, Text } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
 
