@@ -34,6 +34,8 @@ const viewStyles = StyleSheet.create({
     overflow: 'hidden',
   },
   content: {
+    maxWidth: "100%",
+    alignSelf: 'center',
     paddingBottom: 20,
     paddingTop: (
       Platform.OS === 'android'
@@ -686,6 +688,8 @@ const ReadText = ({
     )
   }
 
+  const width = Math.min(950 + (displaySettings.textSize - 1) * 600, windowWidth)
+
   return (
     <FlatList
       data={data}
@@ -706,6 +710,7 @@ const ReadText = ({
         viewStyles.content,
         isParallel ? viewStyles.parallelContent : null,
         {
+          width,
           paddingBottom: (
             height - (
               (
