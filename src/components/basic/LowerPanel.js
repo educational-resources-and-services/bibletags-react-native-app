@@ -27,9 +27,11 @@ const styles = StyleSheet.create({
   },
 })
 
+const noop = ()=>{}
+
 const LowerPanel = ({
   selectedData,
-  setSelectedData,
+  setSelectedData=noop,
 }) => {
 
   const previousSelectedData = usePrevious(selectedData)
