@@ -10,12 +10,14 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getVersionInfo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useSetTimeout from "../../hooks/useSetTimeout"
-import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight, memo } from "../../utils/toolbox"
+import { isIPhoneX, iPhoneXInset, readHeaderMarginTop, readHeaderHeight, memo, isPhoneSize } from "../../utils/toolbox"
 
 import AppHeader from "../basic/AppHeader"
 import GradualFade from "../basic/GradualFade"
 import HeaderIconButton from "../basic/HeaderIconButton"
 import Icon from "../basic/Icon"
+
+const phoneSize = isPhoneSize()
 
 const isAndroidRTL = I18nManager.isRTL && Platform.OS === 'android'
 
@@ -49,6 +51,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 15,
     borderBottomWidth: 0,
+  },
+  headerTablet: {
+    left: 'auto',
+    right: 'auto',
+    width: 320,
+    alignSelf: 'center',
   },
   closeIcon: {
     tintColor: 'white',
@@ -172,7 +180,10 @@ const ReadHeader = React.memo(({
       {selectedVerse == null &&
         <AppHeader
           hideStatusBar={hideStatusBar}
-          style={styles.header}
+          style={[
+            styles.header,
+            !phoneSize ? styles.headerTablet : null,
+          ]}
         >
           <HeaderIconButton
             name="md-menu"
