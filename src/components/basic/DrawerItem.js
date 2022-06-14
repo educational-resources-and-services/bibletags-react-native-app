@@ -2,7 +2,7 @@ import React, { useCallback } from "react"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import * as StoreReview from "expo-store-review"
-import { Image, StyleSheet, Linking } from "react-native"
+import { Image, StyleSheet, Linking, Alert } from "react-native"
 import { ListItem } from "@ui-kitten/components"
 import { i18n, getLocale } from "inline-i18n"
 
@@ -24,6 +24,9 @@ const styles = StyleSheet.create({
   text: {
     textAlign: 'left',
   },
+  notReady: {
+    opacity: .35,
+  },
 })
 
 const DrawerItem = React.memo(({
@@ -44,9 +47,21 @@ const DrawerItem = React.memo(({
 
   const { tagAnotherVerse: tagAnotherVerseOT } = useTagAnotherVerse({ myBibleVersions, testament: `ot` })
   const { tagAnotherVerse: tagAnotherVerseNT } = useTagAnotherVerse({ myBibleVersions, testament: `nt` })
+  const tagAnotherVerseReady = (tagAnotherVerseOT !== undefined && tagAnotherVerseNT !== undefined)
 
   const changeLanguage = useCallback(() => historyReplace("/LanguageChooser"), [])
   const goVersions = useCallback(() => historyReplace("/Read/Versions"), [])
+
+  const stillDownloadingData = useCallback(
+    () => {
+      Alert.alert(
+        tagAnotherVerseReady
+          ? i18n("All your chosen Bible versions are already completed tagged.")
+          : i18n("Your Bible versions are still downloading. That must complete before you can begin tagging.")
+      )
+    },
+    [ tagAnotherVerseReady ],
+  )
 
   const go = useCallback(
     event => {
@@ -73,7 +88,7 @@ const DrawerItem = React.memo(({
 
   if(locales && !locales.includes(getLocale())) return null
 
-  let typeAction, typeText
+  let typeAction, typeText, typeStyle
 
   switch(type) {
     case 'language': {
@@ -92,15 +107,15 @@ const DrawerItem = React.memo(({
       break
     }
     case 'tag-ot': {
-      if(!tagAnotherVerseOT) return null
       typeText = i18n("Tag {{language}} verses", { language: i18n("Hebrew") })
-      typeAction = tagAnotherVerseOT
+      typeAction = tagAnotherVerseOT || stillDownloadingData
+      typeStyle = !tagAnotherVerseOT ? styles.notReady : null
       break
     }
     case 'tag-nt': {
-      if(!tagAnotherVerseNT) return null
       typeText = i18n("Tag {{language}} verses", { language: i18n("Greek") })
-      typeAction = tagAnotherVerseNT
+      typeAction = tagAnotherVerseNT || stillDownloadingData
+      typeStyle = !tagAnotherVerseOT ? styles.notReady : null
       break
     }
   }
@@ -121,13 +136,17 @@ const DrawerItem = React.memo(({
       }
       {!image &&
         <ListItem
+          key={typeStyle ? `withStyle` : `notWithStyle`}  // not sure why I need this, but I do
           {...((onPress || typeAction || route || href)
             ? {
               onPress: onPress || typeAction || go,
             }
             : {}
           )}
-          style={styles.listItem}
+          style={[
+            styles.listItem,
+            typeStyle,
+          ]}
           title={text || typeText}
         />
       }

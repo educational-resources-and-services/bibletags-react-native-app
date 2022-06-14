@@ -35,8 +35,8 @@ export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
 const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush }) => {
 
   const { historyPush, historyReplace } = useRouterState()
-  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
-  const [ somethingToTag, setSomethingToTag ] = useState(false)
+  const { downloadedVersionIds, versionIds } = useBibleVersions({ myBibleVersions })
+  const [ somethingToTag, setSomethingToTag ] = useState()
 
   testament = testament || (currentPassage.ref.bookId <= 39 ? `ot` : `nt`)
 
@@ -121,10 +121,10 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush
       }
       currentVersionIdByTestament[testament] = downloadedVersionIds[0]
 
-      setSomethingToTag(false)
+      setSomethingToTag(versionIds.length > downloadedVersionIds.length ? undefined : false)
 
     },
-    [ downloadedVersionIds, testament ],
+    [ downloadedVersionIds, versionIds, testament ],
   )
 
   useEffectAsync(getPassageToTag, [ downloadedVersionIds, testament ])
@@ -139,7 +139,7 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush
   )
 
   return {
-    tagAnotherVerse: somethingToTag ? tagAnotherVerse : null,
+    tagAnotherVerse: somethingToTag ? tagAnotherVerse : somethingToTag,
   }
 
 }
