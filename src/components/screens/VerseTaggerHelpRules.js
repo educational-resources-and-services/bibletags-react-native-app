@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
   },
   intro: {
     marginTop: 15,
-    marginBottom: 7,
     fontStyle: 'italic',
   },
   heading: {
@@ -265,6 +264,9 @@ const VerseTaggerHelpRules = ({
             <Text style={styles.example}>
               Eg. “<Text style={styles.greek}>ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men.”
             </Text>
+            <Text style={styles.example}>
+              Eg. In John 1:4, “<Text style={styles.greek}>τοῦ ἱεροῦ</Text>” is translated “of the temple.” In this case, include the genitive helper word in the tag of the article, such that “<Text style={styles.greek}>τοῦ</Text>” is tagged to “of the” and “<Text style={styles.greek}>ἱεροῦ</Text>” is tagged to “temple.”
+            </Text>
           </>
         }
       </View>
@@ -329,34 +331,39 @@ const VerseTaggerHelpRules = ({
         {i18n("Untranslated Original Language Words")}
       </Text>
       <Text style={styles.p}>
-        <Text style={styles.i}>
-          {i18n("Do NOT tag...")}
-        </Text>
-      </Text>
-      <Text style={styles.li}>
-        {i18n("a.")}
-        {i18n(" ", "word separator")}
-        {i18n("Words only repeated in the original language")}
+        {i18n("Do NOT tag words left untranslated, no matter the reason.")}
       </Text>
       {showHebrewExamples &&
         <>
+          <Text style={styles.p}>
+            <Text style={styles.i}>
+              {i18n("This includes...")}
+            </Text>
+          </Text>
           <Text style={styles.li}>
             {i18n("b.")}
+            {i18n(" ", "word separator")}
+            {i18n("Words only repeated in the original language")}
+          </Text>
+          <Text style={styles.li}>
+            {i18n("c.")}
             {i18n(" ", "word separator")}
             Paragogic <Text style={styles.hebrew}>ה</Text> or <Text style={styles.hebrew}>ן</Text>
           </Text>
           <Text style={styles.li}>
-            {i18n("c.")}
+            {i18n("d.")}
             {i18n(" ", "word separator")}
             The definite object marker <Text style={styles.hebrew}>אֵת</Text>
           </Text>
         </>
       }
-      {/* <View style={(showHebrewExamples || showGreekExamples) ? styles.examples : null}> */}
-      <View style={showHebrewExamples ? styles.examples : null}>
+      <View style={(showHebrewExamples || showGreekExamples) ? styles.examples : null}>
         {showHebrewExamples &&
           <>
             <Text style={styles.firstExample}>
+              Eg. Some versions do not translate “<Text style={styles.hebrew}>לֵ/אמֹֽר</Text>” in Genesis 8:15 since it is redundant. In such cases, leave the original word(s) untagged.
+            </Text>
+            <Text style={styles.example}>
               Eg. In Genesis 9:12, we find “<Text style={styles.hebrew}>בֵּינִ/י֙ וּ/בֵ֣ינֵי/כֶ֔ם וּ/בֵ֛ין כָּל־נֶ֥פֶשׁ חַיָּ֖ה</Text>” translated to “between me and you and every living creature.” The second and third occurrences of “<Text style={styles.hebrew}>בֵּין</Text>” should be left untagged.
             </Text>
             <Text style={styles.example}>
@@ -367,13 +374,16 @@ const VerseTaggerHelpRules = ({
             </Text>
           </>
         }
-        {/* {showGreekExamples &&
+        {showGreekExamples &&
           <>
             <Text style={!showHebrewExamples ? styles.firstExample : styles.example}>
-              Eg. ??
+              Eg. In Matthew 26:48, we find “<Text style={styles.greek}>ὃν ἂν φιλήσω</Text>” and the translation “The one I will kiss.” Here, “<Text style={styles.greek}>ἂν</Text>” should be left untagged since no sense from it is drawn into the translation.
+            </Text>
+            <Text style={styles.example}>
+              Eg. However, in Matthew 20:27, the entire phrase “<Text style={styles.greek}>ὃς ἂν</Text>” should be tagged to “whoever,” since “<Text style={styles.greek}>ἂν</Text>” does contribute to the sense captured by the translation.
             </Text>
           </>
-        } */}
+        }
       </View>
 
       <Text
