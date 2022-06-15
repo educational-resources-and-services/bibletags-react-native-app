@@ -9,8 +9,8 @@ import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versif
 import { Button } from "@ui-kitten/components"
 import { useDimensions } from "@react-native-community/hooks"
 
-import { getVersionInfo, memo, getOriginalVersionInfo,
-         executeSql, toggleArrayValue, cloneObj,
+import { getVersionInfo, memo, getOriginalVersionInfo, getToolbarHeight,
+         executeSql, toggleArrayValue, cloneObj, readHeaderMarginTop,
          getWordIdAndPartNumber, equalObjs } from "../../utils/toolbox"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -99,7 +99,7 @@ const VerseTaggerContent = ({
   const alignmentType = "without-suggestion"  // TODO (if I ever present existing tagSets to new taggers of that verse; other options: affirmation, correction)
 
   const { height: windowHeight } = useDimensions().window
-  const minHeight = windowHeight - 50 - 1
+  const paddingBottom = windowHeight - readHeaderMarginTop - getToolbarHeight() - 200
 
   const { tagNextOrAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage, selectionMethod })
 
@@ -383,7 +383,6 @@ const VerseTaggerContent = ({
       style={styles.container}
       contentContainerStyle={[
         styles.contentContainer,
-        { minHeight },
         baseThemedStyle,
         style,
       ]}
@@ -395,7 +394,7 @@ const VerseTaggerContent = ({
         <TouchableWithoutFeedback
           onPress={clearSelectedWordIdAndPartNumbers}
         >
-          <View style={{ minHeight }}>
+          <View style={{ paddingBottom }}>
 
             {viewOnly &&
               <Text style={styles.passageAndVersion}>
