@@ -175,7 +175,7 @@ const VerseTaggerHelpRules = ({
         {showHebrewExamples &&
           <>
             <Text style={styles.firstExample}>
-              E.g. “<Text style={styles.hebrew}>הָ/עָֽי</Text>” (with the definite article) in Genesis 13:3 should be tagged to “Ai.”
+              E.g. “<Text style={styles.hebrew}>הַ/גִּלְעָ֔ד</Text>” (with the definite article) in Numbers 32:40 should be tagged to “Gilead.”
             </Text>
           </>
         }
