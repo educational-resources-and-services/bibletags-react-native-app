@@ -858,7 +858,7 @@ export const getMorphInfo = morph => {
 
 export const getColorWithOpacity = (color='rgba(0,0,0,1)', opacity) => (
   color
-    .replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => r + r + g + g + b + b)  // if it is short form hex Eg. #CCC
+    .replace(/^#([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => r + r + g + g + b + b)  // if it is short form hex E.g. #CCC
     .replace(/^#([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i, (x, r, g, b) => `rgba(${parseInt(r, 16)},${parseInt(g, 16)},${parseInt(b, 16)},1)`)  // if it is hex
     .replace(/^rgb\( *([0-9]+) *, *([0-9]+) *, *([0-9]+) *\)$/i, `rgba($1,$2,$3,1)`)  // if it is rgb()
     .replace(/^rgba\( *([0-9]+) *, *([0-9]+) *, *([0-9]+) *, *[0-9]+ *\)$/i, `rgba($1,$2,$3,${opacity})`)

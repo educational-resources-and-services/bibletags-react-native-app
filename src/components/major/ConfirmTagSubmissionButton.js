@@ -402,7 +402,7 @@ const ConfirmTagSubmissionButton = ({
                 {showExtraCapitalizationInfo &&
                   <View style={styles.extraBlock}>
                     <Text style={styles.firstLine}>
-                      {i18n("Eg. “I” and “Paul” should be capitalized whereas “then” and “so” should not.")}
+                      {i18n("E.g. “I” and “Paul” should be capitalized whereas “then” and “so” should not.")}
                     </Text>
                   </View>
                 }
