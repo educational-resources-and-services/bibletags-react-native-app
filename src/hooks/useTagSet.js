@@ -70,7 +70,7 @@ const useTagSet = ({
         myTagSet = {
           id: `${loc}-${versionId}-${wordsHash}`,
           tags: submittedTagSet.input.tagSubmissions.map(({ origWordsInfo, translationWordsInfo }) => ({
-            o: origWordsInfo.map(({ uhbWordId, wordPartNumber }) => `${uhbWordId}${wordPartNumber ? `|${wordPartNumber}` : ``}`),
+            o: origWordsInfo.map(({ uhbWordId, wordPartNumber, ugntWordId }) => ugntWordId || `${uhbWordId}|${wordPartNumber}`),
             t: translationWordsInfo.map(({ wordNumberInVerse }) => wordNumberInVerse),
           })),
           status: `unconfirmed`,
