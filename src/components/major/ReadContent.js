@@ -12,7 +12,7 @@ import { equalObjs, getVersionInfo } from "../../utils/toolbox"
 
 import ReadContentPage from "./ReadContentPage"
 
-import { setRef, setVersionId, setParallelVersionId } from "../../redux/actions"
+import { setRef, setVersionId, setParallelVersionId, removeParallelVersion } from "../../redux/actions"
 
 const styles = StyleSheet.create({
   container: {
@@ -36,11 +36,20 @@ const ReadContent = React.memo(({
   setRef,
   setVersionId,
   setParallelVersionId,
+  removeParallelVersion,
 }) => {
 
   const { ref, versionId, parallelVersionId } = passage
   const getRef = useInstanceValue(ref)
   const lastSetRef = useRef(ref)
+
+  useEffect(
+    () => {
+      // TODO: disabled until I get them scrolling together and work out how to do tagging
+      if(parallelVersionId) removeParallelVersion()
+    },
+    [],
+  )
 
   const getSelectedData = useInstanceValue(selectedData)
 
@@ -277,6 +286,7 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setRef,
   setVersionId,
   setParallelVersionId,
+  removeParallelVersion,
 }, dispatch)
 
 export default connect(mapStateToProps, matchDispatchToProps)(ReadContent)

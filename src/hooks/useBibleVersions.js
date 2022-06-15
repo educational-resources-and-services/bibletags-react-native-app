@@ -81,6 +81,8 @@ const useBibleVersions = ({ myBibleVersions }) => {
 
   const getParallelIsAvailable = useCallback(
     ({ versionIdToRemove }={}) => {
+      return false  // TODO: disabled until I get them scrolling together and work out how to do tagging
+
       const newPrimaryVersionIds = versionIdToRemove ? primaryVersionIds.filter(id => versionIdToRemove !== id) : primaryVersionIds
       const newSecondaryVersionIds = versionIdToRemove ? secondaryVersionIds.filter(id => versionIdToRemove !== id) : secondaryVersionIds
 
