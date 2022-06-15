@@ -116,11 +116,6 @@ const VerseTaggerHelpHow = ({
         {i18n(" ", "word separator")}
         {i18n("You will often find a number of words pre-tagged by our auto-tagger. You should check (and correct, when needed) these tags before submitting.")}
       </Text>
-      <Text style={styles.li}>
-        {i18n("5.")}
-        {i18n(" ", "word separator")}
-        {i18n("Click the “Submit tags” button.")}
-      </Text>
 
       <Text
         style={[
