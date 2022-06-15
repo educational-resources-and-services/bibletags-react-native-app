@@ -19,7 +19,7 @@ const VerseTagger = ({
 }) => {
 
   const { routerState } = useRouterState()
-  const { passage } = routerState
+  const { passage, selectionMethod } = routerState
   const { ref, versionId } = passage
 
   const { instructionsCover, openInstructions } = useTaggingInstructions({
@@ -57,6 +57,7 @@ const VerseTagger = ({
 
       <VerseTaggerContent
         passage={passage}
+        selectionMethod={selectionMethod}
         instructionsCover={instructionsCover}
         setSelectedData={setSelectedData}
       />

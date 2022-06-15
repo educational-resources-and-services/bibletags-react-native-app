@@ -89,7 +89,8 @@ const ConfirmTagSubmissionButton = ({
   pieces,
   passage,
   wordsHash,
-  tagAnotherVerse,
+  tagNextOrAnotherVerse,
+  selectionMethod,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -297,9 +298,9 @@ const ConfirmTagSubmissionButton = ({
               text: i18n("Retag this verse"),
               onPress: goHideDialog,
             },
-            ...(!tagAnotherVerse ? [] : [{
-              text: i18n("Tag another verse"),
-              onPress: tagAnotherVerse,
+            ...(!tagNextOrAnotherVerse ? [] : [{
+              text: selectionMethod === `next-verse` ? i18n("Tag the next verse") : i18n("Tag another verse"),
+              onPress: tagNextOrAnotherVerse,
               style: 'cancel',
             }]),
           ]

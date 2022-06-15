@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react"
-import { getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
+import { getLocFromRef, getRefFromLoc, getNextTranslationRef } from "@bibletags/bibletags-versification"
 
-import { cloneObj, safelyExecuteSelects } from "../utils/toolbox"
+import { cloneObj, safelyExecuteSelects, getVersionInfo } from "../utils/toolbox"
 import useRouterState from "./useRouterState"
 import useBibleVersions from "./useBibleVersions"
 import useEffectAsync from "./useEffectAsync"
@@ -13,14 +13,9 @@ const currentBookIdByTestament = cloneObj(startBookIdByTestament)
 const currentLocsToTagByTestament = { ot: [], nt: [] }
 
 // TODO: Improve this by:
-  // get all tags for a version (do their versions in order)
-  // test by wordsHash in addition to loc and versionId
   // remove unconfirmed/confirmed tags when updated from sync
-  // tag another verse should bring them to the first tag after currentPassage
-  // tag Hebrew/Greek from drawer should have its own bookmark
-  // (make sure skipping still works)
   // think about queuing up unconfirmed tags after no automatch/none left
-  // (make sure words with adding/removing versions)
+  // make sure this works with adding/removing versions
 
 export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
   if(Object.values(currentVersionIdByTestament).includes(versionId)) {
@@ -32,7 +27,13 @@ export const indicatedVersesTagged = ({ versionId, loc, locs, ref }) => {
   }
 }
 
-const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush }) => {
+const useTagAnotherVerse = ({
+  myBibleVersions,
+  currentPassage,
+  testament,
+  selectionMethod=`next-untagged`,
+  doPush,
+}) => {
 
   const { historyPush, historyReplace } = useRouterState()
   const { downloadedVersionIds, versionIds } = useBibleVersions({ myBibleVersions })
@@ -133,13 +134,39 @@ const useTagAnotherVerse = ({ myBibleVersions, currentPassage, testament, doPush
     async () => {
       ;(doPush ? historyPush : historyReplace)("/Read/VerseTagger", {
         passage: await getPassageToTag(currentPassage),
+        selectionMethod: `next-untagged`,
       })
     },
-    [ historyPush, historyReplace, currentPassage, getPassageToTag ],
+    [ doPush, historyPush, historyReplace, currentPassage, getPassageToTag ],
+  )
+
+  const tagNextVerse = useCallback(
+    async () => {
+      const { versionId, ref } = currentPassage
+      const info = getVersionInfo(currentPassage.versionId)
+      const passage = {
+        ref: getNextTranslationRef({ ref, info }),
+        versionId,
+      }
+      ;(doPush ? historyPush : historyReplace)("/Read/VerseTagger", {
+        passage,
+        selectionMethod: `next-verse`,
+      })
+    },
+    [ doPush, historyPush, historyReplace, currentPassage, getPassageToTag ],
+  )
+
+  const tagNextOrAnotherVerse = useCallback(
+    selectionMethod === `next-verse` ? tagNextVerse : tagAnotherVerse,
+    [ selectionMethod, tagNextVerse, tagAnotherVerse ],
   )
 
   return {
-    tagAnotherVerse: somethingToTag ? tagAnotherVerse : somethingToTag,
+    tagNextOrAnotherVerse: (
+      (somethingToTag || selectionMethod === `next-verse`)
+        ? tagNextOrAnotherVerse
+        : somethingToTag
+    ),
   }
 
 }

@@ -74,6 +74,7 @@ const tagSetsInProgress = {}
 
 const VerseTaggerContent = ({
   passage,
+  selectionMethod,
   instructionsCover,
   viewOnly=false,
   incrementExampleIndex,
@@ -100,7 +101,7 @@ const VerseTaggerContent = ({
   const { height: windowHeight } = useDimensions().window
   const minHeight = windowHeight - 50 - 1
 
-  const { tagAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage })
+  const { tagNextOrAnotherVerse } = useTagAnotherVerse({ myBibleVersions, currentPassage: passage, selectionMethod })
 
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
@@ -473,19 +474,20 @@ const VerseTaggerContent = ({
                     pieces={pieces}
                     passage={passage}
                     wordsHash={wordsHash}
-                    tagAnotherVerse={tagAnotherVerse}
+                    tagNextOrAnotherVerse={tagNextOrAnotherVerse}
+                    selectionMethod={selectionMethod}
                   />
                 </View>
 
                 <View style={styles.extraButtonContainer}>
 
-                  {!!tagAnotherVerse &&
+                  {!!tagNextOrAnotherVerse &&
                     <View>
                       <Button
-                        onPress={tagAnotherVerse}
+                        onPress={tagNextOrAnotherVerse}
                         appearance='ghost'
                       >
-                        {i18n("Skip and tag a different verse")}
+                        {selectionMethod === `next-verse` ? i18n("Skip and tag the next verse") : i18n("Skip and tag another verse")}
                       </Button>
                     </View>
                   }

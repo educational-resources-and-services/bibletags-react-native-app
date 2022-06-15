@@ -45,8 +45,8 @@ const DrawerItem = React.memo(({
 
   const { historyPush, historyReplace } = useRouterState()
 
-  const { tagAnotherVerse: tagAnotherVerseOT } = useTagAnotherVerse({ myBibleVersions, testament: `ot` })
-  const { tagAnotherVerse: tagAnotherVerseNT } = useTagAnotherVerse({ myBibleVersions, testament: `nt` })
+  const { tagNextOrAnotherVerse: tagAnotherVerseOT } = useTagAnotherVerse({ myBibleVersions, testament: `ot` })
+  const { tagNextOrAnotherVerse: tagAnotherVerseNT } = useTagAnotherVerse({ myBibleVersions, testament: `nt` })
   const tagAnotherVerseReady = (tagAnotherVerseOT !== undefined && tagAnotherVerseNT !== undefined)
 
   const changeLanguage = useCallback(() => historyReplace("/LanguageChooser"), [])

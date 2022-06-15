@@ -68,6 +68,7 @@ const NotYetTagged = ({
     () => {
       historyPush("/Read/VerseTagger", {
         passage,
+        selectionMethod: `next-verse`,
       })
     },
     [ historyPush, passage ],
