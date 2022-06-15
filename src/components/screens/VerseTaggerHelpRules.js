@@ -353,7 +353,7 @@ const VerseTaggerHelpRules = ({
           <Text style={styles.li}>
             {i18n("d.")}
             {i18n(" ", "word separator")}
-            The definite object marker <Text style={styles.hebrew}>אֵת</Text>
+            The definite direct object marker <Text style={styles.hebrew}>אֵת</Text>
           </Text>
         </>
       }
