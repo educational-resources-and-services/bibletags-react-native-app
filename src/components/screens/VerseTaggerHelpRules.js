@@ -295,7 +295,7 @@ const VerseTaggerHelpRules = ({
         {showHebrewExamples &&
           <>
             <Text style={styles.firstExample}>
-              E.g. In Genesis 30:29, some translations read “Jacob said” even though the original only has “<Text style={styles.hebrew}>וַיֹּ֣אמֶר</Text>.” In such a case, “Jacob” should be left untagged.
+              E.g. In Genesis 30:29, some translations read “Jacob said” even though the original only has “<Text style={styles.hebrew}>וַ/יֹּ֣אמֶר</Text>.” In such a case, “Jacob” should be left untagged.
             </Text>
             <Text style={styles.example}>
               E.g. In Genesis 29:23, some translations read “to Jacob” even though the original only has “<Text style={styles.hebrew}>אֵלָ֑י/ו</Text>.” In such a case, “Jacob” and “<Text style={styles.hebrew}>ו</Text>” should be left untagged.
