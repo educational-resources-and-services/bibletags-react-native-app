@@ -36,7 +36,7 @@ const useTagAnotherVerse = ({
 }) => {
 
   const { historyPush, historyReplace } = useRouterState()
-  const { downloadedVersionIds, versionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds, versionsCurrentlyDownloading } = useBibleVersions({ myBibleVersions })
   const [ somethingToTag, setSomethingToTag ] = useState()
 
   testament = testament || (currentPassage.ref.bookId <= 39 ? `ot` : `nt`)
@@ -122,10 +122,10 @@ const useTagAnotherVerse = ({
       }
       currentVersionIdByTestament[testament] = downloadedVersionIds[0]
 
-      setSomethingToTag(versionIds.length > downloadedVersionIds.length ? undefined : false)
+      setSomethingToTag(versionsCurrentlyDownloading ? undefined : false)
 
     },
-    [ downloadedVersionIds, versionIds, testament ],
+    [ downloadedVersionIds, versionsCurrentlyDownloading, testament ],
   )
 
   useEffectAsync(getPassageToTag, [ downloadedVersionIds, testament ])

@@ -47,6 +47,7 @@ const useTagSet = ({
       ])
 
       if(!tagSet && !submittedTagSet && wordHashes) {
+      // if(![ 'unconfirmed',  'confirmed' ].includes((tagSet || {}).status) && !submittedTagSet && wordHashes) {
 
         // might need wordHashesSet (though probably not)
         await recordAndSubmitWordHashesSet({

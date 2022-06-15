@@ -100,6 +100,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
     versionIds,
     languageIds,
     downloadedVersionIds,
+    versionsCurrentlyDownloading: versionIds.length > downloadedVersionIds.length,
     primaryVersionIds,
     secondaryVersionIds,
     unusedVersionIds,

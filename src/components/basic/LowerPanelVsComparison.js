@@ -19,14 +19,16 @@ import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
 import NotYetTagged from "./NotYetTagged"
 import OriginalWordInfo from "./OriginalWordInfo"
+import CoverAndSpin from "./CoverAndSpin"
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  noCompareVersions: {
+  noCompareVersionsContainer: {
     padding: 20,
     opacity: .5,
+    minHeight: 150,
   },
   scrollView: {
     minHeight: 60,
@@ -61,7 +63,7 @@ const LowerPanelVsComparison = ({
   // ] = altThemedStyleSets
 
   const [ index, setIndex ] = useState(0)
-  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds, versionsCurrentlyDownloading } = useBibleVersions({ myBibleVersions })
   const scrollRef = useRef()
 
   const selectedVersionId = (
@@ -218,10 +220,14 @@ const LowerPanelVsComparison = ({
     return (
       <View
         onLayout={onSizeChangeFunctions[5]}
+        style={styles.noCompareVersionsContainer}
       >
-        <Text style={styles.noCompareVersions}>
-          {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
-        </Text>
+        {versionsCurrentlyDownloading && <CoverAndSpin />}
+        {!versionsCurrentlyDownloading &&
+          <Text>
+            {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
+          </Text>
+        }
         <IPhoneXBuffer
           extraSpace={true}
           onLayout={onSizeChangeFunctions[8]}
