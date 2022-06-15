@@ -268,7 +268,7 @@ const VerseTaggerHelpRules = ({
               E.g. “<Text style={styles.greek}>ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men.”
             </Text>
             <Text style={styles.example}>
-              E.g. In John 1:4, “<Text style={styles.greek}>τοῦ ἱεροῦ</Text>” is translated “of the temple.” In this case, include the genitive helper word in the tag of the article, such that “<Text style={styles.greek}>τοῦ</Text>” is tagged to “of the” and “<Text style={styles.greek}>ἱεροῦ</Text>” is tagged to “temple.”
+              E.g. In John 1:4, “<Text style={styles.greek}>τοῦ ἱεροῦ</Text>” is translated “of the temple.” In this case, include the genitive helper word in the tag of the noun, such that “<Text style={styles.greek}>τοῦ</Text>” is tagged to “the” and “<Text style={styles.greek}>ἱεροῦ</Text>” is tagged to “of ... temple.”
             </Text>
           </>
         }
