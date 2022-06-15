@@ -9,6 +9,7 @@ import { memo, safelyExecuteSelects } from "../../utils/toolbox"
 
 import VerseTaggerContent from "./VerseTaggerContent"
 import CoverAndSpin from "../basic/CoverAndSpin"
+import LowerPanel from "../basic/LowerPanel"
 import useEffectAsync from "../../hooks/useEffectAsync"
 import useBibleVersions from "../../hooks/useBibleVersions"
 
@@ -32,6 +33,7 @@ const VerseTaggerHelpExamples = ({
   const [ examplePassages, setExamplePassages ] = useState()
   const [ exampleIndex, setExampleIndex ] = useState(0)
   const incrementExampleIndex = useCallback(() => setExampleIndex(exampleIndex + 1), [ exampleIndex ])
+  const [ selectedData, setSelectedData ] = useState({})
 
   const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
 
@@ -86,12 +88,21 @@ const VerseTaggerHelpExamples = ({
   const passage = examplePassages[exampleIndex % examplePassages.length]
 
   return (
-    <VerseTaggerContent
-      key={JSON.stringify(passage)}
-      passage={passage}
-      viewOnly={true}
-      incrementExampleIndex={examplePassages.length >= 2 ? incrementExampleIndex : null}
-    />
+    <>
+
+      <VerseTaggerContent
+        key={JSON.stringify(passage)}
+        passage={passage}
+        viewOnly={true}
+        incrementExampleIndex={examplePassages.length >= 2 ? incrementExampleIndex : null}
+        setSelectedData={setSelectedData}
+      />
+
+      <LowerPanel
+        selectedData={selectedData}
+      />
+
+    </>
   )
 
 }
