@@ -148,7 +148,7 @@ const VerseTaggerHelpRules = ({
         {showHebrewExamples &&
           <>
             <Text style={styles.firstExample}>
-              E.g. For “<Text style={styles.hebrew}>פְּנֵ֥י הַ/מָּֽיִם</Text>” in Genesis 1:2, “<Text style={styles.hebrew}>פְּנֵ֥י</Text>” should be tagged to “face of” (NOT: “the face of”), “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “the” (in the phrase “the deep”) and “<Text style={styles.hebrew}>מָּֽיִם</Text>” should be tagged to “deep.”
+              E.g. For “<Text style={styles.hebrew}>פְּנֵ֥י הַ/מָּֽיִם</Text>” in Genesis 1:2, “<Text style={styles.hebrew}>פְּנֵ֥י</Text>” should be tagged to “face of” (NOT: “the face of”), “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “the” (in the phrase “the waters”) and “<Text style={styles.hebrew}>מָּֽיִם</Text>” should be tagged to “waters.”
             </Text>
             <Text style={styles.example}>
               E.g. In Genesis 12:7, we find “<Text style={styles.hebrew}>הַ/נִּרְאֶ֥ה אֵלָֽי/ו</Text>” translated to “who had appeared to him.” In this case, the definite artcile “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “who.”
