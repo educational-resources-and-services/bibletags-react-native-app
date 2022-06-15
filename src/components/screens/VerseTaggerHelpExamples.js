@@ -95,6 +95,7 @@ const VerseTaggerHelpExamples = ({
         passage={passage}
         viewOnly={true}
         incrementExampleIndex={examplePassages.length >= 2 ? incrementExampleIndex : null}
+        lowerPanelWordId={(selectedData.selectedInfo || {})[`x-id`]}
         setSelectedData={setSelectedData}
       />
 

@@ -126,7 +126,7 @@ const VerseTaggerHelpHow = ({
         {i18n("Getting Help")}
       </Text>
       <Text style={styles.p}>
-        {i18n("Double-tap an original language word to see its parsing and/or gloss.")}
+        {i18n("Tap an original language word a second time to see its parsing and/or gloss.")}
       </Text>
 
       <Text

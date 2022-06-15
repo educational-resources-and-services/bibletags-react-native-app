@@ -78,6 +78,7 @@ const VerseTaggerContent = ({
   instructionsCover,
   viewOnly=false,
   incrementExampleIndex,
+  lowerPanelWordId,
   setSelectedData,
   style,
 
@@ -120,6 +121,7 @@ const VerseTaggerContent = ({
   const clearTranslationWordInfoByWordIdAndPartNumbers = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers({}), [])
   const getSelectedWordIdAndPartNumbers = useInstanceValue(selectedWordIdAndPartNumbers)
   const getTranslationWordInfoByWordIdAndPartNumbers = useInstanceValue(translationWordInfoByWordIdAndPartNumbers)
+  const getLowerPanelWordId = useInstanceValue(lowerPanelWordId)
 
   const usedWordNumbers = useMemo(
     () => (
@@ -155,16 +157,21 @@ const VerseTaggerContent = ({
   const onOriginalPress = useCallback(
     ({ selectedInfo }) => {
 
+      const lowerPanelWordId = getLowerPanelWordId()
       const selectedWordIdAndPartNumbers = getSelectedWordIdAndPartNumbers()
       const newSelectedWordIdAndPartNumber = getWordIdAndPartNumber({ ...selectedInfo, bookId: ref.bookId })
       const translationWordInfoByWordIdAndPartNumbers = getTranslationWordInfoByWordIdAndPartNumbers()
 
-      // if it is already selected, open the lower panel
+      // if it is already selected, toggle open the lower panel
       if(selectedWordIdAndPartNumbers.includes(newSelectedWordIdAndPartNumber)) {
-        setSelectedData({
-          selectedSection: 'tagger',
-          selectedInfo,
-        })
+        if(selectedInfo[`x-id`] === lowerPanelWordId) {
+          setSelectedData({})
+        } else {
+          setSelectedData({
+            selectedSection: 'tagger',
+            selectedInfo,
+          })
+        }
         return
       }
 
@@ -220,6 +227,8 @@ const VerseTaggerContent = ({
 
   const onPress = useCallback(
     ({ selectedInfo: { text, wordNumberInVerse, hasUnknownCapitalization=false }}) => {
+
+      setSelectedData({})
 
       if(viewOnly) return
 

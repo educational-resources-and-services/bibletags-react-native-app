@@ -59,6 +59,7 @@ const VerseTagger = ({
         passage={passage}
         selectionMethod={selectionMethod}
         instructionsCover={instructionsCover}
+        lowerPanelWordId={(selectedData.selectedInfo || {})[`x-id`]}
         setSelectedData={setSelectedData}
       />
 
