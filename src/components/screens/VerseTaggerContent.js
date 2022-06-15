@@ -71,6 +71,7 @@ const displaySettingsOverride = {
 }
 
 const tagSetsInProgress = {}
+const undoTagSets = {}
 
 const VerseTaggerContent = ({
   passage,
@@ -219,7 +220,7 @@ const VerseTaggerContent = ({
 
       setSelectedWordIdAndPartNumbers(newSelectedWordIdAndPartNumbers)
       setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
-      tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
+      undoTagSets[inProgressKey] = tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
 
     },
     [ viewOnly ],
@@ -269,13 +270,13 @@ const VerseTaggerContent = ({
       }
 
       setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
-      tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
+      undoTagSets[inProgressKey] = tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
 
     },
     [ viewOnly ],
   )
 
-  const undoClear = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers(tagSetsInProgress[inProgressKey]), [ inProgressKey ])
+  const undoClear = useCallback(() => setTranslationWordInfoByWordIdAndPartNumbers(undoTagSets[inProgressKey] || {}), [ inProgressKey ])
 
   useLayoutEffect(
     () => {
@@ -345,7 +346,7 @@ const VerseTaggerContent = ({
 
   useLayoutEffect(
     () => {
-      if(tagSetsInProgress[inProgressKey] && !viewOnly) {
+      if(Object.values(tagSetsInProgress[inProgressKey] || {}).length > 0 && !viewOnly) {
         setTranslationWordInfoByWordIdAndPartNumbers(tagSetsInProgress[inProgressKey])
 
       } else if(
@@ -377,7 +378,8 @@ const VerseTaggerContent = ({
           }
         })
         setTranslationWordInfoByWordIdAndPartNumbers(newTranslationWordInfoByWordIdAndPartNumbers)
-        tagSetsInProgress[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
+        undoTagSets[inProgressKey] = newTranslationWordInfoByWordIdAndPartNumbers
+        // do NOT set tagSetsInProgress[inProgressKey] here, so that it updates to the newest data if nothing has been edited
 
       }
     },
@@ -385,7 +387,7 @@ const VerseTaggerContent = ({
   )
 
   const ready = !!(pieces && originalPieces && tagSet)
-  const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(tagSetsInProgress).length !== 0
+  const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(undoTagSets[inProgressKey] || {}).length !== 0
 
   return (
     <ScrollView
