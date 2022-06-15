@@ -167,7 +167,7 @@ const VerseTaggerHelpRules = ({
         }
       </View>
       <Text style={styles.p}>
-        {i18n("The only exception is when a proper name with the definite article is translated to a proper name without, or vice versa.")}
+        {i18n("The only exception is when a proper noun with the definite article is translated to a proper noun without, or vice versa.")}
         {i18n(" ", "word separator")}
         {i18n("In this case, include the definite article within the tag.")}
       </Text>
@@ -183,6 +183,9 @@ const VerseTaggerHelpRules = ({
           <>
             <Text style={!showHebrewExamples ? styles.firstExample : styles.example}>
               E.g. “<Text style={styles.greek}>τὸν Θεόν</Text>” (with the definite article) in John 1:1 should be tagged to “God.”
+            </Text>
+            <Text style={styles.example}>
+              E.g. In Matthew 5:18, we find “<Text style={styles.greek}>ὁ οὐρανὸς καὶ ἡ γῆ</Text>” translated to “heaven and earth.” You should include the greek article in your tags of both “heaven” and “earth” since these are definite locations effectively acting like proper nouns.
             </Text>
           </>
         }
