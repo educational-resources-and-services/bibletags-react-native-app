@@ -120,7 +120,7 @@ const VerseTaggerHelpRules = ({
       </View>
 
       <Text style={styles.intro}>
-        {i18n("Please be careful to follow these tagging rules. This will result in the best automated lexical information.")}
+        {i18n("Do your best to follow these tagging rules, returning to this page whenever you need to review them. This will result in the best automated lexical information.")}
       </Text>
 
       <Text
