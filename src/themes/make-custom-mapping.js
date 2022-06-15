@@ -127,7 +127,7 @@ const mapping = {
 
   // See https://github.com/eva-design/eva/blob/master/packages/eva/mapping.json  
 
-  // Eg.
+  // E.g.
   // components: {
   //   TopNavigation: {
   //     appearances: {
