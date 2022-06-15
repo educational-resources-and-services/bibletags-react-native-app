@@ -23,6 +23,8 @@ const styles = StyleSheet.create({
 })
 
 const VerseTaggerHelpExamples = ({
+  showHebrewExamples,
+  showGreekExamples,
   style,
 
   eva: { style: themedStyle={} },
@@ -47,9 +49,20 @@ const VerseTaggerHelpExamples = ({
         if(versionId === 'original') continue
         if(newExamplePassages.length >= totalToFind) break
 
+        const testamentCondition = (
+          showHebrewExamples === showGreekExamples
+            ? ``
+            : (
+              showHebrewExamples
+                ? `AND (id LIKE "0%" OR id LIKE "1%" OR id LIKE "2%" OR id LIKE "3%")`
+                : `AND (id LIKE "4%" OR id LIKE "5%" OR id LIKE "6%")`
+            )
+        )
+
         const tagSetSelectObj = {
           database: `versions/${versionId}/tagSets`,
           statement: () => `SELECT * FROM tagSets WHERE status=? LIMIT ?`,
+          statement: () => `SELECT * FROM tagSets WHERE status=? ${testamentCondition} LIMIT ?`,
           args: [
             `confirmed`,
             totalToFind - newExamplePassages.length,

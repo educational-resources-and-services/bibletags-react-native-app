@@ -4,7 +4,6 @@ import { i18n } from "inline-i18n"
 import { Button, CheckBox } from "@ui-kitten/components"
 
 import { memo } from "../../utils/toolbox"
-import useRouterState from "../../hooks/useRouterState"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 const styles = StyleSheet.create({
@@ -77,18 +76,16 @@ const styles = StyleSheet.create({
 
 const VerseTaggerHelpRules = ({
   setHelpIndex,
+  showHebrewExamples,
+  setShowHebrewExamples,
+  showGreekExamples,
+  setShowGreekExamples,
   style,
 
   eva: { style: themedStyle={} },
 }) => {
 
   const { labelThemedStyle } = useThemedStyleSets(themedStyle)
-
-  const { routerState } = useRouterState()
-  const { defaultOrigLangForExamples } = routerState
-
-  const [ showHebrewExamples, setShowHebrewExamples ] = useState(defaultOrigLangForExamples === 'heb')
-  const [ showGreekExamples, setShowGreekExamples ] = useState(defaultOrigLangForExamples === 'grk')
 
   const goToNextHelpIndex = useCallback(() => setHelpIndex(3), [ setHelpIndex ])
 
