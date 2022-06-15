@@ -367,7 +367,7 @@ const ConfirmTagSubmissionButton = ({
                 {showExtraNonTaggedWordsInfo &&
                   <View style={styles.extraBlock}>
                     <Text style={styles.firstLine}>
-                      {i18n("You should only leave words untagged when an original word is left untranslated, or a translation word is supplied without an original word counterpart. Please double-check this is the case before confirming.")}
+                      {i18n("Leave words untagged when an original word is not translated, or a translation word is supplied without an original word counterpart.")}
                     </Text>
                     <Text style={[ styles.line, styles.bold ]}>
                       {i18n("If words have been left untagged simply because you do not know the proper tagging, please do NOT submit this tag set.")}
