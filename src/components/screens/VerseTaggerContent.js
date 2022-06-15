@@ -31,6 +31,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  confirmExpl: {
+    fontWeight: '200',
+    borderWidth: 1,
+    borderRadius: 3,
+    borderColor: 'rgba(0, 0, 0, .15)',
+    backgroundColor: 'rgba(0, 0, 0, .03)',
+    paddingVertical: 5,
+    paddingHorizontal: 8,
+    fontSize: 13,
+    marginBottom: 15,
+  },
   contentContainer: {
     padding: 20,
     maxWidth: 600,
@@ -356,7 +367,7 @@ const VerseTaggerContent = ({
         && equalObjs(selectedWordIdAndPartNumbers, [])
         && (
           myTagSet
-          || tagSet.status === 'automatch'
+          || [ 'automatch', 'confirmed' ].includes(tagSet.status)
           || viewOnly
         )
       ) {
@@ -437,6 +448,12 @@ const VerseTaggerContent = ({
                 pack="materialCommunity"
                 name="check-all"
               />
+            </Text>
+          }
+
+          {!viewOnly && !myTagSet && (tagSet || {}).status === `unconfirmed` &&
+            <Text style={styles.confirmExpl}>
+              {i18n("Note: Since this verse already has the status of “unconfirmed,” we have not pre-tagged anything. This makes for the most rigorous confirmation process.")}
             </Text>
           }
 
