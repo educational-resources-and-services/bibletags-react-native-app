@@ -42,7 +42,7 @@ const VerseTaggerHelpExamples = ({
   useEffectAsync(
     async () => {
 
-      const totalToFind = 25
+      const totalToFind = 100
       const newExamplePassages = []
 
       for(let versionId of downloadedVersionIds) {
