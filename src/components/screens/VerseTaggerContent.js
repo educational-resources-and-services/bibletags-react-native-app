@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
     maxWidth: 600,
+    minHeight: 400,
     alignSelf: 'center',
   },
   confirmButtonContainer: {
@@ -389,6 +390,14 @@ const VerseTaggerContent = ({
   const ready = !!(pieces && originalPieces && tagSet)
   const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(undoTagSets[inProgressKey] || {}).length !== 0
 
+  if(!ready) {
+    return (
+      <View style={styles.container}>
+        <CoverAndSpin />
+      </View>
+    )
+  }
+
   return (
     <ScrollView
       style={styles.container}
@@ -399,128 +408,123 @@ const VerseTaggerContent = ({
       ]}
     >
 
-      {!ready && <CoverAndSpin />}
+      <TouchableWithoutFeedback
+        onPress={clearSelectedWordIdAndPartNumbers}
+      >
+        <View style={{ paddingBottom }}>
 
-      {ready &&
-        <TouchableWithoutFeedback
-          onPress={clearSelectedWordIdAndPartNumbers}
-        >
-          <View style={{ paddingBottom }}>
-
-            {viewOnly &&
-              <Text style={styles.passageAndVersion}>
-                <Text style={styles.passage}>
-                  {passageStr}
-                </Text>
-                {`  `}
-                <Text
-                  style={[
-                    styles.version,
-                    baseThemedStyle,
-                    style,
-                  ]}
-                >
-                  {versionStr}
-                </Text>
-                {`  `}
-                <Icon
-                  style={[
-                    styles.icon,
-                    confirmedIconThemedStyle,
-                  ]}
-                  pack="materialCommunity"
-                  name="check-all"
-                />
+          {viewOnly &&
+            <Text style={styles.passageAndVersion}>
+              <Text style={styles.passage}>
+                {passageStr}
               </Text>
-            }
+              {`  `}
+              <Text
+                style={[
+                  styles.version,
+                  baseThemedStyle,
+                  style,
+                ]}
+              >
+                {versionStr}
+              </Text>
+              {`  `}
+              <Icon
+                style={[
+                  styles.icon,
+                  confirmedIconThemedStyle,
+                ]}
+                pack="materialCommunity"
+                name="check-all"
+              />
+            </Text>
+          }
 
-            <TaggerVerse
-              bookId={ref.bookId}
-              pieces={originalPieces}
-              translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
-              selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
-              displaySettingsOverride={displaySettingsOverride}
-              translationLanguageId={languageId}
-              onPress={onOriginalPress}
-              onLongPress={onOriginalLongPress}
-            />
+          <TaggerVerse
+            bookId={ref.bookId}
+            pieces={originalPieces}
+            translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
+            selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
+            displaySettingsOverride={displaySettingsOverride}
+            translationLanguageId={languageId}
+            onPress={onOriginalPress}
+            onLongPress={onOriginalLongPress}
+          />
 
-            <Verse
-              passageRef={ref}
-              versionId={versionId}
-              pieces={pieces}
-              usedWordNumbers={usedWordNumbers}
-              selectedWordNumbers={selectedWordNumbers}
-              displaySettingsOverride={displaySettingsOverride}
-              style={translationThemedStyle}
-              onVerseTap={onPress}
-              hideSuperscripts={true}
-              selectedWordStyle={selectedWordThemedStyle}
-              unselectedWordStyle={unselectedWordThemedStyle}
-              wrapWordsInNbsp={true}
-            />
+          <Verse
+            passageRef={ref}
+            versionId={versionId}
+            pieces={pieces}
+            usedWordNumbers={usedWordNumbers}
+            selectedWordNumbers={selectedWordNumbers}
+            displaySettingsOverride={displaySettingsOverride}
+            style={translationThemedStyle}
+            onVerseTap={onPress}
+            hideSuperscripts={true}
+            selectedWordStyle={selectedWordThemedStyle}
+            unselectedWordStyle={unselectedWordThemedStyle}
+            wrapWordsInNbsp={true}
+          />
 
-            {viewOnly && !!incrementExampleIndex &&
-              <View style={styles.confirmButtonContainer}>
-                <View>
-                  <Button
-                    onPress={incrementExampleIndex}
-                  >
-                    {i18n("View another example")}
-                  </Button>
-                </View>
+          {viewOnly && !!incrementExampleIndex &&
+            <View style={styles.confirmButtonContainer}>
+              <View>
+                <Button
+                  onPress={incrementExampleIndex}
+                >
+                  {i18n("View another example")}
+                </Button>
               </View>
-            }
+            </View>
+          }
 
-            {!viewOnly &&
-              <>
+          {!viewOnly &&
+            <>
 
-                <View style={styles.confirmButtonContainer}>
-                  <ConfirmTagSubmissionButton
-                    alignmentType={alignmentType}
-                    getUsedWordNumbers={getUsedWordNumbers}
-                    getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
-                    originalPieces={originalPieces}
-                    pieces={pieces}
-                    passage={passage}
-                    wordsHash={wordsHash}
-                    tagNextOrAnotherVerse={tagNextOrAnotherVerse}
-                    selectionMethod={selectionMethod}
-                  />
-                </View>
+              <View style={styles.confirmButtonContainer}>
+                <ConfirmTagSubmissionButton
+                  alignmentType={alignmentType}
+                  getUsedWordNumbers={getUsedWordNumbers}
+                  getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
+                  originalPieces={originalPieces}
+                  pieces={pieces}
+                  passage={passage}
+                  wordsHash={wordsHash}
+                  tagNextOrAnotherVerse={tagNextOrAnotherVerse}
+                  selectionMethod={selectionMethod}
+                />
+              </View>
 
-                <View style={styles.extraButtonContainer}>
+              <View style={styles.extraButtonContainer}>
 
-                  {!!tagNextOrAnotherVerse &&
-                    <View>
-                      <Button
-                        onPress={tagNextOrAnotherVerse}
-                        appearance='ghost'
-                      >
-                        {selectionMethod === `next-verse` ? i18n("Skip and tag the next verse") : i18n("Skip and tag another verse")}
-                      </Button>
-                    </View>
-                  }
+                {!!tagNextOrAnotherVerse &&
+                  <View>
+                    <Button
+                      onPress={tagNextOrAnotherVerse}
+                      appearance='ghost'
+                    >
+                      {selectionMethod === `next-verse` ? i18n("Skip and tag the next verse") : i18n("Skip and tag another verse")}
+                    </Button>
+                  </View>
+                }
 
-                  <Button
-                    onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
-                    appearance='ghost'
-                    status='basic'
-                  >
-                    {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
-                  </Button>
+                <Button
+                  onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
+                  appearance='ghost'
+                  status='basic'
+                >
+                  {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
+                </Button>
 
-                </View>
+              </View>
 
-              </>
-            }
+            </>
+          }
 
-          </View>
-        </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
 
-      }
-
-      {ready && instructionsCover}
+      {instructionsCover}
 
     </ScrollView>
   )
