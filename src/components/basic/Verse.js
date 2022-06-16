@@ -50,7 +50,6 @@ const Verse = ({
   usedWordNumbers=[],
   selectedWordNumbers=[],
   displaySettingsOverride,
-  hideSuperscripts,
   originalWordsInfo=[],
   selectedWordIdx,
   setSelectedWordIdx,
@@ -83,7 +82,7 @@ const Verse = ({
 
   ] = altThemedStyleSets
 
-  const { font, textSize, lineSpacing, theme } = { ...displaySettings, ...displaySettingsOverride }
+  const { font, textSize, lineSpacing, theme, hideNotes } = { ...displaySettings, ...displaySettingsOverride }
   const { bookId, verse } = passageRef
 
   const { languageId, isOriginal=false } = getVersionInfo(versionId)
@@ -104,9 +103,9 @@ const Verse = ({
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
-      if(hideSuperscripts && [ 'f', 'fe', 'x', 'xt' ].includes(tag)) return null
+      if(hideNotes && [ 'f', 'fe', 'x', 'xt' ].includes(tag)) return null
 
-      if(!hideSuperscripts) {
+      if(!hideNotes) {
         text = adjustTextForSups({ tag, text, pieces, idx })
       }
 

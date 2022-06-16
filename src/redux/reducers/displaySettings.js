@@ -4,7 +4,8 @@ const initialState = {
   textSize: 1,
   lineSpacing: 1.3,
   font: bibleFontList[0],
-  theme: "default"
+  theme: "default",
+  hideNotes: false,
 }
 
 const themeOptions = [

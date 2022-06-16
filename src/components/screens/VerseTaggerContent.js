@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
 const displaySettingsOverride = {
   textSize: 1,
   lineSpacing: 1.7,
+  hideNotes: true,
 }
 
 const tagSetsInProgress = {}
@@ -477,7 +478,6 @@ const VerseTaggerContent = ({
             displaySettingsOverride={displaySettingsOverride}
             style={translationThemedStyle}
             onVerseTap={onPress}
-            hideSuperscripts={true}
             selectedWordStyle={selectedWordThemedStyle}
             unselectedWordStyle={unselectedWordThemedStyle}
             wrapWordsInNbsp={true}

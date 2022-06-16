@@ -40,6 +40,10 @@ const styles = StyleSheet.create({
   },
 })
 
+const displaySettingsOverride = {
+  hideNotes: true,
+}
+
 const LowerPanelVsComparison = ({
   selectedSection,
   selectedVerse,
@@ -261,6 +265,7 @@ const LowerPanelVsComparison = ({
           selectedWordIdx={selectedWordIdx}
           setSelectedWordIdx={setSelectedWordIdx}
           onVerseTap={onOriginalWordVerseTap}
+          displaySettingsOverride={displaySettingsOverride}
         />
       </ScrollView>
       {piecesVersionId === 'original' && showNotYetTagged &&
