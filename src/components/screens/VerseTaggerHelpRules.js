@@ -418,6 +418,9 @@ const VerseTaggerHelpRules = ({
             <Text style={styles.example}>
               E.g. In Luke 22:15, we find “<Text style={styles.greek}>ἐπιθυμίᾳ ἐπεθύμησα</Text>” translated to “I have earnestly desired.” The entire phrases should be tagged to each other since “<Text style={styles.greek}>ἐπιθυμίᾳ</Text>” alone does not mean “earnestly” but rather “with desire.”
             </Text>
+            <Text style={styles.example}>
+              E.g. In Matthew 6:6, the entire phrase “<Text style={styles.greek}>εἴσελθε εἰς</Text>” should be tagged to “go into” as there is no way to properly tag these words individually.
+            </Text>
           </>
         }
       </View>
