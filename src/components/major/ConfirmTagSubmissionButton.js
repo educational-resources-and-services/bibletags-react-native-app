@@ -91,6 +91,7 @@ const ConfirmTagSubmissionButton = ({
   wordsHash,
   tagNextOrAnotherVerse,
   selectionMethod,
+  isResubmit,
 
   eva: { style: themedStyle={} },
 }) => {
@@ -317,7 +318,7 @@ const ConfirmTagSubmissionButton = ({
       <Button
         onPress={goSubmitTags}
       >
-        {i18n("Submit tags")}
+        {isResubmit ? i18n("Resubmit tags") : i18n("Submit tags")}
       </Button>
 
       <Dialog

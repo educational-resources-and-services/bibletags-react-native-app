@@ -518,6 +518,7 @@ const VerseTaggerContent = ({
                   wordsHash={wordsHash}
                   tagNextOrAnotherVerse={tagNextOrAnotherVerse}
                   selectionMethod={selectionMethod}
+                  isResubmit={!!myTagSet}
                 />
               </View>
 
