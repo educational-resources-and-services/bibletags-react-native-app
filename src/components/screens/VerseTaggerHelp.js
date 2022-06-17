@@ -23,11 +23,11 @@ const styles = StyleSheet.create({
   },
   selectedDotContainer: {
     paddingVertical: 9,
-    paddingHorizontal: 4,
+    paddingHorizontal: 5,
   },
   dotContainer: {
     paddingVertical: 13,
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
   },
   selectedDot: {
     width: 12,
@@ -73,7 +73,12 @@ const VerseTaggerHelp = ({
       },
       {
         title: i18n("How to tag"),
-        component: <VerseTaggerHelpHow setHelpIndex={setHelpIndex} />,
+        component: (
+          <VerseTaggerHelpHow
+            setHelpIndex={setHelpIndex}
+            showHebrewExamples={showHebrewExamples}
+          />
+        ),
       },
       {
         title: i18n("Tagging rules"),

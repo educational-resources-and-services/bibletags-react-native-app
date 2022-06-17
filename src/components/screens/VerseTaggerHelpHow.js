@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { StyleSheet, ScrollView, Text } from "react-native"
+import { StyleSheet, ScrollView, Text, Image } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
 
@@ -38,6 +38,13 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 20,
   },
+  image: {
+    width: '47%',
+    height: 0,
+    paddingBottom: '98%',
+    resizeMode: 'contain',
+    alignSelf: 'center',
+  },
   p: {
     marginTop: 15,
     fontSize,
@@ -65,6 +72,7 @@ const styles = StyleSheet.create({
 
 const VerseTaggerHelpHow = ({
   setHelpIndex,
+  showHebrewExamples,
   style,
 
   eva: { style: themedStyle={} },
@@ -79,8 +87,6 @@ const VerseTaggerHelpHow = ({
       style={styles.scrollView}
       contentContainerStyle={styles.body}
     >
-
-      {/* <Text>gif</Text> */}
 
       <Text
         style={[
@@ -110,6 +116,17 @@ const VerseTaggerHelpHow = ({
         {i18n(" ", "word separator")}
         {i18n("You will often find a number of words pre-tagged by our auto-tagger. You should check (and correct, when needed) these tags before submitting.")}
       </Text>
+
+      <Image
+        source={
+          showHebrewExamples
+            ? require('../../../assets/images/demo-hebrew.gif')
+            : require('../../../assets/images/demo-greek.gif')
+        }
+        style={[
+          styles.image,
+        ]}
+      />
 
       <Text
         style={[
