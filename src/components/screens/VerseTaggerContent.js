@@ -10,7 +10,7 @@ import { useDimensions } from "@react-native-community/hooks"
 
 import { getVersionInfo, memo, getOriginalVersionInfo, getToolbarHeight,
          executeSql, toggleArrayValue, cloneObj, readHeaderMarginTop,
-         getWordIdAndPartNumber, equalObjs } from "../../utils/toolbox"
+         getWordIdAndPartNumber, equalObjs, getStatusText } from "../../utils/toolbox"
 import useInstanceValue from "../../hooks/useInstanceValue"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useTagSet from "../../hooks/useTagSet"
@@ -25,6 +25,15 @@ import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  statusContainer: {
+    paddingBottom: 18,
+    alignSelf: 'center',
+  },
+  currentStatus: {
+    color: 'rgba(0, 0, 0, .35)',
+  },
+  status: {
   },
   confirmExpl: {
     fontWeight: '200',
@@ -393,6 +402,7 @@ const VerseTaggerContent = ({
 
   const ready = !!(pieces && originalPieces && tagSet)
   const showUndo = Object.values(translationWordInfoByWordIdAndPartNumbers).length === 0 && Object.values(undoTagSets[inProgressKey] || {}).length !== 0
+  const { status=`none` } = myTagSet || tagSet || {}
 
   if(!ready) {
     return (
@@ -437,9 +447,23 @@ const VerseTaggerContent = ({
             </Text>
           }
 
-          {!viewOnly && !myTagSet && (tagSet || {}).status === `unconfirmed` &&
+          {!viewOnly &&
+            <Text style={styles.statusContainer}>
+              <Text style={styles.currentStatus}>
+                {i18n("Current status:")}
+              </Text>
+              {i18n(" ", "word separator")}
+              <Text style={styles.status}>
+                {getStatusText(status)}
+              </Text>
+              {` `}
+              <StatusIcon status={status} />
+            </Text>
+          }
+
+          {!viewOnly && !myTagSet && status === `unconfirmed` &&
             <Text style={styles.confirmExpl}>
-              {i18n("Note: Since this verse already has the status of “unconfirmed,” we have not pre-tagged anything. This makes for the most rigorous confirmation process.")}
+              {i18n("Note: We have not pre-tagged anything to ensure the most rigorous confirmation process.")}
             </Text>
           }
 
