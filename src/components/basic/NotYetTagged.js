@@ -3,11 +3,11 @@ import { StyleSheet, View, Text } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
 
-import { memo } from "../../utils/toolbox"
+import { memo, getStatusText } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useRouterState from "../../hooks/useRouterState"
 
-import Icon from "./Icon"
+import StatusIcon from "./StatusIcon"
 
 const styles = StyleSheet.create({
   container: {
@@ -54,13 +54,7 @@ const NotYetTagged = ({
   eva: { style: themedStyle={} },
 }) => {
 
-  const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [
-    noneIconThemedStyle={},
-    partialIconThemedStyle={},
-    unconfirmedIconThemedStyle={},
-    confirmedIconThemedStyle={},
-  ] = altThemedStyleSets
+  const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const { historyPush } = useRouterState()
 
@@ -103,13 +97,8 @@ const NotYetTagged = ({
           {confirmedTags &&
             <>
               {` `}
-              <Icon
-                style={[
-                  styles.icon,
-                  confirmedIconThemedStyle,
-                ]}
-                pack="materialCommunity"
-                name="check-all"
+              <StatusIcon
+                status="confirmed"
               />
             </>
           }
@@ -125,28 +114,11 @@ const NotYetTagged = ({
               {i18n("Status:")}
             </Text>
             {i18n(" ", "word separator")}
-
-            {notTagged && i18n("Not yet tagged.")}
-            {partiallyTagged && !wordNotYetTagged && i18n("Unconfirmed, partial tagging.")}
-            {unconfirmedTags && i18n("Contains unconfirmed tags.")}
-            {wordNotYetTagged && i18n("Word not yet tagged.")}
+            {wordNotYetTagged ? i18n("Word not yet tagged.") : getStatusText(tagSet.status)}
 
             {` `}
-            <Icon
-              style={[
-                styles.icon,
-                notTagged ? noneIconThemedStyle : null,
-                partiallyTagged ? partialIconThemedStyle : null,
-                unconfirmedTags ? unconfirmedIconThemedStyle : null,
-                wordNotYetTagged ? noneIconThemedStyle : null,
-              ]}
-              pack={(notTagged || wordNotYetTagged) ? "materialCommunity" : "ion"}
-              name={
-                (notTagged && "close-box-outline")
-                || (partiallyTagged && !wordNotYetTagged && "md-warning")
-                || (unconfirmedTags && "md-warning")
-                || (wordNotYetTagged && "close-box-outline")
-              }
+            <StatusIcon
+              status={wordNotYetTagged ? `none` : tagSet.status}
             />
 
           </Text>

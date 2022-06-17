@@ -3,11 +3,11 @@ import { StyleSheet, ScrollView, Text } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
 
-import { memo, removeIndentAndBlankStartEndLines } from "../../utils/toolbox"
+import { memo, removeIndentAndBlankStartEndLines, getStatusText } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 
 import InlineLink from "../basic/InlineLink"
-import Icon from "../basic/Icon"
+import StatusIcon from "../basic/StatusIcon"
 
 const fontSize = 15
 
@@ -70,13 +70,7 @@ const VerseTaggerHelpHow = ({
   eva: { style: themedStyle={} },
 }) => {
 
-  const { labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [
-    noneIconThemedStyle={},
-    partialIconThemedStyle={},
-    unconfirmedIconThemedStyle={},
-    confirmedIconThemedStyle={},
-  ] = altThemedStyleSets
+  const { labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const goToNextHelpIndex = useCallback(() => setHelpIndex(2), [ setHelpIndex ])
 
@@ -143,29 +137,16 @@ const VerseTaggerHelpHow = ({
       <Text style={styles.liBold}>
         {i18n("1.")}
         {i18n(" ", "word separator")}
-        {i18n("Not yet tagged.")}
+        {getStatusText(`none`)}
         {` `}
-        <Icon
-          style={[
-            styles.icon,
-            noneIconThemedStyle,
-          ]}
-          pack="materialCommunity"
-          name="close-box-outline"
-        />
+        <StatusIcon status="none" />
       </Text>
       <Text style={styles.liBold}>
         {i18n("2.")}
         {i18n(" ", "word separator")}
-        {i18n("Unconfirmed, partial tagging.")}
+        {getStatusText(`automatch`)}
         {` `}
-        <Icon
-          style={[
-            styles.icon,
-            partialIconThemedStyle,
-          ]}
-          name="md-warning"
-        />
+        <StatusIcon status="automatch" />
       </Text>
       <Text style={styles.liFollowUp}>
         {i18n("Part of this verse has been tagged using an auto-tagger algorithm.")}
@@ -173,15 +154,9 @@ const VerseTaggerHelpHow = ({
       <Text style={styles.liBold}>
         {i18n("3.")}
         {i18n(" ", "word separator")}
-        {i18n("Contains unconfirmed tags.")}
+        {getStatusText(`unconfirmed`)}
         {` `}
-        <Icon
-          style={[
-            styles.icon,
-            unconfirmedIconThemedStyle,
-          ]}
-          name="md-warning"
-        />
+        <StatusIcon status="unconfirmed" />
       </Text>
       <Text style={styles.liFollowUp}>
         {i18n("At least one user has tagged this verse.")}
@@ -189,16 +164,9 @@ const VerseTaggerHelpHow = ({
       <Text style={styles.liBold}>
         {i18n("4.")}
         {i18n(" ", "word separator")}
-        {i18n("Confirmed.")}
+        {getStatusText(`confirmed`)}
         {` `}
-        <Icon
-          style={[
-            styles.icon,
-            confirmedIconThemedStyle,
-          ]}
-          pack="materialCommunity"
-          name="check-all"
-        />
+        <StatusIcon status="confirmed" />
       </Text>
       <Text style={styles.liFollowUp}>
         {i18n("Multiple users with a good tagging history have tagged this verse consistently.")}

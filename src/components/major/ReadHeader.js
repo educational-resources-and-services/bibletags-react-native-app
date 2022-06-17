@@ -149,7 +149,7 @@ const ReadHeader = React.memo(({
     getVersionInfo(passage.parallelVersionId || null).abbr,
   ]
     .filter(val => val)
-    .join(i18n(", ", "list separator", {}))
+    .join(i18n(", ", "list separator"))
     .toUpperCase()
 
   const passageStr = useMemo(

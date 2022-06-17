@@ -116,6 +116,7 @@ const Search = ({
             `verse:${escapeLike(searchString)}`,
           ],
           limit: MAX_RESULTS,
+          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
         })
 
         console.log('unitWords', unitWords)

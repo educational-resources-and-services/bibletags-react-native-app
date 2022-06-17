@@ -39,6 +39,10 @@ const styles = StyleSheet.create({
   },
 })
 
+const displaySettingsOverride = {
+  hideNotes: true,
+}
+
 const LowerPanelFootnote = ({
   selectedSection,
   selectedInfo,
@@ -142,17 +146,13 @@ const LowerPanelFootnote = ({
 
         setSelectedVersePieces(
           verses
-            .map(verse => {
-              const preppedUsfm = verse.usfm
-                .replace(/\\m(?:t[0-9]?|te[0-9]?|s[0-9]?|r) .*\n?/g, '')  // get rid of book headings
-                .replace(/\\c ([0-9]+)\n?/g, '')  // get rid of chapter marker, since it is put in below
-    
-              return getPiecesFromUSFM({
-                usfm: `\\c ${selectedRefs[0].chapter}\n${preppedUsfm}`,
+            .map(verse => (
+              getPiecesFromUSFM({
+                usfm: `\\c ${selectedRefs[0].chapter}\n${verse.usfm}`,
                 inlineMarkersOnly: true,
                 wordDividerRegex,
               })
-            })
+            ))
             .flat()
         )
 
@@ -213,6 +213,7 @@ const LowerPanelFootnote = ({
             pieces={selectedVersePieces}
             style={style}
             onVerseTap={onVerseTap}
+            displaySettingsOverride={displaySettingsOverride}
           />
           <IPhoneXBuffer extraSpace={true} />
         </ScrollView>

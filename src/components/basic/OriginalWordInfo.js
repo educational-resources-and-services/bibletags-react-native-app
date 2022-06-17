@@ -63,7 +63,8 @@ const OriginalWordInfo = ({
   onSizeChange,
   onSizeChangeFunctions,
   doIPhoneBuffer=false,
-  translationsOfWordInMyVersions,
+  translationsOfWordInMyVersions=[],
+  originalLoc,
   extendedHeight,
 
   eva: { style: themedStyle={} },
@@ -99,13 +100,6 @@ const OriginalWordInfo = ({
     [ height ],
   )
 
-  // const translationsOfWordInMyVersions = useTranslationsOfWordInMyVersions({
-  //   wordId,
-  //   wordPartNumber,
-  //   originalLoc: getLocFromRef(ref),
-  //   myBibleVersions,
-  // })
-
   if(!morph) {
     return (
       <View
@@ -137,9 +131,12 @@ const OriginalWordInfo = ({
         onLayout={onSizeChangeFunctions ? onSizeChangeFunctions[0] : null}
       >
 
-        {translationsOfWordInMyVersions &&
+        {!!originalLoc &&
           <TranslationsOfWordInMyVersions
             translationsOfWordInMyVersions={translationsOfWordInMyVersions}
+            originalLoc={originalLoc}
+            originalLanguage={/^G/.test(definitionId) ? `greek` : `hebrew`}
+            downloadedVersionIds={downloadedVersionIds}
           />
         }
 

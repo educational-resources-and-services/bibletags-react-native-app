@@ -8,6 +8,7 @@ import useTranslationsOfWordInMyVersions from "../../hooks/useTranslationsOfWord
 import OriginalWordInfo from "./OriginalWordInfo"
 
 const LowerPanelOriginalWord = ({
+  selectedVerse,
   selectedInfo,
   onSizeChangeFunctions,
   maxHeight,
@@ -19,11 +20,11 @@ const LowerPanelOriginalWord = ({
   const { morph, strong, lemma } = selectedInfo
   const wordId = selectedInfo[`x-id`]
 
-  const { ref } = passage
+  const originalLoc = getLocFromRef({ ...passage.ref, verse: selectedVerse })
 
   const translationsOfWordInMyVersions = useTranslationsOfWordInMyVersions({
     wordId,
-    originalLoc: getLocFromRef(ref),
+    originalLoc,
     myBibleVersions,
   })
 
@@ -35,6 +36,7 @@ const LowerPanelOriginalWord = ({
       onSizeChangeFunctions={onSizeChangeFunctions}
       doIPhoneBuffer={true}
       translationsOfWordInMyVersions={translationsOfWordInMyVersions}
+      originalLoc={originalLoc}
       extendedHeight={maxHeight - 210}
     />
   )

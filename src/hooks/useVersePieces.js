@@ -24,34 +24,31 @@ const useVersePieces = ({
 
       if(!refs || (refs[0] || {}).verse === undefined) return
 
-      const { rows: { _array: [ verse ] } } = await executeSql({
+      const { rows: { _array: verses } } = await executeSql({
         versionId,
         bookId: refs[0].bookId,
-        statement: ({ bookId, limit }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc IN ? ORDER BY loc LIMIT ${limit}`,
+        statement: ({ bookId }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc IN ? ORDER BY loc`,
         args: [
-          refs.map(ref => getLocFromRef(ref)),
+          refs.map(ref => getLocFromRef(ref).split(':')[0]),
         ],
-        limit: 1,
         removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
       })
 
-      if(!verse) return
+      if(!verses[0]) return
 
       const { wordDividerRegex } = getVersionInfo(versionId)
 
-      const preppedUsfm = verse.usfm
-        .replace(/\\m(?:t[0-9]?|te[0-9]?|s[0-9]?|r) .*\n?/g, '')  // get rid of book headings
-        .replace(/\\c ([0-9]+)\n?/g, '')  // get rid of chapter marker, since it is put in below
-
       setPiecesInfo({
         pieces: getPiecesFromUSFM({
-          usfm: `\\c ${refs[0].chapter}\n${preppedUsfm}`,
+          usfm: `\\c ${refs[0].chapter}\n${verses.map(({ usfm }) => usfm).join("\n")}`,
           inlineMarkersOnly: true,
           wordDividerRegex,
         }),
         piecesVersionId: versionId,
       })
-    
+
+      // TODO: I might only want some of the words in the returned verses
+
     },
     [ versionId, refs ],
   )

@@ -869,3 +869,20 @@ export const removeIndentAndBlankStartEndLines = str => {
   const numSpacesInIndent = (lines[0] || lines[1]).match(/^ */)[0].length
   return lines.map(line => line.replace(new RegExp(` {1,${numSpacesInIndent}}`), ``)).join(`\n`)
 }
+
+export const orderedStatusesArray = [
+  `none`,
+  `automatch`,
+  `unconfirmed`,
+  `confirmed`,
+]
+
+export const getStatusText = status => (
+  ({
+    none: i18n("Not yet tagged."),
+    automatch: i18n("Unconfirmed, partial tagging."),
+    unconfirmed: i18n("Contains unconfirmed tags."),
+    confirmed: i18n("Confirmed."),
+  })[status]
+  || i18n("Not yet tagged.")
+)

@@ -88,7 +88,7 @@ const LowerPanelVsComparison = ({
 
   const { wordDividerRegex, isOriginal } = getVersionInfo(versionIdShowing)
   const selectedRef = useEqualObjsMemo({ versionId: selectedVersionId, ...passage.ref, verse: selectedVerse })
-  const wordsHash = getWordsHash({ usfm: selectedVerseUsfm, wordDividerRegex })
+  const wordsHash = selectedVersionId !== 'original' && getWordsHash({ usfm: selectedVerseUsfm, wordDividerRegex })
 
   const { tagSet, iHaveSubmittedATagSet } = useTagSet({
     loc: getLocFromRef(selectedRef),

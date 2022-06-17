@@ -485,8 +485,14 @@ const mapping = {
       component: 'NotYetTagged',
       parameters: {
         labelColor: "color-basic-600",
+      },
+    },
+    {
+      component: 'StatusIcon',
+      parameters: {
+        labelColor: "color-basic-600",
         alt0Color: "color-basic-500",  // noneIconThemedStyle
-        alt1Color: "color-danger-500",  // partialIconThemedStyle
+        alt1Color: "color-danger-500",  // automatchIcomThemedStyle
         alt2Color: "color-warning-500",  // unconfirmedIconThemedStyle
         alt3Color: "color-primary-500",  // confirmedIconThemedStyle
       },
@@ -500,7 +506,6 @@ const mapping = {
         alt0Color: "color-basic-600",  // translationThemedStyle
         alt1Color: "text-danger-color",  // unselectedWordThemedStyle
         alt2TextDecorationLine: "line-through",  // selectedWordThemedStyle
-        alt3Color: "color-primary-500",  // confirmedIconThemedStyle
       },
     },
     {
@@ -546,10 +551,6 @@ const mapping = {
       component: 'VerseTaggerHelpHow',
       parameters: {
         labelColor: "color-info-700",  // headingThemedStyle
-        alt0Color: "color-basic-500",  // noneIconThemedStyle
-        alt1Color: "color-danger-500",  // partialIconThemedStyle
-        alt2Color: "color-warning-500",  // unconfirmedIconThemedStyle
-        alt3Color: "color-primary-500",  // confirmedIconThemedStyle
       },
     },
     {

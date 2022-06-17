@@ -87,6 +87,7 @@ const LowerPanel = ({
   if(selectedInfoTag === 'w') {
     contents = (
       <LowerPanelOriginalWord
+        selectedVerse={selectedVerse}
         selectedInfo={selectedInfo}
         onSizeChangeFunctions={onSizeChangeFunctions}
         maxHeight={maxHeight}

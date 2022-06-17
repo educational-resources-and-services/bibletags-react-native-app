@@ -17,7 +17,7 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useTagSet from "../../hooks/useTagSet"
 import useTagAnotherVerse from "../../hooks/useTagAnotherVerse"
 
-import Icon from "../basic/Icon"
+import StatusIcon from "../basic/StatusIcon"
 import Verse from "../basic/Verse"
 import TaggerVerse from "../basic/TaggerVerse"
 import CoverAndSpin from "../basic/CoverAndSpin"
@@ -106,7 +106,6 @@ const VerseTaggerContent = ({
     translationThemedStyle={},
     unselectedWordThemedStyle={},
     selectedWordThemedStyle={},
-    confirmedIconThemedStyle={},
   ] = altThemedStyleSets
 
   const { ref, versionId } = passage
@@ -306,20 +305,19 @@ const VerseTaggerContent = ({
 
       const getPieces = async ({ versionId, refs, wordDividerRegex, set }) => {
 
-        const { rows: { _array: [ verse ] } } = await executeSql({
+        const { rows: { _array: verses } } = await executeSql({
           versionId,
           bookId: ref.bookId,
-          statement: ({ bookId, limit }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc IN ? ORDER BY loc LIMIT ${limit}`,
+          statement: ({ bookId }) => `SELECT * FROM ${versionId}VersesBook${bookId} WHERE loc IN ? ORDER BY loc`,
           args: [
             refs.map(ref => getLocFromRef(ref)),
           ],
-          limit: 1,
           removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
         })
- 
-        const preppedUsfm = verse.usfm
-          .replace(/\\m(?:t[0-9]?|te[0-9]?|s[0-9]?|r) .*\n?/g, '')  // get rid of book headings
-          .replace(/\\c ([0-9]+)\n?/g, '')  // get rid of chapter marker, since it is put in below
+
+        const preppedUsfm = verses.slice(0,1).map(({ usfm }) => usfm).join("\n")
+
+        // TODO: I might only want some of the words in the returned verses
 
         set(
           getPiecesFromUSFM({
@@ -441,14 +439,7 @@ const VerseTaggerContent = ({
                 {versionStr}
               </Text>
               {`  `}
-              <Icon
-                style={[
-                  styles.icon,
-                  confirmedIconThemedStyle,
-                ]}
-                pack="materialCommunity"
-                name="check-all"
-              />
+              <StatusIcon status="confirmed" />
             </Text>
           }
 
