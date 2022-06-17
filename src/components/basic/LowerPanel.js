@@ -32,6 +32,7 @@ const noop = ()=>{}
 const LowerPanel = ({
   selectedData,
   setSelectedData=noop,
+  hideEditTagIcon,
 }) => {
 
   const previousSelectedData = usePrevious(selectedData)
@@ -91,6 +92,7 @@ const LowerPanel = ({
         selectedInfo={selectedInfo}
         onSizeChangeFunctions={onSizeChangeFunctions}
         maxHeight={maxHeight}
+        hideEditTagIcon={hideEditTagIcon}
       />
     )
     contentsType = 'word'

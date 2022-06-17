@@ -106,6 +106,7 @@ const TranslationsOfWordInMyVersions = ({
   originalLoc,
   originalLanguage,
   downloadedVersionIds,
+  hideEditTagIcon,
   // onLayout,
 }) => {
 
@@ -288,49 +289,51 @@ const TranslationsOfWordInMyVersions = ({
         </View>
       ))}
 
-      <OverflowMenu
-        visible={menuOpen}
-        onSelect={onOptionSelect}
-        onBackdropPress={toggleMenuOpen}
-        anchor={renderOverflowMenuAnchor}
-        placement="top end"
-        style={styles.menu}
-      >
-        <MenuItem
-          disabled={true}
-          title={
-            <View>
-              <View style={styles.menuHeaderContainer}>
-                <Text style={styles.menuHeader}>
-                  {i18n("Edit tags for the...")}
-                </Text>
+      {!hideEditTagIcon &&
+        <OverflowMenu
+          visible={menuOpen}
+          onSelect={onOptionSelect}
+          onBackdropPress={toggleMenuOpen}
+          anchor={renderOverflowMenuAnchor}
+          placement="top end"
+          style={styles.menu}
+        >
+          <MenuItem
+            disabled={true}
+            title={
+              <View>
+                <View style={styles.menuHeaderContainer}>
+                  <Text style={styles.menuHeader}>
+                    {i18n("Edit tags for the...")}
+                  </Text>
+                </View>
               </View>
-            </View>
-          }
-        />
-        {versionIds.map(versionId => {
-          const status = orderedStatusesArray[lowestStatusIdxByVersionId[versionId] || 0]
-          return (
-            <MenuItem
-              key={versionId}
-              title={
-                <Text>
-                  <Text style={styles.versionAbbrForMenu}>
-                    {getVersionInfo(versionId).abbr}
+            }
+          />
+          {versionIds.map(versionId => {
+            const status = orderedStatusesArray[lowestStatusIdxByVersionId[versionId] || 0]
+            return (
+              <MenuItem
+                key={versionId}
+                title={
+                  <Text>
+                    <Text style={styles.versionAbbrForMenu}>
+                      {getVersionInfo(versionId).abbr}
+                    </Text>
+                    {`  `}
+                    <Text style={styles.versionStatus}>
+                      {getStatusText(status)}
+                      {` `}
+                      <StatusIcon status={status} />
+                      {` `}
+                    </Text>
                   </Text>
-                  {`  `}
-                  <Text style={styles.versionStatus}>
-                    {getStatusText(status)}
-                    {` `}
-                    <StatusIcon status={status} />
-                    {` `}
-                  </Text>
-                </Text>
-              }
-            />
-          )
-        })}
-      </OverflowMenu>
+                }
+              />
+            )
+          })}
+        </OverflowMenu>
+      }
 
     </View>
   )

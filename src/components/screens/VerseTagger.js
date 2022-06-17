@@ -65,6 +65,7 @@ const VerseTagger = ({
 
       <LowerPanel
         selectedData={selectedData}
+        hideEditTagIcon={true}
       />
 
     </SafeLayout>

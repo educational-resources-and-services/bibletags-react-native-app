@@ -65,6 +65,7 @@ const OriginalWordInfo = ({
   doIPhoneBuffer=false,
   translationsOfWordInMyVersions=[],
   originalLoc,
+  hideEditTagIcon,
   extendedHeight,
 
   eva: { style: themedStyle={} },
@@ -137,6 +138,7 @@ const OriginalWordInfo = ({
             originalLoc={originalLoc}
             originalLanguage={/^G/.test(definitionId) ? `greek` : `hebrew`}
             downloadedVersionIds={downloadedVersionIds}
+            hideEditTagIcon={hideEditTagIcon}
           />
         }
 

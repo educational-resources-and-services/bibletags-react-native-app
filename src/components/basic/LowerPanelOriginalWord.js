@@ -12,6 +12,7 @@ const LowerPanelOriginalWord = ({
   selectedInfo,
   onSizeChangeFunctions,
   maxHeight,
+  hideEditTagIcon,
 
   passage,
   myBibleVersions,
@@ -37,6 +38,7 @@ const LowerPanelOriginalWord = ({
       doIPhoneBuffer={true}
       translationsOfWordInMyVersions={translationsOfWordInMyVersions}
       originalLoc={originalLoc}
+      hideEditTagIcon={hideEditTagIcon}
       extendedHeight={maxHeight - 210}
     />
   )

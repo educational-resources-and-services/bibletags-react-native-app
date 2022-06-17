@@ -4,7 +4,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getPiecesFromUSFM, getWordsHash, getWordHashes, splitVerseIntoWords, getPassageStr } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
-import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
+import { getCorrespondingRefs, getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
 import { Button } from "@ui-kitten/components"
 import { useDimensions } from "@react-native-community/hooks"
 
@@ -124,6 +124,8 @@ const VerseTaggerContent = ({
   const [ pieces, setPieces ] = useState()
   const [ originalPieces, setOriginalPieces ] = useState()
   const [ { wordsHash, wordHashes }, setHashes ] = useState({})
+  const [ locByWordId, setLocByWordId ] = useState({})
+  const getLocByWordId = useInstanceValue(locByWordId)
 
   const { tagSet, myTagSet } = useTagSet({
     loc: getLocFromRef(ref),
@@ -187,6 +189,7 @@ const VerseTaggerContent = ({
           setSelectedData({
             selectedSection: 'tagger',
             selectedInfo,
+            selectedVerse: getRefFromLoc(getLocByWordId()[selectedInfo[`x-id`]]).verse,
           })
         }
         return
@@ -318,23 +321,39 @@ const VerseTaggerContent = ({
           ],
         })
 
-        const preppedUsfm = verses.slice(0,1).map(({ usfm }) => usfm).join("\n")
+        const locByWordId = {}
 
         // TODO: I might only want some of the words in the returned verses
 
         set(
-          getPiecesFromUSFM({
-            usfm: `\\c ${refs[0].chapter}\n${preppedUsfm}`,
-            inlineMarkersOnly: true,
-            wordDividerRegex,
-            splitIntoWords: versionId !== 'original',
-          })
+          verses
+            .map(({ loc, usfm }) => {
+              const piecesFromThisVerse = getPiecesFromUSFM({
+                usfm: `\\c ${getRefFromLoc(loc).chapter}\n${usfm}`,
+                inlineMarkersOnly: true,
+                wordDividerRegex,
+                splitIntoWords: versionId !== 'original',
+              })
+              const words = splitVerseIntoWords({
+                pieces: piecesFromThisVerse,
+                isOriginal: true,
+              })
+              words.forEach(word => {
+                locByWordId[word[`x-id`]] = loc
+              })
+              return piecesFromThisVerse
+            })
+            .flat()
         )
 
-        if(versionId !== 'original') {
+        if(versionId === 'original') {
+          setLocByWordId(locByWordId)
+
+        } else {
+          const { usfm } = verses[0]
           setHashes({
-            wordsHash: getWordsHash({ usfm: preppedUsfm, wordDividerRegex }),
-            wordHashes: getWordHashes({ usfm: preppedUsfm, wordDividerRegex }),
+            wordsHash: getWordsHash({ usfm, wordDividerRegex }),
+            wordHashes: getWordHashes({ usfm, wordDividerRegex }),
           })
         }
 

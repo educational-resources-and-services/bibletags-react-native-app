@@ -114,6 +114,7 @@ const VerseTaggerHelpExamples = ({
 
       <LowerPanel
         selectedData={selectedData}
+        hideEditTagIcon={true}
       />
 
     </>
