@@ -127,6 +127,8 @@ export const isConnected = () => new Promise(resolve => {
   }
 })
 
+export const removeCantillation = usfm => usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g,'')
+
 export const executeSql = async ({
   versionId,
   database,
@@ -136,7 +138,7 @@ export const executeSql = async ({
   jsonKeys,
   limit,
   statements,
-  removeCantillation,
+  forceRemoveCantillation,
   removeWordPartDivisions,
   doNotLogError=false,
 }) => {
@@ -281,8 +283,8 @@ export const executeSql = async ({
             verse.usfm = verse.usfm.replace(wordPartDividerRegex, '')  // zero-width space (used to indicate word parts)
           }
           
-          if(removeCantillation) {
-            verse.usfm = verse.usfm.replace(/[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g,'')
+          if(forceRemoveCantillation) {
+            verse.usfm = removeCantillation(verse.usfm)
           }
 
         })

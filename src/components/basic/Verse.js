@@ -8,7 +8,7 @@ import { i18n } from "inline-i18n"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
          adjustFontSize, memo, getVersionInfo, adjustTextForSups,
-         adjustPiecesForSpecialHebrew, cloneObj } from "../../utils/toolbox"
+         adjustPiecesForSpecialHebrew, cloneObj, removeCantillation } from "../../utils/toolbox"
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
@@ -82,7 +82,7 @@ const Verse = ({
 
   ] = altThemedStyleSets
 
-  const { font, textSize, lineSpacing, theme, hideNotes } = { ...displaySettings, ...displaySettingsOverride }
+  const { font, textSize, lineSpacing, theme, hideNotes, hideCantillation } = { ...displaySettings, ...displaySettingsOverride }
   const { bookId, verse } = passageRef
 
   const { languageId, isOriginal=false } = getVersionInfo(versionId)
@@ -148,6 +148,10 @@ const Verse = ({
           ) {
             info.hasUnknownCapitalization = true
           }
+        }
+
+        if(text && hideCantillation) {
+          text = removeCantillation(text)
         }
 
         if(text && Object.keys(verseTextStyles).length === 0 && !isMatch && type !== 'word') {

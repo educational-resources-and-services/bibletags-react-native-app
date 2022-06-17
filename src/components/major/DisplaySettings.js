@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from "react"
-import { Select, SelectItem, IndexPath } from "@ui-kitten/components"
+import { Select, SelectItem, IndexPath, CheckBox, Divider } from "@ui-kitten/components"
 import Slider from "@react-native-community/slider"
 import { StyleSheet, Platform, I18nManager, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
@@ -9,7 +9,7 @@ import { i18n } from "inline-i18n"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { bibleFontList } from "../../utils/bibleFonts"
 import useThrottledCallback from "../../hooks/useThrottledCallback"
-import { setTextSize, setLineSpacing, setFont, setTheme } from "../../redux/actions"
+import { setTextSize, setLineSpacing, setFont, setTheme, setHideCantillation } from "../../redux/actions"
 import { memo } from '../../utils/toolbox'
 
 import Dialog from "./Dialog"
@@ -34,6 +34,19 @@ const styles = StyleSheet.create({
     fontWeight: 'normal',
     fontSize: 14,
     marginBottom: 4,
+  },
+  divider: {
+    marginVertical: 15,
+    marginHorizontal: -15,
+    paddingHorizontal: 15,
+  },
+  advanced: {
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  checkBox: {
+    marginTop: 15,
+    marginBottom: 5,
   },
   slider: {
     width: Platform.OS === 'android' ? 220 : 200,
@@ -69,12 +82,13 @@ const DisplaySettings = ({
   setLineSpacing,
   setFont,
   // setTheme,
+  setHideCantillation,
 }) => {
   
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [ tintThemedStyle={} ] = altThemedStyleSets
 
-  const { textSize, lineSpacing, font, theme } = displaySettings
+  const { textSize, lineSpacing, font, theme, hideCantillation } = displaySettings
 
   const initialTextSize = useRef(textSize).current
   const initialLineSpacing = useRef(lineSpacing).current
@@ -130,6 +144,7 @@ const DisplaySettings = ({
       goHide={hideDisplaySettings}
       style={baseThemedStyle}
     >
+
       <View style={styles.firstLine}>
         <Text style={styles.label}>{i18n("Text Size")}</Text>
         <Slider
@@ -143,6 +158,7 @@ const DisplaySettings = ({
           thumbTintColor={tintThemedStyle.thumbTintColor}
         />
       </View>
+
       <View style={styles.line}>
         <Text style={styles.label}>{i18n("Line Spacing")}</Text>
         <Slider
@@ -156,6 +172,7 @@ const DisplaySettings = ({
           thumbTintColor={tintThemedStyle.thumbTintColor}
         />
       </View>
+
       {/* <Select
         label={evaProps => (
           <Text
@@ -181,6 +198,7 @@ const DisplaySettings = ({
           />
         ))}
       </Select> */}
+
       <Select
         label={evaProps => (
           <Text
@@ -206,6 +224,25 @@ const DisplaySettings = ({
           />
         ))}
       </Select>
+
+      <Divider style={styles.divider} />
+
+      <Text style={styles.advanced}>
+        {i18n("Advanced")}
+      </Text>
+
+      <CheckBox
+        style={styles.checkBox}
+        checked={!hideCantillation}
+        onChange={nextChecked => setHideCantillation({ hideCantillation: !nextChecked })}
+      >
+        <Text>
+          <Text style={styles.selectLabel}>
+            {i18n("Show diacritical marks (Hebrew)")}
+          </Text>
+        </Text>
+      </CheckBox>
+
     </Dialog>
   )
 
@@ -220,6 +257,7 @@ const matchDispatchToProps = dispatch => bindActionCreators({
   setLineSpacing,
   setFont,
   setTheme,
+  setHideCantillation,
 }, dispatch)
 
 export default memo(connect(mapStateToProps, matchDispatchToProps)(DisplaySettings), { name: 'DisplaySettings' })

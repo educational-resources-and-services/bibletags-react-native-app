@@ -2,7 +2,6 @@ import React, { useState, useLayoutEffect, useCallback, useMemo } from "react"
 import { StyleSheet, View, Text, ScrollView, Vibration, TouchableWithoutFeedback, I18nManager } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import Constants from "expo-constants"
 import { getPiecesFromUSFM, getWordsHash, getWordHashes, splitVerseIntoWords, getPassageStr } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
@@ -22,10 +21,6 @@ import Verse from "../basic/Verse"
 import TaggerVerse from "../basic/TaggerVerse"
 import CoverAndSpin from "../basic/CoverAndSpin"
 import ConfirmTagSubmissionButton from "../major/ConfirmTagSubmissionButton"
-
-const {
-  HEBREW_CANTILLATION_MODE,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
@@ -312,7 +307,6 @@ const VerseTaggerContent = ({
           args: [
             refs.map(ref => getLocFromRef(ref)),
           ],
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
         })
 
         const preppedUsfm = verses.slice(0,1).map(({ usfm }) => usfm).join("\n")

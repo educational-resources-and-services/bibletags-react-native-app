@@ -60,6 +60,11 @@ export const setFont = ({ font }) => ({
   font,
 })
 
+export const setHideCantillation = ({ hideCantillation }) => ({
+  type: "SET_HIDE_CANTILLATION",
+  hideCantillation,
+})
+
 export const setTheme = ({ theme }) => ({
   type: "SET_THEME",
   theme,

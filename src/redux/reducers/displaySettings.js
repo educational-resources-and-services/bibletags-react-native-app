@@ -6,6 +6,7 @@ const initialState = {
   font: bibleFontList[0],
   theme: "default",
   hideNotes: false,
+  hideCantillation: false,
 }
 
 const themeOptions = [
@@ -36,6 +37,13 @@ export default (state = initialState, action) => {
       return {
         ...state,
         font: bibleFontList.includes(action.font) ? action.font : state.font,
+      }
+    }
+
+    case "SET_HIDE_CANTILLATION": {
+      return {
+        ...state,
+        hideCantillation: !!action.hideCantillation,
       }
     }
 

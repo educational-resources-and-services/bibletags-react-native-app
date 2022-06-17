@@ -8,7 +8,7 @@ import usePrevious from "react-use/lib/usePrevious"
 import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs,
+import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs, removeCantillation,
          iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, getColorWithOpacity,
          adjustTextForSups, getTagStyle, adjustPiecesForSpecialHebrew } from '../../utils/toolbox'
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
@@ -20,7 +20,6 @@ import CoverAndSpin from "../basic/CoverAndSpin"
 import useComponentUnloadedRef from "../../hooks/useComponentUnloadedRef"
 
 const {
-  HEBREW_CANTILLATION_MODE,
   MAX_AVG_PARAGRAPH_LENGTH_IN_VERSES=10,
   MAX_PARAGRAPH_LENGTH_IN_VERSES=15,
 } = Constants.manifest.extra
@@ -208,7 +207,6 @@ const ReadText = ({
           args: [
             `${('0'+bookId).slice(-2)}${('00'+chapter).slice(-3)}%`,
           ],
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
         })
 
         if(unloaded.current) return
@@ -340,7 +338,8 @@ const ReadText = ({
 
       const getJSXFromPieces = ({ pieces, sharesBlockWithSelectedVerse, sharesBlockWithFocussedVerse, doSmallCaps, isTopLevel, noOnPress }) => {
 
-        const { font, textSize, lineSpacing, theme } = displaySettings
+        let { font, textSize, lineSpacing, theme, hideCantillation } = displaySettings
+        hideCantillation = hideCantillation && versionId === `original` && bookId < 40
 
         pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
 
@@ -436,6 +435,10 @@ const ReadText = ({
             isOriginal,
             tagThemedStyles,
           })
+
+          if(text && hideCantillation) {
+            text = removeCantillation(text)
+          }
 
           const hasSelectedVerseChild = selectedVerse !== null && (adjustedChildren || []).some(child => child.verse === selectedVerse)
           const hadSelectedVerseChild = previousSelectedVerse !== null && (adjustedChildren || []).some(child => child.verse === previousSelectedVerse)
@@ -584,7 +587,7 @@ const ReadText = ({
           let component = (
             <VerseText
               // key={Platform.OS === 'android' ? `${keyForAndroid}-${idx}` : idx}  // TODO: remove this line when RN bug fixed (https://github.com/facebook/react-native/issues/29717)
-              key={`${keyForAndroid}-${idx}`}  // NOTE: replaced the top line with this due to the footnote dots in Gen 2:6 ESV not getting updated properly on iOS
+              key={`${keyForAndroid}-${idx}-${hideCantillation}`}  // NOTE: replaced the top line with this due to the footnote dots in Gen 2:6 ESV not getting updated properly on iOS
               style={verseTextStyles}
               onPress={noOnPress ? null : goVerseTap}
               verseNumber={tagInList({ tag, list: blockUsfmMarkers }) ? null : vs}

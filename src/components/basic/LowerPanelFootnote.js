@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react"
-import Constants from "expo-constants"
 import { StyleSheet, ScrollView, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -13,10 +12,6 @@ import { getVersionInfo, executeSql } from '../../utils/toolbox'
 import Footnote from "./Footnote"
 import IPhoneXBuffer from "./IPhoneXBuffer"
 import Verse from "./Verse"
-
-const {
-  HEBREW_CANTILLATION_MODE,
-} = Constants.manifest.extra
 
 const styles = StyleSheet.create({
   container: {
@@ -140,7 +135,6 @@ const LowerPanelFootnote = ({
             getLocFromRef(selectedRefs[1] || selectedRefs[0]),
           ],
           limit: 5,  // will show ellipsis if more were sought
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
           removeWordPartDivisions: true,
         })
 

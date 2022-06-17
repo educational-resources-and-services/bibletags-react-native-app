@@ -5,7 +5,8 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getTextFont, adjustFontSize, memo, adjustPiecesForSpecialHebrew, getWordIdAndPartNumber } from "../../utils/toolbox"
+import { isRTLText, getTextFont, adjustFontSize, memo, adjustPiecesForSpecialHebrew,
+         getWordIdAndPartNumber, removeCantillation } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import { languageOptions } from "../../../language"
 
@@ -94,7 +95,7 @@ const TaggerVerse = ({
     selectedTranslationWordThemedStyle={},
   ] = altThemedStyleSets
 
-  const { font, textSize } = { ...displaySettings, ...displaySettingsOverride }
+  const { font, textSize, hideCantillation } = { ...displaySettings, ...displaySettingsOverride }
 
   const usedWordPhraseStyleByWordIdAndPartNumbers = useMemo(
     () => {
@@ -137,6 +138,10 @@ const TaggerVerse = ({
         const wordIdAndPartNumber =  getWordIdAndPartNumber({ id, wordPartNumber, bookId })
         const isSelected = selectedWordIdAndPartNumbers.includes(wordIdAndPartNumber)
         const isUsed = usedWordPhraseStyleByWordIdAndPartNumbers[wordIdAndPartNumber] !== undefined
+
+        if(text && hideCantillation) {
+          text = removeCantillation(text)
+        }
 
         const key = Object.keys(translationWordInfoByWordIdAndPartNumbers).find(wordIdAndPartNumbersJSON => {
           if(

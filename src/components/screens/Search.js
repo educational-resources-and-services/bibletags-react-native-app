@@ -22,7 +22,6 @@ import { recordSearch, setSearchScrollInfo } from "../../redux/actions"
 
 const {
   MAX_RESULTS,
-  HEBREW_CANTILLATION_MODE,
 } = Constants.manifest.extra
 
 const styles = StyleSheet.create({
@@ -116,7 +115,6 @@ const Search = ({
             `verse:${escapeLike(searchString)}`,
           ],
           limit: MAX_RESULTS,
-          removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
         })
 
         console.log('unitWords', unitWords)

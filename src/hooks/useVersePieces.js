@@ -1,14 +1,9 @@
 import { useState } from "react"
-import Constants from "expo-constants"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
 import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 
 import useEffectAsync from "./useEffectAsync"
 import { executeSql, getVersionInfo } from "../utils/toolbox"
-
-const {
-  HEBREW_CANTILLATION_MODE,
-} = Constants.manifest.extra
 
 const useVersePieces = ({
   versionId,
@@ -31,7 +26,6 @@ const useVersePieces = ({
         args: [
           refs.map(ref => getLocFromRef(ref).split(':')[0]),
         ],
-        removeCantillation: HEBREW_CANTILLATION_MODE === 'remove',
       })
 
       if(!verses[0]) return

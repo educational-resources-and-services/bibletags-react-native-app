@@ -39,7 +39,7 @@ const useTranslationsOfWordInMyVersions = ({
         args: [
           refsByVersionId[versionId].map(ref => getLocFromRef(ref).split(':')[0]),
         ],
-        removeCantillation: true,  // since it will show words out of context, remove cantillation no matter what
+        forceRemoveCantillation: true,  // since it will show words out of context, remove cantillation no matter what
       }))
 
       const tagSetsQueries = (

@@ -20,13 +20,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 15,
     backgroundColor: "white",
+  },
+  contentContainerStyle: {
     padding: 15,
+    paddingTop: 0,
   },
   title: {
     fontWeight: '700',
     fontSize: 15,
     marginBottom: 15,
     textAlign: 'left',
+    padding: 15,
+    paddingBottom: 0,
   },
   line: {
     marginTop: 15,
