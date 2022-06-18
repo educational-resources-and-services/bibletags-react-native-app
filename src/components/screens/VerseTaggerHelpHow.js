@@ -1,5 +1,5 @@
 import React, { useCallback } from "react"
-import { StyleSheet, ScrollView, Text, Image } from "react-native"
+import { StyleSheet, ScrollView, Text, Image, View } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
 
@@ -38,12 +38,24 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 20,
   },
+  imageContainer: {
+    padding: 20,
+    paddingBottom: 0,
+    width: '100%',
+  },
+  imageContainer2: {
+    shadowColor: '#999999',
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 50,
+    zIndex: 10,
+    width: '100%',
+  },
   image: {
-    width: '47%',
+    width: '100%',
     height: 0,
-    paddingBottom: '98%',
+    paddingBottom: '140%',
     resizeMode: 'contain',
-    alignSelf: 'center',
   },
   p: {
     marginTop: 15,
@@ -117,16 +129,20 @@ const VerseTaggerHelpHow = ({
         {i18n("You will often find a number of words pre-tagged by our auto-tagger. You should check (and correct, when needed) these tags before submitting.")}
       </Text>
 
-      <Image
-        source={
-          showHebrewExamples
-            ? require('../../../assets/images/demo-hebrew.gif')
-            : require('../../../assets/images/demo-greek.gif')
-        }
-        style={[
-          styles.image,
-        ]}
-      />
+      <View style={styles.imageContainer}>
+        <View style={styles.imageContainer2}>
+          <Image
+            source={
+              showHebrewExamples
+                ? require('../../../assets/images/demo-hebrew.gif')
+                : require('../../../assets/images/demo-greek.gif')
+            }
+            style={[
+              styles.image,
+            ]}
+          />
+        </View>
+      </View>
 
       <Text
         style={[
