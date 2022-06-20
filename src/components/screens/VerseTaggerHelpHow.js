@@ -39,23 +39,24 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   imageContainer: {
-    padding: 20,
-    paddingBottom: 0,
-    width: '100%',
-  },
-  imageContainer2: {
+    marginTop: 20,
     shadowColor: '#999999',
     shadowOpacity: 0.5,
     shadowRadius: 20,
     elevation: 50,
     zIndex: 10,
-    width: '100%',
+    alignSelf: 'center',
+    borderWidth: 10,
+    borderTopWidth: 35,
+    borderBottomWidth: 35,
+    borderRadius: 15,
+    borderColor: 'black',
+    width: 284,
+    height: 610,
   },
   image: {
-    width: '100%',
-    height: 0,
-    paddingBottom: '140%',
-    resizeMode: 'contain',
+    width: 264,
+    height: 540,
   },
   p: {
     marginTop: 15,
@@ -130,18 +131,16 @@ const VerseTaggerHelpHow = ({
       </Text>
 
       <View style={styles.imageContainer}>
-        <View style={styles.imageContainer2}>
-          <Image
-            source={
-              showHebrewExamples
-                ? require('../../../assets/images/demo-hebrew.gif')
-                : require('../../../assets/images/demo-greek.gif')
-            }
-            style={[
-              styles.image,
-            ]}
-          />
-        </View>
+        <Image
+          source={
+            showHebrewExamples
+              ? require('../../../assets/images/demo-hebrew.gif')
+              : require('../../../assets/images/demo-greek.gif')
+          }
+          style={[
+            styles.image,
+          ]}
+        />
       </View>
 
       <Text
