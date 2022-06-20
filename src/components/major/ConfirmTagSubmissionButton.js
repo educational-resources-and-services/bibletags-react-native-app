@@ -390,7 +390,7 @@ const ConfirmTagSubmissionButton = ({
                   >
                   <Text style={styles.mainLine}>
                     <Text>
-                      {i18n("Indicate how each of these words would appear in a dictionary entry—capitalized or not.")}
+                      {i18n("Indicate how each of these words would appear in a Bible dictionary entry—capitalized or not.")}
                     </Text>
                     {`   `}
                     <Icon
@@ -403,7 +403,7 @@ const ConfirmTagSubmissionButton = ({
                 {showExtraCapitalizationInfo &&
                   <View style={styles.extraBlock}>
                     <Text style={styles.firstLine}>
-                      {i18n("E.g. “I” and “Paul” should be capitalized whereas “then” and “so” should not.")}
+                      {i18n("E.g. “I” and “Paul” and even “Father” (when it refers to God) should be capitalized whereas “then” and “so” should not.")}
                     </Text>
                   </View>
                 }
