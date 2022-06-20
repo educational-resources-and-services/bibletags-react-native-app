@@ -137,7 +137,7 @@ const VerseTaggerHelpRules = ({
         </Text>
       </Text>
       <Text style={styles.p}>
-        {i18n("The definite article in the original should be tagged to the definite article in the translation, or to whatever other word it happens to be translated to (e.g. a relative pronoun).")}
+        {i18n("The definite article in the original should be tagged to all words in the translation that it is conveying.")}
         {i18n(" ", "word separator")}
         {i18n("When the definite article is not translated to anything or is absent from the original, it should be left untagged.")}
       </Text>
@@ -158,7 +158,7 @@ const VerseTaggerHelpRules = ({
               E.g. For “<Text style={styles.greek}>τοὺς ἀδελφοὺς αὐτοῦ</Text>” in Matthew 1:11, “<Text style={styles.greek}>ἀδελφοὺς</Text>” should be tagged to “brothers,” “<Text style={styles.greek}>αὐτοῦ</Text>” should be tagged to “his,” and “<Text style={styles.greek}>τοὺς</Text>” should be left untagged.
             </Text>
             <Text style={styles.example}>
-              E.g. In John 3:9, “<Text style={styles.greek}>ὁ γεγεννημένος</Text>” is translated to “who is born.” In this case, the definite article “<Text style={styles.greek}>ὁ</Text>” should be translated to “who.”
+              E.g. In Matthew 7:21, “<Text style={styles.greek}>ὁ ποιῶν</Text>” is translated to “the one who does.” In this case, the definite article “<Text style={styles.greek}>ὁ</Text>” should be tagged to “the one who” and “<Text style={styles.greek}>ποιῶν</Text>” should be tagged to just “does.”
             </Text>
           </>
         }
@@ -418,9 +418,6 @@ const VerseTaggerHelpRules = ({
             <Text style={styles.example}>
               E.g. In Luke 22:15, we find “<Text style={styles.greek}>ἐπιθυμίᾳ ἐπεθύμησα</Text>” translated to “I have earnestly desired.” The entire phrases should be tagged to each other since “<Text style={styles.greek}>ἐπιθυμίᾳ</Text>” alone does not mean “earnestly” but rather “with desire.”
             </Text>
-            <Text style={styles.example}>
-              E.g. In Matthew 6:6, the entire phrase “<Text style={styles.greek}>εἴσελθε εἰς</Text>” should be tagged to “go into” as there is no way to properly tag these words individually.
-            </Text>
           </>
         }
       </View>
@@ -443,6 +440,9 @@ const VerseTaggerHelpRules = ({
           <>
             <Text style={!showHebrewExamples ? styles.firstExample : styles.example}>
               E.g. In Mark 3:20, we find “<Text style={styles.greek}>ἔρχεται εἰς οἶκον</Text>” translated to “he went home.” Only “<Text style={styles.greek}>ἔρχεται</Text>” should be tagged to “he went” since that is the meaning of this verb with or without the “<Text style={styles.greek}>εἰς</Text>.” Thus, “<Text style={styles.greek}>εἰς</Text>” should be left untagged while “<Text style={styles.greek}>οἶκον</Text>” should be tagged to “home.”
+            </Text>
+            <Text style={styles.example}>
+              E.g. Likewise, in Matthew 6:6, only the verb “<Text style={styles.greek}>εἴσελθε</Text>” from the phrase “<Text style={styles.greek}>εἴσελθε εἰς</Text>” should be tagged to “go into.” The “<Text style={styles.greek}>εἰς</Text>” does not alter the verb’s meaning and so should be left untagged.
             </Text>
             <Text style={styles.example}>
               E.g. In Matthew 12:9, we find “<Text style={styles.greek}>ἦλθεν εἰς</Text>” translated to “entered.” In this case, “<Text style={styles.greek}>ἦλθεν</Text>” and “<Text style={styles.greek}>εἰς</Text>” should be combined together and then tagged to “entered” since “<Text style={styles.greek}>ἦλθεν</Text>” only carries that meaning when paired with the preposition “<Text style={styles.greek}>εἰς</Text>.”
