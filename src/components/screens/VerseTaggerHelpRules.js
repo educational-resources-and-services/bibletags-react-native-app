@@ -262,6 +262,9 @@ const VerseTaggerHelpRules = ({
               E.g. In John 3:12, “<Text style={styles.greek}>οὐ πιστεύετε</Text>” is translated “you do not believe.” In this case, “<Text style={styles.greek}>οὐ</Text>” should be tagged to “not” and “<Text style={styles.greek}>πιστεύετε</Text>” should be tagged to “you do ... believe.”
             </Text>
             <Text style={styles.example}>
+              E.g. In Matthew 7:11, “<Text style={styles.greek}>ἐξήλθατε</Text>” should be tagged to “did you go out.”
+            </Text>
+            <Text style={styles.example}>
               E.g. “<Text style={styles.greek}>ἀνθρώπων</Text>” in John 1:4 should be tagged to “of men.”
             </Text>
             <Text style={styles.example}>
