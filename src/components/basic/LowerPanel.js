@@ -24,6 +24,7 @@ const styles = StyleSheet.create({
   boxShadowContent: {
     backgroundColor: 'white',
     flex: 1,
+    overflow: 'hidden',
   },
 })
 

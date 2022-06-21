@@ -190,7 +190,7 @@ const TranslationsOfWordInMyVersions = ({
       }
 
       {translationsOfWordInMyVersionsToShow.map(({ phrase, translations }, idx) => (
-        <View style={styles.line} key={idx}>
+        <View style={styles.line} key={JSON.stringify({ phrase, translations })}>
 
           {!hidePhrases &&
             <View
