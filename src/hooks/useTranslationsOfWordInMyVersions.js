@@ -118,8 +118,29 @@ const useTranslationsOfWordInMyVersions = ({
 
           tagSet.tags.forEach(tag => {
 
+            const sortedOrigWordParts = tag.o.sort(
+              (a,b) => {
+                let [ aWordId, aWordPartNumber ] = a.split('|')
+                aWordPartNumber = parseInt(aWordPartNumber, 10)
+                let [ bWordId, bWordPartNumber ] = b.split('|')
+                bWordPartNumber = parseInt(bWordPartNumber, 10)
+
+                return (
+                  (
+                    originalWordByWordId[aWordId].wordNumberInVerse < originalWordByWordId[bWordId].wordNumberInVerse
+                    || (
+                      originalWordByWordId[aWordId].wordNumberInVerse === originalWordByWordId[bWordId].wordNumberInVerse
+                      && aWordPartNumber < bWordPartNumber
+                    )
+                  )
+                    ? -1
+                    : 1
+                )
+              },
+            )
+
             const tagPhrase = (
-              tag.o
+              sortedOrigWordParts
                 .map((wordIdAndPartNumber, idx) => {
                   let [ wordId, wordPartNumber ] = wordIdAndPartNumber.split('|')
                   wordPartNumber = parseInt(wordPartNumber, 10)
@@ -133,7 +154,7 @@ const useTranslationsOfWordInMyVersions = ({
                   const punctuationColor = `rgba(0,0,0,.2)`
 
                   // add on front dash, when relevant
-                  let [ previousWordId, previousWordPartNumber ] = idx > 0 ? tag.o[idx-1].split('|') : []
+                  let [ previousWordId, previousWordPartNumber ] = idx > 0 ? sortedOrigWordParts[idx-1].split('|') : []
                   previousWordPartNumber = parseInt(previousWordPartNumber, 10)
                   if(
                     wordPartNumber > 1
@@ -150,12 +171,12 @@ const useTranslationsOfWordInMyVersions = ({
                   }
 
                   // add on end dash, when relevant
-                  let [ nextWordId, nextWordPartNumber ] = idx < tag.o.length-1 ? tag.o[idx+1].split('|') : []
+                  let [ nextWordId, nextWordPartNumber ] = idx < sortedOrigWordParts.length-1 ? sortedOrigWordParts[idx+1].split('|') : []
                   nextWordPartNumber = parseInt(nextWordPartNumber, 10)
                   if(
                     ![ NaN, (originalWordByWordId[wordId].children || [0]).length ].includes(wordPartNumber)
                     && (
-                      idx === tag.o.length-1
+                      idx === sortedOrigWordParts.length-1
                       || nextWordId !== wordId
                       || nextWordPartNumber !== wordPartNumber + 1
                     )
@@ -207,7 +228,7 @@ const useTranslationsOfWordInMyVersions = ({
                 .replace(spaceEllipsisSpaceRegex, ellipsis)
             )
 
-            tag.o.forEach(wordIdAndPartNumber => {
+            sortedOrigWordParts.forEach(wordIdAndPartNumber => {
               const [ wordId ] = wordIdAndPartNumber.split('|')
 
               translationsOfWordsInMyVersions[wordId] = translationsOfWordsInMyVersions[wordId] || []
