@@ -13,6 +13,9 @@ import CoverAndSpin from "../basic/CoverAndSpin"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
 const styles = StyleSheet.create({
+  modal: {
+    justifyContent: 'center',
+  },
   container: {
     elevation: 4,
     shadowOffset: { width: 0, height: 0 },
@@ -93,16 +96,21 @@ const Dialog = ({
         styles.cover,
         backdropStyle,
       ]}
-      style={{
-        maxWidth: parseInt(width * .9, 10),
-        maxHeight: parseInt(height * .85, 10),
-        minWidth: 240,
-      }}
+      style={styles.modal}
       onBackdropPress={onBackdropPress}
       visible={true}
       {...otherProps}
     >
-      <View style={styles.container}>
+      <View
+        style={[
+          styles.container,
+          {
+            maxWidth: Math.min(parseInt(width * .9, 10), 500),
+            maxHeight: parseInt(height * .9, 10),
+            minWidth: 240,
+          },
+        ]}
+      >
 
         <Text
           style={[
