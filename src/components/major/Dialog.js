@@ -96,21 +96,19 @@ const Dialog = ({
         styles.cover,
         backdropStyle,
       ]}
-      style={styles.modal}
+      style={[
+        styles.modal,
+        {
+          maxWidth: Math.min(parseInt(width * .9, 10), 500),
+          maxHeight: parseInt(height * .8, 10),
+          minWidth: 240,
+        },
+      ]}
       onBackdropPress={onBackdropPress}
       visible={true}
       {...otherProps}
     >
-      <View
-        style={[
-          styles.container,
-          {
-            maxWidth: Math.min(parseInt(width * .9, 10), 500),
-            maxHeight: parseInt(height * .9, 10),
-            minWidth: 240,
-          },
-        ]}
-      >
+      <View style={styles.container}>
 
         <Text
           style={[
