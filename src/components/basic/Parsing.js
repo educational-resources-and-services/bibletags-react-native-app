@@ -1,9 +1,7 @@
 import React from "react"
 import { StyleSheet, Text, View } from "react-native"
-import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix } from "@bibletags/bibletags-ui-helper"
+import { getMorphPartDisplayInfo, getIsEntirelyPrefixAndSuffix, getMorphInfo } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
-
-import { getMorphInfo } from "../../utils/toolbox"
 
 const styles = StyleSheet.create({
   container: {

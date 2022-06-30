@@ -105,15 +105,13 @@ const TranslationsOfWordInMyVersions = ({
   translationsOfWordInMyVersions,
   originalLoc,
   originalLanguage,
-  downloadedVersionIds,
+  downloadedNonOriginalVersionIds,
   hideEditTagIcon,
   // onLayout,
 }) => {
 
   const { historyPush } = useRouterState()
   const [ menuOpen, toggleMenuOpen ] = useToggle()
-
-  const versionIds = useMemo(() => downloadedVersionIds.filter(versionId => versionId !== `original`), [ downloadedVersionIds ])
 
   const renderOverflowMenuAnchor = useCallback(
     () => (
@@ -133,7 +131,7 @@ const TranslationsOfWordInMyVersions = ({
   const onOptionSelect = useCallback(
     ({ row }) => {
 
-      const versionId = versionIds[row - 1]
+      const versionId = downloadedNonOriginalVersionIds[row - 1]
       const originalRef = getRefFromLoc(originalLoc)
       const originalVersionInfo = getOriginalVersionInfo(originalRef.bookId)
 
@@ -156,7 +154,7 @@ const TranslationsOfWordInMyVersions = ({
       })
       
     },
-    [ versionIds, historyPush, originalLoc ],
+    [ downloadedNonOriginalVersionIds, historyPush, originalLoc ],
   )
 
   const translationsOfWordInMyVersionsToShow = translationsOfWordInMyVersions.filter(({ translations }) => translations.some(({ translation }) => translation))
@@ -310,7 +308,7 @@ const TranslationsOfWordInMyVersions = ({
               </View>
             }
           />
-          {versionIds.map(versionId => {
+          {downloadedNonOriginalVersionIds.map(versionId => {
             const status = orderedStatusesArray[lowestStatusIdxByVersionId[versionId] || 0]
             return (
               <MenuItem

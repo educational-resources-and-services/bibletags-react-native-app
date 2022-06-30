@@ -438,6 +438,16 @@ const doubleSpacesRegex = /  +/g
       console.log(``)
       console.log(`Creating unitWords db...`)
 
+      const orderedScopeMapsById = {}
+      Object.keys(scopeMapsById).forEach(id => {
+        orderedScopeMapsById[id] = {}
+        const originalLocs = Object.keys(scopeMapsById[id])
+        originalLocs.sort()
+        originalLocs.forEach(originalLoc => {
+          orderedScopeMapsById[id][originalLoc] = scopeMapsById[id][originalLoc]
+        })
+      })
+
       await fs.ensureDir(`${versionDir}/search`)
       const dbFilePath = `${versionDir}/search/unitWords.db`
       const dbInFormationFilePath = `${versionsDir}/temp/unitWords-inFormation.db`
@@ -454,8 +464,8 @@ const doubleSpacesRegex = /  +/g
 
       const insert = db.prepare(`INSERT INTO ${tableName} (id, scopeMap) VALUES (@id, @scopeMap)`)
       db.transaction(() => {
-        Object.keys(scopeMapsById).forEach(id => {
-          insert.run({ id, scopeMap: JSON.stringify(scopeMapsById[id]) })
+        Object.keys(orderedScopeMapsById).forEach(id => {
+          insert.run({ id, scopeMap: JSON.stringify(orderedScopeMapsById[id]) })
         })
       })()
 

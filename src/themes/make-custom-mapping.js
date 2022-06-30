@@ -252,12 +252,6 @@ const mapping = {
       },
     },
     {
-      component: 'RecentSearch',
-      parameters: {
-        backgroundColor: "color-danger-700",
-      },
-    },
-    {
       component: 'Verse',
       parameters: readTextAndVerseParameters,
       variantGroups: {
@@ -269,35 +263,6 @@ const mapping = {
             color: "text-basic-color",
           },
         },
-      },
-    },
-    {
-      component: 'SearchResult',
-      parameters: {
-        labelColor: "text-basic-color",
-      },
-    },
-    {
-      component: 'SearchSuggestion',
-      parameters: {
-        labelColor: "color-basic-1100",
-        alt0Color: "color-basic-600",
-        alt1Color: "color-basic-700",
-        alt2Color: "color-basic-700",
-      },
-      variantGroups: {
-        uiStatus: {
-          unselected: {},
-          disabled: {
-            opacity: 0.35,
-          },
-        },
-      },
-    },
-    {
-      component: 'SearchSuggestions',
-      parameters: {
-        backgroundColor: "background-basic-color-1",
       },
     },
     {
@@ -377,9 +342,6 @@ const mapping = {
       },
     },
     {
-      component: 'RecentSection',
-    },
-    {
       component: 'GradualFade',
     },
     {
@@ -428,12 +390,6 @@ const mapping = {
       component: 'LanguageChooser',
       parameters: {
         backgroundColor: "background-basic-color-1",
-      },
-    },
-    {
-      component: 'Search',
-      parameters: {
-        color: "color-basic-transparent-600",
       },
     },
     {
@@ -576,6 +532,159 @@ const mapping = {
       parameters: {
         labelColor: "color-basic-600",
       },
+    },
+    {
+      component: 'SearchX',
+      parameters: {
+        color: "color-basic-transparent-600",
+      },
+    },
+    {
+      component: 'RecentSection',
+    },
+    {
+      component: 'RecentSearch',
+      parameters: {
+        backgroundColor: "color-danger-700",
+      },
+    },
+    {
+      component: 'Search',
+      parameters: {
+        alt0BackgroundColor: "color-basic-active-border",  // dividerThemedStyle
+      },
+    },
+    {
+      component: 'SearchTabBible',
+    },
+    {
+      component: 'SearchTabOriginalWord',
+    },
+    {
+      component: 'SearchTabOther',
+    },
+    {
+      component: 'SearchTabRecent',
+    },
+    {
+      component: 'SearchTabSuggestions',
+      parameters: {
+        labelColor: "color-basic-600",
+      },
+    },
+    {
+      component: 'SearchTabSuggestion',
+    },
+    {
+      component: 'SearchTabTips',
+      parameters: {
+        alt0Color: "color-basic-800",  // tipTitleThemedStyle
+        alt1Color: "color-basic-600",  // exampleThemedStyle
+        alt2Color: "color-basic-1100",  // exampleContentThemedStyle
+        alt2BackgroundColor: "background-basic-color-2",  // exampleContentThemedStyle
+        alt2BorderColor: "color-basic-active-border",  // exampleContentThemedStyle
+        alt3Color: "color-basic-700",  // detailThemedStyle
+        alt4Color: "color-basic-600",  // versionThemedStyle
+        alt5Color: "color-basic-600",  // hashOrSlashThemedStyle
+        alt6Color: "color-basic-600",  // flagThemedStyle
+        alt7Color: "color-basic-600",  // noteAboutDetailsThemedStyle
+        alt8Color: "color-basic-600",  // finalNoteThemedStyle
+      },
+    },
+    {
+      component: 'SearchTabTipsDetailAccordion',
+      variantGroups: {
+        uiStatus: {
+          collapsed: {
+            labelColor: "color-basic-600",
+            iconTintColor: "color-basic-600",
+          },
+          expanded: {
+          },
+        },
+      },
+    },
+    {
+      component: 'AppItemSearchResults',
+    },
+    {
+      component: 'AppItemSearchResultsRow',
+    },
+    {
+      component: 'BibleSearchHeader',
+      parameters: {
+        backgroundColor: "background-basic-color-4",
+      },
+    },
+    {
+      component: 'BibleSearchOtherSuggestedQueries',
+    },
+    {
+      component: 'BibleSearchPlusVersionsMenu',
+    },
+    {
+      component: 'BibleSearchResults',
+    },
+    {
+      component: 'BibleSearchResultsBookBreakdown',
+    },
+    {
+      component: 'BibleSearchResultsOriginalRow',
+      parameters: {
+        labelColor: "color-basic-600",
+      },
+    },
+    {
+      component: 'BibleSearchResultsTranslationRow',
+      parameters: {
+        labelColor: "color-basic-600",
+      },
+    },
+    {
+      component: 'HelpItemSearchResults',
+    },
+    {
+      component: 'HelpItemSearchResultsRow',
+    },
+    {
+      component: 'OtherSearchResultsHeader',
+    },
+    {
+      component: 'PassageSearchResultsRow',
+    },
+    {
+      component: 'AllSearchResults',
+    },
+    {
+      component: 'SearchResultsError',
+    },
+    {
+      component: 'SearchTextField',
+      variantGroups: {
+        uiStatus: {
+          error: {
+            borderColor: "color-danger-default-border",
+          },
+          editing: {
+            borderColor: "color-primary-500",
+          },
+          results: {
+            backgroundColor: "background-basic-color-4",
+          },
+        },
+      },
+    },
+    {
+      component: 'VersionSearchResults',
+    },
+    {
+      component: 'VersionSearchResultsRow',
+    },
+    {
+      component: 'VerseText',
+    },
+    {
+      component: 'PassageRef',
     },
     ...MAPPING_CUSTOMIZATION,
   ]),

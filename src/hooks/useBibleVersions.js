@@ -26,6 +26,14 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [ versionIds ],
   )
 
+  const downloadedNonOriginalVersionIds = useMemo(
+    () => (
+      downloadedVersionIds
+        .filter(id => id !== 'original')
+    ),
+    [ downloadedVersionIds ],
+  )
+
   const primaryVersionIds = useMemo(
     () => (
       downloadedVersionIds
@@ -102,6 +110,7 @@ const useBibleVersions = ({ myBibleVersions }) => {
     versionIds,
     languageIds,
     downloadedVersionIds,
+    downloadedNonOriginalVersionIds,
     versionsCurrentlyDownloading: versionIds.length > downloadedVersionIds.length,
     primaryVersionIds,
     secondaryVersionIds,

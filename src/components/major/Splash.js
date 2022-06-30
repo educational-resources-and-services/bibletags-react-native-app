@@ -24,11 +24,7 @@ const windowHeight = Dimensions.get('window').height
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
+    ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 1,
@@ -36,11 +32,7 @@ const styles = StyleSheet.create({
   image: {
     width: undefined,
     height: undefined,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
+    ...StyleSheet.absoluteFill,
     resizeMode: Constants.manifest.splash.resizeMode,
     backgroundColor: Constants.manifest.splash.backgroundColor,
   },

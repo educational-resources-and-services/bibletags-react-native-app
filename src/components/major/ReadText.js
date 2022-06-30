@@ -3,14 +3,14 @@ import Constants from "expo-constants"
 import { View, FlatList, StyleSheet, Platform, TouchableWithoutFeedback } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { getPiecesFromUSFM, blockUsfmMarkers, tagInList } from "@bibletags/bibletags-ui-helper"
+import { getPiecesFromUSFM, blockUsfmMarkers, tagInList, adjustPiecesForSpecialHebrew, adjustTextForSups,
+         removeCantillation, getCopyVerseText, getColorWithOpacity } from "@bibletags/bibletags-ui-helper"
 import usePrevious from "react-use/lib/usePrevious"
 import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { executeSql, getVersionInfo, getCopyVerseText, isIPhoneX, equalObjs, removeCantillation,
-         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, getColorWithOpacity,
-         adjustTextForSups, getTagStyle, adjustPiecesForSpecialHebrew } from '../../utils/toolbox'
+import { executeSql, getVersionInfo, isIPhoneX, equalObjs,
+         iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, getTagStyle } from '../../utils/toolbox'
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import bibleVersions from "../../../versions"
 import useInstanceValue from "../../hooks/useInstanceValue"

@@ -10,11 +10,7 @@ const styles = StyleSheet.create({
     opacity: .5,
   },
   spinnerContainer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    ...StyleSheet.absoluteFill,
   },
   textContainer: {
     padding: 20,

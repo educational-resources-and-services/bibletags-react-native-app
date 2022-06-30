@@ -3,10 +3,10 @@ import Constants from "expo-constants"
 import { View, StyleSheet, Text, TouchableOpacity } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { adjustPiecesForSpecialHebrew, removeCantillation, isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, getTextFont, adjustFontSize, memo, adjustPiecesForSpecialHebrew,
-         getWordIdAndPartNumber, removeCantillation } from "../../utils/toolbox"
+import { getTextFont, adjustFontSize, memo, getWordIdAndPartNumber } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import { languageOptions } from "../../../language"
 

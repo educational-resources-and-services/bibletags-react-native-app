@@ -1,336 +1,307 @@
-import React, { useState, useEffect, useCallback, useRef } from "react"
-import { StyleSheet, View, Text, FlatList } from "react-native"
-import Constants from "expo-constants"
+import { useCallback, useState, useMemo, useRef, useLayoutEffect } from 'react'
+import { StyleSheet, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
+import { TabBar, Tab, Divider } from '@ui-kitten/components'
 import { i18n } from "inline-i18n"
-import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 
-import { logEvent } from "../../utils/analytics"
-import { stripHebrew, normalizeGreek, executeSql, escapeLike, getVersionInfo, memo } from "../../utils/toolbox"
-import useRouterState from "../../hooks/useRouterState"
-import useInstanceValue from "../../hooks/useInstanceValue"
+import useInstanceValue from '../../hooks/useInstanceValue'
+import useAutoCompleteSuggestions from '../../hooks/useAutoCompleteSuggestions'
+import useSearchResults from '../../hooks/useSearchResults'
+import useRouterState from '../../hooks/useRouterState'
+import useThemedStyleSets from '../../hooks/useThemedStyleSets'
+import { setRef, setVersionId } from "../../redux/actions"
+import { memo } from "../../utils/toolbox"
 
+import SearchHeader from '../major/SearchHeader'
 import KeyboardAvoidingView from "../basic/KeyboardAvoidingView"
 import SafeLayout from "../basic/SafeLayout"
-import SearchResult from "../basic/SearchResult"
-import SearchSuggestions from "../basic/SearchSuggestions"
-import CoverAndSpin from "../basic/CoverAndSpin"
-import SearchHeader from "../major/SearchHeader"
-
-import { recordSearch, setSearchScrollInfo } from "../../redux/actions"
-
-const {
-  MAX_RESULTS,
-} = Constants.manifest.extra
+import SearchTabBible from "../search/SearchTabBible"
+// import SearchTabOriginalWord from "../search/SearchTabOriginalWord"
+// import SearchTabOther from "../search/SearchTabOther"
+// import SearchTabRecent from "../search/SearchTabRecent"
+import SearchTabSuggestions from "../search/SearchTabSuggestions"
+import SearchTabTips from "../search/SearchTabTips"
 
 const styles = StyleSheet.create({
-  messageContainer: {
-    padding: 20,
-    paddingTop: 50,
+  container: {
+    ...StyleSheet.absoluteFill,
+    alignItems: 'center',
   },
-  message: {
-    fontSize: 20,
-    textAlign: 'center',
+  tabBarContainer: {
+    paddingHorizontal: 15,
+    alignSelf: 'center',
+    width: '100%',
   },
-  searchResultsContentContainer: {
-    paddingBottom: 20,
+  tabBar: {
   },
-  searchResults: {
-    flex: 1,
+  tabBarIndicator: {
+    top: 36,
+    height: 2,
+    borderRadius: 0,
   },
-  searchContainer: {
-    flex: 1,
+  tab: {
+    paddingTop: 5,
+    height: 30,
+  },
+  tabText: {
+    fontWeight: '500',
+    fontSize: 13,
+  },
+  searchTextFieldContainer: {
+    minWidth: 400,
+    // maxWidth: 100vw;
+    minHeight: 0,
+    flexShrink: 1,
+
+    // @media (max-width: ${MINIMUM_MEDIUM_WIDTH-1}px) {
+    //   min-width: 0;
+    //   width: 100vw;
+    // }
+  },
+  linkIconButton: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
   },
 })
 
-const defaultTapState = {
-  selectedLoc: null,
-  selectTapY: 0,
-}
-
-const viewabilityConfig = {
-  minimumViewTime: 300,
-  viewAreaCoveragePercentThreshold: 0,
-}
-
 const Search = ({
-  style,
-  
   eva: { style: themedStyle={} },
 
-  recordSearch,
-  setSearchScrollInfo,
+  myBibleVersions,
+
+  setRef,
+  setVersionId,
 }) => {
 
-  const { historyAlterStateByRoute, routerState } = useRouterState()
-  const { editOnOpen, searchString, initialScrollInfo, versionId } = routerState
+  const { altThemedStyleSets } = useThemedStyleSets(themedStyle)
+  const [
+    dividerThemedStyle={},
+  ] = altThemedStyleSets
 
-  const [ searchState, setSearchState ] = useState({
-    searchedString: null,
-    searchedVersionId: null,
-    searchResults: null,
-    languageId: 'eng',
-    isOriginal: false,
-    versionAbbr: '',
-  })
+  const { historyGoBack, historyReplace, routerState } = useRouterState()
 
-  const [ tapState, setTapState ] = useState(defaultTapState)
-  const { selectedLoc, selectTapY } = tapState
-
-  const [ editing, setEditing ] = useState(!!editOnOpen)
-  const [ editedSearchString, setEditedSearchString ] = useState(searchString || "")
+  const { searchText } = routerState
+  const showSearchResults = !!searchText
 
   const getRouterState = useInstanceValue(routerState)
-  const getEditing = useInstanceValue(editing)
 
-  const resultsListRef = useRef()
-  const scrollInfo = useRef({})
-  const skipVerseTap = useRef(false)
+  const [ searchTextInComposition, setSearchTextInComposition ] = useState(searchText || "")
+  const getSearchTextInComposition = useInstanceValue(searchTextInComposition)
 
-  useEffect(
+  const { autoCompleteSuggestions, tabAddition } = useAutoCompleteSuggestions({
+    searchTextInComposition,
+    myBibleVersions,
+  })
+
+  const {
+    // foundPassageRef,
+    // passageInfoLoading,
+    // passageInfoSets,
+    bibleSearchResults,
+    includeVersionIds,
+    // highlightsAndCount,
+    // versions,
+    // appItems,
+    // helpItems,
+  } = useSearchResults({
+    searchText,
+    myBibleVersions,
+
+    // TODO: next part is temporary until we allow display of verse in multiple versions
+    openPassage: useCallback(({ versionId, ref }) => {
+      historyGoBack()
+      setVersionId({ versionId })
+      setRef({ ref })
+    }, []),
+
+  })
+
+  const [ selectedTabIndex, setSelectedTabIndex ] = useState((!searchTextInComposition && !showSearchResults) ? 1 : 0)
+
+  const inputRef = useRef()
+  const inputContainerRef = useRef()
+
+  const clearCurrentSearch = useCallback(
     () => {
-      (async () => {
-
-        const { searchedString, searchedVersionId } = searchState
-
-        if(!searchString) return
-        if(searchString === searchedString && versionId === searchedVersionId) return
-
-        // analytics
-        const eventName = `Search`
-        const properties = {
-          SearchString: searchString,
-          VersionId: versionId,
-        }
-        logEvent({ eventName, properties })
-
-        const order = `ORDER BY loc`
-
-        const { rows: { _array: unitWords } } = await executeSql({
-          versionId,
-          database: 'search/unitWords',
-          statement: ({ limit }) => `SELECT * FROM ${versionId}UnitWords WHERE id LIKE ? ESCAPE '\\' LIMIT ${limit}`,
-          args: [
-            `verse:${escapeLike(searchString)}`,
-          ],
-          limit: MAX_RESULTS,
-        })
-
-        console.log('unitWords', unitWords)
-
-        // const { wordDividerRegex, languageId, isOriginal=false, abbr } = getVersionInfo(versionId)
-
-        // const searchResults = verses.map(({ usfm, loc }) => ({
-        //   loc,
-        //   pieces: getPiecesFromUSFM({
-        //     usfm,
-        //     inlineMarkersOnly: true,
-        //     wordDividerRegex,
-        //   }),
-        // }))
-
-        // scrollInfo.current = initialScrollInfo || {}
-
-        // setSearchState({
-        //   searchedString: searchString,
-        //   searchedVersionId: versionId,
-        //   searchResults,
-        //   languageId,
-        //   isOriginal,
-        //   versionAbbr: abbr,
-        // })
-
-        // if(searchResults.length > 0) {
-        //   recordSearch({
-        //     searchString,
-        //     versionId,
-        //     numberResults: searchResults.length,
-        //   })
-        // }
-
-      })()
-    }
-  )
-
-  // This does not appear to do anything, so commenting it out.
-  // useEffect(
-  //   () => () => {
-  //     historyAlterStateByRoute('/Read/Search', {
-  //       ...getRouterState(),
-  //       editOnOpen: getEditing(),
-  //       initialScrollInfo: scrollInfo.current,
-  //     })
-  //   },
-  //   [],
-  // )
-
-  useEffect(
-    () => {
-      const { searchedString } = searchState
-
-      if(searchedString && scrollInfo.current.y && resultsListRef.current) {
-
-        resultsListRef.current.scrollToOffset({
-          offset: scrollInfo.current.y,
-          animated: false,
-        })
-
-      }
-    },
-    [ searchState, editing ],
-  )
-
-  const updateEditedSearchString = useCallback(
-    searchString => setEditedSearchString(normalizeGreek(stripHebrew(searchString))),  // Needs to be modified to be version-specific
-    [],
-  )
-
-  const onScroll = useCallback(
-    ({ nativeEvent }) => {
-      scrollInfo.current.y = nativeEvent.contentOffset.y
-
-      setSearchScrollInfo({
-        scrollInfo: {
-          y: scrollInfo.current.y,
-        },
-      })
-    },
-    [],
-  )
-
-  const onViewableItemsChanged = useCallback(
-    ({ viewableItems }) => {
-      if(viewableItems.length === 0) return
-
-      scrollInfo.current.numToRender = viewableItems.slice(-1)[0].index + 1
-
-      setSearchScrollInfo({
-        scrollInfo: {
-          numToRender: scrollInfo.current.numToRender,
-        },
-      })
-    },
-    [],
-  )
-
-  const renderItem = useCallback(
-    ({ item, index }) => {
-      const { searchedString, languageId, isOriginal, versionAbbr } = searchState
-
-      const selected = item.loc === selectedLoc
-
-      const clearSelection = () => setTapState(defaultTapState)
-
-      const onTouchStart = () => {
-        if(selectedLoc) {
-          clearSelection()
-          skipVerseTap.current = true
-        }
-      }
-    
-      const onTouchEnd = () => skipVerseTap.current = false
-    
-      const selectLoc = ({ loc, pageY }) => {
-        if(skipVerseTap.current) return
-  
-        setTapState({
-          selectedLoc: loc,
-          selectTapY: pageY,
+      if(getRouterState().searchText) {
+        historyReplace(null, {
+          searchText: ``,
         })
       }
+    },
+    [ getRouterState, historyReplace ],
+  )
 
-      return (
-        <SearchResult
-          result={item}
-          searchString={searchedString}
-          languageId={languageId}
-          isOriginal={isOriginal}
-          versionId={versionId}
-          versionAbbr={versionAbbr}
-          selected={selected}
-          selectTapY={selected ? selectTapY : null}
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-          onSelect={selectLoc}
-          unselect={clearSelection}
-        />
+  const onChangeText = useCallback(
+    newSearchTextInComposition => {
+
+      const oldSearchTextInComposition = getSearchTextInComposition()
+
+      newSearchTextInComposition = (
+        newSearchTextInComposition
+          .replace(/#h([0-9]{1,5})/g, '#H$1')
+          .replace(/#g([0-9]{1,5})/g, '#G$1')
+          .replace(/[“”]/g, '"')
+          .replace(/[…]/g, '...')
       )
+
+      if(newSearchTextInComposition && !oldSearchTextInComposition) {
+        setSelectedTabIndex(0)
+      }
+
+      if(newSearchTextInComposition.slice(0, -1) === oldSearchTextInComposition) {  // cursor at very end
+        requestAnimationFrame(() => {
+          inputContainerRef.current.scrollToEnd()
+        })
+      }
+
+      setSearchTextInComposition(newSearchTextInComposition)
+
     },
-    [ searchState, selectedLoc, selectTapY ],
+    [],
   )
 
-  const keyExtractor = useCallback(item => item.loc, [])
+  const setEditing = useCallback(
+    () => {
+      setSearchTextInComposition(getRouterState().searchText || ``)
+      clearCurrentSearch()
+    },
+    [ clearCurrentSearch ],
+  )
 
-  const { searchedString, searchedVersionId, searchResults } = searchState
+  const clearSearchTextInComposition = useCallback(
+    () => {
+      setSearchTextInComposition("")
+      clearCurrentSearch()
+      inputRef.current.focus()
+      setSelectedTabIndex(1)
+    },
+    [ clearCurrentSearch ],
+  )
 
-  const searchDone = searchString === searchedString && versionId === searchedVersionId
+  const setSearchText = useCallback(
+    searchText => {
+      historyReplace(null, {
+        searchText,
+      })
+      inputRef.current.blur()
+    },
+    [ historyReplace ],
+  )
 
-  let numberResults = searchDone && searchResults.length
-  if(numberResults === MAX_RESULTS) numberResults += '+'
+  const tabs = useMemo(
+    () => {
+      if(!showSearchResults) {
+        return [
+          // {
+          //   title: i18n("Recent"),
+          //   component: (
+          //     <SearchTabRecent />
+          //   ),
+          // },
+          {
+            title: i18n("Suggestions"),
+            component: (
+              <SearchTabSuggestions
+                autoCompleteSuggestions={autoCompleteSuggestions}
+                setSearchText={setSearchText}
+              />
+            ),
+          },
+          {
+            title: i18n("Tips"),
+            component: (
+              <SearchTabTips />
+            ),
+          },
+        ]
+      }
+
+      const tabs = [
+        {
+          title: i18n("Bible"),
+          component: (
+            <SearchTabBible
+              searchText={searchText}
+              bibleSearchResults={bibleSearchResults}
+              includeVersionIds={includeVersionIds}
+            />
+          ),
+        },
+      ]
+
+      return tabs
+    },
+    [ showSearchResults, autoCompleteSuggestions, setSearchText, searchText, bibleSearchResults, includeVersionIds ],
+  )
+
+  const effectiveSelectedTabIndex = selectedTabIndex <= tabs.length - 1 ? selectedTabIndex : 0
 
   return (
     <KeyboardAvoidingView>
       <SafeLayout>
         <SearchHeader
-          editing={editing}
+          editing={!showSearchResults}
           setEditing={setEditing}
-          numberResults={numberResults}
-          editedSearchString={editedSearchString}
-          updateEditedSearchString={updateEditedSearchString}
+          searchText={showSearchResults ? searchText : searchTextInComposition}
+          onChangeText={onChangeText}
+          setSearchText={setSearchText}
+          clearSearchTextInComposition={clearSearchTextInComposition}
+          inputRef={inputRef}
+          inputContainerRef={inputContainerRef}
+          autoCompleteSuggestions={autoCompleteSuggestions}
+          tabAddition={tabAddition}
         />
-        <View style={styles.searchContainer}>
-          {editing &&
-            <SearchSuggestions
-              editedSearchString={editedSearchString}
-              updateEditedSearchString={updateEditedSearchString}
-              setEditing={setEditing}
-            />
-          }
-          {!editing && searchDone && searchResults.length === 0 &&
-            <View style={styles.messageContainer}>
-              <Text 
-                style={[
-                  styles.message,
-                  themedStyle,
-                  style,
-                ]}
-              >
-                {i18n("No results found.")}
-              </Text>
-            </View>
-          }
-          {!editing && searchDone && searchResults.length > 0 &&
-            <FlatList
-              data={searchResults}
-              renderItem={renderItem}
-              keyExtractor={keyExtractor}
-              extraData={selectedLoc}
-              scrollEventThrottle={16}
-              onScroll={onScroll}
-              viewabilityConfig={viewabilityConfig}
-              onViewableItemsChanged={onViewableItemsChanged}
-              initialNumToRender={scrollInfo.current.numToRender}
-              ref={resultsListRef}
-              style={styles.searchResults}
-              contentContainerStyle={styles.searchResultsContentContainer}
-            />
-          }
+
+        <View
+          style={[
+            styles.tabBarContainer,
+            {
+              maxWidth: tabs.length * 130 + 30,  // 30 for the paddingHorizontal
+            },
+          ]}
+        >
+          <TabBar
+            key={showSearchResults ? `results` : `editing`}
+            style={styles.tabBar}
+            indicatorStyle={styles.tabBarIndicator}
+            selectedIndex={effectiveSelectedTabIndex}
+            onSelect={setSelectedTabIndex}
+          >
+            {tabs.map(({ title }, idx) => (
+              <Tab
+                key={idx}
+                style={styles.tab}
+                title={
+                  <Text>
+                    <Text style={styles.tabText}>
+                      {title}
+                    </Text>
+                  </Text>
+                }
+              />
+            ))}
+          </TabBar>
         </View>
-        {!editing && !searchDone && <CoverAndSpin />}
+
+        <Divider style={dividerThemedStyle} />
+
+        {(tabs[effectiveSelectedTabIndex] || {}).component}
+
       </SafeLayout>
     </KeyboardAvoidingView>
   )
-
 }
 
-const mapStateToProps = () => ({
-  // displaySettings,
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
 })
 
-const matchDispatchToProps = (dispatch, x) => bindActionCreators({
-  recordSearch,
-  setSearchScrollInfo,
+const matchDispatchToProps = dispatch => bindActionCreators({
+  setRef,
+  setVersionId,
 }, dispatch)
 
 export default memo(connect(mapStateToProps, matchDispatchToProps)(Search), { name: 'Search' })

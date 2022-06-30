@@ -4,7 +4,7 @@ import * as FileSystem from "expo-file-system"
 import CryptoJS from "react-native-crypto-js"
 import NetInfo from "@react-native-community/netinfo"
 
-import { getVersionInfo, setAsyncStorage, removeAsyncStorage, getAsyncStorage } from "./toolbox"
+import { getVersionInfo, setAsyncStorage, removeAsyncStorage, getAsyncStorage, executeSql } from "./toolbox"
 
 const {
   DEFAULT_BIBLE_VERSIONS=['original'],
@@ -228,6 +228,16 @@ const setUpVersion = async ({ id, setBibleVersionDownloadStatus=noop, versesDirO
 
     if(unableToDownloadDueToNoConnection) return
     if(thisSyncProcessId !== currentSyncProcessId) return
+
+    // run what needs to be run on first open or update to original
+    if(id === 'original') {
+      await executeSql({
+        database: `versions/original/ready/definitions`,
+        statements: [ 'nakedLex', 'simplifiedVocal' ].map(col => ({
+          statement: () => `CREATE INDEX IF NOT EXISTS ${col}_idx ON definitions (${col})`,
+        })),
+      })
+    }
 
     await setAsyncStorage(fileRevisionKey, versionRevisionNum)
     setBibleVersionDownloadStatus({ id, downloaded: true })

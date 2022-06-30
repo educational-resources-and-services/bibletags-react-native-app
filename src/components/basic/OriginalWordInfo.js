@@ -3,10 +3,11 @@ import { StyleSheet, View, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
+import { getMorphInfo } from "@bibletags/bibletags-ui-helper"
 
 import useDefinition from "../../hooks/useDefinition"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { getMorphInfo, memo } from "../../utils/toolbox"
+import { memo } from "../../utils/toolbox"
 import { getIPhoneXBufferHeight } from "./IPhoneXBuffer"
 
 import Parsing from "./Parsing"
@@ -80,8 +81,8 @@ const OriginalWordInfo = ({
   const height = minWordAndParsingHeight + 63 + (showExtended ? extendedHeight : 0)
   const adjShowExtended = showExtended && extendedHeight > 150
 
-  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
-  const versionId = downloadedVersionIds.find(versionId => versionId !== 'original')
+  const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions })
+  const versionId = downloadedNonOriginalVersionIds[0]
 
   const definitionId = (strong.match(/[GH][0-9]{5}/) || [])[0] || strong
 
@@ -137,7 +138,7 @@ const OriginalWordInfo = ({
             translationsOfWordInMyVersions={translationsOfWordInMyVersions}
             originalLoc={originalLoc}
             originalLanguage={/^G/.test(definitionId) ? `greek` : `hebrew`}
-            downloadedVersionIds={downloadedVersionIds}
+            downloadedNonOriginalVersionIds={downloadedNonOriginalVersionIds}
             hideEditTagIcon={hideEditTagIcon}
           />
         }

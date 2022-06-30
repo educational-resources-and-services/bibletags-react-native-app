@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from "react"
-import { getPassageStr } from "@bibletags/bibletags-ui-helper"
+import { getPassageStr, getTextLanguageId } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
-import { getVersionInfo, memo, getTextLanguageId } from "../../utils/toolbox"
+import { getVersionInfo, memo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
 import useTaggingInstructions from "../../hooks/useTaggingInstructions"
 

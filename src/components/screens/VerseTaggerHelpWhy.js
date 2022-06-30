@@ -26,11 +26,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   imageShade: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(0,0,0,.3)',
   },
   image: {

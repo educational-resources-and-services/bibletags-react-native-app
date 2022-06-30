@@ -1,7 +1,6 @@
 import React, { useCallback } from "react"
 import { Text } from "react-native"
-
-import { getMorphInfo } from "../../utils/toolbox"
+import { getMorphInfo } from "@bibletags/bibletags-ui-helper"
 
 const OriginalWordWithColoredWordParts = ({
   text,

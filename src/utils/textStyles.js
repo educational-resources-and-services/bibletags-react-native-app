@@ -1,6 +1,8 @@
 import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
-import { isRTLText, getTextFont, adjustLineHeight, adjustFontSize,
+import { isRTLText } from "@bibletags/bibletags-ui-helper"
+
+import { getTextFont, adjustLineHeight, adjustFontSize,
           isForceUserFontTag, uppercaseChars, getTagStyle } from "./toolbox"
 import { getValidFontName } from "./bibleFonts"
 

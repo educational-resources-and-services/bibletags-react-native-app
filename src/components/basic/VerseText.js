@@ -52,4 +52,4 @@ const VerseText = ({
 }
 
 // export default memo(detectChangingProps('VerseText', VerseText), { jsonMemoProps: [ 'style', 'info' ], memoPropMap: { textOpacityStyle: 'isVisible' } })
-export default memo(VerseText, { jsonMemoProps: [ 'style', 'info' ] })
+export default memo(VerseText, { name: 'VerseText', jsonMemoProps: [ 'style', 'info' ] })

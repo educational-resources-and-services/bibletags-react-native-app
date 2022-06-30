@@ -4,20 +4,27 @@ import { getPiecesFromUSFM } from "@bibletags/bibletags-ui-helper"
 
 import useEffectAsync from "./useEffectAsync"
 import { executeSql, getVersionInfo } from "../utils/toolbox"
+import useInstanceValue from "./useInstanceValue"
+
+const noPieces = { pieces: [] }
 
 const useVersePieces = ({
   versionId,
   refs,
+  skip,
 }) => {
 
-  const [ piecesInfo, setPiecesInfo ] = useState({ pieces: [] })
+  const [ piecesInfo, setPiecesInfo ] = useState(noPieces)
+  const getVersionId = useInstanceValue(versionId)
+  const getRefs = useInstanceValue(refs)
+  const getSkip = useInstanceValue(skip)
 
   useEffectAsync(
     async () => {
 
-      setPiecesInfo({ pieces: [] })
+      setPiecesInfo(noPieces)
 
-      if(!refs || (refs[0] || {}).verse === undefined) return
+      if(skip || !refs || (refs[0] || {}).verse === undefined) return
 
       const { rows: { _array: verses } } = await executeSql({
         versionId,
@@ -29,6 +36,9 @@ const useVersePieces = ({
       })
 
       if(!verses[0]) return
+      if(getVersionId() !== versionId) return
+      if(getRefs() !== refs) return
+      if(getSkip() !== skip) return
 
       const { wordDividerRegex } = getVersionInfo(versionId)
 
@@ -44,7 +54,7 @@ const useVersePieces = ({
       // TODO: I might only want some of the words in the returned verses
 
     },
-    [ versionId, refs ],
+    [ versionId, refs, skip ],
   )
 
   return piecesInfo

@@ -218,11 +218,11 @@ const ReadHeader = React.memo(({
               />
             </View>
           </TouchableWithoutFeedback>
-          {/* <HeaderIconButton
+          <HeaderIconButton
             name="md-search"
             onPress={goSearch}
             style={isAndroidRTL ? styles.rightIcon : styles.leftIcon}
-          /> */}
+          />
           <HeaderIconButton
             name="format-size"
             pack="materialCommunity"

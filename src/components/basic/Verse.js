@@ -4,11 +4,12 @@ import { View, StyleSheet, Text, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
+import { adjustPiecesForSpecialHebrew, adjustTextForSups, removeCantillation,
+         stripHebrewVowelsEtc, normalizeGreek, isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { isRTLText, stripHebrew, normalizeGreek, getTextFont, adjustLineHeight,
-         adjustFontSize, memo, getVersionInfo, adjustTextForSups,
-         adjustPiecesForSpecialHebrew, cloneObj, removeCantillation } from "../../utils/toolbox"
+import { getTextFont, adjustLineHeight,
+         adjustFontSize, memo, getVersionInfo, cloneObj } from "../../utils/toolbox"
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
@@ -131,9 +132,9 @@ const Verse = ({
         tagThemedStyles,
       })
 
-      const getPartOfPiece = (text, idx2) => {
+      const getPartOfPiece = (text=``, idx2) => {
 
-        const normalizedText = normalizeGreek(stripHebrew(text)).toLowerCase()
+        const normalizedText = normalizeGreek(stripHebrewVowelsEtc(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
         const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? cloneObj(piece) : null
 
@@ -220,7 +221,7 @@ const Verse = ({
       ;(adjustedText || "")
         .split(wordDividerSetsInGroupRegex)
         .forEach(word => {
-          if(searchWords.some(searchWord => normalizeGreek(stripHebrew(word)).toLowerCase() === searchWord)) {  // Needs to be modified to be version-specific
+          if(searchWords.some(searchWord => normalizeGreek(stripHebrewVowelsEtc(word)).toLowerCase() === searchWord)) {  // Needs to be modified to be version-specific
             textPieces.push(word)
             textPieces.push("")
           } else {
