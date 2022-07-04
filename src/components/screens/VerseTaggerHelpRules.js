@@ -344,17 +344,17 @@ const VerseTaggerHelpRules = ({
             </Text>
           </Text>
           <Text style={styles.li}>
-            {i18n("b.")}
+            {i18n("a.")}
             {i18n(" ", "word separator")}
             {i18n("Words only repeated in the original language")}
           </Text>
           <Text style={styles.li}>
-            {i18n("c.")}
+            {i18n("b.")}
             {i18n(" ", "word separator")}
             Paragogic <Text style={styles.hebrew}>ה</Text> or <Text style={styles.hebrew}>ן</Text>
           </Text>
           <Text style={styles.li}>
-            {i18n("d.")}
+            {i18n("c.")}
             {i18n(" ", "word separator")}
             The definite direct object marker <Text style={styles.hebrew}>אֵת</Text>
           </Text>
