@@ -256,7 +256,9 @@ const useTranslationsOfWordInMyVersions = ({
                 })
               }
 
-              translations[translationIndex].versions[tagSet.status].push(versionId)
+              if(!translations[translationIndex].versions[tagSet.status].includes(versionId)) {
+                translations[translationIndex].versions[tagSet.status].push(versionId)
+              }
 
             })
 
