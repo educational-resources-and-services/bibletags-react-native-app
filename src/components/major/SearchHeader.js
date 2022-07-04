@@ -1,18 +1,14 @@
-import React, { useCallback, useState, useEffect } from "react"
-import { StyleSheet, View, Text, I18nManager, Platform } from "react-native"
+import React, { useCallback } from "react"
+import { StyleSheet, View, I18nManager, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
-import { isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import { isPhoneSize } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
-import useBibleVersions from "../../hooks/useBibleVersions"
 import useInstanceValue from "../../hooks/useInstanceValue"
 
 import AppHeader from "../basic/AppHeader"
 import HeaderIconButton from "../basic/HeaderIconButton"
-import Icon from "../basic/Icon"
-import VersionChooser from "./VersionChooser"
 import SearchTextField from "../search/SearchTextField"
 
 const phoneSize = isPhoneSize()
@@ -20,7 +16,7 @@ const phoneSize = isPhoneSize()
 const styles = StyleSheet.create({
   appHeader: {
     borderBottomWidth: 0,
-    marginTop: Platform.select({ ios: 2, android: 1 }),
+    marginTop: Platform.select({ ios: 2, android: 6 }),
     alignSelf: 'center',
     maxWidth: '100%',
     minHeight: 0,
