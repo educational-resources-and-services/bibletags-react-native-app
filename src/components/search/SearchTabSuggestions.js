@@ -58,6 +58,7 @@ const SearchTabSuggestions = ({
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.contentContainer}
+      keyboardShouldPersistTaps="always"
       ref={ref}
     >
       {autoCompleteSuggestions.map(suggestion => (
