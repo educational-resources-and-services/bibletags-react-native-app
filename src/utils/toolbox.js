@@ -149,11 +149,11 @@ export const executeSql = async ({
 
   const logDBError = async error => {
     if(doNotLogError) {
-      __DEV__ && console.log("Silenced error:", error)
+      __DEV__ && console.log(`Silenced error when running [${(statement || statements[0].statement)({})}]:`, error)
       return
     }
 
-    sentry({ error: new Error(`ERROR ${error.message ? `(${error.message}) ` : ``}when running executeSql: ${statements[0].statement({})}`) })
+    sentry({ error: new Error(`ERROR ${error.message ? `(${error.message}) ` : ``}when running executeSql: ${(statement || statements[0].statement)({})}`) })
 
     if(versionId) {
 
@@ -310,7 +310,7 @@ export const safelyExecuteSelects = async paramsArray => (
       const { rows: { _array }} = await executeSql({ ...params, doNotLogError: true })
       return _array
     } catch(err) {
-      __DEV__ && console.log("Silenced error:", err)
+      __DEV__ && console.log(`Silenced error when running [${(params.statement || params.statements[0].statement)({})}]:`, err)
       return []
     }
   }))

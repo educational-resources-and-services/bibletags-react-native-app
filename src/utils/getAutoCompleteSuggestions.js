@@ -19,9 +19,9 @@ const getOriginalWordsFromStrongs = async ({ includeHits, strongs, where, langua
         ? `SELECT * FROM definitions WHERE id IN ?`
         : `SELECT * FROM definitions WHERE ${where} LIMIT ${limit}`
     ),
-    args: [
+    args: (!strongs ? [] : [
       strongs,
-    ],
+    ]),
     jsonKeys: [ 'lxx', 'lemmas', 'forms', 'pos' ],
   }])
 
