@@ -127,7 +127,7 @@ const VerseTaggerContent = ({
   const [ locByWordId, setLocByWordId ] = useState({})
   const getLocByWordId = useInstanceValue(locByWordId)
 
-  const { tagSet, myTagSet } = useTagSet({
+  const { tagSet, myTagSet, refreshTagSet } = useTagSet({
     loc: getLocFromRef(ref),
     versionId,
     wordsHash,
@@ -538,6 +538,7 @@ const VerseTaggerContent = ({
                   tagNextOrAnotherVerse={tagNextOrAnotherVerse}
                   selectionMethod={selectionMethod}
                   isResubmit={!!myTagSet}
+                  refreshTagSet={refreshTagSet}
                 />
               </View>
 

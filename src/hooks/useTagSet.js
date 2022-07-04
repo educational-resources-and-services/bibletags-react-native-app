@@ -1,5 +1,6 @@
 import { useState } from "react"
 import Constants from "expo-constants"
+import useCounter from "react-use/lib/useCounter"
 
 import { safelyExecuteSelects } from "../utils/toolbox"
 import useEffectAsync from "./useEffectAsync"
@@ -18,6 +19,8 @@ const useTagSet = ({
 }) => {
 
   const [ tagSetInfo, setTagSetInfo ] = useState({})
+
+  const [ forceUpdateIdx, { inc: forceUpdate }] = useCounter(0)
 
   useEffectAsync(
     async () => {
@@ -88,10 +91,11 @@ const useTagSet = ({
         tagSet,
         myTagSet,
         iHaveSubmittedATagSet: !!submittedTagSet,
+        refreshTagSet: forceUpdate,
       })
 
     },
-    [ loc, versionId, wordsHash, skip ],
+    [ loc, versionId, wordsHash, skip, forceUpdateIdx ],
   )
 
   return tagSetInfo
