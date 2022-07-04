@@ -124,10 +124,7 @@ const ReadHeader = React.memo(({
 
   const goSearch = useCallback(
     () => {
-      historyPush("/Read/Search", {
-        editOnOpen: true,
-        versionId: passage.versionId,
-      })
+      historyPush("/Read/Search")
     },
     [ passage ],
   )

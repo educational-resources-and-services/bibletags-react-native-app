@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
 const SearchHeader = React.memo(({
   editing,
   setEditing,
+  autoFocus,
   searchText,
   onChangeText,
   setSearchText,
@@ -85,6 +86,7 @@ const SearchHeader = React.memo(({
           onChangeText={onChangeText}
           onSubmitEditing={onSubmitEditing}
           onFocus={setEditing}
+          autoFocus={autoFocus}
           inputRef={inputRef}
           uiStatus={hasError ? `error` : (editing ? `editing` : `results`)}
           inputContainerRef={inputContainerRef}

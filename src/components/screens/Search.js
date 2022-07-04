@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo, useRef, useLayoutEffect } from 'react'
+import { useCallback, useState, useMemo, useRef } from 'react'
 import { StyleSheet, Text, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -84,6 +84,7 @@ const Search = ({
 
   const { searchText } = routerState
   const showSearchResults = !!searchText
+  const autoFocus = useRef(!showSearchResults).current
 
   const getRouterState = useInstanceValue(routerState)
 
@@ -245,6 +246,7 @@ const Search = ({
         <SearchHeader
           editing={!showSearchResults}
           setEditing={setEditing}
+          autoFocus={autoFocus}
           searchText={showSearchResults ? searchText : searchTextInComposition}
           onChangeText={onChangeText}
           setSearchText={setSearchText}

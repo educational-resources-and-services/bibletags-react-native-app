@@ -31,7 +31,6 @@ const RecentSearch = ({
   const select = useCallback(
     () => {
       historyPush("/Read/Search", {
-        editOnOpen: false,
         searchString,
         versionId,
         initialScrollInfo,

@@ -8,7 +8,6 @@ import { getMorphInfo } from "@bibletags/bibletags-ui-helper"
 import useDefinition from "../../hooks/useDefinition"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import { memo } from "../../utils/toolbox"
-import { getIPhoneXBufferHeight } from "./IPhoneXBuffer"
 
 import Parsing from "./Parsing"
 import Definition from "./Definition"

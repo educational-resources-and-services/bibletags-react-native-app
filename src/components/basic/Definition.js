@@ -1,10 +1,11 @@
-import React, { useMemo } from "react"
+import React, { useCallback, useMemo } from "react"
 import { StyleSheet, View, Text, I18nManager, TouchableOpacity } from "react-native"
 import { i18n } from "inline-i18n"
 import { getGreekPOSTerm, getHebrewPOSTerm } from "@bibletags/bibletags-ui-helper"
 
 import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import useRouterState from "../../hooks/useRouterState"
 
 import Icon from "./Icon"
 import IPhoneXBuffer from "./IPhoneXBuffer"
@@ -42,6 +43,14 @@ const styles = StyleSheet.create({
   pos: {
     fontSize: 14,
   },
+  searchContainer: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+  },
+  search: {
+    height: 20,
+  },
   extendedInfoContainer: {
     position: 'absolute',
     bottom: 12,
@@ -70,6 +79,8 @@ const Definition = ({
   eva: { style: themedStyle={} },
 }) => {
 
+  const { historyGo, historyPush, pathname } = useRouterState()
+
   const { baseThemedStyle, altThemedStyleSets, iconThemedStyle } = useThemedStyleSets(themedStyle)
   const [
     lexThemedStyle={},
@@ -90,6 +101,19 @@ const Definition = ({
       },
     ]),
     [ id ],
+  )
+
+  const goSearch = useCallback(
+    () => {
+      const numStepsToGoBack = pathname.replace('/Read', '').split('/').slice(1).length
+      if(numStepsToGoBack > 0) {
+        historyGo(-numStepsToGoBack)
+      }
+      historyPush("/Read/Search", {
+        searchText: `#${id}`,
+      })
+    },
+    [ id, pathname ],
   )
 
   return (
@@ -178,6 +202,20 @@ const Definition = ({
             </React.Fragment>
           ))}
         </Text>
+
+        <TouchableOpacity
+          style={styles.searchContainer}
+          onPress={goSearch}
+        >
+          <Icon
+            name="md-search"
+            style={[
+              styles.search,
+              iconThemedStyle,
+              iconStyle,
+            ]}
+          />
+        </TouchableOpacity>
 
         {showExtendedOption &&
           <TouchableOpacity
