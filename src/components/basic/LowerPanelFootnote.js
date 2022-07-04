@@ -142,7 +142,7 @@ const LowerPanelFootnote = ({
           verses
             .map(verse => (
               getPiecesFromUSFM({
-                usfm: `\\c ${selectedRefs[0].chapter}\n${verse.usfm}`,
+                usfm: `\\c ${selectedRefs[0].chapter}\n${verse.usfm}${i18n(" ", "word separator")}`,
                 inlineMarkersOnly: true,
                 wordDividerRegex,
               })
