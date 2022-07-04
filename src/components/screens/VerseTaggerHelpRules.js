@@ -148,7 +148,10 @@ const VerseTaggerHelpRules = ({
               E.g. For “<Text style={styles.hebrew}>פְּנֵ֥י הַ/מָּֽיִם</Text>” in Genesis 1:2, “<Text style={styles.hebrew}>פְּנֵ֥י</Text>” should be tagged to “face of” (NOT: “the face of”), “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “the” (in the phrase “the waters”) and “<Text style={styles.hebrew}>מָּֽיִם</Text>” should be tagged to “waters.”
             </Text>
             <Text style={styles.example}>
-              E.g. In Genesis 12:7, we find “<Text style={styles.hebrew}>הַ/נִּרְאֶ֥ה אֵלָֽי/ו</Text>” translated to “who had appeared to him.” In this case, the definite artcile “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “who.”
+              E.g. In Genesis 12:7, we find “<Text style={styles.hebrew}>הַ/נִּרְאֶ֥ה אֵלָֽי/ו</Text>” translated to “who had appeared to him.” In this case, the definite article “<Text style={styles.hebrew}>הַ</Text>” should be tagged to “who.”
+            </Text>
+            <Text style={styles.example}>
+              E.g. In Deuteronomy 24:19, we find “<Text style={styles.hebrew}>לַ/גֵּ֛ר לַ/יָּת֥וֹם וְ/לָ/אַלְמָנָ֖ה</Text>” translated to “for the sojourner, the fatherless, and the widow.” Here, the first <Text style={styles.hebrew}>ל</Text> preposition should be tagged to “for the” (including “the”) since its vowel indicates an implicit definite article. The next two <Text style={styles.hebrew}>ל</Text> prepositions, on the other hand, should be left untagged. For, while they too have implicit definite articles, the prepositions themselves are untranslated and we don’t want them tagged only to “the.”
             </Text>
           </>
         }
