@@ -367,7 +367,7 @@ const ReadText = ({
         })
 
         return simplifiedPieces.map((piece, idx) => {
-          let { type, tag, text, content, children, verse } = piece
+          let { type, tag, text, content, children, verse, apparatusJson } = piece
           tag = tag && tag.replace(/^\+/, '')
           const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
 
@@ -396,6 +396,7 @@ const ReadText = ({
             verse = -1
           }
 
+          // if(!children && !text && !content && !apparatusJson) return null  // TODO: use this line and then build out apparatus display
           if(!children && !text && !content) return null
           if([ "c", "cp" ].includes(tag)) return null
 
@@ -464,7 +465,7 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
-            && (type === 'word' || [ 'w', 'f', 'fe', 'x' ].includes(tag))
+            && (type === 'word' || [ 'w', 'f', 'fe', 'x', 'zApparatusJson' ].includes(tag))
             && vs === selectedVerse
           ) {
             const selectedTranslationWordColor = (
@@ -477,7 +478,7 @@ const ReadText = ({
               (
                 !selectedTagInfo
                 && equalObjs(selectedInfo, piece)
-                && ![ "xt", "f", "fe", "fk" ].includes(tag)
+                && ![ "xt", "f", "fe", "fk", "zApparatusJson" ].includes(tag)
               )
               || selectedTranslationWordColor
             ) {
@@ -518,7 +519,7 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
-            && [ "peh", "samech", "selah", "x", "xt", "f", "fe", "fk" ].includes(tag)
+            && [ "peh", "samech", "selah", "x", "xt", "f", "fe", "fk", "zApparatusJson" ].includes(tag)
             && !equalObjs(selectedInfo, piece)
             && (
               vs !== selectedVerse
@@ -589,7 +590,7 @@ const ReadText = ({
                 type === 'word'
                 && vs === selectedVerse
               )
-              || [ 'w', 'f', 'fe', 'x' ].includes(tag)
+              || [ 'w', 'f', 'fe', 'x', 'zApparatusJson' ].includes(tag)
             )
               ? piece
               : null

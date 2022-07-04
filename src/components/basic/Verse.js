@@ -104,7 +104,7 @@ const Verse = ({
 
       if(!children && !text && !content) return null
       if([ "c", "cp", "v", "vp" ].includes(tag)) return null
-      if(hideNotes && [ 'f', 'fe', 'x', 'xt' ].includes(tag)) return null
+      if(hideNotes && [ 'f', 'fe', 'x', 'xt', 'zApparatusJson' ].includes(tag)) return null
 
       if(!hideNotes) {
         text = adjustTextForSups({ tag, text, pieces, idx })
@@ -136,7 +136,7 @@ const Verse = ({
 
         const normalizedText = normalizeGreek(stripHebrewVowelsEtc(text)).toLowerCase()
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
-        const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt' ].includes(tag)) ? cloneObj(piece) : null
+        const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt', 'zApparatusJson' ].includes(tag)) ? cloneObj(piece) : null
 
         if(info && versionId !== 'original') {
           if(doSmallCaps) {

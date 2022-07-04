@@ -35,6 +35,9 @@ const textStyles = StyleSheet.create({
   fe: {  // endnote (treated the same as footnote)
     letterSpacing: 2,
   },
+  zApparatusJson: {  // apparatus
+    letterSpacing: 2,
+  },
   fk: {  // footnote keyword (also used for footnote types)
     textTransform: "uppercase",
   },
@@ -162,7 +165,7 @@ export const adjustChildrenAndGetStyles = ({
     }
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa' ]
+  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa', 'zApparatusJson' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

@@ -98,7 +98,7 @@ const LowerPanel = ({
     )
     contentsType = 'word'
 
-  } else if([ 'f', 'fe', 'x' ].includes(selectedInfoTag)) {
+  } else if([ 'f', 'fe', 'x', 'zApparatusJson' ].includes(selectedInfoTag)) {
     contents = (
       <LowerPanelFootnote
         selectedSection={selectedSection}

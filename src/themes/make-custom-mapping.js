@@ -118,9 +118,10 @@ const readTextAndVerseParameters = {
   alt19Color: "color-primary-500", // f
   alt20Color: "color-info-500", // fe
   alt21Color: "color-basic-600", // fk
-
+  
   alt22Color: "color-warning-600", // s3
-  alt22Color: "color-basic-500", // qa
+  alt23Color: "color-basic-500", // qa
+  alt24Color: "color-info-500", // zApparatusJson
 }
 
 const mapping = {
