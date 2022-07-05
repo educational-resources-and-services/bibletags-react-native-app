@@ -1,19 +1,25 @@
-import NetInfo, { useNetInfo } from "@react-native-community/netinfo"
-
-export const connectionInfo = {
-  online: false,
-}
-
-const updateConnectionInfo = ({ type }) => {
-  connectionInfo.online = type !== 'none'
-}
-
-NetInfo.fetch().then(updateConnectionInfo)
+import { useLayoutEffect, useState } from "react"
+import NetInfo from "@react-native-community/netinfo"
 
 const useNetwork = () => {
-  const netInfo = useNetInfo()
 
-  updateConnectionInfo(netInfo)
+  const [ connectionInfo, setConnectionInfo ] = useState({ online: false })
+
+  useLayoutEffect(
+    () => {
+
+      const unsubscribe = NetInfo.addEventListener(
+        ({ type }) => {
+          setConnectionInfo({
+            online: type !== 'none',
+          })
+        },
+      )
+
+      return unsubscribe
+    },
+    [],
+  )
 
   return connectionInfo
 }

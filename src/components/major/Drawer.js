@@ -134,7 +134,6 @@ const Drawer = ({
 
   const combinedDownloadingVersionIds = [ ...downloadingVersionIds, ...searchDownloadingVersionIds ]
 
-console.log('dataSyncStatus', dataSyncStatus)
   return (
     <Layout>
       <View style={styles.container}>
