@@ -134,6 +134,7 @@ const Drawer = ({
 
   const combinedDownloadingVersionIds = [ ...downloadingVersionIds, ...searchDownloadingVersionIds ]
 
+console.log('dataSyncStatus', dataSyncStatus)
   return (
     <Layout>
       <View style={styles.container}>
@@ -198,7 +199,7 @@ const Drawer = ({
             })}
           />
         }
-        {online && ![ 'none' ].includes(dataSyncStatus) &&
+        {online && ![ 'done' ].includes(dataSyncStatus) &&
           <DrawerStatusItem
             showSpinner={true}
             message={{
