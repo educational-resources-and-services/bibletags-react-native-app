@@ -397,7 +397,7 @@ const VerseTaggerContent = ({
         const newTranslationWordInfoByWordIdAndPartNumbers = {}
         ;(viewOnly ? tagSet : (myTagSet || tagSet)).tags.forEach(tag => {
           if(tag.o.length > 0 && tag.t.length > 0) {
-            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.map(wordNumberInVerse => {
+            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.sort().map(wordNumberInVerse => {
               const word = words[wordNumberInVerse - 1]
               return {
                 wordNumberInVerse,
