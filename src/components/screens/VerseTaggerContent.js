@@ -278,7 +278,7 @@ const VerseTaggerContent = ({
           word: text,
           hasUnknownCapitalization,
         })
-        newTranslationWordInfoByWordIdAndPartNumbers[key].sort((a,b) => a.wordNumberInVerse > b.wordNumberInVerse ? 1 : -1)
+        newTranslationWordInfoByWordIdAndPartNumbers[key].sort((a,b) => a.wordNumberInVerse - b.wordNumberInVerse)
 
       } else {
         // remove this translation word to the current orig word group
@@ -397,7 +397,7 @@ const VerseTaggerContent = ({
         const newTranslationWordInfoByWordIdAndPartNumbers = {}
         ;(viewOnly ? tagSet : (myTagSet || tagSet)).tags.forEach(tag => {
           if(tag.o.length > 0 && tag.t.length > 0) {
-            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.sort().map(wordNumberInVerse => {
+            newTranslationWordInfoByWordIdAndPartNumbers[JSON.stringify(tag.o)] = tag.t.sort((a,b) => a-b).map(wordNumberInVerse => {
               const word = words[wordNumberInVerse - 1]
               return {
                 wordNumberInVerse,

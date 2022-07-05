@@ -29,7 +29,7 @@ const useSetSelectedTagInfo = ({
         }
       })
 
-      selectedPieceIdxs.sort((a,b) => a-b ? 1 : -1)
+      selectedPieceIdxs.sort((a,b) => a-b)
 
       return (
         selectedPieceIdxs.map(idx => {
