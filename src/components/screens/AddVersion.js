@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { StyleSheet, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -7,8 +7,7 @@ import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import useRouterState from "../../hooks/useRouterState"
-import { memo } from '../../utils/toolbox'
+import { getVersionInfo, memo } from '../../utils/toolbox'
 
 import SafeLayout from "../basic/SafeLayout"
 import BasicHeader from "../major/BasicHeader"
@@ -42,7 +41,8 @@ const AddVersion = ({
   const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
   const { unusedVersionIds } = useBibleVersions({ myBibleVersions })
-  const { historyGoBack } = useRouterState()
+
+  const [ message, setMessage ] = useState(i18n("Tap to add"))
 
   const renderItem = ({ item: versionId }) => (
     <VersionItem
@@ -53,7 +53,11 @@ const AddVersion = ({
           id: versionId,
           download: true,
         })
-        historyGoBack()
+        setMessage(
+          i18n("Added {{version}} to download queue", {
+            version: getVersionInfo(versionId).abbr
+          })
+        )
       }}
     />
   )
@@ -70,7 +74,7 @@ const AddVersion = ({
           labelStyle,
         ]}
       >
-        {i18n("Tap to add")}
+        {message}
       </Text>
       <List
         style={[

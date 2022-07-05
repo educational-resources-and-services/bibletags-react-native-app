@@ -10,9 +10,11 @@ import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
-import { memo, sentry } from "../../utils/toolbox"
+import useBibleVersions from "../../hooks/useBibleVersions"
+import { memo, sentry, getVersionInfo } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
+import Spin from "../basic/Spin"
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
   },
   createdByContainer: {
     paddingTop: 40,
-    paddingBottom: 20,
+    paddingBottom: 10,
   },
   createdBy: {
     textAlign: 'center',
@@ -56,10 +58,28 @@ const styles = StyleSheet.create({
   subversion: {
     fontSize: 9,
     textAlign: 'center',
+    paddingTop: 10,
     paddingBottom: 20,
   },
   divider: {
     marginVertical: 10,
+  },
+  downloading: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 2,
+    marginHorizontal: 40,
+  },
+  downloadingText: {
+    fontSize: 10,
+    textAlign: 'center',
+  },
+  spin: {
+    height: 5,
+    transform: [{
+      scale: .5,
+    }],
   },
 })
 
@@ -70,7 +90,7 @@ const Drawer = ({
 
   eva: { style: themedStyle={} },
 
-  displaySettings,
+  myBibleVersions,
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
@@ -81,6 +101,8 @@ const Drawer = ({
 
   const { historyPush } = useRouterState()
   const { online } = useNetwork()
+
+  const { downloadingVersionIds, searchDownloadingVersionIds } = useBibleVersions({ myBibleVersions })
 
   const goToBibleTagsMarketingSite = useCallback(
     () => {
@@ -107,6 +129,8 @@ const Drawer = ({
         />
       )
   )
+
+  const combinedDownloadingVersionIds = [ ...downloadingVersionIds, ...searchDownloadingVersionIds ]
 
   return (
     <Layout>
@@ -152,6 +176,53 @@ const Drawer = ({
             </View>
           </TouchableOpacity>
         }
+        {!online && combinedDownloadingVersionIds.length > 0 &&
+          <View style={styles.downloading}>
+            <Text
+              style={[
+                styles.downloadingText,
+                baseThemedStyle,
+                style,
+              ]}
+            >
+              {i18n("There are {{num}} versions that will download next time you connect to the internet.", {
+                num: combinedDownloadingVersionIds.length,
+              })}
+            </Text>
+          </View>
+        }
+        {online && combinedDownloadingVersionIds.map(versionId => (
+          <View
+            key={versionId}
+            style={styles.downloading}
+          >
+            <Spin
+              size="small"
+              style={styles.spin}
+            />
+            <Text
+              style={[
+                styles.downloadingText,
+                baseThemedStyle,
+                style,
+              ]}
+            >
+              {
+                downloadingVersionIds.includes(versionId)
+                  ? (
+                    i18n("Downloading {{version}} Bible text...", {
+                      version: getVersionInfo(versionId).abbr,
+                    })
+                  )
+                  : (
+                    i18n("Downloading {{version}} search data...", {
+                      version: getVersionInfo(versionId).abbr,
+                    })
+                  )
+              }
+            </Text>
+          </View>
+        ))}
         <Text
           style={[
             styles.subversion,
@@ -166,8 +237,8 @@ const Drawer = ({
 
 }
 
-const mapStateToProps = ({ displaySettings }) => ({
-  displaySettings
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions
 })
 
 const matchDispatchToProps = (dispatch, x) => bindActionCreators({

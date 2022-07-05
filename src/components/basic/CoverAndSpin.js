@@ -11,13 +11,12 @@ const styles = StyleSheet.create({
   },
   spinnerContainer: {
     ...StyleSheet.absoluteFill,
+    alignItems: "center",
+    justifyContent: "center",
   },
   textContainer: {
     padding: 20,
     alignItems: "center",
-  },
-  spacer: {
-    flex: 1,
   },
 })
 
@@ -25,7 +24,9 @@ const CoverAndSpin = ({
   text,
   percentage,
   style,
+  spinStyle,
   translucent,
+  size,
 
   eva: { style: themedStyle={} },
 }) => (
@@ -35,16 +36,16 @@ const CoverAndSpin = ({
     themedStyle,
     style,
   ]}>
-    <View style={styles.spacer} />
     <Spin
+      style={spinStyle}
       percentage={percentage}
+      size={size}
     />
     {!!text &&
       <View style={styles.textContainer}>
         <Text>{text}</Text>
       </View>
     }
-    <View style={styles.spacer} />
   </View>
 )
 

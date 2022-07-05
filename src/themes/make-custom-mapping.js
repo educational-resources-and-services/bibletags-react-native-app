@@ -206,7 +206,11 @@ const mapping = {
       component: 'ChooserVersion',
       variantGroups: {
         uiStatus: {
-          unselected: {},
+          disabled: {
+            labelColor: "color-basic-500",
+          },
+          unselected: {
+          },
           selected: {
             backgroundColor: "background-alternative-color-4",
             labelColor: "text-alternate-color",

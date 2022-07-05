@@ -1,10 +1,13 @@
 import React, { useCallback } from "react"
-import { View, Text, StyleSheet, TouchableHighlight, Platform } from "react-native"
+import { View, Text, StyleSheet, TouchableHighlight, Platform, Alert } from "react-native"
+import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import useNetwork from "../../hooks/useNetwork"
 import { getVersionInfo, memo } from "../../utils/toolbox"
 
 import Icon from "./Icon"
+import CoverAndSpin from "./CoverAndSpin"
 
 
 const styles = StyleSheet.create({
@@ -24,10 +27,21 @@ const styles = StyleSheet.create({
     lineHeight: 40,
     marginLeft: 10,
   },
+  spinBG: {
+    backgroundColor: 'transparent',
+    alignItems: 'flex-end',
+  },
+  spin: {
+    left: 20,
+    transform: [{
+      scale: .5,
+    }],
+  },
 })
 
 const ChooserVersion = ({
   versionId,
+  uiStatus,
   onPress,
   showCloseIcon,
   style,
@@ -36,11 +50,24 @@ const ChooserVersion = ({
 
   eva: { style: themedStyle={} },
 }) => {
+
   const { baseThemedStyle, labelThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 
+  const { online } = useNetwork()
+
   const goPress = useCallback(
-    () => onPress(versionId),
-    [ onPress, versionId ],
+    () => {
+      if(uiStatus === 'disabled') {
+        Alert.alert(
+          online
+            ? i18n("This version is still in the process of downloading.")
+            : i18n("You are offline. This version will download next time you connect.")
+        )
+      } else {
+        onPress(versionId)
+      }
+    },
+    [ onPress, versionId, uiStatus, online ],
   )
 
   return (
@@ -54,6 +81,13 @@ const ChooserVersion = ({
       ]}
     >
       <View style={styles.versionTextContainer}>
+        {uiStatus === 'disabled' && online &&
+          <CoverAndSpin
+            style={styles.spinBG}
+            spinStyle={styles.spin}
+            size="small"
+          />
+        }
         <Text
           key={Platform.OS === 'android' && labelThemedStyle.color}  // TODO: remove this line when RN bug fixed
           style={[

@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
 
 const VersionChooser = ({
   versionIds,
+  downloadingVersionIds,
   selectedVersionId,
   update,
   goVersions,
@@ -67,7 +68,15 @@ const VersionChooser = ({
             <ChooserVersion
               key={versionId}
               versionId={versionId}
-              uiStatus={versionId === selectedVersionId ? "selected" : "unselected"}
+              uiStatus={
+                downloadingVersionIds.includes(versionId)
+                  ? "disabled"
+                  : (
+                    versionId === selectedVersionId
+                      ? "selected"
+                      : "unselected"
+                  )
+              }
               onPress={showCloseIcon ? closeParallelMode : update}
               showCloseIcon={showCloseIcon}
             />

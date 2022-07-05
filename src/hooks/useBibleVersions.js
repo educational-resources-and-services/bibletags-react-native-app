@@ -16,6 +16,26 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [ myBibleVersions ],
   )
 
+  const downloadingVersionIds = useMemo(
+    () => (
+      myBibleVersions
+        .filter(({ downloaded }) => !downloaded)
+        .map(({ id }) => id)
+        .filter(id => getVersion(id).id)
+    ),
+    [ versionIds ],
+  )
+
+  const searchDownloadingVersionIds = useMemo(
+    () => (
+      myBibleVersions
+        .filter(({ downloaded, searchDownloaded }) => downloaded && !searchDownloaded)
+        .map(({ id }) => id)
+        .filter(id => getVersion(id).id)
+    ),
+    [ versionIds ],
+  )
+
   const downloadedVersionIds = useMemo(
     () => (
       myBibleVersions
@@ -34,28 +54,48 @@ const useBibleVersions = ({ myBibleVersions }) => {
     [ downloadedVersionIds ],
   )
 
-  const primaryVersionIds = useMemo(
+  const downloadedPrimaryVersionIds = useMemo(
     () => (
       downloadedVersionIds
-      // versionIds  - change this once versions are available without being offline
         .filter(id => getVersion(id).myVersionsRestriction !== 'secondary-only')
     ),
-    [ downloadedVersionIds, versionIds ],
+    [ downloadedVersionIds ],
   )
 
-  const secondaryVersionIds = useMemo(
+  const downloadedSecondaryVersionIds = useMemo(
     () => (
       downloadedVersionIds
-      // versionIds  - change this once versions are available without being offline
         .filter(id => (
           !(  // If there is only one primary version, then don't show that version in the secondary options
-            primaryVersionIds.length === 1
-            && id === primaryVersionIds[0]
+            downloadedPrimaryVersionIds.length === 1
+            && id === downloadedPrimaryVersionIds[0]
           )
           && getVersion(id).myVersionsRestriction !== 'primary-only'
         ))
     ),
-    [ downloadedVersionIds, versionIds ],
+    [ downloadedVersionIds, downloadedPrimaryVersionIds ],
+  )
+
+  const primaryVersionIds = useMemo(
+    () => (
+      versionIds
+        .filter(id => getVersion(id).myVersionsRestriction !== 'secondary-only')
+    ),
+    [ versionIds ],
+  )
+
+  const secondaryVersionIds = useMemo(
+    () => (
+      versionIds
+        .filter(id => (
+          !(  // If there is only one primary version, then don't show that version in the secondary options
+            downloadedPrimaryVersionIds.length === 1
+            && id === downloadedPrimaryVersionIds[0]
+          )
+          && getVersion(id).myVersionsRestriction !== 'primary-only'
+        ))
+    ),
+    [ versionIds, downloadedPrimaryVersionIds ],
   )
 
   const unusedVersionIds = useMemo(
@@ -91,8 +131,8 @@ const useBibleVersions = ({ myBibleVersions }) => {
     ({ versionIdToRemove }={}) => {
       return false  // TODO: disabled until I get them scrolling together and work out how to do tagging
 
-      const newPrimaryVersionIds = versionIdToRemove ? primaryVersionIds.filter(id => versionIdToRemove !== id) : primaryVersionIds
-      const newSecondaryVersionIds = versionIdToRemove ? secondaryVersionIds.filter(id => versionIdToRemove !== id) : secondaryVersionIds
+      const newPrimaryVersionIds = versionIdToRemove ? downloadedPrimaryVersionIds.filter(id => versionIdToRemove !== id) : downloadedPrimaryVersionIds
+      const newSecondaryVersionIds = versionIdToRemove ? downloadedSecondaryVersionIds.filter(id => versionIdToRemove !== id) : downloadedSecondaryVersionIds
 
       return !(
         newSecondaryVersionIds.length === 0
@@ -103,17 +143,21 @@ const useBibleVersions = ({ myBibleVersions }) => {
         )
       )
     },
-    [ primaryVersionIds, secondaryVersionIds ],
+    [ downloadedPrimaryVersionIds, downloadedSecondaryVersionIds ],
   )
 
   return {
     versionIds,
     languageIds,
+    downloadingVersionIds,
+    searchDownloadingVersionIds,
     downloadedVersionIds,
     downloadedNonOriginalVersionIds,
     versionsCurrentlyDownloading: versionIds.length > downloadedVersionIds.length,
     primaryVersionIds,
     secondaryVersionIds,
+    downloadedPrimaryVersionIds,
+    downloadedSecondaryVersionIds,
     unusedVersionIds,
     requiredVersionIds,
     getVersionStatus,

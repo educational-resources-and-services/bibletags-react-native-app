@@ -72,7 +72,7 @@ const ReadContent = React.memo(({
     [],
   )
 
-  const { primaryVersionIds, secondaryVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedPrimaryVersionIds, downloadedSecondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
   const booksAndChapters = useMemo(
     () => (
@@ -223,19 +223,19 @@ const ReadContent = React.memo(({
 
   useEffect(
     () => {
-      if(primaryVersionIds.length === 0) return
+      if(downloadedPrimaryVersionIds.length === 0) return
 
       // in the event that a version has been removed...
 
-      if(!primaryVersionIds.includes(versionId)) {
-        setVersionId({ versionId: primaryVersionIds[0] })
+      if(!downloadedPrimaryVersionIds.includes(versionId)) {
+        setVersionId({ versionId: downloadedPrimaryVersionIds[0] })
       }
 
-      if(parallelVersionId && !secondaryVersionIds.includes(parallelVersionId)) {
-        setParallelVersionId({ parallelVersionId: secondaryVersionIds[0] })
+      if(parallelVersionId && !downloadedSecondaryVersionIds.includes(parallelVersionId)) {
+        setParallelVersionId({ parallelVersionId: downloadedSecondaryVersionIds[0] })
       }
     },
-    [ primaryVersionIds.length === 0 ],
+    [ downloadedPrimaryVersionIds.length === 0 ],
   )
 
   useEffect(
@@ -249,7 +249,7 @@ const ReadContent = React.memo(({
     [ ref ],
   )
 
-  if(primaryVersionIds.length === 0) return null
+  if(downloadedPrimaryVersionIds.length === 0) return null
 
   return (
     <>

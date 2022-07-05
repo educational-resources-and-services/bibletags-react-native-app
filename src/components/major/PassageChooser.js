@@ -110,7 +110,7 @@ const PassageChooser = ({
   const chapterChooserRef = useRef()
   const chapterChooserScrollHeight = useRef(0)
 
-  const { primaryVersionIds, secondaryVersionIds, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
+  const { downloadedPrimaryVersionIds, downloadedSecondaryVersionIds, primaryVersionIds, secondaryVersionIds, downloadingVersionIds, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
 
   const [ setUpdatePassageInUITimeout ] = useSetTimeout()
 
@@ -174,13 +174,13 @@ const PassageChooser = ({
     versionId => {
       setVersionId({ versionId })
 
-      if(versionId === passage.parallelVersionId && secondaryVersionIds.length > 1) {
+      if(versionId === passage.parallelVersionId && downloadedSecondaryVersionIds.length > 1) {
         setParallelVersionId({
           parallelVersionId: (
-            secondaryVersionIds.includes(passage.versionId)
+            downloadedSecondaryVersionIds.includes(passage.versionId)
               ? passage.versionId
-              : secondaryVersionIds[
-                secondaryVersionIds[0] !== versionId
+              : downloadedSecondaryVersionIds[
+                downloadedSecondaryVersionIds[0] !== versionId
                   ? 0
                   : 1
               ]
@@ -199,13 +199,13 @@ const PassageChooser = ({
 
       setParallelVersionId({ parallelVersionId })
 
-      if(parallelVersionId === passage.versionId && primaryVersionIds.length > 1) {
+      if(parallelVersionId === passage.versionId && downloadedPrimaryVersionIds.length > 1) {
         setVersionId({
           versionId: (
-            primaryVersionIds.includes(passage.parallelVersionId)
+            downloadedPrimaryVersionIds.includes(passage.parallelVersionId)
               ? passage.parallelVersionId
-              : primaryVersionIds[
-                primaryVersionIds[0] !== parallelVersionId
+              : downloadedPrimaryVersionIds[
+                downloadedPrimaryVersionIds[0] !== parallelVersionId
                   ? 0
                   : 1
               ]
@@ -220,7 +220,7 @@ const PassageChooser = ({
     [ hidePassageChooser, passage ],
   )
 
-  const readInParallel = useCallback(() => updateParallelVersion(secondaryVersionIds[0]), [ updateParallelVersion, secondaryVersionIds ])
+  const readInParallel = useCallback(() => updateParallelVersion(downloadedSecondaryVersionIds[0]), [ updateParallelVersion, downloadedSecondaryVersionIds ])
 
   const closeParallelMode = useCallback(
     () => {
@@ -338,6 +338,7 @@ const PassageChooser = ({
       {showVersionChooser &&
         <VersionChooser
           versionIds={primaryVersionIds}
+          downloadingVersionIds={downloadingVersionIds}
           update={updateVersion}
           selectedVersionId={passage.versionId}
           type="primary"
@@ -366,6 +367,7 @@ const PassageChooser = ({
           </View>
           <VersionChooser
             versionIds={secondaryVersionIds}
+            downloadingVersionIds={downloadingVersionIds}
             update={updateParallelVersion}
             selectedVersionId={passage.parallelVersionId}
             type="secondary"
