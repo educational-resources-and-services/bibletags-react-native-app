@@ -14,7 +14,7 @@ import useBibleVersions from "../../hooks/useBibleVersions"
 import { memo, sentry, getVersionInfo } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
-import Spin from "../basic/Spin"
+import DrawerStatusItem from "../basic/DrawerStatusItem"
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,
@@ -63,23 +63,6 @@ const styles = StyleSheet.create({
   },
   divider: {
     marginVertical: 10,
-  },
-  downloading: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 2,
-    marginHorizontal: 40,
-  },
-  downloadingText: {
-    fontSize: 10,
-    textAlign: 'center',
-  },
-  spin: {
-    height: 5,
-    transform: [{
-      scale: .5,
-    }],
   },
 })
 
@@ -177,51 +160,30 @@ const Drawer = ({
           </TouchableOpacity>
         }
         {!online && combinedDownloadingVersionIds.length > 0 &&
-          <View style={styles.downloading}>
-            <Text
-              style={[
-                styles.downloadingText,
-                baseThemedStyle,
-                style,
-              ]}
-            >
-              {i18n("There are {{num}} versions that will download next time you connect to the internet.", {
-                num: combinedDownloadingVersionIds.length,
-              })}
-            </Text>
-          </View>
+          <DrawerStatusItem
+            message={i18n("There are {{num}} version(s) that will download next time you connect to the internet.", {
+              num: combinedDownloadingVersionIds.length,
+            })}
+          />
         }
         {online && combinedDownloadingVersionIds.map(versionId => (
-          <View
+          <DrawerStatusItem
             key={versionId}
-            style={styles.downloading}
-          >
-            <Spin
-              size="small"
-              style={styles.spin}
-            />
-            <Text
-              style={[
-                styles.downloadingText,
-                baseThemedStyle,
-                style,
-              ]}
-            >
-              {
-                downloadingVersionIds.includes(versionId)
-                  ? (
-                    i18n("Downloading {{version}} Bible text...", {
-                      version: getVersionInfo(versionId).abbr,
-                    })
-                  )
-                  : (
-                    i18n("Downloading {{version}} search data...", {
-                      version: getVersionInfo(versionId).abbr,
-                    })
-                  )
-              }
-            </Text>
-          </View>
+            showSpinner={true}
+            message={
+            downloadingVersionIds.includes(versionId)
+              ? (
+                i18n("Downloading {{version}} Bible text...", {
+                  version: getVersionInfo(versionId).abbr,
+                })
+              )
+              : (
+                i18n("Downloading {{version}} search data...", {
+                  version: getVersionInfo(versionId).abbr,
+                })
+              )
+            }
+          />
         ))}
         <Text
           style={[

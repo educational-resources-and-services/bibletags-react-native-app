@@ -303,6 +303,12 @@ const mapping = {
       },
     },
     {
+      component: 'DrawerStatusItem',
+      parameters: {
+        color: "color-basic-700",
+      },
+    },
+    {
       component: 'PassageChooser',
       parameters: {
         backgroundColor: "background-basic-color-4",
