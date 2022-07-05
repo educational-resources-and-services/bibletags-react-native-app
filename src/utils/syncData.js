@@ -11,6 +11,8 @@ const versionIdsSyncedDuringThisOpen = []
 
 const syncData = async ({ versionIds, setDataSyncStatus }) => {
 
+  setDataSyncStatus('definitions')
+
   // update languages
   const languageIds = [ ...new Set( versionIds.map(versionId => getVersionInfo(versionId).languageId) ) ]
   const languageIdsNeedingUpdate = (
@@ -31,6 +33,8 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
     }
   }
 
+  setDataSyncStatus('tags')
+
   // update versions
   for(let versionId of versionIds) {
     if(versionIdsSyncedDuringThisOpen.includes(versionId)) continue
@@ -44,8 +48,12 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
     }
   }
 
+  setDataSyncStatus('submissions')
+
   await submitQueuedWordHashesSets()
   await submitQueuedTagSets()
+
+  setDataSyncStatus('done')
 
 }
 

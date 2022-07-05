@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Routes, Route, Navigate } from "react-router-native"
 // import SideMenu from "react-native-simple-side-menu"  // I have no idea why this won't work
 import { bindActionCreators } from "redux"
@@ -32,6 +32,8 @@ const SideMenuAndRouteSwitcher = ({
 
   const { versionIds } = useBibleVersions({ myBibleVersions })
 
+  const [ dataSyncStatus, setDataSyncStatus ] = useState('done')
+
   useEffect(
     () => {
       ;(async () => {
@@ -45,7 +47,7 @@ const SideMenuAndRouteSwitcher = ({
         if(online) {
           await syncData({
             versionIds,
-            // setDataSyncStatus,
+            setDataSyncStatus,
           })
         }
 
@@ -56,11 +58,17 @@ const SideMenuAndRouteSwitcher = ({
 
   useBack(pathname !== '/Read' && historyGoBack)
 
+  const open = /\/SideMenu(?:#.*)?$/.test(pathname)
+
   return (
     <SideMenu
-      open={/\/SideMenu(?:#.*)?$/.test(pathname)}
+      open={open}
       onClose={historyGoBack}
-      menu={<Drawer />}
+      menu={
+        <Drawer
+          open={open}
+          dataSyncStatus={dataSyncStatus}
+      />}
     >
 
       <Routes>

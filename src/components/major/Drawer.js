@@ -11,10 +11,11 @@ import menuItems from "../../../menu"
 import useNetwork from "../../hooks/useNetwork"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
-import { memo, sentry, getVersionInfo } from "../../utils/toolbox"
+import { memo, sentry, getVersionInfo, safelyExecuteSelects } from "../../utils/toolbox"
 
 import DrawerItem from "../basic/DrawerItem"
 import DrawerStatusItem from "../basic/DrawerStatusItem"
+import useMemoAsync from "../../hooks/useMemoAsync"
 
 const {
   LINK_TO_BIBLE_TAGS_MARKETING_SITE,
@@ -64,9 +65,15 @@ const styles = StyleSheet.create({
   divider: {
     marginVertical: 10,
   },
+  offline: {
+    fontWeight: '700',
+    marginBottom: 5,
+  },
 })
 
 const Drawer = ({
+  open,
+  dataSyncStatus,
   style,
   imageStyle,
   labelStyle,
@@ -86,6 +93,18 @@ const Drawer = ({
   const { online } = useNetwork()
 
   const { downloadingVersionIds, searchDownloadingVersionIds } = useBibleVersions({ myBibleVersions })
+
+  const numTagsToSubmit = useMemoAsync(
+    async () => {
+      const [[{ numTagsToSubmit=0 }]] = await safelyExecuteSelects([{
+        database: `submittedTagSets`,
+        statement: () => `SELECT COUNT(*) AS numTagsToSubmit FROM submittedTagSets WHERE submitted=0`,
+        jsonKeys: [ 'input' ],
+      }])
+      return numTagsToSubmit
+    },
+    [ open, dataSyncStatus === 'done' ],
+  )
 
   const goToBibleTagsMarketingSite = useCallback(
     () => {
@@ -159,11 +178,34 @@ const Drawer = ({
             </View>
           </TouchableOpacity>
         }
+        {!online &&
+          <DrawerStatusItem
+            message={i18n("You are offline.")}
+            style={styles.offline}
+          />
+        }
+        {!online && !!numTagsToSubmit &&
+          <DrawerStatusItem
+            message={i18n("{{num}} tag set(s) are awaiting submission.", {
+              num: numTagsToSubmit,
+            })}
+          />
+        }
         {!online && combinedDownloadingVersionIds.length > 0 &&
           <DrawerStatusItem
-            message={i18n("There are {{num}} version(s) that will download next time you connect to the internet.", {
+            message={i18n("{{num}} version(s) are awaiting download.", {
               num: combinedDownloadingVersionIds.length,
             })}
+          />
+        }
+        {online && ![ 'none' ].includes(dataSyncStatus) &&
+          <DrawerStatusItem
+            showSpinner={true}
+            message={{
+              definitions: i18n("Downloading definitions..."),
+              tags: i18n("Downloading updated tags..."),
+              submissions: i18n("Submitting {{num}} tag set(s)...", { num: numTagsToSubmit }),
+            }[dataSyncStatus]}
           />
         }
         {online && combinedDownloadingVersionIds.map(versionId => (
