@@ -5,6 +5,7 @@ import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
+import useNetwork from "../../hooks/useNetwork"
 import { getVersionInfo, memo } from "../../utils/toolbox"
 
 import Icon from "../basic/Icon"
@@ -24,10 +25,18 @@ const styles = StyleSheet.create({
     fontWeight: '300',
     fontSize: 13,
   },
+  offlineIcon: {
+    height: 20,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+  },
   downloadedIcon: {
     height: 20,
     paddingVertical: 5,
     paddingHorizontal: 5,
+  },
+  tooltip: {
+    maxWidth: 270,
   },
   optionsIcon: {
     height: 20,
@@ -65,6 +74,7 @@ const VersionItem = ({
   labelStyle,
   nameStyle,
   iconStyle,
+  offlineIconStyle,
   downloadedIconStyle,
 
   eva: { style: themedStyle={} },
@@ -73,12 +83,19 @@ const VersionItem = ({
 }) => {
 
   const { baseThemedStyle, labelThemedStyle, iconThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
-  const [ nameThemedStyle={}, downloadedIconThemedStyle={} ] = altThemedStyleSets
+  const [
+    nameThemedStyle={},
+    offlineIconThemedStyle={},
+    downloadedIconThemedStyle={},
+  ] = altThemedStyleSets
+
+  const { online } = useNetwork()
 
   const { name, abbr } = getVersionInfo(versionId)
 
   const [ menuOpen, toggleMenuOpen ] = useToggle()
-  const [ showTooltip, toggleShowTooltip ] = useToggle()
+  const [ showTooltipOffline, toggleShowTooltipOffline ] = useToggle()
+  const [ showTooltipDownloaded, toggleShowTooltipDownloaded ] = useToggle()
 
   const animation = useRef(new Animated.Value(0))
 
@@ -141,10 +158,31 @@ const VersionItem = ({
     [ options ],
   )
 
-  const renderTooltipAnchor = useCallback(
+  const renderTooltipOfflineAnchor = useCallback(
     () => (
       <TouchableWithoutFeedback
-        onPress={toggleShowTooltip}
+        onPress={toggleShowTooltipOffline}
+        disabled={reordering}
+      >
+        <Icon
+          style={[
+            styles.offlineIcon,
+            offlineIconThemedStyle,
+            offlineIconStyle,
+          ]}
+          name="cloud-off-outline"
+          pack="materialCommunity"
+          uiStatus={reordering ? `disabled` : `unselected`}
+        />
+      </TouchableWithoutFeedback>
+    ),
+    [ toggleShowTooltipOffline, reordering, styles, offlineIconThemedStyle, offlineIconStyle ],
+  )
+
+  const renderTooltipDownloadedAnchor = useCallback(
+    () => (
+      <TouchableWithoutFeedback
+        onPress={toggleShowTooltipDownloaded}
         disabled={reordering}
       >
         <Icon
@@ -159,7 +197,7 @@ const VersionItem = ({
         />
       </TouchableWithoutFeedback>
     ),
-    [ toggleShowTooltip, reordering, styles, downloadedIconThemedStyle, downloadedIconStyle ],
+    [ toggleShowTooltipDownloaded, reordering, styles, downloadedIconThemedStyle, downloadedIconStyle ],
   )
 
   const renderOverflowMenuAnchor = useCallback(
@@ -208,7 +246,19 @@ const VersionItem = ({
           {name}
         </Text>
       </View>
-      {downloading &&
+      {downloading && !online &&
+        <View>
+          <Tooltip
+            visible={showTooltipOffline}
+            onBackdropPress={toggleShowTooltipOffline}
+            anchor={renderTooltipOfflineAnchor}
+            style={styles.tooltip}
+          >
+            {i18n("You are offline. This version will download next time you connect.")}
+          </Tooltip>
+        </View>
+      }
+      {downloading && online &&
         <View>
           <Spin
             style={styles.spin}
@@ -219,9 +269,10 @@ const VersionItem = ({
       {downloaded &&
         <View>
           <Tooltip
-            visible={showTooltip}
-            onBackdropPress={toggleShowTooltip}
-            anchor={renderTooltipAnchor}
+            visible={showTooltipDownloaded}
+            onBackdropPress={toggleShowTooltipDownloaded}
+            anchor={renderTooltipDownloadedAnchor}
+            style={styles.tooltip}
           >
             {i18n("Available offline")}
           </Tooltip>
