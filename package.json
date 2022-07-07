@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.80.0",
-    "@bibletags/bibletags-ui-helper": "^0.8.1",
-    "@bibletags/bibletags-versification": "^0.2.11",
+    "@bibletags/bibletags-ui-helper": "^0.8.2",
+    "@bibletags/bibletags-versification": "^0.2.12",
     "@eva-design/eva": "^2.1.1",
     "@expo/vector-icons": "^10.2.1",
     "@expo/webpack-config": "~0.16.2",

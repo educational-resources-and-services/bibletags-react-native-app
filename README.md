@@ -10,7 +10,7 @@ For more information on this project, see the [Bible Tags website](https://bible
 
 ## Repos
 
-* [bibletags-data](https://github.com/educational-resources-and-services/bibletags-data) **(Contains general information on project design and contributing.)**
+* [bibletags-data](https://github.com/educational-resources-and-services/bibletags-data)
 * [bibletags-react-native-app](https://github.com/educational-resources-and-services/bibletags-react-native-app)
 * [bibletags-ui-helper](https://github.com/educational-resources-and-services/bibletags-ui-helper)
 * [bibletags-versification](https://github.com/educational-resources-and-services/bibletags-versification)
@@ -18,22 +18,21 @@ For more information on this project, see the [Bible Tags website](https://bible
 * [bibletags-widget](https://github.com/educational-resources-and-services/bibletags-widget)
 * [bibletags-widget-script](https://github.com/educational-resources-and-services/bibletags-widget-script)
 
-## Bugs / feature requests
+## Bugs
 
-* See [here](https://github.com/educational-resources-and-services/bibletags-data/issues).
-* Please first check if your bug report / feature request already exists before submitting a new issue.
-* For bug reports, please provide a clear description of the problem and step-by-step explanation of how to reproduce it.
-* For feature requests, please first get to the know the project via the [Design section of the bibletags-data README](https://github.com/educational-resources-and-services/bibletags-data#design) to make sure the desired feature is inline with the direction this project is heading.
+* Report [here](https://github.com/educational-resources-and-services/bibletags-data/issues).
 
-# bibletags-react-native-app
+# Bible Tags React Native App
 
 An open source app template built in React Native with [Expo](https://expo.dev/).
 
 ## Development
 
-Currently this project does not connect to a backend. Thus, only this repo needs to be installed.
+### Installation of bibletags-data (backend)
 
-### Installation
+Follow the instructions found [here](https://github.com/educational-resources-and-services/bibletags-data).
+
+### Installation of bibletags-react-native-app
 
 ```bash
 git clone https://github.com/educational-resources-and-services/bibletags-react-native-app
@@ -45,7 +44,7 @@ npm run setup
 ### Running
 
 ```bash
-npm start
+npm run dev
 ```
 
 ### Customization
