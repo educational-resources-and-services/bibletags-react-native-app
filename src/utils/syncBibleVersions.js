@@ -25,9 +25,13 @@ const noop = () => {}
 export const removeVersion = async ({ id, removeBibleVersion=noop }) => {
   const versionDir = `${sqliteDir}/versions/${id}`
   const fileRevisionKey = `${id}RevisionNum`
+  const tagSetsKey = `versions/${id}/tagSets-updatedFrom`
+  const translationBreakdownsKey = `versions/${id}/translationBreakdowns-updatedFrom`
 
   removeBibleVersion({ id })
   await removeAsyncStorage(fileRevisionKey)
+  await removeAsyncStorage(tagSetsKey)
+  await removeAsyncStorage(translationBreakdownsKey)
   await FileSystem.deleteAsync(versionDir, { idempotent: true })
 }
 

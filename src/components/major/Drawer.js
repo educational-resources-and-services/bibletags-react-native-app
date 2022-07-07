@@ -203,7 +203,7 @@ const Drawer = ({
             showSpinner={true}
             message={{
               definitions: i18n("Downloading definitions..."),
-              tags: i18n("Downloading updated tags..."),
+              tags: i18n("Downloading tags..."),
               submissions: i18n("Submitting {{num}} tag set(s)...", { num: numTagsToSubmit }),
             }[dataSyncStatus]}
           />
