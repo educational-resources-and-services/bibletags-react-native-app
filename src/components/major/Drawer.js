@@ -213,17 +213,17 @@ const Drawer = ({
             key={versionId}
             showSpinner={true}
             message={
-            downloadingVersionIds.includes(versionId)
-              ? (
-                i18n("Downloading {{version}} Bible text...", {
-                  version: getVersionInfo(versionId).abbr,
-                })
-              )
-              : (
-                i18n("Downloading {{version}} search data...", {
-                  version: getVersionInfo(versionId).abbr,
-                })
-              )
+              downloadingVersionIds.includes(versionId)
+                ? (
+                  i18n("Downloading {{version}} Bible text...", {
+                    version: getVersionInfo(versionId).abbr,
+                  })
+                )
+                : (
+                  i18n("Downloading {{version}} search data...", {
+                    version: getVersionInfo(versionId).abbr,
+                  })
+                )
             }
           />
         ))}

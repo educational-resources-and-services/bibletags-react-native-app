@@ -68,7 +68,8 @@ const SideMenuAndRouteSwitcher = ({
         <Drawer
           open={open}
           dataSyncStatus={dataSyncStatus}
-      />}
+        />
+      }
     >
 
       <Routes>

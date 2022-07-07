@@ -57,4 +57,8 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
 
 }
 
+export const removeVersionIdSyncedDuringThisOpen = versionId => {
+  versionIdsSyncedDuringThisOpen.splice(versionIdsSyncedDuringThisOpen.indexOf(versionId), 1)
+}
+
 export default syncData

@@ -5,6 +5,7 @@ import CryptoJS from "react-native-crypto-js"
 import NetInfo from "@react-native-community/netinfo"
 
 import { getVersionInfo, setAsyncStorage, removeAsyncStorage, getAsyncStorage, executeSql } from "./toolbox"
+import { removeVersionIdSyncedDuringThisOpen } from "./syncData"
 
 const {
   DEFAULT_BIBLE_VERSIONS=['original'],
@@ -33,6 +34,7 @@ export const removeVersion = async ({ id, removeBibleVersion=noop }) => {
   await removeAsyncStorage(tagSetsKey)
   await removeAsyncStorage(translationBreakdownsKey)
   await FileSystem.deleteAsync(versionDir, { idempotent: true })
+  removeVersionIdSyncedDuringThisOpen(id)
 }
 
 let goRerun = noop
