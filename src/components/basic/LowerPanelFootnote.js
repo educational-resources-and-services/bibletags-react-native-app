@@ -175,6 +175,7 @@ const LowerPanelFootnote = ({
         onContentSizeChange={onFootnoteContentSizeChange}
       >
         <Footnote
+          key={content}  // needed to fix Android bug where updated text sometimes doesn't show (e.g. In Isaiah 16:4 ESV, tap the cf and then the note)
           selectedVersionId={selectedVersionId}
           selectedInfo={selectedInfo}
           pieces={pieces}
