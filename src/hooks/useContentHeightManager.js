@@ -1,11 +1,15 @@
 import { useRef, useMemo, useState, useCallback } from "react"
+
+import useInstanceValue from "./useInstanceValue"
 import useSetTimeout from "./useSetTimeout"
 
-const useContentHeightManager = defaultHeight => {
+const useContentHeightManager = ({ defaultHeight=0, onlyIncreaseHeightUntilClear }) => {
 
   const heights = useRef([])
   const [ contentHeight, setContentHeight ] = useState(defaultHeight)
   const [ setUpdateTimeout ] = useSetTimeout()
+  const getOnlyIncreaseHeightUntilClear = useInstanceValue(onlyIncreaseHeightUntilClear)
+  const contentHeightRef = useRef()
 
   const onSizeChangeFunctions = useMemo(
     () => (
@@ -16,6 +20,7 @@ const useContentHeightManager = defaultHeight => {
 
             const { nativeEvent } = params[0] || {}
             const { layout } = nativeEvent || {}
+            const onlyIncreaseHeightUntilClear = getOnlyIncreaseHeightUntilClear()
 
             if(layout) {
               heights.current[idx] = layout.height
@@ -26,7 +31,12 @@ const useContentHeightManager = defaultHeight => {
             // The timeout is needed so that only one state change is made though
             // several onSizeChangeFunctions may come in at once.
             setUpdateTimeout(() => {
-              setContentHeight(heights.current.reduce((total, ht) => total + ht, 0))
+              const newContentHeight = Math.max(
+                (onlyIncreaseHeightUntilClear && contentHeightRef.current !== defaultHeight) ? contentHeightRef.current : 0,
+                heights.current.reduce((total, ht) => total + ht, 0)
+              )
+              setContentHeight(newContentHeight)
+              contentHeightRef.current = newContentHeight
             })
           }
         ))
@@ -37,8 +47,12 @@ const useContentHeightManager = defaultHeight => {
   const clearRecordedHeights = useCallback(
     () => {
       heights.current = []
+      contentHeightRef.current = defaultHeight
+      setUpdateTimeout(() => {
+        setContentHeight(defaultHeight)
+      })
     },
-    [],
+    [ defaultHeight ],
   )
 
   return {

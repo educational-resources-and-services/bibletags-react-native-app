@@ -42,7 +42,7 @@ const LowerPanel = ({
   const show = !!selectedData.selectedSection
   const getSelectedData = useInstanceValue(selectedData)  
 
-  const { contentHeight, onSizeChangeFunctions, clearRecordedHeights } = useContentHeightManager(300)
+  const { contentHeight, onSizeChangeFunctions, clearRecordedHeights, clearCurrentIncreaseOnlyHeight } = useContentHeightManager({ defaultHeight: 300, onlyIncreaseHeightUntilClear: !(selectedInfo || {}).tag })
 
   const { width: windowWidth, height: windowHeight } = useDimensions().window
 
@@ -119,6 +119,7 @@ const LowerPanel = ({
         selectedTagInfo={selectedTagInfo}
         updateSelectedData={updateSelectedData}
         onSizeChangeFunctions={onSizeChangeFunctions}
+        clearRecordedHeights={clearRecordedHeights}
         maxHeight={maxHeight}
       />
     )

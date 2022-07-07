@@ -35,6 +35,9 @@ const styles = StyleSheet.create({
     minHeight: 0,
     paddingVertical: 15,
   },
+  noPaddingTop: {
+    paddingTop: 0,
+  },
   translationAndParsingScrollView: {
   },
   horizontalContainer: {
@@ -48,7 +51,7 @@ const styles = StyleSheet.create({
   noCorrespondingContainer: {
     justifyContent: 'center',
     paddingHorizontal: 50,
-    paddingBottom: 20,
+    paddingBottom: 50,
   },
   noCorresponding: {
     textAlign: 'center',
@@ -60,13 +63,13 @@ const OriginalWordInfo = ({
   morph=``,
   strong=``,
   lemma=``,
-  onSizeChange,
-  onSizeChangeFunctions,
+  wordId,
+  onLayout,
   doIPhoneBuffer=false,
-  translationsOfWordInMyVersions=[],
   originalLoc,
   hideEditTagIcon,
   extendedHeight,
+  noPaddingTop,
 
   eva: { style: themedStyle={} },
 
@@ -77,7 +80,6 @@ const OriginalWordInfo = ({
 
   const [ showExtended, setShowExtended ] = useState(false)
   const toggleShowExtended = useCallback(() => setShowExtended(!showExtended), [ showExtended ])
-  const height = minWordAndParsingHeight + 63 + (showExtended ? extendedHeight : 0)
   const adjShowExtended = showExtended && extendedHeight > 150
 
   const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions })
@@ -94,20 +96,13 @@ const OriginalWordInfo = ({
 
   const { morphPos } = getMorphInfo(morph)
 
-  useLayoutEffect(
-    () => {
-      onSizeChange && onSizeChange(0, height)
-    },
-    [ height ],
-  )
-
   if(!morph) {
     return (
       <View
         style={[
           styles.noCorrespondingContainer,
-          { height },
         ]}
+        onLayout={onLayout}
       >
         <Text style={styles.noCorresponding}>
           {i18n("This word has no corresponding original language word.")}
@@ -120,83 +115,84 @@ const OriginalWordInfo = ({
     <View
       style={[
         styles.container,
-        (onSizeChange ? { height } : styles.containerSelfContained),
+        styles.containerSelfContained,
       ]}
     >
+      <View onLayout={onLayout}>
 
-      <View
-        style={[
-          styles.wordAndParsing,
-          (!onSizeChange ? styles.wordAndParsingSelfContained : null),
-        ]}
-        onLayout={onSizeChangeFunctions ? onSizeChangeFunctions[0] : null}
-      >
+        <View
+          style={[
+            styles.wordAndParsing,
+            styles.wordAndParsingSelfContained,
+            noPaddingTop ? styles.noPaddingTop : null,
+          ]}
+        >
 
-        {!!originalLoc &&
-          <TranslationsOfWordInMyVersions
-            translationsOfWordInMyVersions={translationsOfWordInMyVersions}
-            originalLoc={originalLoc}
-            originalLanguage={/^G/.test(definitionId) ? `greek` : `hebrew`}
-            downloadedNonOriginalVersionIds={downloadedNonOriginalVersionIds}
-            hideEditTagIcon={hideEditTagIcon}
+          {!!originalLoc &&
+            <TranslationsOfWordInMyVersions
+              wordId={wordId}
+              originalLoc={originalLoc}
+              originalLanguage={/^G/.test(definitionId) ? `greek` : `hebrew`}
+              downloadedNonOriginalVersionIds={downloadedNonOriginalVersionIds}
+              hideEditTagIcon={hideEditTagIcon}
+            />
+          }
+
+          <Parsing
+            morph={morph}
+            strong={strong}
           />
-        }
 
-        <Parsing
-          morph={morph}
-          strong={strong}
-        />
+        </View>
 
-      </View>
+        <View
+          style={[
+            styles.horizontalContainer,
+            themedStyle,
+          ]}
+        >
+          <View style={styles.leftSide}>
 
-      <View
-        style={[
-          styles.horizontalContainer,
-          themedStyle,
-        ]}
-        onLayout={onSizeChangeFunctions ? onSizeChangeFunctions[1] : null}
-      >
-        <View style={styles.leftSide}>
+            <Definition
+              id={id}
+              lex={lex}
+              vocal={vocal}
+              hits={hits}
+              pos={pos}
+              gloss={gloss}
+              morphPos={morphPos}
+              showExtended={adjShowExtended}
+              // showExtendedOption={extendedHeight > 150}
+              showExtendedOption={false}
+              toggleShowExtended={toggleShowExtended}
+              doIPhoneBuffer={showExtended ? false : doIPhoneBuffer}
+            />
 
-          <Definition
-            id={id}
-            lex={lex}
-            vocal={vocal}
-            hits={hits}
-            pos={pos}
-            gloss={gloss}
-            morphPos={morphPos}
-            showExtended={adjShowExtended}
-            // showExtendedOption={extendedHeight > 150}
-            showExtendedOption={false}
-            toggleShowExtended={toggleShowExtended}
-            doIPhoneBuffer={showExtended ? false : doIPhoneBuffer}
-          />
+            {adjShowExtended &&
+              <ExtendedDefinition
+                lexEntry={lexEntry}
+                syn={syn}
+                rel={rel}
+                lemmas={lemmas}
+                morphLemma={lemma}
+                forms={forms}
+                doIPhoneBuffer={doIPhoneBuffer}
+                height={extendedHeight}
+              />
+            }
+
+          </View>
 
           {adjShowExtended &&
-            <ExtendedDefinition
-              lexEntry={lexEntry}
-              syn={syn}
-              rel={rel}
-              lemmas={lemmas}
-              morphLemma={lemma}
-              forms={forms}
-              doIPhoneBuffer={doIPhoneBuffer}
-              height={extendedHeight}
+            <TranslationBreakdown
+              breakdown={breakdown}
+              lxx={lxx}
             />
           }
 
         </View>
 
-        {adjShowExtended &&
-          <TranslationBreakdown
-            breakdown={breakdown}
-            lxx={lxx}
-          />
-        }
-
       </View>
-
     </View>
   )
 

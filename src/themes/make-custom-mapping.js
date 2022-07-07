@@ -698,6 +698,9 @@ const mapping = {
     {
       component: 'PassageRef',
     },
+    {
+      component: 'TranslationsOfWordInMyVersions',
+    },
     ...MAPPING_CUSTOMIZATION,
   ]),
   

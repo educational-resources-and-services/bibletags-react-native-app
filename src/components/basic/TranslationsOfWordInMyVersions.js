@@ -1,13 +1,16 @@
 import React, { useCallback, useMemo } from "react"
 import { StyleSheet, View, Text, TouchableOpacity } from "react-native"
+import { bindActionCreators } from "redux"
+import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import useToggle from "react-use/lib/useToggle"
 const { getCorrespondingRefs, getRefFromLoc } = require('@bibletags/bibletags-versification')
 const { escapeRegex } = require('@bibletags/bibletags-ui-helper')
 import { OverflowMenu, MenuItem } from "@ui-kitten/components"
 
-import { getVersionInfo, getOriginalVersionInfo, orderedStatusesArray, getStatusText } from "../../utils/toolbox"
+import { getVersionInfo, getOriginalVersionInfo, orderedStatusesArray, getStatusText, memo } from "../../utils/toolbox"
 import useRouterState from "../../hooks/useRouterState"
+import useTranslationsOfWordInMyVersions from "../../hooks/useTranslationsOfWordInMyVersions"
 
 import StatusIcon from "./StatusIcon"
 import Icon from "./Icon"
@@ -102,16 +105,23 @@ const styles = StyleSheet.create({
 })
 
 const TranslationsOfWordInMyVersions = ({
-  translationsOfWordInMyVersions,
+  wordId,
   originalLoc,
   originalLanguage,
   downloadedNonOriginalVersionIds,
   hideEditTagIcon,
-  // onLayout,
+
+  myBibleVersions,
 }) => {
 
   const { historyPush } = useRouterState()
   const [ menuOpen, toggleMenuOpen ] = useToggle()
+
+  const translationsOfWordInMyVersions = useTranslationsOfWordInMyVersions({
+    wordId,
+    originalLoc,
+    myBibleVersions,
+  })
 
   const renderOverflowMenuAnchor = useCallback(
     () => (
@@ -157,6 +167,8 @@ const TranslationsOfWordInMyVersions = ({
     [ downloadedNonOriginalVersionIds, historyPush, originalLoc ],
   )
 
+  if(!translationsOfWordInMyVersions) return null
+
   const translationsOfWordInMyVersionsToShow = translationsOfWordInMyVersions.filter(({ translations }) => translations.some(({ translation }) => translation))
   const hidePhrases = translationsOfWordInMyVersionsToShow.every(({ phrase }) => phrase.length === 1)
   const spaceOrEllipsisRegex = new RegExp(`((?:${escapeRegex(i18n(" ", "word separator"))})|(?:${escapeRegex(i18n("…", "placed between nonconsecutive words"))}))`, 'g')
@@ -173,10 +185,7 @@ const TranslationsOfWordInMyVersions = ({
   })
 
   return (
-    <View
-      style={styles.container}
-      // onLayout={onLayout}
-    >
+    <View style={styles.container}>
 
       {translationsOfWordInMyVersionsToShow.length === 0 &&
         <Text style={styles.noTagged}>
@@ -338,4 +347,11 @@ const TranslationsOfWordInMyVersions = ({
 
 }
 
-export default TranslationsOfWordInMyVersions
+const mapStateToProps = ({ myBibleVersions }) => ({
+  myBibleVersions,
+})
+
+const matchDispatchToProps = dispatch => bindActionCreators({
+}, dispatch)
+
+export default memo(connect(mapStateToProps, matchDispatchToProps)(TranslationsOfWordInMyVersions), { name: 'TranslationsOfWordInMyVersions' })

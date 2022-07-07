@@ -49,7 +49,8 @@ const styles = StyleSheet.create({
     right: 12,
   },
   search: {
-    height: 20,
+    height: 18,
+    padding: 1,
   },
   extendedInfoContainer: {
     position: 'absolute',

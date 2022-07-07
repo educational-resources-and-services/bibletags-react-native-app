@@ -155,15 +155,6 @@ const LowerPanelFootnote = ({
     [ selectedVersionId, selectedRefs ],
   )
 
-  useEffect(
-    () => {
-      if(!selectedRefs) {
-        onSizeChangeFunctions[1](0, 0)
-      }
-    },
-    [ selectedRefs ],
-  )
-
   const onFootnoteContentSizeChange = useCallback(
     (...params) => {
       setFootnoteScrollHeight(params[1])
@@ -212,6 +203,8 @@ const LowerPanelFootnote = ({
           <IPhoneXBuffer extraSpace={true} />
         </ScrollView>
       }
+
+      {!selectedRefs && <View onLayout={onSizeChangeFunctions[1]} />}
 
     </View>
   )

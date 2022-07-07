@@ -25,18 +25,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  originalWordInfo: {
+    paddingTop: 0,
+  },
   noCompareVersionsContainer: {
     padding: 20,
     opacity: .5,
     minHeight: 150,
   },
   scrollView: {
-    minHeight: 60,
   },
   scrollViewContentContainer: {
     padding: 20,
   },
-  verse: {
+  verseContainer: {
+  },
+  preLoadSpacer: {
+    height: 60,
+  },
+  coverAndSpin: {
+    bottom: 60,
   },
 })
 
@@ -52,6 +60,7 @@ const LowerPanelVsComparison = ({
   selectedTagInfo,
   updateSelectedData,
   onSizeChangeFunctions,
+  clearRecordedHeights,
   style,
   maxHeight,
 
@@ -167,6 +176,16 @@ const LowerPanelVsComparison = ({
     refs: correspondingRefsByVersion[versionIdShowing],
   })
 
+  const isPriorToDisplayOfVerse = useRef(true)
+  useLayoutEffect(
+    () => {
+      if(piecesVersionId) {
+        isPriorToDisplayOfVerse.current = false
+      }
+    },
+    [ !!piecesVersionId ],
+  )
+
   const { originalWordsInfo, hasNoCoorespondingOriginalWord, onOriginalWordVerseTap } = useSetSelectedTagInfo({
     skip: !isOriginal,
     tagSet,
@@ -180,12 +199,15 @@ const LowerPanelVsComparison = ({
 
   const adjustedSelectedWordIdx = selectedWordIdx > originalWordsInfo.length - 1 ? 0 : selectedWordIdx
   const { morph, strong, lemma } = originalWordsInfo[adjustedSelectedWordIdx] || {}
+  const wordId = (originalWordsInfo[adjustedSelectedWordIdx] || {})[`x-id`]
 
   const wordNotYetTagged = !!(
     (tagSet || {}).status === 'automatch'
     && selectedInfo
     && hasNoCoorespondingOriginalWord
   )
+
+  const showNotYetTagged = !selectedTagInfo && (!selectedInfo || [ 'automatch', 'none', undefined ].includes((tagSet || {}).status))
 
   useEffect(
     () => {
@@ -198,8 +220,16 @@ const LowerPanelVsComparison = ({
 
   useLayoutEffect(
     () => {
+      if(piecesVersionId) {
+        clearRecordedHeights()
+      }
+    },
+    [ piecesVersionId ],
+  )
+
+  useLayoutEffect(
+    () => {
       if(!isOriginal) {
-        onSizeChangeFunctions[6](0,0)
         updateSelectedData({
           selectedInfo: null,
           selectedTagInfo: null,
@@ -222,34 +252,35 @@ const LowerPanelVsComparison = ({
 
   if(versionIdsToShow.length === 0) {
     return (
-      <View
-        onLayout={onSizeChangeFunctions[5]}
-        style={styles.noCompareVersionsContainer}
-      >
-        {versionsCurrentlyDownloading && <CoverAndSpin />}
-        {!versionsCurrentlyDownloading &&
-          <Text>
-            {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
-          </Text>
-        }
-        <IPhoneXBuffer
-          extraSpace={true}
-          onLayout={onSizeChangeFunctions[8]}
-        />
-      </View>
+      <>
+        <View
+          onLayout={onSizeChangeFunctions[0]}
+          style={styles.noCompareVersionsContainer}
+        >
+          {versionsCurrentlyDownloading && <CoverAndSpin />}
+          {!versionsCurrentlyDownloading &&
+            <Text>
+              {i18n("Tapping a verse number provides a quick comparison between your Bible versions. To get started, add Bible versions by tapping the pencil icon within the passage chooser.")}
+            </Text>
+          }
+          <IPhoneXBuffer
+            extraSpace={true}
+          />
+        </View>
+        <View onLayout={onSizeChangeFunctions[1]} />
+      </>
     )
   }
 
   // TODO: show vs num (and chapter when different) before each verse when not the same
 
-  const showNotYetTagged = !selectedTagInfo && (!selectedInfo || [ 'automatch', 'none', undefined ].includes((tagSet || {}).status))
-
   return (
     <View style={styles.container}>
+      {!piecesVersionId && <CoverAndSpin style={styles.coverAndSpin} size="small" />}
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContentContainer}
-        onContentSizeChange={onSizeChangeFunctions[5]}
+        onContentSizeChange={onSizeChangeFunctions[0]}
         alwaysBounceVertical={false}
         ref={scrollRef}
       >
@@ -257,6 +288,7 @@ const LowerPanelVsComparison = ({
           passageRef={passage.ref}
           versionId={piecesVersionId}
           pieces={pieces}
+          containerStyle={styles.verseContainer}
           style={[
             styles.verse,
             style,
@@ -268,40 +300,42 @@ const LowerPanelVsComparison = ({
           displaySettingsOverride={displaySettingsOverride}
         />
       </ScrollView>
-      {piecesVersionId === 'original' && showNotYetTagged &&
-        <NotYetTagged
-          passage={passageWithVerse}
-          tagSet={tagSet}
-          iHaveSubmittedATagSet={iHaveSubmittedATagSet}
-          wordNotYetTagged={wordNotYetTagged}
-          onLayout={onSizeChangeFunctions[6]}
-        />
-      }
-      {piecesVersionId === 'original' && !showNotYetTagged &&
-        <OriginalWordInfo
-          morph={morph}
-          strong={strong}
-          lemma={lemma}
-          onSizeChange={onSizeChangeFunctions[6]}
-          extendedHeight={maxHeight - 310}
-        />
-      }
-      <BottomNavigation
-        selectedIndex={index}
-        onSelect={setIndex}
-        onLayout={onSizeChangeFunctions[7]}
-      >
-        {versionIdsToShow.map(id => (
-          <BottomNavigationTab
-            key={id}
-            title={getVersionInfo(id).abbr}
+      <View onLayout={onSizeChangeFunctions[1]}>
+        {isPriorToDisplayOfVerse.current && !piecesVersionId && <View style={styles.preLoadSpacer} />}
+        {piecesVersionId === 'original' && showNotYetTagged &&
+          <NotYetTagged
+            passage={passageWithVerse}
+            tagSet={tagSet}
+            iHaveSubmittedATagSet={iHaveSubmittedATagSet}
+            wordNotYetTagged={wordNotYetTagged}
           />
-        ))}
-      </BottomNavigation>
-      <IPhoneXBuffer
-        extraSpace={true}
-        onLayout={onSizeChangeFunctions[8]}
-      />
+        }
+        {piecesVersionId === 'original' && !showNotYetTagged &&
+          <OriginalWordInfo
+            noPaddingTop={true}
+            morph={morph}
+            strong={strong}
+            lemma={lemma}
+            wordId={wordId}
+            originalLoc={getLocFromRef(correspondingRefsByVersion.original[0])}  // TODO: This will not necessarily be correct if there are 2+ verses in the original; needs a fix
+            extendedHeight={maxHeight - 310}
+          />
+        }
+        <BottomNavigation
+          selectedIndex={index}
+          onSelect={setIndex}
+        >
+          {versionIdsToShow.map(id => (
+            <BottomNavigationTab
+              key={id}
+              title={getVersionInfo(id).abbr}
+            />
+          ))}
+        </BottomNavigation>
+        <IPhoneXBuffer
+          extraSpace={true}
+        />
+      </View>
     </View>
   )
 

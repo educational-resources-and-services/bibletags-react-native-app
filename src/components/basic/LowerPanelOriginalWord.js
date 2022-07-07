@@ -3,8 +3,6 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { getLocFromRef } from "@bibletags/bibletags-versification"
 
-import useTranslationsOfWordInMyVersions from "../../hooks/useTranslationsOfWordInMyVersions"
-
 import OriginalWordInfo from "./OriginalWordInfo"
 
 const LowerPanelOriginalWord = ({
@@ -15,7 +13,6 @@ const LowerPanelOriginalWord = ({
   hideEditTagIcon,
 
   passage,
-  myBibleVersions,
 }) => {
 
   const { morph, strong, lemma } = selectedInfo
@@ -23,20 +20,14 @@ const LowerPanelOriginalWord = ({
 
   const originalLoc = getLocFromRef({ ...passage.ref, verse: selectedVerse })
 
-  const translationsOfWordInMyVersions = useTranslationsOfWordInMyVersions({
-    wordId,
-    originalLoc,
-    myBibleVersions,
-  })
-
   return (
     <OriginalWordInfo
       morph={morph}
       strong={strong}
       lemma={lemma}
-      onSizeChangeFunctions={onSizeChangeFunctions}
+      wordId={wordId}
+      onLayout={onSizeChangeFunctions[0]}
       doIPhoneBuffer={true}
-      translationsOfWordInMyVersions={translationsOfWordInMyVersions}
       originalLoc={originalLoc}
       hideEditTagIcon={hideEditTagIcon}
       extendedHeight={maxHeight - 210}
@@ -45,9 +36,8 @@ const LowerPanelOriginalWord = ({
 
 }
 
-const mapStateToProps = ({ passage, myBibleVersions }) => ({
+const mapStateToProps = ({ passage }) => ({
   passage,
-  myBibleVersions,
 })
 
 const matchDispatchToProps = dispatch => bindActionCreators({
