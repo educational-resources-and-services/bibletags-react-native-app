@@ -1,6 +1,6 @@
 {
   "name": "@bibletags/bibletags-react-native-app",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Bible Tags",
   "main": "node_modules/expo/AppEntry.js",
   "repository": {
