@@ -133,6 +133,32 @@ const Drawer = ({
   )
 
   const combinedDownloadingVersionIds = [ ...downloadingVersionIds, ...searchDownloadingVersionIds ]
+  let downloadingMessage
+
+  if(online) {
+    if(combinedDownloadingVersionIds[0]) {
+      const { abbr } = getVersionInfo(combinedDownloadingVersionIds[0])
+      downloadingMessage = (
+        downloadingVersionIds.includes(combinedDownloadingVersionIds[0])
+          ? (
+            i18n("Downloading {{version}} Bible text...", {
+              version: abbr,
+            })
+          )
+          : (
+            i18n("Downloading {{version}} search data...", {
+              version: abbr,
+            })
+          )
+      )
+    } else if(![ 'done' ].includes(dataSyncStatus)) {
+      downloadingMessage = {
+        definitions: i18n("Downloading definitions..."),
+        tags: i18n("Downloading tags..."),
+        submissions: i18n("Submitting {{num}} tag set(s)...", { num: numTagsToSubmit }),
+      }[dataSyncStatus]
+    }
+  }
 
   return (
     <Layout>
@@ -198,35 +224,12 @@ const Drawer = ({
             })}
           />
         }
-        {online && ![ 'done' ].includes(dataSyncStatus) &&
+        {!!downloadingMessage &&
           <DrawerStatusItem
             showSpinner={true}
-            message={{
-              definitions: i18n("Downloading definitions..."),
-              tags: i18n("Downloading tags..."),
-              submissions: i18n("Submitting {{num}} tag set(s)...", { num: numTagsToSubmit }),
-            }[dataSyncStatus]}
+            message={downloadingMessage}
           />
         }
-        {online && combinedDownloadingVersionIds.map(versionId => (
-          <DrawerStatusItem
-            key={versionId}
-            showSpinner={true}
-            message={
-              downloadingVersionIds.includes(versionId)
-                ? (
-                  i18n("Downloading {{version}} Bible text...", {
-                    version: getVersionInfo(versionId).abbr,
-                  })
-                )
-                : (
-                  i18n("Downloading {{version}} search data...", {
-                    version: getVersionInfo(versionId).abbr,
-                  })
-                )
-            }
-          />
-        ))}
         <Text
           style={[
             styles.subversion,
