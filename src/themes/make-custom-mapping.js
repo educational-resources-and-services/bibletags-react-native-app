@@ -99,7 +99,7 @@ const readTextAndVerseParameters = {
   alt5Color: "black", // selectedWordThemedStyle
   alt6TextShadowColor: "black", // selectedWordThemedStyle
   alt6Color: "black", // selectedVsThemedStyle
-  alt7Color: "border-danger-color-3",  // matchThemedStyle
+  alt7Color: "color-danger-500",  // matchThemedStyle
   alt8TextDecorationLine: "line-through",  // usedWordThemedStyle
   alt8Color: "color-basic-500",  // usedWordThemedStyle
 

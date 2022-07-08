@@ -11,6 +11,7 @@ const noPieces = { pieces: [] }
 const useVersePieces = ({
   versionId,
   refs,
+  searchText,
   skip,
 }) => {
 
@@ -47,6 +48,7 @@ const useVersePieces = ({
           usfm: `\\c ${refs[0].chapter}\n${verses.map(({ usfm }) => usfm).join("\n")}`,
           inlineMarkersOnly: true,
           wordDividerRegex,
+          searchText,
         }),
         piecesVersionId: versionId,
       })

@@ -4,8 +4,7 @@ import { View, StyleSheet, Text, Platform } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
-import { adjustPiecesForSpecialHebrew, adjustTextForSups, removeCantillation,
-         stripHebrewVowelsEtc, normalizeGreek, isRTLText, searchWordToLowerCase } from "@bibletags/bibletags-ui-helper"
+import { adjustPiecesForSpecialHebrew, adjustTextForSups, removeCantillation, isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getTextFont, adjustLineHeight,
@@ -35,7 +34,6 @@ const Verse = ({
   pieces,
   selectedAttr,
   passageRef,
-  searchString="",
   // selected,
   // selectTapY,
   onTouchStart,
@@ -92,12 +90,10 @@ const Verse = ({
 
   const getJSXFromPieces = ({ pieces, doSmallCaps }) => {
 
-    const searchWords = searchString ? searchString.split(" ") : []  // Needs to be modified to be version-specific, as not all languages divide words with spaces
-
     pieces = adjustPiecesForSpecialHebrew({ isOriginal, languageId, pieces })
 
     return pieces.map((piece, idx) => {
-      let { type, tag, text, content, nextChar, children, attrib, wordNumberInVerse } = piece
+      let { type, tag, text, content, nextChar, children, attrib, wordNumberInVerse, isHit } = piece
       tag = tag && tag.replace(/^\+/, '')
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
       const isSelectedRef = selectedAttr && attrib === selectedAttr
@@ -134,8 +130,6 @@ const Verse = ({
 
       const getPartOfPiece = (text=``, idx2) => {
 
-        const normalizedText = searchWordToLowerCase(normalizeGreek(stripHebrewVowelsEtc(text)))
-        const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
         const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt', 'zApparatusJson' ].includes(tag)) ? cloneObj(piece) : null
 
         if(info && versionId !== 'original') {
@@ -155,7 +149,7 @@ const Verse = ({
           text = removeCantillation(text)
         }
 
-        if(text && Object.keys(verseTextStyles).length === 0 && !isMatch && type !== 'word') {
+        if(text && Object.keys(verseTextStyles).length === 0 && !isHit && type !== 'word') {
           if(wrapWordsInNbsp && /^ +$/.test(text)) return `\u200B`  // zero-width sapce
           return text
         }
@@ -195,8 +189,8 @@ const Verse = ({
               ((usedWordNumbers.includes(wordNumberInVerse) && !selectedWordNumbers.includes(wordNumberInVerse)) ? usedWordThemedStyle : null),
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordThemedStyle : null),
               (selectedWordNumbers.includes(wordNumberInVerse) ? selectedWordStyle : null),
-              (isMatch ? matchThemedStyle : null),
-              (isMatch ? matchStyle : null),
+              (isHit ? matchThemedStyle : null),
+              (isHit ? matchStyle : null),
             ])}
             onPress={info ? onVerseTap : null}
             verseNumber={verse}
@@ -221,12 +215,7 @@ const Verse = ({
       ;(adjustedText || "")
         .split(wordDividerSetsInGroupRegex)
         .forEach(word => {
-          if(searchWords.some(searchWord => searchWordToLowerCase(normalizeGreek(stripHebrewVowelsEtc(word))) === searchWord)) {  // Needs to be modified to be version-specific
-            textPieces.push(word)
-            textPieces.push("")
-          } else {
-            textPieces[textPieces.length - 1] += word
-          }
+          textPieces[textPieces.length - 1] += word
         })
       textPieces = textPieces.filter(Boolean)
 

@@ -115,7 +115,7 @@ const BibleSearchResultsTranslationRow = ({
   const { pieces: versesPieces } = useVersePieces({
     refs,
     versionId: version.id,
-    // searchText,
+    searchText,
     skip,
   })
   if(!skip) {
