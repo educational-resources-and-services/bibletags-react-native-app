@@ -48,6 +48,7 @@ const useVersePieces = ({
           usfm: `\\c ${refs[0].chapter}\n${verses.map(({ usfm }) => usfm).join("\n")}`,
           inlineMarkersOnly: true,
           wordDividerRegex,
+          splitIntoWords: versionId !== 'original',
           searchText,
         }),
         piecesVersionId: versionId,
