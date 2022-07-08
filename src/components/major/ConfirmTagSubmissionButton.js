@@ -6,7 +6,7 @@ import { getLocFromRef } from "@bibletags/bibletags-versification"
 import { containsHebrewChars, containsGreekChars, splitVerseIntoWords } from "@bibletags/bibletags-ui-helper"
 import Constants from "expo-constants"
 
-import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId } from '../../utils/toolbox'
+import { memo, getWordIdAndPartNumber, cloneObj, getDeviceId, getVersionInfo } from '../../utils/toolbox'
 import useRouterState from "../../hooks/useRouterState"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { recordAndSubmitTagSet } from "../../utils/submitTagSet"
@@ -215,7 +215,7 @@ const ConfirmTagSubmissionButton = ({
           translationWordsInfo: (translationWordInfoByWordIdAndPartNumbers[wordIdAndPartNumbersJSON] || []).map(({ wordNumberInVerse, word, hasUnknownCapitalization }) => {
             if(hasUnknownCapitalization) {
               wordCapitalizationOptionsByWordNumber[wordNumberInVerse] = {
-                options: [ word, word.toLowerCase() ],
+                options: [ word, word.toLocaleLowerCase(getVersionInfo(passage.versionId).languageId) ],
               }
             }
             return {

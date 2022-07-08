@@ -246,7 +246,7 @@ const useTranslationsOfWordInMyVersions = ({
               const uncapitalizeWords = phrase => (
                 phrase
                   .split(new RegExp(`([ –]|${escapeRegex(i18n("…", "placed between nonconsecutive words"))})`, 'g'))
-                  .map(wordOrDivider => `${wordOrDivider.slice(0,1).toLowerCase()}${wordOrDivider.slice(1)}`)
+                  .map(wordOrDivider => `${wordOrDivider.slice(0,1).toLocaleLowerCase(getVersionInfo(versionId).languageId)}${wordOrDivider.slice(1)}`)
                   .join('')
               )
 

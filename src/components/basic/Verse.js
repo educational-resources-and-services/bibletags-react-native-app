@@ -5,7 +5,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { adjustPiecesForSpecialHebrew, adjustTextForSups, removeCantillation,
-         stripHebrewVowelsEtc, normalizeGreek, isRTLText } from "@bibletags/bibletags-ui-helper"
+         stripHebrewVowelsEtc, normalizeGreek, isRTLText, searchWordToLowerCase } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { getTextFont, adjustLineHeight,
@@ -134,7 +134,7 @@ const Verse = ({
 
       const getPartOfPiece = (text=``, idx2) => {
 
-        const normalizedText = normalizeGreek(stripHebrewVowelsEtc(text)).toLowerCase()
+        const normalizedText = searchWordToLowerCase(normalizeGreek(stripHebrewVowelsEtc(text)))
         const isMatch = searchWords.some(searchWord => normalizedText === searchWord)
         const info = (type === 'word' || [ 'w', 'f', 'fe', 'x', 'xt', 'zApparatusJson' ].includes(tag)) ? cloneObj(piece) : null
 
@@ -221,7 +221,7 @@ const Verse = ({
       ;(adjustedText || "")
         .split(wordDividerSetsInGroupRegex)
         .forEach(word => {
-          if(searchWords.some(searchWord => normalizeGreek(stripHebrewVowelsEtc(word)).toLowerCase() === searchWord)) {  // Needs to be modified to be version-specific
+          if(searchWords.some(searchWord => searchWordToLowerCase(normalizeGreek(stripHebrewVowelsEtc(word))) === searchWord)) {  // Needs to be modified to be version-specific
             textPieces.push(word)
             textPieces.push("")
           } else {
