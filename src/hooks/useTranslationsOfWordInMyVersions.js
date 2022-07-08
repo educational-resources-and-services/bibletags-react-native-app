@@ -1,11 +1,10 @@
 import { getCorrespondingRefs, getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
-import { splitVerseIntoWords } from "@bibletags/bibletags-ui-helper"
+import { splitVerseIntoWords, escapeRegex } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
 
 import useBibleVersions from "./useBibleVersions"
 import useMemoAsync from "./useMemoAsync"
 import { getVersionInfo, getOriginalVersionInfo, safelyExecuteSelects, equalObjs, orderedStatusesArray } from "../utils/toolbox"
-import { escapeRegex } from "@bibletags/bibletags-ui-helper/node_build/bibleSearchUtils"
 
 const useTranslationsOfWordInMyVersions = ({
   wordId,
@@ -243,7 +242,15 @@ const useTranslationsOfWordInMyVersions = ({
               }
 
               const { translations } = translationsOfWordsInMyVersions[wordId][phraseIdx]
-              let translationIndex = translations.findIndex(({ translation }) => translation === tagTranslation)
+
+              const uncapitalizeWords = phrase => (
+                phrase
+                  .split(new RegExp(`([ –]|${escapeRegex(i18n("…", "placed between nonconsecutive words"))})`, 'g'))
+                  .map(wordOrDivider => `${wordOrDivider.slice(0,1).toLowerCase()}${wordOrDivider.slice(1)}`)
+                  .join('')
+              )
+
+              let translationIndex = translations.findIndex(({ translation }) => uncapitalizeWords(translation) === uncapitalizeWords(tagTranslation))
 
               if(translationIndex === -1) {
                 translations.push({
