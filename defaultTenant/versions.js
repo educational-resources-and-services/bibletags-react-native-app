@@ -13,7 +13,7 @@ const bibleVersions = [
     id: 'original',
     bundled: true,
     files: originalRequires,
-    originalRevisionNum: 8,
+    originalRevisionNum: 9,
     abbr: 'Heb+Grk',
     name: 'unfoldingWord Hebrew Bible + unfoldingWord Greek New Testament',
     copyright: removeIndentAndBlankStartEndLines(`

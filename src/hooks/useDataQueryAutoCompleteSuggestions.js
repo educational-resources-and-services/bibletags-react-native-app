@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { getLocale } from "inline-i18n"
-import { getNakedWord } from "@bibletags/bibletags-ui-helper"
+import { normalizeSearchStr } from "@bibletags/bibletags-ui-helper"
 
 import useEffectAsync from "./useEffectAsync"
 import useInstanceValue from "./useInstanceValue"
@@ -32,7 +32,7 @@ const useDataQueryAutoCompleteSuggestions = ({
 
             // look-up from words in the designated languages
             let [ x, queryStrProceedingThisWord, lastWord ] = incompleteQuery.match(/^(.*?)([^+~*()"\/. ]*)$/i)
-            const lastNakedWord = getNakedWord({ word: lastWord })
+            const lastNakedWord = normalizeSearchStr({ str: lastWord })
 
             if(lastNakedWord) {
 

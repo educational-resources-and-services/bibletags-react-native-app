@@ -4,7 +4,7 @@ const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
-const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, searchWordToLowerCase } = require("@bibletags/bibletags-ui-helper")
+const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 
@@ -127,9 +127,6 @@ const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp|c) .*$|\\v [0-9
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
-const hebrewCantillationRegex = /[\u0591-\u05AF\u05A5\u05BD\u05BF\u05C0\u05C5\u05C7]/g
-const hebrewVowelsRegex = /[\u05B0-\u05BC\u05C1\u05C2\u05C4]/g
-String.prototype.normalizeGreek = function () { return this.normalize('NFD').replace(/[\u0300-\u036f]/g, "") }
 const newlinesRegex = /\n/g
 const doubleSpacesRegex = /  +/g
 
@@ -358,22 +355,21 @@ const doubleSpacesRegex = /  +/g
             }
 
             const newWords = (
-              searchWordToLowerCase(
-                verse.usfm
-                  .replace(wordRegex, '$1')
-                  .replace(extraBiblicalRegex, '')
-                  .replace(footnoteRegex, '')
-                  .replace(crossRefRegex, '')
-                  .replace(allTagsRegex, '')
-                  .replace(hebrewCantillationRegex, '')
-                  .replace(hebrewVowelsRegex, '')
-                  .normalizeGreek()
-                  .replace(wordPartDividerRegex, '')
-                  .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
-                  .replace(newlinesRegex, ' ')
-                  .replace(doubleSpacesRegex, ' ')
-                  .trim()
-              )
+              normalizeSearchStr({
+                str: (
+                  verse.usfm
+                    .replace(wordRegex, '$1')
+                    .replace(extraBiblicalRegex, '')
+                    .replace(footnoteRegex, '')
+                    .replace(crossRefRegex, '')
+                    .replace(allTagsRegex, '')
+                    .replace(wordPartDividerRegex, '')
+                    .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
+                    .replace(newlinesRegex, ' ')
+                    .replace(doubleSpacesRegex, ' ')
+                    .trim()
+                )
+              })
                 .split(' ')
                 .filter(Boolean)
             )

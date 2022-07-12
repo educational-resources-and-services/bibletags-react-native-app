@@ -1,8 +1,8 @@
 // NOTE: There is a similar file (with same name) in bibletags-data
 
-import { containsHebrewChars, stripGreekAccents, stripHebrewVowelsEtc, stripVocalOfAccents } from '@bibletags/bibletags-ui-helper'
+import { containsHebrewChars, normalizeSearchStr, stripVocalOfAccents } from '@bibletags/bibletags-ui-helper'
 
-import { safelyExecuteSelects, executeSql } from "./toolbox"
+import { safelyExecuteSelects } from "./toolbox"
 
 const safeifyForLike = str => str.replace(/_/g, ' ').replace(/%/g, '').replace(/"/g, '\\"')
 
@@ -68,7 +68,7 @@ const getDefDetailArrayFromProceedingStrongs = async ({ queryStrProceedingDetail
     if(definition) {
       detailArray = (
         definition[detailType]
-          .filter(detail => stripGreekAccents(stripHebrewVowelsEtc(detail)).toLowerCase().indexOf(partialDetail) === 0)
+          .filter(detail => normalizeSearchStr({ str: detail }).indexOf(partialDetail) === 0)
           .slice(0, limit)
           .map(id => ({ id }))
       )
@@ -93,7 +93,7 @@ const getAutoCompleteSuggestions = async ({ incompleteQuery, languageId, SUGGEST
     // table: lemmas
 
     let [ x, queryStrProceedingDetail, negator='', partialDetail ] = incompleteQuery.match(/^(.*)#(not:)?lemma:([^#+~*=[\]\/(). ]*)$/i)
-    partialDetail = stripGreekAccents(stripHebrewVowelsEtc(partialDetail)).toLowerCase()
+    partialDetail = normalizeSearchStr({ str: partialDetail })
 
     const [ lemmas, originalWords ] = await Promise.all([
       (async () => {
@@ -130,7 +130,7 @@ const getAutoCompleteSuggestions = async ({ incompleteQuery, languageId, SUGGEST
     // table: unitWords
 
     let [ x, queryStrProceedingDetail, negator='', partialDetail ] = incompleteQuery.match(/^(.*)#(not:)?form:([^#+~*=[\]\/(). ]*)$/i)
-    partialDetail = stripGreekAccents(stripHebrewVowelsEtc(partialDetail)).toLowerCase()
+    partialDetail = normalizeSearchStr({ str: partialDetail })
 
     const [ forms, originalWords ] = await Promise.all([
       (async () => {
@@ -191,7 +191,7 @@ const getAutoCompleteSuggestions = async ({ incompleteQuery, languageId, SUGGEST
       ].join(' ')
 
     } else if(/[\u0590-\u05FF\u0370-\u03FF\u1F00-\u1FFF]/.test(partialDetail)) {  // Greek or Hebrew
-      where = `nakedLex LIKE "${safeifyForLike(stripGreekAccents(stripHebrewVowelsEtc(partialDetail)).toLowerCase())}%"`
+      where = `nakedLex LIKE "${safeifyForLike(normalizeSearchStr({ str: partialDetail }))}%"`
 
     } else {
       where = [
