@@ -87,11 +87,20 @@ const LowerPanelVsComparison = ({
 
   const bothVersionIds = useEqualObjsMemo([ passage.versionId, passage.parallelVersionId ].filter(Boolean))
   const versionIdsToShow = useMemo(
-    () => downloadedVersionIds.filter(id => !bothVersionIds.includes(id)),
-    [ downloadedVersionIds, bothVersionIds ],
+    () => (
+      downloadedVersionIds.filter(id => (
+        !bothVersionIds.includes(id)
+        && !(
+          (getVersionInfo(id).partialScope === `nt` && passage.ref.bookId < 40)
+          || (getVersionInfo(id).partialScope === `ot` && passage.ref.bookId > 39)
+        )
+      ))
+    ),
+    [ downloadedVersionIds, bothVersionIds, passage ],
   )
+  const effectiveIndex = index < versionIdsToShow.length ? index : 0
 
-  const versionIdShowing = versionIdsToShow[index]
+  const versionIdShowing = versionIdsToShow[effectiveIndex]
 
   const [ selectedWordIdx, setSelectedWordIdx ] = useState(0)
 
@@ -322,7 +331,7 @@ const LowerPanelVsComparison = ({
           />
         }
         <BottomNavigation
-          selectedIndex={index}
+          selectedIndex={effectiveIndex}
           onSelect={setIndex}
         >
           {versionIdsToShow.map(id => (
