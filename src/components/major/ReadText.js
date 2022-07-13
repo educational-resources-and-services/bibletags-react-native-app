@@ -644,7 +644,7 @@ const ReadText = ({
         })
       }
 
-      return getJSXFromPieces({ pieces, isTopLevel: true })
+      return getJSXFromPieces({ pieces, isTopLevel: true }).filter(Boolean)
     },
     [ pieces, displaySettings, selectedVerse, selectedInfo, selectedTagInfo, focussedVerse, bookId, languageId, isOriginal, versionId ],
   )
