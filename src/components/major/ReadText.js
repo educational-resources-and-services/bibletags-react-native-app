@@ -56,11 +56,19 @@ const viewStyles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
   },
+  mte: {
+    paddingTop: 10,
+    paddingBottom: 10,
+  },
   ms: {
     paddingTop: 7,
     paddingBottom: 5,
   },
-  s1: {
+  mr: {
+    marginTop: -7,
+    paddingBottom: 7,
+  },
+  s: {
     paddingTop: 10,
     paddingBottom: 10,
   },
@@ -72,18 +80,41 @@ const viewStyles = StyleSheet.create({
     paddingTop: 5,
     paddingBottom: 5,
   },
+  sr: {
+    marginTop: -7,
+    paddingBottom: 5,
+  },
+  r: {
+    marginTop: -7,
+    paddingBottom: 5,
+  },
+  sp: {
+    paddingTop: 10,
+    paddingBottom: 5,
+    paddingHorizontal: 20,
+  },
   d: {
     paddingTop: 5,
     paddingBottom: 12,
+  },
+  sd: {
+    height: 20,
+  },
+  sd2: {
+    height: 30,
+  },
+  sd3: {
+    height: 40,
   },
   p: {
     paddingTop: 5,
     paddingBottom: 5,
   },
-  q: {
-    paddingLeft: 20,
+  m: {
+    paddingTop: 5,
+    paddingBottom: 5,
   },
-  q1: {
+  q: {
     paddingLeft: 20,
   },
   q2: {
@@ -104,12 +135,16 @@ const viewStyles = StyleSheet.create({
   q7: {
     paddingLeft: 140,
   },
+  b: {
+    height: 10,
+  },
   qd: {
     paddingTop: 20,
   },
   qa: {
     paddingTop: 20,
     paddingBottom: 5,
+    paddingHorizontal: 20,
   },
   // sup: {
   //   position: "relative",

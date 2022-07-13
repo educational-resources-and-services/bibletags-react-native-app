@@ -54,14 +54,19 @@ const textStyles = StyleSheet.create({
   mt: { //major title
     textAlign: "center",
   },
+  mte: { //major title at ending
+    textAlign: "center",
+  },
   ms: { // major section heading
+    textAlign: "center",
+  },
+  mr: { // major section reference range
     textAlign: "center",
   },
   qc: { // centered poetic line
     textAlign: "center",
   },
   qa: { // hebrew letters for acrostics
-    textAlign: "center",
     textTransform: "uppercase",
   },
 
@@ -69,10 +74,16 @@ const textStyles = StyleSheet.create({
 
 const fontSizeStyleFactors = {
   mt: 1.6,
+  mte: 1.3,
   ms: 1.2,
-  // s1: 1.1,
+  mr: .85,
+  // s: 1.1,
   s2: .85,
   s3: .75,
+  sr: .75,
+  r: .75,
+  rq: .75,
+  sp: .75,
   '[small-cap]': .75,
   fk: .65,
   qa: .75,
@@ -80,6 +91,7 @@ const fontSizeStyleFactors = {
 
 const boldStyles = [
   'mt',
+  'mte',
   'bd',
   'bdit',
   'v',
@@ -165,7 +177,7 @@ export const adjustChildrenAndGetStyles = ({
     }
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'ms', 's1', 's2', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa', 'zApparatusJson' ]
+  const tagThemedStyleKeys = [ 'mt', 'mte', 'ms', 'mr', 's', 's2', 's3', 'sr', 'r', 'rq', 'sp', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa', 'zApparatusJson' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

@@ -103,25 +103,32 @@ const readTextAndVerseParameters = {
   alt8TextDecorationLine: "line-through",  // usedWordThemedStyle
   alt8Color: "color-basic-500",  // usedWordThemedStyle
 
-  alt10Color: "color-basic-600", // mt
-  alt10Color: "color-basic-800", // ms
-  alt11Color: "color-basic-600", // s1
-  alt12Color: "color-basic-600", // s2
+  alt9Color: "color-basic-600", // mt, mt1
+  alt10Color: "color-basic-600", // mte, mte1
+  alt11Color: "color-basic-800", // ms, ms1
+  alt12Color: "color-basic-600", // mr
+  alt13Color: "color-basic-600", // s, s1
+  alt14Color: "color-basic-600", // s2
+  alt15Color: "color-basic-500", // s3
+  alt16Color: "color-basic-600", // sr
+  alt17Color: "color-basic-600", // r
+  alt18Color: "color-basic-600", // rq
+  alt19Color: "color-basic-600", // sp
 
-  alt13Color: "color-basic-500", // peh
-  alt14Color: "color-basic-500", // samech
-  alt15Color: "color-basic-600", // selah
-  alt16Color: "color-basic-400", // x
-  alt17Color: "color-primary-400", // xt
-  alt18Color: "color-primary-700", // xt:selected
-  alt18TextShadowColor: "color-primary-200", // xt:selected
-  alt19Color: "color-primary-500", // f
-  alt20Color: "color-info-500", // fe
-  alt21Color: "color-basic-600", // fk
+  alt20Color: "color-basic-500", // peh
+  alt21Color: "color-basic-500", // samech
+  alt22Color: "color-basic-600", // selah
+  alt23Color: "color-basic-400", // x
+  alt24Color: "color-primary-400", // xt
+  alt25Color: "color-primary-700", // xt:selected
+  alt25TextShadowColor: "color-primary-200", // xt:selected
+  alt26Color: "color-primary-500", // f
+  alt27Color: "color-info-500", // fe
+  alt28Color: "color-basic-600", // fk
   
-  alt22Color: "color-warning-600", // s3
-  alt23Color: "color-basic-500", // qa
-  alt24Color: "color-info-500", // zApparatusJson
+  alt29Color: "color-warning-600", // s3
+  alt30Color: "color-basic-500", // qa
+  alt31Color: "color-info-500", // zApparatusJson
 }
 
 const mapping = {
