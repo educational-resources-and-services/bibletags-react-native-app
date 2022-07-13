@@ -112,10 +112,10 @@ const removeIndent = str => {
 // See the Search component for some of the same variables
 const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|h|toc[0-9]*)(?: .*)?$/
-const majorTitleRegex = /^\\mt[0-9]? .*$/
+const majorTitleRegex = /^\\mte?[0-9]? .*$/
 const majorSectionRegex = /^\\ms[0-9]? .*$/
-const majorSectionReferenceRegex = /^\\mr[0-9]? .*$/
-const sectionHeadingRegex = /^\\s[0-9pr]? .*$/
+const referenceRegex = /^\\[ms]?r .*$/
+const sectionHeadingRegex = /^\\s[0-9p]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9])(?: .*)?$/
@@ -123,7 +123,7 @@ const poetryRegex = /^\\q(?:[0-9rcad]?|m[0-9]?)(?: .*)?$/
 const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
-const extraBiblicalRegex = /(?:^\\(?:mt|ms|s)[0-9]? .*$|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
+const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]? .*$|^\\(?:[ms]?r|sp) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
@@ -215,6 +215,26 @@ const doubleSpacesRegex = /  +/g
     await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
     await fs.ensureDir(`${versionDir}/verses`)
 
+    const getOriginalLocsFromLoc = (loc, failSilently) => {
+      const originalRefs = getCorrespondingRefs({
+        baseVersion: {
+          info: versionInfo,
+          ref: getRefFromLoc(loc),
+        },
+        lookupVersionInfo: {
+          versificationModel: 'original',
+        },
+      })
+
+      if(!originalRefs) {
+        if(failSilently) return
+        console.log(loc)
+        throw new Error(`Versification error`)
+      }
+
+      return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
+    }
+
     // loop through folders
     for(let folder of folders) {
 
@@ -231,7 +251,16 @@ const doubleSpacesRegex = /  +/g
         let lastVerse = 0
         let goesWithNextVsText = []
 
-        for await (const line of readLines({ input })) {
+        for await (let line of readLines({ input })) {
+
+          // fix common invalid USFM where a verse range is presented (e.g. `\v 1-2`)
+          line = line.replace(/\\v ([0-9]+)([-–־])([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
+            if(vp) {
+              return `\\v ${v1}${vp}${final}`
+            } else {
+              return `\\v ${v1} \\vp ${v1}${dash}${v2}\\vp*${final}`
+            }
+          })
 
           if(!bookId) {
 
@@ -280,7 +309,7 @@ const doubleSpacesRegex = /  +/g
           if(
             majorTitleRegex.test(line)
             || majorSectionRegex.test(line)
-            || majorSectionReferenceRegex.test(line)
+            || referenceRegex.test(line)
             || sectionHeadingRegex.test(line)
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
@@ -303,7 +332,17 @@ const doubleSpacesRegex = /  +/g
             } else {
               verse = line.replace(verseRegex, '$1')
               if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-                console.log(`  > Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
+                if(
+                  verse > lastVerse
+                  && Array(verse - lastVerse - 1).fill().some((x, idx) => (
+                    getOriginalLocsFromLoc(
+                      getLocFromRef({ bookId, chapter, verse: lastVerse + idx + 1 }),
+                      true
+                    )
+                  ))
+                ) {
+                  console.log(`  > Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
+                }
               }
               lastVerse = parseInt(verse, 10)
             }  
@@ -335,25 +374,6 @@ const doubleSpacesRegex = /  +/g
 
           if(version !== 'original') {
 
-            const getOriginalLocsFromLoc = loc => {
-              const originalRefs = getCorrespondingRefs({
-                baseVersion: {
-                  info: versionInfo,
-                  ref: getRefFromLoc(loc),
-                },
-                lookupVersionInfo: {
-                  versificationModel: 'original',
-                },
-              })
-
-              if(!originalRefs) {
-                console.log(loc)
-                throw new Error(`Versification error`)
-              }
-
-              return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
-            }
-
             const newWords = (
               normalizeSearchStr({
                 str: (
@@ -374,6 +394,7 @@ const doubleSpacesRegex = /  +/g
                 .filter(Boolean)
             )
 
+!getOriginalLocsFromLoc(verse.loc, true) && console.log('verse', verse)
             const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
             let originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
             // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
