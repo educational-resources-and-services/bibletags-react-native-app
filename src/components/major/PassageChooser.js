@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react"
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { StyleSheet, ScrollView, FlatList, Text, View, I18nManager, TouchableOpacity } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -118,6 +118,34 @@ const PassageChooser = ({
   const [ parallelLabelContainerThemedStyle={}, addParallelContainerThemedStyle={}, addParallelButtonThemedStyle={}, bookListThemedStyle={}, extras={} ] = altThemedStyleSets
   const chooserBookLineHeight = extras.bookLineHeight || 40
 
+  const versionInfo = getVersionInfo(passage.versionId)
+
+  const bookIds = useMemo(
+    () => {
+      if(!bookIdsPerVersion[passage.versionId]) {
+        bookIdsPerVersion[passage.versionId] = getBookIdListWithCorrectOrdering({ versionInfo })
+      }
+      return bookIdsPerVersion[passage.versionId]
+    },
+    [ passage.versionId, versionInfo ],
+  )
+
+  const numChapters = useMemo(
+    () => {
+      const key = `${passage.versionId}:${bookId}`
+
+      if(!numChaptersPerVersionAndBook[key]) {
+        numChaptersPerVersionAndBook[key] = getNumberOfChapters({
+          versionInfo,
+          bookId,
+        }) || 0
+      }
+      
+      return numChaptersPerVersionAndBook[key]
+    },
+    [ passage.versionId, bookId, versionInfo ],
+  )
+
   useEffect(
     () => {
       setBookId(passage.ref.bookId)
@@ -131,9 +159,9 @@ const PassageChooser = ({
   )
 
   const scrollToChosenBook = useInstanceValue(() => {
-    let index = getBookIds().indexOf(bookId)
+    let index = bookIds.indexOf(bookId)
     if(index === -1) index = 0
-    const maxScroll = chooserBookLineHeight * getBookIds().length - (bookChooserHeight - paddingBottom)
+    const maxScroll = chooserBookLineHeight * bookIds.length - (bookChooserHeight - paddingBottom)
     const scrollAtIndex = chooserBookLineHeight * index
     const minOffset = scrollAtIndex - maxScroll
 
@@ -147,7 +175,6 @@ const PassageChooser = ({
 
   const scrollToChosenChapter = useInstanceValue(() => {
     const maxScroll = chapterChooserScrollHeight.current - chapterChooserHeight
-    const numChapters = getNumChapters()
 
     if(!chapter) {
       chapterChooserRef.current.scrollTo({ y: 0, animated: false })
@@ -163,7 +190,7 @@ const PassageChooser = ({
 
     } else {
       chapterChooserRef.current.scrollTo({
-        y: ((chapter - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) / (getNumChapters() - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL*2)) * maxScroll,
+        y: ((chapter - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL) / (numChapters - 1 - NUM_CHAPTERS_TO_STICK_TO_MAX_SCROLL*2)) * maxScroll,
         animated: false,
       })
     }
@@ -256,17 +283,6 @@ const PassageChooser = ({
     [],
   )
 
-  const getBookIds = () => {
-    const { versionId } = passage
-
-    if(!bookIdsPerVersion[versionId]) {
-      const versionInfo = getVersionInfo(versionId)
-      bookIdsPerVersion[versionId] = getBookIdListWithCorrectOrdering({ versionInfo })
-    }
-
-    return bookIdsPerVersion[versionId]
-  }
-
   const keyExtractor = useCallback(bookId => bookId.toString(), [])
 
   const renderItem = useCallback(
@@ -280,7 +296,7 @@ const PassageChooser = ({
           uiStatus={item === bookId ? "selected" : "unselected"}
           onPress={updateBook}
         />
-        {index === getBookIds().length - 1 &&
+        {index === bookIds.length - 1 &&
           <View
             style={{
               paddingBottom,
@@ -289,7 +305,7 @@ const PassageChooser = ({
         }
       </>
     ),
-    [ paddingBottom, bookId ],
+    [ paddingBottom, bookId, bookIds ],
   )
 
   const getItemLayout = useCallback(
@@ -300,21 +316,6 @@ const PassageChooser = ({
     }),
     [],
   )
-
-  getNumChapters = () => {
-    const { versionId } = passage
-    const key = `${versionId}:${bookId}`
-
-    if(!numChaptersPerVersionAndBook[key]) {
-      const versionInfo = getVersionInfo(versionId)
-      numChaptersPerVersionAndBook[key] = getNumberOfChapters({
-        versionInfo,
-        bookId,
-      }) || 0
-    }
-    
-    return numChaptersPerVersionAndBook[key]
-  }
 
   const onBooksLayout = useCallback(({ nativeEvent: { layout: { height: bookChooserHeight }}}) => setBookChooserHeight(bookChooserHeight), [])
   const onChaptersLayout = useCallback(({ nativeEvent: { layout: { height: chapterChooserHeight }}}) => setChapterChooserHeight(chapterChooserHeight), [])
@@ -329,6 +330,7 @@ const PassageChooser = ({
   const extraData = useEqualObjsMemo({
     bookId,
     paddingBottom,
+    partialScope: versionInfo.partialScope,
   })
 
   const showVersionChooser = true
@@ -414,7 +416,7 @@ const PassageChooser = ({
           ]}
         >
           <FlatList
-            data={getBookIds()}
+            data={bookIds}
             extraData={extraData}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
@@ -436,7 +438,7 @@ const PassageChooser = ({
               },
             ]}
           >
-            {Array(getNumChapters()).fill(0).map((x, idx) => (
+            {Array(numChapters).fill(0).map((x, idx) => (
               <ChooserChapter
                 key={idx+1}
                 chapter={idx+1}

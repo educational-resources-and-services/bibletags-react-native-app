@@ -1,10 +1,11 @@
-import React, { useCallback, useEffect, useRef, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useRef, useMemo, useState, useLayoutEffect } from "react"
 import { FlatList, StyleSheet, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { useDimensions } from "@react-native-community/hooks"
 import { useLayout } from '@react-native-community/hooks'
 import { getNumberOfChapters } from "@bibletags/bibletags-versification"
+import usePrevious from "react-use/lib/usePrevious"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useInstanceValue from "../../hooks/useInstanceValue"
@@ -42,6 +43,7 @@ const ReadContent = React.memo(({
   const { ref, versionId, parallelVersionId } = passage
   const getRef = useInstanceValue(ref)
   const lastSetRef = useRef(ref)
+  const prevVersionId = usePrevious(versionId)
 
   useEffect(
     () => {
@@ -75,34 +77,51 @@ const ReadContent = React.memo(({
   const { downloadedPrimaryVersionIds, downloadedSecondaryVersionIds } = useBibleVersions({ myBibleVersions })
 
   const booksAndChapters = useMemo(
-    () => (
-      Array(66).fill()
-        .map((x, idx) => (
-          Array(
-            getNumberOfChapters({
-              versionInfo: getVersionInfo(versionId),
-              bookId: idx + 1,
-            })
-          ).fill().map((x, idx2) => ({
-            bookId: idx + 1,
-            chapter: idx2 + 1,
-          }))
-        ))
-        .flat()
-    ),
+    () => {
+      const versionInfo = getVersionInfo(versionId)
+      return (
+        Array(versionInfo.partialScope === 'ot' ? 39 : 66)
+          .fill()
+          .map((x, idx) => (
+            versionInfo.partialScope === 'nt' && idx+1 < 40
+              ? []
+              : (
+                Array(
+                  getNumberOfChapters({
+                    versionInfo,
+                    bookId: idx + 1,
+                  })
+                ).fill().map((x, idx2) => ({
+                  bookId: idx + 1,
+                  chapter: idx2 + 1,
+                }))
+              )
+          ))
+          .flat()
+      )
+    },
     [ versionId ],
   )
   const getBooksAndChapters = useInstanceValue(booksAndChapters)
 
   const setContentOffset = useCallback(
-    () => {
+    ({ afterTimeout }={}) => {
       const booksAndChapters = getBooksAndChapters()
       const ref = getRef()
       const scrollToIndex = booksAndChapters.findIndex(({ bookId, chapter }) => (bookId === ref.bookId && chapter === ref.chapter))
-      containerRef.current.scrollToIndex({
-        index: scrollToIndex,
-        animated: false,
-      })
+      if(scrollToIndex >= 0) {
+        const doTheScroll = () => {
+          containerRef.current.scrollToIndex({
+            index: scrollToIndex,
+            animated: false,
+          })
+        }
+        if(afterTimeout) {
+          setTimeout(doTheScroll)
+        } else {
+          doTheScroll()
+        }
+      }
     },
     [],
   )
@@ -238,15 +257,16 @@ const ReadContent = React.memo(({
     [ downloadedPrimaryVersionIds.length === 0 ],
   )
 
-  useEffect(
+  useLayoutEffect(
     () => {
       // update content offset if passage changed (except if it was a swipe)
-      if(!equalObjs(ref, lastSetRef.current)) {
+      const partialScopeChanged = getVersionInfo(versionId).partialScope !== getVersionInfo(prevVersionId).partialScope
+      if(!equalObjs(ref, lastSetRef.current) || partialScopeChanged) {
         lastSetRef.current = ref
-        setContentOffset()
+        setContentOffset({ afterTimeout: partialScopeChanged })  // without this, the scroll doesn't work
       }
     },
-    [ ref ],
+    [ ref, versionId ],
   )
 
   if(downloadedPrimaryVersionIds.length === 0) return null
@@ -258,7 +278,7 @@ const ReadContent = React.memo(({
         extraData={renderItem}
         getItemLayout={getItemLayout}
         renderItem={renderItem}
-        initialNumToRender={1}
+        initialNumToRender={0}
         maxToRenderPerBatch={2}
         keyExtractor={keyExtractor}
         windowSize={3}

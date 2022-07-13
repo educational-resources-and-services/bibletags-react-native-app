@@ -147,6 +147,20 @@ export const executeSql = async ({
 
   if(versionId && !versionInfo.id) return null
 
+  // return blank result when requested bookId outside of partialScope
+  if(
+    (versionInfo.partialScope === 'nt' && bookId < 40)
+    || (versionInfo.partialScope === 'ot' && bookId > 39)
+  ) {
+    return {
+      rows: {
+        _array: [{
+          usfm: ``,
+        }],
+      },
+    }
+  }
+
   const logDBError = async error => {
     if(doNotLogError) {
       __DEV__ && console.log(`Silenced error when running [${(statement || statements[0].statement)({})}]:`, error)

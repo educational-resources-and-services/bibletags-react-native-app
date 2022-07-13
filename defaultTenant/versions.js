@@ -25,6 +25,7 @@ const bibleVersions = [
     hebrewOrdering: true,  // typically `true` when versificationModel is 'original'
     isOriginal: true,
     required: true,  // i.e. user cannot remove this version
+    // partialScope: 'nt',  // must be `ot`, `nt`, or undefined
   },
   // {
   //   id: 'lxx',
