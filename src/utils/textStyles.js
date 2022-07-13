@@ -2,7 +2,7 @@ import { StyleSheet } from "react-native"
 import Constants from "expo-constants"
 import { isRTLText } from "@bibletags/bibletags-ui-helper"
 
-import { getTextFont, adjustLineHeight, adjustFontSize,
+import { getTextFont, adjustLineHeight, adjustFontSize, getNormalizedTag,
           isForceUserFontTag, uppercaseChars, getTagStyle } from "./toolbox"
 import { getValidFontName } from "./bibleFonts"
 
@@ -129,6 +129,8 @@ export const adjustChildrenAndGetStyles = ({
   wrapWordsInNbsp,
   tagThemedStyles,
 }) => {
+
+  tag = getNormalizedTag(tag)
 
   const bold = boldStyles.includes(tag)
   const italic = italicStyles.includes(tag)

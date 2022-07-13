@@ -6,7 +6,7 @@ import { connect } from "react-redux"
 import { adjustPiecesForSpecialHebrew, removeCantillation, isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getTextFont, adjustFontSize, memo, getWordIdAndPartNumber } from "../../utils/toolbox"
+import { getTextFont, adjustFontSize, memo, getWordIdAndPartNumber, getNormalizedTag } from "../../utils/toolbox"
 import { getValidFontName } from "../../utils/bibleFonts"
 import { languageOptions } from "../../../language"
 
@@ -129,7 +129,7 @@ const TaggerVerse = ({
     return pieces.map((piece, idx) => {
       let { tag, text, children } = piece
       const id = piece[`x-id`]
-      tag = tag && tag.replace(/^\+/, '')
+      tag = getNormalizedTag(tag)
 
       if(!children && !text) return null
       if(tag !== 'w') return null

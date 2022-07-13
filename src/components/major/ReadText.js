@@ -9,7 +9,7 @@ import usePrevious from "react-use/lib/usePrevious"
 import { useDimensions } from "@react-native-community/hooks"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { executeSql, getVersionInfo, isIPhoneX, equalObjs,
+import { executeSql, getVersionInfo, isIPhoneX, equalObjs, getNormalizedTag,
          iPhoneXInset, readHeaderHeight, readHeaderMarginTop, memo, getTagStyle } from '../../utils/toolbox'
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import bibleVersions from "../../../versions"
@@ -403,7 +403,7 @@ const ReadText = ({
 
         return simplifiedPieces.map((piece, idx) => {
           let { type, tag, text, content, children, verse, apparatusJson } = piece
-          tag = tag && tag.replace(/^\+/, '')
+          tag = getNormalizedTag(tag)
           const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
 
           if([ "b" ].includes(tag)) {

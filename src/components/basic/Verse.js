@@ -7,8 +7,7 @@ import { i18n } from "inline-i18n"
 import { adjustPiecesForSpecialHebrew, adjustTextForSups, removeCantillation, isRTLText } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { getTextFont, adjustLineHeight,
-         adjustFontSize, memo, getVersionInfo, cloneObj } from "../../utils/toolbox"
+import { getTextFont, adjustLineHeight, getNormalizedTag, adjustFontSize, memo, getVersionInfo, cloneObj } from "../../utils/toolbox"
 import { adjustChildrenAndGetStyles } from '../../utils/textStyles'
 import { getValidFontName } from "../../utils/bibleFonts"
 // import useRouterState from "../../hooks/useRouterState"
@@ -94,7 +93,7 @@ const Verse = ({
 
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, nextChar, children, attrib, wordNumberInVerse, isHit } = piece
-      tag = tag && tag.replace(/^\+/, '')
+      tag = getNormalizedTag(tag)
       const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
       const isSelectedRef = selectedAttr && attrib === selectedAttr
 
