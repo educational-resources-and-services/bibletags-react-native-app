@@ -13,7 +13,7 @@ const OriginalWordWithColoredWordParts = ({
 }) => {
 
   const { morphLang } = getMorphInfo(morph)
-  const language = ['He','Ar'].includes(morphLang) ? `heb` : `grk`
+  const language = ['He','Ar'].includes(morphLang) ? `heb` : `grc`
 
   const goSetSelectedWordIdx = useCallback(() => setSelectedWordIdx(wordIdx), [ setSelectedWordIdx, wordIdx ])
 

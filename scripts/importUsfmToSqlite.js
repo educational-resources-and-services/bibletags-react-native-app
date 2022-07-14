@@ -4,12 +4,14 @@ const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
-const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr, getBookIdFromUsfmBibleBookAbbr } = require("@bibletags/bibletags-ui-helper")
+const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
+        getBookIdFromUsfmBibleBookAbbr, getAllLanguages } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
 const inquirer = require('inquirer')
 inquirer.registerPrompt('file-tree-selection', require('inquirer-file-tree-selection-prompt'))
+inquirer.registerPrompt('search-list', require('inquirer-search-list'))
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
@@ -179,8 +181,6 @@ const doubleSpacesRegex = /  +/g
       encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
     }
 
-    console.log(``)
-
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
     const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${version}-encrypted` : version
@@ -199,6 +199,7 @@ const doubleSpacesRegex = /  +/g
     const scopeMapsById = {}
     let versionInfo, versionsFile
     try {
+
       versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
       const matches = (
         versionsFile
@@ -208,9 +209,93 @@ const doubleSpacesRegex = /  +/g
           .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
       )
       versionInfo = eval(`(${matches[0]})`)
+
     } catch(err) {
-      throw new Error(`${version} doesn’t exist or is malformed. Add this version to \`tenants/${tenant}/version.js\` in the proper format.`)
+      // version doesn't exist in versions.js
+
+      let { addToVersionsJs, ...vInfo } = (await inquirer.prompt([
+        {
+          type: 'list',
+          name: `addToVersionsJs`,
+          message: `This version is missing from \`tenants/${tenant}/version.js\. Add it?`,
+          choices: [
+            {
+              name: `Yes`,
+              value: true,
+            },
+            {
+              name: `No (i.e. cancel import)`,
+              value: false,
+            },
+          ],
+        },
+        {
+          type: 'input',
+          name: `name`,
+          message: `Version name`,
+          when: ({ addToVersionsJs }) => addToVersionsJs,
+        },
+        {
+          type: 'input',
+          name: `abbr`,
+          message: `Version abbreviation`,
+          default: version.toUpperCase(),
+          when: ({ addToVersionsJs }) => addToVersionsJs,
+          validate: a => !/ /.test(a) && a.length <= 10 || `Cannot be more than 10 characters long or include a space`,
+        },
+        {
+          type: 'search-list',
+          name: `languageId`,
+          message: `Language`,
+          when: ({ addToVersionsJs }) => addToVersionsJs,
+          choices: (
+            getAllLanguages()
+              .map(({ englishName, nativeName, iso6393 }) => ({
+                name: englishName === nativeName ? englishName : `${nativeName} (${englishName})`,
+                value: iso6393,
+              }))
+          ),
+          pageSize: 10,
+        },
+        {
+          type: 'input',
+          name: `copyright`,
+          message: `Copyright text`,
+          default: `Public domain.`,
+          when: ({ addToVersionsJs }) => addToVersionsJs,
+        },
+        {
+          type: 'list',
+          name: `bundled`,
+          message: `Do you want to bundle this version within the initial app download? (You should do so for 1-3 versions.)`,
+          choices: [
+            {
+              name: `Yes`,
+              value: true,
+            },
+            {
+              name: `No`,
+              value: false,
+            },
+          ],
+          when: ({ addToVersionsJs }) => addToVersionsJs,
+        },
+      ]))
+
+      if(!addToVersionsJs) {
+        console.log(``)
+        process.exit()
+      }
+
+      versionInfo = {
+        vInfo,
+        id: version,
+        versificationModel: 'kjv',
+      }
+
     }
+
+    console.log(``)
 
     await fs.remove(`${versionsDir}/temp`)
     await fs.ensureDir(`${versionsDir}/temp`)
@@ -359,6 +444,7 @@ const doubleSpacesRegex = /  +/g
         verses.forEach(verse => {
           verse.usfm = verse.usfm.join("\n")
 
+          // TODO: This part needs to go later, after I do versification stuff
           if(version !== 'original') {
 
             const newWords = (
@@ -382,7 +468,7 @@ const doubleSpacesRegex = /  +/g
             )
 
             const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
-            let originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
+            const originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
             // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
 
             newWords.forEach(word => {
@@ -437,8 +523,6 @@ const doubleSpacesRegex = /  +/g
       `
 
     } else {
-
-
 
       console.log(``)
       process.stdout.write(`Creating unitWords db...`)
@@ -540,46 +624,49 @@ const doubleSpacesRegex = /  +/g
     console.log(``)
     console.log(`Updated ${tenantDir}/versions.js`)
 
-    // update tenant and sync them to dev
-    if(version !== 'original') {
-      console.log(``)
-      console.log(`Rerunning \`change-tenant\`...`)
-      await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
-      await new Promise((resolve, reject) => {
-        exec(
-          `npm run change-tenant ${tenant}`,
-          (error, stdout, stderr) => {
-            if(error !== null || stderr) {
-              console.log(`Error in rerunning \`change-tenant\`: ${error || stderr}`)
-              reject()
-            } else if(stdout.includes(`...done.`)) {
-              console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
-              resolve()
-            } else if(stdout) {
-              console.log(stdout)
-            }
-          }
-        )
-      })
-    }
+    // TODO: uncomment this!
+    // // update tenant and sync them to dev
+    // if(version !== 'original') {
+    //   console.log(``)
+    //   console.log(`Rerunning \`change-tenant\`...`)
+    //   await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
+    //   await new Promise((resolve, reject) => {
+    //     exec(
+    //       `npm run change-tenant ${tenant}`,
+    //       (error, stdout, stderr) => {
+    //         if(error !== null || stderr) {
+    //           console.log(`Error in rerunning \`change-tenant\`: ${error || stderr}`)
+    //           reject()
+    //         } else if(stdout.includes(`...done.`)) {
+    //           console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
+    //           resolve()
+    //         } else if(stdout) {
+    //           console.log(stdout)
+    //         }
+    //       }
+    //     )
+    //   })
+    // }
 
-    if(version !== 'original') {
+    // if(version !== 'original') {
 
-      console.log(removeIndent(`
-        Successfully...
-          (1) created sqlite db files
-          (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
-          (3) updated versions.js
-          (4) reran change-tenant
-          (5) synced \`${versionsDir}\` to the cloud for use in dev
-          (6) submitted word hashes for ${version} to the dev db for bibletags-data
-      `))
+    //   console.log(removeIndent(`
+    //     Successfully...
+    //       (1) created sqlite db files
+    //       (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
+    //       (3) updated versions.js
+    //       (4) reran change-tenant
+    //       (5) synced \`${versionsDir}\` to the cloud for use in dev
+    //       (6) submitted word hashes for ${version} to the dev db for bibletags-data
+    //   `))
 
-    }
+    // }
 
   } catch(err) {
 
+    console.log(``)
     console.log(`ERROR: ${err.message}`.bgRed.brightWhite)
+    console.log(``)
 
   }
 

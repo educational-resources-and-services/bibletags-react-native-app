@@ -115,7 +115,7 @@ const TaggerVerse = ({
   )
 
   const isOriginal = true
-  const languageId = 'heb+grk'
+  const languageId = 'heb+grc'
   const isRTL = isRTLText({ languageId, bookId })
   const fontSize = adjustFontSize({ fontSize: DEFAULT_FONT_SIZE * textSize, isOriginal, languageId, bookId })
   const fontFamily = getValidFontName({ font: getTextFont({ font, isOriginal, languageId, bookId }) })

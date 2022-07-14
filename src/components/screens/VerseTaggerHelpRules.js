@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   greek: {
-    fontFamily: `original-grk`,
+    fontFamily: `original-grc`,
   },
   hebrew: {
     fontFamily: `original-heb`,

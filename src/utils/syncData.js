@@ -18,7 +18,7 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
   const languageIdsNeedingUpdate = (
     languageIds.filter(languageId => (
       !languageIdsSyncedDuringThisOpen.includes(languageId)
-      && languageId !== 'heb+grk'
+      && languageId !== 'heb+grc'
     ))
   )
   if(languageIdsNeedingUpdate.length > 0) {

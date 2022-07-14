@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   divider: {
   },
   greek: {
-    fontFamily: `original-grk`,
+    fontFamily: `original-grc`,
   },
   hebrew: {
     fontFamily: `original-heb`,

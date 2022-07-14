@@ -98,7 +98,7 @@ const Definition = ({
     () => ([
       styles.lex,
       {
-        fontFamily: `original-${/G/.test(id) ? `grk` : `heb`}`,
+        fontFamily: `original-${/G/.test(id) ? `grc` : `heb`}`,
       },
     ]),
     [ id ],

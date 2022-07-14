@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.80.0",
-    "@bibletags/bibletags-ui-helper": "^0.9.3",
+    "@bibletags/bibletags-ui-helper": "^0.9.6",
     "@bibletags/bibletags-versification": "^0.2.12",
     "@eva-design/eva": "^2.1.1",
     "@expo/vector-icons": "^10.2.1",
@@ -93,6 +93,7 @@
     "inline-i18n": "^0.1.5",
     "inquirer": "^8.2.4",
     "inquirer-file-tree-selection-prompt": "^1.0.19",
+    "inquirer-search-list": "^1.2.6",
     "moment": "2.29.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",

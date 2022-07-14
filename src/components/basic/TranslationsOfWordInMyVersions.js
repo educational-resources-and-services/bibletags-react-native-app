@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   greek: {
-    fontFamily: `original-grk`,
+    fontFamily: `original-grc`,
     fontSize: 16,
   },
   hebrew: {

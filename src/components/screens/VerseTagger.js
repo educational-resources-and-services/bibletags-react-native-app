@@ -23,7 +23,7 @@ const VerseTagger = ({
   const { ref, versionId } = passage
 
   const { instructionsCover, openInstructions } = useTaggingInstructions({
-    defaultOrigLangForExamples: getTextLanguageId({ languageId: 'heb+grk', ...ref }),
+    defaultOrigLangForExamples: getTextLanguageId({ languageId: 'heb+grc', ...ref }),
   })
 
   const [ selectedData, setSelectedData ] = useState({})

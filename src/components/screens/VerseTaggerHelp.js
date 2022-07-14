@@ -56,7 +56,7 @@ const VerseTaggerHelp = ({
   const { defaultOrigLangForExamples } = routerState
 
   const [ showHebrewExamples, setShowHebrewExamples ] = useState(defaultOrigLangForExamples === 'heb')
-  const [ showGreekExamples, setShowGreekExamples ] = useState(defaultOrigLangForExamples === 'grk')
+  const [ showGreekExamples, setShowGreekExamples ] = useState(defaultOrigLangForExamples === 'grc')
 
   useEffect(
     () => {

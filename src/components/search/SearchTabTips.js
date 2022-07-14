@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     // color: ${({ theme }) => theme.palette.grey[500]};
   },
   greek: {
-    fontFamily: `original-grk`,
+    fontFamily: `original-grc`,
   },
   hebrew: {
     fontFamily: `original-heb`,

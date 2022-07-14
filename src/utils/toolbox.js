@@ -287,7 +287,7 @@ export const executeSql = async ({
     }
   }
 
-  if(versionInfo.isOriginal && ['heb', 'heb+grk'].includes(versionInfo.languageId)) {
+  if(versionInfo.isOriginal && ['heb', 'heb+grc'].includes(versionInfo.languageId)) {
     resultSets.forEach(resultSet => {
       try {
         const { rows: { _array: verses } } = resultSet
@@ -477,7 +477,7 @@ export const adjustFontSize = ({ fontSize, isOriginal, languageId, bookId }) => 
     ? (
       (
         {
-          grk: 1.2, // The Greek font renders small, thus make this adjustment
+          grc: 1.2, // The Greek font renders small, thus make this adjustment
         }[getTextLanguageId({ languageId, bookId })]
         || 1
       ) * fontSize
@@ -490,7 +490,7 @@ export const adjustLineHeight = ({ lineHeight, isOriginal, languageId, bookId })
     ? (
       (
         {
-          grk: .85, // Given our font size adjustment above
+          grc: .85, // Given our font size adjustment above
           heb: 1.25, // The Hebrew font renders tight, thus make this adjustment
         }[getTextLanguageId({ languageId, bookId })]
         || 1

@@ -20,7 +20,7 @@ const bibleVersions = [
       This work is designed by unfoldingWord® and developed by the Door43 World Missions Community; it is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.
       The UHB is based on the Open Scriptures Hebrew Bible.
     `),
-    languageId: 'heb+grk',
+    languageId: 'heb+grc',
     versificationModel: 'original',
     hebrewOrdering: true,  // typically `true` when versificationModel is 'original'
     isOriginal: true,
@@ -33,7 +33,7 @@ const bibleVersions = [
   //   abbr: 'LXX',
   //   name: 'Septuagint',
   //   copyright: 'Septuaginta, ed. A. Rahlfs (Stuttgart: WŸrttembergische Bibelanstalt, 1935; repr. in 9th ed., 1971).',
-  //   languageId: 'grk',
+  //   languageId: 'grc',
   //   versificationModel: 'lxx',
   //   extraVerseMappings: {},
   // },
