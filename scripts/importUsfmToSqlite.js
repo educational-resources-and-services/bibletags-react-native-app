@@ -104,7 +104,6 @@ const doubleSpacesRegex = /  +/g
   try {
 
     let folders = process.argv.slice(2)
-    // const encryptEveryXChunks = /^encrypt/.test(params.slice(-1)[0]) ? (parseInt(params.pop().substr("encrypt=".length)) || 20) : false
     const requires = Array(66).fill()
 
     const tenantChoices = (
@@ -150,7 +149,7 @@ const doubleSpacesRegex = /  +/g
       validate: v => /^[a-z0-9]{2,9}$/.test(v) || `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`,
     }]))
 
-    const { encryptEveryXChunks } = (await inquirer.prompt([
+    let { encryptEveryXChunks } = (await inquirer.prompt([
       {
         type: 'list',
         name: `encrypt`,
@@ -173,8 +172,12 @@ const doubleSpacesRegex = /  +/g
         message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
         default: 20,
         when: ({ encrypt }) => encrypt,
+        validate: e => (parseInt(e, 10) >= 1 && parseInt(e, 10) <= 100) || `Must be a number between 1 and 100`,
       },
     ]))
+    if(encryptEveryXChunks) {
+      encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
+    }
 
     console.log(``)
 
@@ -434,6 +437,8 @@ const doubleSpacesRegex = /  +/g
       `
 
     } else {
+
+
 
       console.log(``)
       process.stdout.write(`Creating unitWords db...`)
