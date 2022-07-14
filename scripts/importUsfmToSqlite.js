@@ -4,7 +4,7 @@ const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
-const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr } = require("@bibletags/bibletags-ui-helper")
+const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr, getBookIdFromUsfmBibleBookAbbr } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 
@@ -12,76 +12,6 @@ passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
-
-const bookAbbrs = [
-  "",
-  "GEN",
-  "EXO",
-  "LEV",
-  "NUM",
-  "DEU",
-  "JOS",
-  "JDG",
-  "RUT",
-  "1SA",
-  "2SA",
-  "1KI",
-  "2KI",
-  "1CH",
-  "2CH",
-  "EZR",
-  "NEH",
-  "EST",
-  "JOB",
-  "PSA",
-  "PRO",
-  "ECC",
-  "SNG",
-  "ISA",
-  "JER",
-  "LAM",
-  "EZK",
-  "DAN",
-  "HOS",
-  "JOL",
-  "AMO",
-  "OBA",
-  "JON",
-  "MIC",
-  "NAM",
-  "HAB",
-  "ZEP",
-  "HAG",
-  "ZEC",
-  "MAL",
-  "MAT",
-  "MRK",
-  "LUK",
-  "JHN",
-  "ACT",
-  "ROM",
-  "1CO",
-  "2CO",
-  "GAL",
-  "EPH",
-  "PHP",
-  "COL",
-  "1TH",
-  "2TH",
-  "1TI",
-  "2TI",
-  "TIT",
-  "PHM",
-  "HEB",
-  "JAS",
-  "1PE",
-  "2PE",
-  "1JN",
-  "2JN",
-  "3JN",
-  "JUD",
-  "REV",
-]
 
 const readLines = ({ input }) => {
   const output = new stream.PassThrough({ objectMode: true })
@@ -267,7 +197,7 @@ const doubleSpacesRegex = /  +/g
             while(!line.match(bookIdRegex)) continue
             
             const bookAbbr = line.replace(bookIdRegex, '$1')
-            bookId = bookAbbrs.indexOf(bookAbbr)
+            bookId = getBookIdFromUsfmBibleBookAbbr(bookAbbr)
       
             if(bookId < 1) break
 
@@ -394,7 +324,6 @@ const doubleSpacesRegex = /  +/g
                 .filter(Boolean)
             )
 
-!getOriginalLocsFromLoc(verse.loc, true) && console.log('verse', verse)
             const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
             let originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
             // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
