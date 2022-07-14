@@ -7,6 +7,9 @@ const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr, getBookIdFromUsfmBibleBookAbbr } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
+require('colors')
+const inquirer = require('inquirer')
+inquirer.registerPrompt('file-tree-selection', require('inquirer-file-tree-selection-prompt'))
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
@@ -62,7 +65,7 @@ const doubleSpacesRegex = /  +/g
 
 ;(async () => {
 
-  const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey }) => {
+  const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey, numRows }) => {
 
     const decrypt = encryptedContent => (
       encryptedContent
@@ -90,19 +93,90 @@ const doubleSpacesRegex = /  +/g
 
     if(decryptedContents !== decryptedPrevContents) {
       await fs.writeFile(path, contents, options)
-      if(decryptedPrevContents) console.log(`  > Overwriting`)
+      if(!decryptedPrevContents) console.log(`wrote file (${numRows} rows).`.yellow)
+      if(decryptedPrevContents) console.log(`replaced file (${numRows} rows).`.pink)
+    } else {
+      console.log(`[no change]`.gray)
     }
 
   }
 
   try {
 
-    const params = process.argv.slice(2)
-    const encryptEveryXChunks = /^encrypt/.test(params.slice(-1)[0]) ? (parseInt(params.pop().substr("encrypt=".length)) || 20) : false
-    const tenant = params.pop()
-    const version = params.pop()
-    const folders = params
+    let folders = process.argv.slice(2)
+    // const encryptEveryXChunks = /^encrypt/.test(params.slice(-1)[0]) ? (parseInt(params.pop().substr("encrypt=".length)) || 20) : false
     const requires = Array(66).fill()
+
+    const tenantChoices = (
+      (await fs.readdir('./tenants'))
+        .filter(path => !/^\./.test(path))
+        .map(path => path.split('/').pop())
+    )
+    const { tenant } = await inquirer.prompt([{
+      type: 'list',
+      name: `tenant`,
+      message: `Select the tenant`,
+      choices: tenantChoices,
+    }])
+
+    if(folders.length === 0) {
+      folders.push(
+        (await inquirer.prompt([
+          {
+            type: 'file-tree-selection',
+            name: 'usfmDir',
+            message: 'Locate the directory with your USFM files',
+            onlyShowDir: true,
+            enableGoUpperDirectory: true,
+            onlyShowValid: true,
+            root: '../',
+            hideRoot: true,
+            validate: fileOrDir => !/^\.|node_modules/.test(fileOrDir.split('/').pop()),
+          }
+        ])).usfmDir
+      )
+    } else {
+      process.stdout.write(`? `.green)
+      process.stdout.write(`Locate the directory with your USFM files `.bold)
+      process.stdout.write(`${folders.join(` + `)}`.cyan)
+      console.log(``)
+    }
+
+    const { version } = (await inquirer.prompt([{
+      type: `input`,
+      name: `version`,
+      message: `Enter the version id`,
+      default: folders[0].split('/').reverse().filter(dirName => /^[a-z0-9]{2,9}$/.test(dirName))[0],
+      validate: v => /^[a-z0-9]{2,9}$/.test(v) || `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`,
+    }]))
+
+    const { encryptEveryXChunks } = (await inquirer.prompt([
+      {
+        type: 'list',
+        name: `encrypt`,
+        message: `Would you like to encrypt the version files that will be delivered to user’s apps from the cloud?`,
+        default: false,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No (recommended)`,
+            value: false,
+          },
+        ],
+      },
+      {
+        type: 'input',
+        name: `encryptEveryXChunks`,
+        message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
+        default: 20,
+        when: ({ encrypt }) => encrypt,
+      },
+    ]))
+
+    console.log(``)
 
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
@@ -110,10 +184,6 @@ const doubleSpacesRegex = /  +/g
     const versionDir = `${versionsDir}/${versionWithEncryptedIfRelevant}`
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
     const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
-
-    if(!tenant) {
-      throw new Error(`NO_PARAMS`)
-    }
 
     if(!await fs.pathExists(tenantDir)) {
       throw new Error(`Invalid tenant.`)
@@ -178,7 +248,6 @@ const doubleSpacesRegex = /  +/g
         let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath
         const verses = []
         let wordNumber = 0
-        let lastVerse = 0
         let goesWithNextVsText = []
 
         for await (let line of readLines({ input })) {
@@ -222,7 +291,7 @@ const doubleSpacesRegex = /  +/g
               for(const verse of verses) insert.run(verse)
             })
 
-            console.log(`Importing ${bookAbbr}...`)
+            process.stdout.write(`Importing ${bookAbbr}...`)
             continue
 
           }
@@ -257,24 +326,9 @@ const doubleSpacesRegex = /  +/g
 
             if(psalmTitleRegex.test(line)) {
               verse = '0'
-              lastVerse = 0
 
             } else {
               verse = line.replace(verseRegex, '$1')
-              if(verse !== '1' && parseInt(verse, 10) !== lastVerse + 1) {
-                if(
-                  verse > lastVerse
-                  && Array(verse - lastVerse - 1).fill().some((x, idx) => (
-                    getOriginalLocsFromLoc(
-                      getLocFromRef({ bookId, chapter, verse: lastVerse + idx + 1 }),
-                      true
-                    )
-                  ))
-                ) {
-                  console.log(`  > Non-consecutive verses: ${chapter}:${lastVerse} > ${chapter}:${verse}`)
-                }
-              }
-              lastVerse = parseInt(verse, 10)
             }  
 
             verses.push({
@@ -362,11 +416,10 @@ const doubleSpacesRegex = /  +/g
           tempPath: dbInFormationFilePath,
           options: !encryptEveryXChunks ? { encoding: 'base64' } : { encoding: 'utf8' },
           encryptionKey,
+          numRows: verses.length,
         })
 
         requires[bookId-1] = `require("./verses/${bookId}.db"),`
-
-        console.log(`  ...inserted ${verses.length} verses.`)
 
       }
 
@@ -383,7 +436,7 @@ const doubleSpacesRegex = /  +/g
     } else {
 
       console.log(``)
-      console.log(`Creating unitWords db...`)
+      process.stdout.write(`Creating unitWords db...`)
 
       const orderedScopeMapsById = {}
       Object.keys(scopeMapsById).forEach(id => {
@@ -420,9 +473,9 @@ const doubleSpacesRegex = /  +/g
         path: dbFilePath,
         tempPath: dbInFormationFilePath,
         options: { encoding: 'base64' },
+        numRows: Object.values(scopeMapsById).length,
       })
 
-      console.log(`  ...inserted ${Object.values(scopeMapsById).length} rows.`)
     }
 
     await fs.remove(`${versionsDir}/temp`)
@@ -521,30 +574,8 @@ const doubleSpacesRegex = /  +/g
 
   } catch(err) {
 
-    const logSyntax = () => {
-      console.log(`Syntax: \`npm run usfm-to-sqlite -- path/to/directory/of/usfm/files [optional/path/to/second/directory/of/usfm/files] versionId tenant [encrypt[=encryptEveryXChunks]]\`\n`)
-      console.log(`Example #1: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags\``)
-      console.log(`Example #2: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt\``)
-      console.log(`Example #3: \`npm run usfm-to-sqlite -- ../../versions/esv esv bibletags encrypt=10\``)
-      console.log(`Note: You may completely encrypt a version by sending encrypt=1. However, this will cause a significant performance hit when the text is first loaded. The bare \`encrypt\` flag will default to encrypting every 20 chunks. Do not include this flag to leave the file(s) unencrypted.\n`)
-    }
+    console.log(`ERROR: ${err.message}`.bgRed.brightWhite)
 
-    switch(err.message.split(',')[0]) {
-
-      case `NO_PARAMS`: {
-        logSyntax()
-        break
-      }
-
-      default: {
-        // console.log(``)
-        console.log(`ERROR: ${err.message}`)
-        // console.log(err)
-        // console.log(``)
-        logSyntax()
-      }
-
-    }
   }
 
   process.exit()
