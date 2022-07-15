@@ -323,6 +323,8 @@ const doubleSpacesRegex = /  +/g
       return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
     }
 
+    const allVerses = []
+
     // loop through folders
     for(let folder of folders) {
 
@@ -335,7 +337,6 @@ const doubleSpacesRegex = /  +/g
         const input = fs.createReadStream(`${folder}/${file}`)
         let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath
         const verses = []
-        let wordNumber = 0
         let goesWithNextVsText = []
 
         for await (let line of readLines({ input })) {
@@ -443,50 +444,11 @@ const doubleSpacesRegex = /  +/g
 
         verses.forEach(verse => {
           verse.usfm = verse.usfm.join("\n")
-
-          // TODO: This part needs to go later, after I do versification stuff
-          if(version !== 'original') {
-
-            const newWords = (
-              normalizeSearchStr({
-                str: (
-                  verse.usfm
-                    .replace(wordRegex, '$1')
-                    .replace(extraBiblicalRegex, '')
-                    .replace(footnoteRegex, '')
-                    .replace(crossRefRegex, '')
-                    .replace(allTagsRegex, '')
-                    .replace(wordPartDividerRegex, '')
-                    .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
-                    .replace(newlinesRegex, ' ')
-                    .replace(doubleSpacesRegex, ' ')
-                    .trim()
-                )
-              })
-                .split(' ')
-                .filter(Boolean)
-            )
-
-            const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
-            const originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
-            // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
-
-            newWords.forEach(word => {
-
-              wordNumber++
-
-              scopeMapsById[`verse:${word}`] = scopeMapsById[`verse:${word}`] || {}
-              scopeMapsById[`verse:${word}`][originalLoc] = scopeMapsById[`verse:${word}`][originalLoc] || []
-              scopeMapsById[`verse:${word}`][originalLoc].push(wordNumber)
-
-            })
-
-          }
-
         })
 
         // console.log(verses.slice(0,5))
         insertMany(verses)
+        allVerses.push(verses)
 
         if(encryptEveryXChunks) {
           const base64Contents = await fs.readFile(dbInFormationFilePath, { encoding: 'base64' })
@@ -526,6 +488,48 @@ const doubleSpacesRegex = /  +/g
 
       console.log(``)
       process.stdout.write(`Creating unitWords db...`)
+
+      allVerses.forEach(verses => {
+        let wordNumber = 0
+
+        verses.forEach(verse => {
+
+          const newWords = (
+            normalizeSearchStr({
+              str: (
+                verse.usfm
+                  .replace(wordRegex, '$1')
+                  .replace(extraBiblicalRegex, '')
+                  .replace(footnoteRegex, '')
+                  .replace(crossRefRegex, '')
+                  .replace(allTagsRegex, '')
+                  .replace(wordPartDividerRegex, '')
+                  .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
+                  .replace(newlinesRegex, ' ')
+                  .replace(doubleSpacesRegex, ' ')
+                  .trim()
+              )
+            })
+              .split(' ')
+              .filter(Boolean)
+          )
+
+          const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
+          const originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
+          // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
+
+          newWords.forEach(word => {
+
+            wordNumber++
+
+            scopeMapsById[`verse:${word}`] = scopeMapsById[`verse:${word}`] || {}
+            scopeMapsById[`verse:${word}`][originalLoc] = scopeMapsById[`verse:${word}`][originalLoc] || []
+            scopeMapsById[`verse:${word}`][originalLoc].push(wordNumber)
+
+          })
+
+        })
+      })
 
       const orderedScopeMapsById = {}
       Object.keys(scopeMapsById).forEach(id => {
