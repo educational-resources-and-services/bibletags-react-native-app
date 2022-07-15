@@ -105,6 +105,11 @@ const doubleSpacesRegex = /  +/g
 
   try {
 
+    console.log(``)
+    console.log(`This script will walk you through importing USFM files for a translation into your Bible Tags powered app.`.yellow)
+    console.log(`To cancel at any time, hit Ctrl-C. Should you discover a bug, email us at admin@bibletags.org.`.gray)
+    console.log(``)
+
     let folders = process.argv.slice(2)
     const requires = Array(66).fill()
 
@@ -116,7 +121,7 @@ const doubleSpacesRegex = /  +/g
     const { tenant } = await inquirer.prompt([{
       type: 'list',
       name: `tenant`,
-      message: `Select the tenant`,
+      message: `Select the app`,
       choices: tenantChoices,
     }])
 
@@ -155,7 +160,7 @@ const doubleSpacesRegex = /  +/g
       {
         type: 'list',
         name: `encrypt`,
-        message: `Would you like to encrypt the version files that will be delivered to user’s apps from the cloud?`,
+        message: `Would you like to encrypt the version files that will be delivered to user’s devices from the cloud?`,
         default: false,
         choices: [
           {
@@ -487,7 +492,7 @@ const doubleSpacesRegex = /  +/g
     } else {
 
       console.log(``)
-      process.stdout.write(`Creating unitWords db...`)
+      process.stdout.write(`Creating search database...`)
 
       allVerses.forEach(verses => {
         let wordNumber = 0
