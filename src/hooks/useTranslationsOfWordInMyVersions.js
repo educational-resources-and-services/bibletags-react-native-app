@@ -12,7 +12,7 @@ const useTranslationsOfWordInMyVersions = ({
   myBibleVersions,
 }) => {
 
-  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions, restrictToTestamentBookId: getRefFromLoc(originalLoc).bookId })
 
   const translationsOfWordsInMyVersions = useMemoAsync(
     async () => {

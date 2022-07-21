@@ -12,7 +12,7 @@ import useBibleVersions from "./useBibleVersions"
 
 const useSearchResults = ({ searchText, myBibleVersions, openPassage }) => {
 
-  const { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
+  let { downloadedVersionIds } = useBibleVersions({ myBibleVersions })
 
   const menuItemsForSearch = [] //useMemo(() => GET_MENU_ITEMS_FOR_SEARCH(), [])
   const settingsForSearch = [] //useMemo(() => GET_SETTINGS_FOR_SEARCH(), [])
@@ -36,6 +36,18 @@ const useSearchResults = ({ searchText, myBibleVersions, openPassage }) => {
       versionId,
     })
   }
+
+  // if(foundPassageRef) {
+  //   const restrictToTestament = refs[0].bookId <= 39 ? `ot` : `nt`
+  //   downloadedVersionIds = (
+  //     downloadedVersionIds
+  //       .filter(({ partialScope }) => (
+  //         !partialScope
+  //         || partialScope === restrictToTestament
+  //       ))
+  //   )
+  // }
+
   const passageInfoSets = []
   // const searchWasForEntireChapter = foundPassageRef && refs[0].verse === undefined
 

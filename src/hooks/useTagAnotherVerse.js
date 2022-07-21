@@ -35,11 +35,11 @@ const useTagAnotherVerse = ({
   doPush,
 }) => {
 
-  const { historyPush, historyReplace } = useRouterState()
-  const { downloadedVersionIds, versionsCurrentlyDownloading } = useBibleVersions({ myBibleVersions })
-  const [ somethingToTag, setSomethingToTag ] = useState()
-
   testament = testament || (currentPassage.ref.bookId <= 39 ? `ot` : `nt`)
+
+  const { historyPush, historyReplace } = useRouterState()
+  const { downloadedVersionIds, versionsCurrentlyDownloading } = useBibleVersions({ myBibleVersions, restrictToTestamentBookId: testament === `ot` ? 1 : 40 })
+  const [ somethingToTag, setSomethingToTag ] = useState()
 
   const getPassageToTag = useCallback(
     async passageToFirstRemove => {

@@ -4,6 +4,7 @@ import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { i18n } from "inline-i18n"
 import { getMorphInfo } from "@bibletags/bibletags-ui-helper"
+import { getRefFromLoc } from "@bibletags/bibletags-versification"
 
 import useDefinition from "../../hooks/useDefinition"
 import useBibleVersions from "../../hooks/useBibleVersions"
@@ -82,7 +83,7 @@ const OriginalWordInfo = ({
   const toggleShowExtended = useCallback(() => setShowExtended(!showExtended), [ showExtended ])
   const adjShowExtended = showExtended && extendedHeight > 150
 
-  const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions, restrictToTestamentBookId: getRefFromLoc(originalLoc).bookId })
   const versionId = downloadedNonOriginalVersionIds[0]
 
   const definitionId = (strong.match(/[GH][0-9]{5}/) || [])[0] || strong

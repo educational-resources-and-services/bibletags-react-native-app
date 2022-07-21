@@ -26,7 +26,7 @@ const completeGroupingsAndValidate = suggestions => (
 
 const useAutoCompleteSuggestions = ({ searchTextInComposition, myBibleVersions }) => {
 
-  const { downloadedNonOriginalVersionIds, downloadedVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedNonOriginalVersionIds, downloadedVersionIds } = useBibleVersions({ myBibleVersions, restrictToTestamentSearchText: searchTextInComposition })
 
   const menuItemsForSearch = [] //useMemo(() => GET_MENU_ITEMS_FOR_SEARCH(), [])
 

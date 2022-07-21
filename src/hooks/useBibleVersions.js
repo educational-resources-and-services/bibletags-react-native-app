@@ -1,11 +1,38 @@
 import { useMemo, useCallback } from "react"
+import { isOriginalLanguageSearch } from "@bibletags/bibletags-ui-helper"
 
 import bibleVersions from "../../versions"
 import useEqualObjsMemo from "./useEqualObjsMemo"
 
 const getVersion = id => (bibleVersions.filter(version => version.id === id)[0] || {})
 
-const useBibleVersions = ({ myBibleVersions }) => {
+const useBibleVersions = ({
+  myBibleVersions,
+  restrictToTestamentBookId,
+  restrictToTestamentSearchText,
+}) => {
+
+  const restrictToTestament = useMemo(
+    () => (
+      restrictToTestamentBookId
+        ? (
+          restrictToTestamentBookId <= 39
+            ? `ot`
+            : `nt`
+        )
+        : (
+          (
+            isOriginalLanguageSearch(restrictToTestamentSearchText)
+            && (
+              (/#H/.test(restrictToTestamentSearchText) && `ot`)
+              || (/#G/.test(restrictToTestamentSearchText) && `nt`)
+            )
+          )
+          || null
+        )
+    ),
+    [ restrictToTestamentBookId, restrictToTestamentSearchText ],
+  )
 
   const versionIds = useMemo(
     () => (
@@ -41,9 +68,19 @@ const useBibleVersions = ({ myBibleVersions }) => {
       myBibleVersions
         .filter(({ downloaded }) => downloaded)
         .map(({ id }) => id)
-        .filter(id => getVersion(id).id)
+        .filter(id => {
+          const version = getVersion(id)
+          return (
+            version.id
+            && (
+              !restrictToTestament
+              || !version.partialScope
+              || version.partialScope === restrictToTestament
+            )
+          )
+        })
     ),
-    [ versionIds ],
+    [ versionIds, restrictToTestament ],
   )
 
   const downloadedNonOriginalVersionIds = useMemo(

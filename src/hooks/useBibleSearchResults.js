@@ -18,7 +18,7 @@ const useBibleSearchResults = ({
   index=0,
 }) => {
 
-  const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions })
+  const { downloadedNonOriginalVersionIds } = useBibleVersions({ myBibleVersions, restrictToTestamentSearchText: searchText })
 
   skip = skip || !searchText || downloadedNonOriginalVersionIds.length === 0
 
