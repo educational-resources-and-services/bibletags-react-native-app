@@ -74,6 +74,10 @@ const DrawerItem = React.memo(({
         href = StoreReview.storeUrl()
       }
 
+      if(type === 'global-tagging-stats') {
+        href = `https://downloads.bibletags.org`
+      }
+
       if(!href) return
 
       Linking.openURL(href).catch(error => {
@@ -116,6 +120,11 @@ const DrawerItem = React.memo(({
       typeText = i18n("Tag {{language}} verses", { language: i18n("Greek") })
       typeAction = tagAnotherVerseNT || stillDownloadingData
       typeStyle = !tagAnotherVerseOT ? styles.notReady : null
+      break
+    }
+    case 'global-tagging-stats': {
+      typeText = i18n("Global Tagging Stats")
+      typeAction = go
       break
     }
   }

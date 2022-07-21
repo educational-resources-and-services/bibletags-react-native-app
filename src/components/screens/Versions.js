@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef } from "react"
-import { StyleSheet, Text } from "react-native"
+import { StyleSheet, Text, Linking } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { Routes, Route } from "react-router-native"
@@ -9,7 +9,7 @@ import SortableList from "react-native-sortable-list"
 import useRouterState from "../../hooks/useRouterState"
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
-import { memo } from '../../utils/toolbox'
+import { memo, sentry } from '../../utils/toolbox'
 import { removeVersion } from '../../utils/syncBibleVersions'
 import { setMyBibleVersionsOrder, removeBibleVersion, removeParallelVersion } from "../../redux/actions"
 
@@ -80,6 +80,17 @@ const Versions = ({
                   versionId,
                 },
               )
+            },
+          },
+          {
+            title: i18n("Tagging stats"),
+            onPress: () => {
+              Linking.openURL(`https://downloads.bibletags.org/versions/${versionId}.html`).catch(err => {
+                sentry({ error })
+                historyPush("/ErrorMessage", {
+                  message: i18n("Your device is not allowing us to open this link."),
+                })
+              })
             },
           },
           ...(requiredVersionIds.includes(versionId) ? [] : [{

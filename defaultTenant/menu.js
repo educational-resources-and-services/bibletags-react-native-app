@@ -8,6 +8,9 @@ const menuItems = [
   {
     type: 'tag-nt',
   },
+  {
+    type: 'global-tagging-stats',
+  },
   // {
   //   type: 'language',
   // },
