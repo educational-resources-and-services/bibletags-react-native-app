@@ -1,5 +1,4 @@
 import { getVersionInfo, sentry } from "./toolbox"
-import updateLanguages from "./updateLanguages"
 import updateLanguageSpecificDefinitions from "./updateLanguageSpecificDefinitions"
 import updateTranslationBreakdowns from "./updateTranslationBreakdowns"
 import updateTagSets from "./updateTagSets"
@@ -13,7 +12,7 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
 
   setDataSyncStatus('definitions')
 
-  // update languages
+  // update language definitions
   const languageIds = [ ...new Set( versionIds.map(versionId => getVersionInfo(versionId).languageId) ) ]
   const languageIdsNeedingUpdate = (
     languageIds.filter(languageId => (
@@ -21,15 +20,12 @@ const syncData = async ({ versionIds, setDataSyncStatus }) => {
       && languageId !== 'heb+grc'
     ))
   )
-  if(languageIdsNeedingUpdate.length > 0) {
-    await updateLanguages({ languageIdsNeedingUpdate })
-    for(let languageId of languageIdsNeedingUpdate) {
-      try {
-        await updateLanguageSpecificDefinitions({ languageId })
-        languageIdsSyncedDuringThisOpen.push(languageId)
-      } catch(error) {
-        sentry({ error })
-      }
+  for(let languageId of languageIdsNeedingUpdate) {
+    try {
+      await updateLanguageSpecificDefinitions({ languageId })
+      languageIdsSyncedDuringThisOpen.push(languageId)
+    } catch(error) {
+      sentry({ error })
     }
   }
 

@@ -77,11 +77,22 @@ const dataStructureUpdateFunctions = [
     }
 
   },
-  // async () => {
-  //   // Add a data structure update in here
-  //   console.log("This is what this data structure update does...")
-  //   // IMPORTANT: never remove a data update function like this that has previously gone live!!
-  // },
+  async () => {
+
+    console.log("Dropping languages table (since info now in bibletags-ui-helper)...")
+    // IMPORTANT: never remove a data update function like this that has previously gone live!!
+
+    { // DROP languages
+      const tableName = `languages`
+      const database = tableName
+
+      await executeSql({
+        database,
+        statement: () => `DROP TABLE IF EXISTS ${tableName}`,
+      })
+    }
+
+  },
   // async () => {
   //   // Add a data structure update in here
   //   console.log("This is what this data structure update does...")

@@ -65,7 +65,7 @@ const bibleVersions = [
   //   abbr: 'MNG',
   //   name: 'Die Menge-Bibel',
   //   copyright: 'Public domain.',
-  //   languageId: 'ger',  // or 'deu' (they are synonymns)
+  //   languageId: 'deu',
   //   versificationModel: 'kjv',
   //   skipsUnlikelyOriginals: false,
   //   extraVerseMappings: {},
@@ -76,7 +76,7 @@ const bibleVersions = [
     abbr: 'SCHL',
     name: 'Schlachter 1951',
     copyright: 'Public domain.',
-    languageId: 'ger',  // or 'deu' (they are synonymns)
+    languageId: 'deu',
     versificationModel: 'kjv',
     skipsUnlikelyOriginals: false,
     extraVerseMappings: {},
@@ -109,7 +109,7 @@ const bibleVersions = [
   //   abbr: 'VDCC',
   //   name: 'Dumitru Cornilescu',
   //   copyright: 'Public domain.',
-  //   languageId: 'rum',  // or 'ron' (they are synonymns)
+  //   languageId: 'ron',
   //   versificationModel: 'kjv',
   //   skipsUnlikelyOriginals: false,
   //   extraVerseMappings: {},
@@ -120,7 +120,7 @@ const bibleVersions = [
     abbr: 'LBA',
     name: 'La Bible Annotée',
     copyright: 'Public domain.',
-    languageId: 'fre',
+    languageId: 'fra',
     versificationModel: 'kjv',
     skipsUnlikelyOriginals: false,
     extraVerseMappings: {},
