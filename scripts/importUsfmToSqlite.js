@@ -12,6 +12,10 @@ require('colors')
 const inquirer = require('inquirer')
 inquirer.registerPrompt('file-tree-selection', require('inquirer-file-tree-selection-prompt'))
 inquirer.registerPrompt('search-list', require('inquirer-search-list'))
+inquirer.registerPrompt('autocomplete', require('inquirer-autocomplete-prompt'))
+const { request, gql } = require('graphql-request')
+const Spinnies = require('spinnies')
+const spinnies = new Spinnies()
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
@@ -96,7 +100,7 @@ const doubleSpacesRegex = /  +/g
     if(decryptedContents !== decryptedPrevContents) {
       await fs.writeFile(path, contents, options)
       if(!decryptedPrevContents) console.log(`wrote file (${numRows} rows).`.yellow)
-      if(decryptedPrevContents) console.log(`replaced file (${numRows} rows).`.pink)
+      if(decryptedPrevContents) console.log(`replaced file (${numRows} rows).`.magenta)
     } else {
       console.log(`[no change]`.gray)
     }
@@ -106,7 +110,7 @@ const doubleSpacesRegex = /  +/g
   try {
 
     console.log(``)
-    console.log(`This script will walk you through importing USFM files for a translation into your Bible Tags powered app.`.yellow)
+    console.log(`This script will walk you through importing USFM files (of a Bible translation) into your Bible Tags powered app.`.yellow)
     console.log(`To cancel at any time, hit Ctrl-C. Should you discover a bug, email us at admin@bibletags.org.`.gray)
     console.log(``)
 
@@ -148,13 +152,91 @@ const doubleSpacesRegex = /  +/g
       console.log(``)
     }
 
-    const { version } = (await inquirer.prompt([{
-      type: `input`,
-      name: `version`,
-      message: `Enter the version id`,
-      default: folders[0].split('/').reverse().filter(dirName => /^[a-z0-9]{2,9}$/.test(dirName))[0],
-      validate: v => /^[a-z0-9]{2,9}$/.test(v) || `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`,
-    }]))
+    spinnies.add('get-versions', { text: `Looking up existing versions (see downloads.bibletags.org)` })
+
+    let existingVersions
+    try {
+      const response = await request(
+        `https://data.bibletags.org/graphql`,
+        gql`
+          query {
+            versions {
+              id
+              name
+              languageId
+              wordDividerRegex
+              partialScope
+              versificationModel
+              skipsUnlikelyOriginals
+              extraVerseMappings
+            }
+          }
+        `,
+      )
+      existingVersions = response.versions
+      spinnies.succeed('get-versions', { text: 'Found existing versions list for search (see downloads.bibletags.org)' })
+    } catch(err) {
+      spinnies.fail('get-versions', { text: 'Could not fetch existing versions from data.bibletags.org.' })
+    }
+
+    const defaultVersionId = folders[0].split('/').reverse().map(dirName => dirName.toLowerCase()).filter(dirName => /^[a-z0-9]{2,9}$/.test(dirName))[0]
+    const noneFoundMessage = `None found. CREATE A NEW VERSION`
+    let { versionStr, versionId } = (await inquirer.prompt([
+      {
+        type: 'autocomplete',
+        name: 'versionStr',
+        message: 'Version',
+        when: () => !!existingVersions,
+        source: async (answersSoFar, input) => {
+          const lowerCaseInput = (input || "").toLowerCase()
+          const options = []
+
+          if(input === undefined && defaultVersionId) {
+            const defaultVersion = existingVersions.find(({ id }) => id === defaultVersionId)
+            if(defaultVersion) {
+              options.push(`${defaultVersion.name} (ID: ${defaultVersion.id})`)
+            }
+          }
+
+          for(let version of existingVersions) {
+            if(version.id === defaultVersionId) continue
+            if(
+              version.id.indexOf(lowerCaseInput) === 0
+              || (
+                version.name.split(' ').some(nameWord => (
+                  nameWord.toLowerCase().indexOf(lowerCaseInput) === 0
+                ))
+              )
+            ) {
+              options.push(`${version.name} (ID: ${version.id})`)
+              if(options.length >= 10) break
+            }
+          }
+
+          if(options.length === 0) {
+            options.push(noneFoundMessage)
+          }
+
+          return options
+        },
+      },
+      {
+        type: `input`,
+        name: `versionId`,
+        message: `Enter a new version id`,
+        default: defaultVersionId,
+        when: ({ versionStr }) => !existingVersions || versionStr === noneFoundMessage,
+        validate: v => (
+          (!/^[a-z0-9]{2,9}$/.test(v) && `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`)
+          || ((existingVersions || []).some(({ id }) => id === v) && `That version id is already in use`)
+          || true
+        ),
+      },
+    ]))
+    if(!versionId) {
+      versionId = versionStr.match(/\(ID: ([a-z0-9]{2,9})\)$/)[1]
+    }
+    let versionInfo = existingVersions.find(({ id }) => id === versionId) || {}
 
     let { encryptEveryXChunks } = (await inquirer.prompt([
       {
@@ -188,7 +270,7 @@ const doubleSpacesRegex = /  +/g
 
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
-    const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${version}-encrypted` : version
+    const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${versionId}-encrypted` : versionId
     const versionDir = `${versionsDir}/${versionWithEncryptedIfRelevant}`
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
     const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
@@ -202,7 +284,7 @@ const doubleSpacesRegex = /  +/g
     const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
 
     const scopeMapsById = {}
-    let versionInfo, versionsFile
+    let versionsFile
     try {
 
       versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
@@ -211,7 +293,7 @@ const doubleSpacesRegex = /  +/g
           .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
           .replace(/files\s*:.*/g, '')  // get rid of files: requires
           .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
-          .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
+          .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
       )
       versionInfo = eval(`(${matches[0]})`)
 
@@ -222,7 +304,7 @@ const doubleSpacesRegex = /  +/g
         {
           type: 'list',
           name: `addToVersionsJs`,
-          message: `This version is missing from \`tenants/${tenant}/version.js\. Add it?`,
+          message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
           choices: [
             {
               name: `Yes`,
@@ -238,13 +320,14 @@ const doubleSpacesRegex = /  +/g
           type: 'input',
           name: `name`,
           message: `Version name`,
+          default: versionInfo.name,
           when: ({ addToVersionsJs }) => addToVersionsJs,
         },
         {
           type: 'input',
           name: `abbr`,
           message: `Version abbreviation`,
-          default: version.toUpperCase(),
+          default: versionId.toUpperCase(),
           when: ({ addToVersionsJs }) => addToVersionsJs,
           validate: a => !/ /.test(a) && a.length <= 10 || `Cannot be more than 10 characters long or include a space`,
         },
@@ -252,6 +335,7 @@ const doubleSpacesRegex = /  +/g
           type: 'search-list',
           name: `languageId`,
           message: `Language`,
+          default: versionInfo.languageId,
           when: ({ addToVersionsJs }) => addToVersionsJs,
           choices: (
             getAllLanguages()
@@ -266,8 +350,8 @@ const doubleSpacesRegex = /  +/g
           type: 'input',
           name: `copyright`,
           message: `Copyright text`,
-          default: `Public domain.`,
           when: ({ addToVersionsJs }) => addToVersionsJs,
+          validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
         },
         {
           type: 'list',
@@ -293,19 +377,49 @@ const doubleSpacesRegex = /  +/g
       }
 
       versionInfo = {
+        ...versionInfo,
         vInfo,
-        id: version,
-        versificationModel: 'kjv',
+        id: versionId,
       }
 
+    }
+
+    console.log(removeIndent(`
+      NOTE:
+        (1) This will create or update the following database files
+            ${tenantDir}/versions/${versionId}/*
+            ${versionInfo.bundled ? `${bundledVersionDir}/verses/*` : ``}
+        (2) This will modify the following files
+            ${tenantDir}/versions.js
+            ${versionInfo.bundled ? `${bundledVersionDir}/requires.js` : ``}
+    `).gray)
+
+    const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
+      type: 'list',
+      name: `confirmCreateUpdateVersesDBFiles`,
+      message: `Confirm?`,
+      choices: [
+        {
+          name: `Yes`,
+          value: true,
+        },
+        {
+          name: `No (i.e. cancel import)`,
+          value: false,
+        },
+      ],
+    }]))
+    if(!confirmCreateUpdateVersesDBFiles) {
+      console.log(``)
+      process.exit()
     }
 
     console.log(``)
 
     await fs.remove(`${versionsDir}/temp`)
     await fs.ensureDir(`${versionsDir}/temp`)
-    await fs.remove(`${versionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
-    await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${version}-encrypted` : version}`)
+    await fs.remove(`${versionsDir}/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}`)
+    await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}`)
     await fs.ensureDir(`${versionDir}/verses`)
 
     const getOriginalLocsFromLoc = (loc, failSilently) => {
@@ -368,7 +482,7 @@ const doubleSpacesRegex = /  +/g
             dbInFormationFilePath = `${versionsDir}/temp/${bookId}-inFormation.db`
             const db = new Database(dbInFormationFilePath)
 
-            const tableName = `${version}VersesBook${bookId}`
+            const tableName = `${versionId}VersesBook${bookId}`
 
             const create = db.prepare(
               `CREATE TABLE ${tableName} (
@@ -481,9 +595,22 @@ const doubleSpacesRegex = /  +/g
 
     }
 
+    if(!requires[0]) {
+      versionInfo.partialScope = `nt`
+    } else if(!requires[40]) {
+      versionInfo.partialScope = `ot`
+    } else {
+      delete versionInfo.partialScope
+    }
+
+    if(versionInfo.partialScope === `nt`) requires.splice(0, 39)
+    if(versionInfo.partialScope === `ot`) requires.splice(39, 27)
+
+    if(!requires.every(Boolean)) throw new Error(`Chosen directory does not contain complete testaments.`)
+
     let extraRequires = ``
 
-    if(version === 'original') {
+    if(versionId === 'original') {
 
       extraRequires = `
           require("./definitions.db"),
@@ -491,6 +618,12 @@ const doubleSpacesRegex = /  +/g
 
     } else {
 
+      if(!versionInfo.versificationModel) {
+        versionInfo.versificationModel = `kjv`
+        versionInfo.skipsUnlikelyOriginals = true
+        versionInfo.extraVerseMappings = {}
+      }
+  
       console.log(``)
       process.stdout.write(`Creating search database...`)
 
@@ -550,7 +683,7 @@ const doubleSpacesRegex = /  +/g
       const dbFilePath = `${versionDir}/search/unitWords.db`
       const dbInFormationFilePath = `${versionsDir}/temp/unitWords-inFormation.db`
       const db = new Database(dbInFormationFilePath)
-      const tableName = `${version}UnitWords`
+      const tableName = `${versionId}UnitWords`
 
       const create = db.prepare(
         `CREATE TABLE ${tableName} (
@@ -578,7 +711,7 @@ const doubleSpacesRegex = /  +/g
 
     await fs.remove(`${versionsDir}/temp`)
 
-    if(version === 'original' || versionInfo.bundled) {
+    if(versionId === 'original' || versionInfo.bundled) {
 
       await fs.ensureDir(`${bundledVersionDir}/verses`)
       await fs.copy(`${versionDir}/verses`, `${bundledVersionDir}/verses`, { overwrite: true })
@@ -598,44 +731,65 @@ const doubleSpacesRegex = /  +/g
 
     // update versions.js
     let newVersionsFile = versionsFile
-    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${version}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${version}-encrypted` : version}/requires'.*\\n`), ``)
-    const newImportLine = `import ${version}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
-    const newFilesLine = `    files: ${version}Requires,`
+    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
+    const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
+    const newFilesLine = `    files: ${versionId}Requires,`
 
     if(versionInfo.bundled) {
       if(!newVersionsFile.includes(newImportLine)) {
         newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
       }
       if(!newVersionsFile.includes(newFilesLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
+        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
       }
     } else {
       if(newVersionsFile.includes(newImportLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${version}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
+        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
       }
       if(newVersionsFile.includes(newFilesLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${version}Requires,[\\t ]*`), ``)
+        newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${versionId}Requires,[\\t ]*`), ``)
       }
     }
 
-    const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${version}RevisionNum|"${version}RevisionNum"|'${version}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
+    const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${versionId}RevisionNum|"${versionId}RevisionNum"|'${versionId}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
     if(versionRevisionNumRegexp.test(newVersionsFile)) {
-      newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${version}RevisionNum`] + 1}$2`)
+      newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${versionId}RevisionNum`] + 1}$2`)
     } else {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${version}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${version}RevisionNum: 1,\n`)
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${versionId}RevisionNum: 1,\n`)
     }
     if(encryptEveryXChunks && !versionInfo.encrypted) {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${version}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
     } else if(!encryptEveryXChunks && versionInfo.encrypted) {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${version}"|'${version}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
+      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
     }
     await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
     console.log(``)
     console.log(`Updated ${tenantDir}/versions.js`)
 
+
+    // const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
+    //   type: 'list',
+    //   name: `confirmCreateUpdateVersesDBFiles`,
+    //   message: `Create/update database files in \`tenants/${tenant}/versions/${versionId} based on the information above?`,
+    //   choices: [
+    //     {
+    //       name: `Yes`,
+    //       value: true,
+    //     },
+    //     {
+    //       name: `No (i.e. cancel import)`,
+    //       value: false,
+    //     },
+    //   ],
+    // }]))
+    // if(!confirmCreateUpdateVersesDBFiles) {
+    //   console.log(``)
+    //   process.exit()
+    // }
+
     // TODO: uncomment this!
     // // update tenant and sync them to dev
-    // if(version !== 'original') {
+    // if(versionId !== 'original') {
     //   console.log(``)
     //   console.log(`Rerunning \`change-tenant\`...`)
     //   await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
@@ -657,19 +811,18 @@ const doubleSpacesRegex = /  +/g
     //   })
     // }
 
-    // if(version !== 'original') {
+    if(versionId !== 'original') {
 
-    //   console.log(removeIndent(`
-    //     Successfully...
-    //       (1) created sqlite db files
-    //       (2) placed them into \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
-    //       (3) updated versions.js
-    //       (4) reran change-tenant
-    //       (5) synced \`${versionsDir}\` to the cloud for use in dev
-    //       (6) submitted word hashes for ${version} to the dev db for bibletags-data
-    //   `))
+      console.log(removeIndent(`
+        Successfully...
+          (1) Created sqlite db files and placed them in \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/verses\`` : ``}
+          (2) Updated \`${tenantDir}/versions.js\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/requires.js\`` : ``}
+          (3) Reran change-tenant
+          (4) Synced \`${versionsDir}\` to the cloud for use in dev
+          (5) Submitted word hashes for ${versionId} to the dev db for bibletags-data
+      `).yellow)
 
-    // }
+    }
 
   } catch(err) {
 

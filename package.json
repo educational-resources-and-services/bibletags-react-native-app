@@ -92,6 +92,7 @@
     "graphql-request": "^4.2.0",
     "inline-i18n": "^0.1.5",
     "inquirer": "^8.2.4",
+    "inquirer-autocomplete-prompt": "^2.0.0",
     "inquirer-file-tree-selection-prompt": "^1.0.19",
     "inquirer-search-list": "^1.2.6",
     "moment": "2.29.1",
@@ -119,6 +120,7 @@
     "redux-persist": "6.0.0",
     "s3-sync-client": "^3.0.0",
     "sentry-expo": "^4.0.0",
+    "spinnies": "^0.5.1",
     "uuid": "^8.3.2"
   }
 }
