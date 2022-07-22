@@ -71,6 +71,7 @@ const doubleSpacesRegex = /  +/g
 
 ;(async () => {
 
+  let hasChange
   const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey, numRows }) => {
 
     const decrypt = encryptedContent => (
@@ -101,6 +102,7 @@ const doubleSpacesRegex = /  +/g
       await fs.writeFile(path, contents, options)
       if(!decryptedPrevContents) console.log(`wrote file (${numRows} rows).`.yellow)
       if(decryptedPrevContents) console.log(`replaced file (${numRows} rows).`.magenta)
+      hasChange = true
     } else {
       console.log(`[no change]`.gray)
     }
@@ -397,7 +399,7 @@ const doubleSpacesRegex = /  +/g
     const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmCreateUpdateVersesDBFiles`,
-      message: `Confirm?`,
+      message: `Continue with the import?`,
       choices: [
         {
           name: `Yes`,
@@ -729,43 +731,67 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    // update versions.js
-    let newVersionsFile = versionsFile
-    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
-    const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
-    const newFilesLine = `    files: ${versionId}Requires,`
-
-    if(versionInfo.bundled) {
-      if(!newVersionsFile.includes(newImportLine)) {
-        newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
-      }
-      if(!newVersionsFile.includes(newFilesLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
-      }
-    } else {
-      if(newVersionsFile.includes(newImportLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
-      }
-      if(newVersionsFile.includes(newFilesLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${versionId}Requires,[\\t ]*`), ``)
-      }
+    if(!hasChange) {
+      console.log(``)
+      const { confirmUpdateVersionsJs } = (await inquirer.prompt([{
+        type: 'list',
+        name: `confirmUpdateVersionsJs`,
+        message: `There were no changes since the last import. Update \`${tenantDir}/versions.js\` anyway?`,
+        default: false,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No`,
+            value: false,
+          },
+        ],
+      }]))
+      hasChange = confirmUpdateVersionsJs
     }
 
-    const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${versionId}RevisionNum|"${versionId}RevisionNum"|'${versionId}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
-    if(versionRevisionNumRegexp.test(newVersionsFile)) {
-      newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${versionId}RevisionNum`] + 1}$2`)
-    } else {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${versionId}RevisionNum: 1,\n`)
-    }
-    if(encryptEveryXChunks && !versionInfo.encrypted) {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
-    } else if(!encryptEveryXChunks && versionInfo.encrypted) {
-      newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
-    }
-    await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
-    console.log(``)
-    console.log(`Updated ${tenantDir}/versions.js`)
+    if(hasChange) {
 
+      // update versions.js
+      let newVersionsFile = versionsFile
+      newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
+      const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
+      const newFilesLine = `    files: ${versionId}Requires,`
+
+      if(versionInfo.bundled) {
+        if(!newVersionsFile.includes(newImportLine)) {
+          newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
+        }
+        if(!newVersionsFile.includes(newFilesLine)) {
+          newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
+        }
+      } else {
+        if(newVersionsFile.includes(newImportLine)) {
+          newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
+        }
+        if(newVersionsFile.includes(newFilesLine)) {
+          newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${versionId}Requires,[\\t ]*`), ``)
+        }
+      }
+
+      const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${versionId}RevisionNum|"${versionId}RevisionNum"|'${versionId}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
+      if(versionRevisionNumRegexp.test(newVersionsFile)) {
+        newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${versionId}RevisionNum`] + 1}$2`)
+      } else {
+        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${versionId}RevisionNum: 1,\n`)
+      }
+      if(encryptEveryXChunks && !versionInfo.encrypted) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
+      } else if(!encryptEveryXChunks && versionInfo.encrypted) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
+      }
+      await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
+      console.log(``)
+      console.log(`Updated ${tenantDir}/versions.js`)
+
+    }
 
     // const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
     //   type: 'list',
