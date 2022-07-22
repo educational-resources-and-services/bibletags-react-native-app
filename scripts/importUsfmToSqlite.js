@@ -17,6 +17,8 @@ const { request, gql } = require('graphql-request')
 const Spinnies = require('spinnies')
 const spinnies = new Spinnies()
 
+const goSyncVersions = require('./goSyncVersions')
+
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
 
@@ -793,49 +795,45 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    // const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
-    //   type: 'list',
-    //   name: `confirmCreateUpdateVersesDBFiles`,
-    //   message: `Create/update database files in \`tenants/${tenant}/versions/${versionId} based on the information above?`,
-    //   choices: [
-    //     {
-    //       name: `Yes`,
-    //       value: true,
-    //     },
-    //     {
-    //       name: `No (i.e. cancel import)`,
-    //       value: false,
-    //     },
-    //   ],
-    // }]))
-    // if(!confirmCreateUpdateVersesDBFiles) {
-    //   console.log(``)
-    //   process.exit()
-    // }
+    // update tenant and sync them to dev
+    if(versionId !== 'original') {
+      console.log(``)
+      console.log(`Rerunning \`change-tenant\`...`)
+      await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
+      await new Promise((resolve, reject) => {
+        exec(
+          `npm run change-tenant ${tenant}`,
+          (error, stdout, stderr) => {
+            if(error !== null || stderr) {
+              console.log(`Error in rerunning \`change-tenant\`: ${error || stderr}`)
+              reject()
+            } else if(stdout.includes(`Changed tenant to`)) {
+              console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
+              resolve()
+            } else if(stdout) {
+              console.log(stdout)
+            }
+          }
+        )
+      })
+    }
 
-    // TODO: uncomment this!
-    // // update tenant and sync them to dev
-    // if(versionId !== 'original') {
-    //   console.log(``)
-    //   console.log(`Rerunning \`change-tenant\`...`)
-    //   await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
-    //   await new Promise((resolve, reject) => {
-    //     exec(
-    //       `npm run change-tenant ${tenant}`,
-    //       (error, stdout, stderr) => {
-    //         if(error !== null || stderr) {
-    //           console.log(`Error in rerunning \`change-tenant\`: ${error || stderr}`)
-    //           reject()
-    //         } else if(stdout.includes(`...done.`)) {
-    //           console.log(stdout.split('\n').filter(line => !/^> /.test(line)).join('\n').replace(/\n\n+/g, '\n\n'))
-    //           resolve()
-    //         } else if(stdout) {
-    //           console.log(stdout)
-    //         }
-    //       }
-    //     )
-    //   })
-    // }
+    const { confirmSyncVersionToDev } = (await inquirer.prompt([{
+      type: 'list',
+      name: `confirmSyncVersionToDev`,
+      message: `Do you have bibletag-data installed and desire to submit all word hashes locally for testing?`,
+      choices: [
+        {
+          name: `Yes`,
+          value: true,
+        },
+        {
+          name: `No`,
+          value: false,
+        },
+      ],
+    }]))
+    await goSyncVersions({ stage: `dev`, skipSubmitWordHashes: !confirmSyncVersionToDev })
 
     if(versionId !== 'original') {
 
@@ -843,10 +841,10 @@ const doubleSpacesRegex = /  +/g
         Successfully...
           (1) Created sqlite db files and placed them in \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/verses\`` : ``}
           (2) Updated \`${tenantDir}/versions.js\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/requires.js\`` : ``}
-          (3) Reran change-tenant
+          (3) Reran change-tenant (to update the state so it is ready for running \`npm run dev\`)
           (4) Synced \`${versionsDir}\` to the cloud for use in dev
-          (5) Submitted word hashes for ${versionId} to the dev db for bibletags-data
-      `).yellow)
+          ${confirmSyncVersionToDev ? `(5) Submitted word hashes for ${versionId} to the dev db for bibletags-data` : ``}
+      `).green)
 
     }
 

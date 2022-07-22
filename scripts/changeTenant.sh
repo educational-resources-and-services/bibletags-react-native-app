@@ -70,6 +70,4 @@ else
   fi
 fi
 
-npm run sync-versions dev
-
 echo ""
