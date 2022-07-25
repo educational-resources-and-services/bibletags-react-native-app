@@ -5,7 +5,7 @@ const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
-        getBookIdFromUsfmBibleBookAbbr, getAllLanguages } = require("@bibletags/bibletags-ui-helper")
+        getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getUsfmBibleBookAbbr } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
@@ -622,7 +622,89 @@ const doubleSpacesRegex = /  +/g
 
     } else {
 
+      allVerses.sort((a,b) => a[0].loc < b[0].loc ? -1 : 1)
+
+      const getWordsFromUsfm = usfm => (
+        normalizeSearchStr({
+          str: (
+            usfm
+              .replace(wordRegex, '$1')
+              .replace(extraBiblicalRegex, '')
+              .replace(footnoteRegex, '')
+              .replace(crossRefRegex, '')
+              .replace(allTagsRegex, '')
+              .replace(wordPartDividerRegex, '')
+              .replace(new RegExp(versionInfo.wordDividerRegex || defaultWordDividerRegex, 'g'), ' ')
+              .replace(newlinesRegex, ' ')
+              .replace(doubleSpacesRegex, ' ')
+              .trim()
+          )
+        })
+          .split(' ')
+          .filter(Boolean)
+      )
+
       if(!versionInfo.versificationModel) {
+
+        while(true) {
+
+          const sampleVerse = allVerses[0][0]
+          const { bookId, chapter, verse } = getRefFromLoc(sampleVerse.loc)
+          console.log(``)
+          console.log(`Using the ${versionInfo.wordDividerRegex ? `word divider specific to this version` : `standard word divider`}, ${getUsfmBibleBookAbbr(bookId)} ${chapter}:${verse} gets divided like this:`)
+          getWordsFromUsfm(sampleVerse.usfm).forEach(word => console.log(word.gray))
+          console.log(``)
+          console.log(`Note: To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray)
+          console.log(``)
+
+          const { correctlySplitsIntoWords } = (await inquirer.prompt([{
+            type: 'list',
+            name: `correctlySplitsIntoWords`,
+            message: `Has the standard word divider correctly split this verse into individual words?`,
+            choices: [
+              {
+                name: `Yes`,
+                value: true,
+              },
+              {
+                name: `No`,
+                value: false,
+              },
+            ],
+          }]))
+          if(correctlySplitsIntoWords) break
+
+          console.log(``)
+          console.log(`You will need to provide a Regular Expression for word dividers. As a reference, the standard Regular Expression is as follows:`)
+          console.log(``)
+          console.log(defaultWordDividerRegex.gray)
+          console.log(``)
+          const { wordDividerRegex } = (await inquirer.prompt([{
+            type: 'input',
+            name: `wordDividerRegex`,
+            message: `Word divider Regular Expression (leave blank to use the default)`,
+          }]))
+          if(wordDividerRegex) {
+            versionInfo.wordDividerRegex = wordDividerRegex
+          } else {
+            delete versionInfo.wordDividerRegex
+          }
+
+        }
+
+      // - use wordDividerRegex on Gen/Matt 1:1 and show the result, asking them to confirm this works
+      //   - if not...
+      //     - tell them the standard regex
+      //     - ask for an alternative, or else give them an option to cancel
+      // - determine versification model
+      // - determine skips unlikely originals value + exceptions
+      // - loop through all orig verses and make sure there is a counterpart; then do the same for translation verses; also, check vs skips in the translation, that they cover all in verses in the original
+      //   - if not...
+      //     - ask for user correction if possible
+      //       - use inquirer-select-line to break the verse, or tell them to hit the TAB key if it is a complex break
+      //       - use inquirer-table-prompt
+      //     - else indicate an error with vs ref
+        // HERE
         versionInfo.versificationModel = `kjv`
         versionInfo.skipsUnlikelyOriginals = true
         versionInfo.extraVerseMappings = {}
@@ -636,26 +718,7 @@ const doubleSpacesRegex = /  +/g
 
         verses.forEach(verse => {
 
-          const newWords = (
-            normalizeSearchStr({
-              str: (
-                verse.usfm
-                  .replace(wordRegex, '$1')
-                  .replace(extraBiblicalRegex, '')
-                  .replace(footnoteRegex, '')
-                  .replace(crossRefRegex, '')
-                  .replace(allTagsRegex, '')
-                  .replace(wordPartDividerRegex, '')
-                  .replace(versionInfo.wordDividerRegex || defaultWordDividerRegex, ' ')
-                  .replace(newlinesRegex, ' ')
-                  .replace(doubleSpacesRegex, ' ')
-                  .trim()
-              )
-            })
-              .split(' ')
-              .filter(Boolean)
-          )
-
+          const newWords = getWordsFromUsfm(verse.usfm)
           const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
           const originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
           // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
@@ -821,7 +884,7 @@ const doubleSpacesRegex = /  +/g
     const { confirmSyncVersionToDev } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmSyncVersionToDev`,
-      message: `Do you have bibletag-data installed and desire to submit all word hashes locally for testing?`,
+      message: `Set this version up for testing locally? (Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.)`,
       choices: [
         {
           name: `Yes`,
@@ -833,7 +896,10 @@ const doubleSpacesRegex = /  +/g
         },
       ],
     }]))
-    await goSyncVersions({ stage: `dev`, skipSubmitWordHashes: !confirmSyncVersionToDev })
+    if(confirmSyncVersionToDev) {
+      // TODO: update/insert results in local BibleTags.versions row
+      await goSyncVersions({ stage: `dev` })
+    }
 
     if(versionId !== 'original') {
 
