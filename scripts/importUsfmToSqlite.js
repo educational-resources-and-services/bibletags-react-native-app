@@ -326,6 +326,7 @@ const doubleSpacesRegex = /  +/g
           message: `Version name`,
           default: versionInfo.name,
           when: ({ addToVersionsJs }) => addToVersionsJs,
+          validate: n => n.trim() !== `` || `You must specify a name.`,
         },
         {
           type: 'input',
@@ -425,26 +426,6 @@ const doubleSpacesRegex = /  +/g
     await fs.remove(`${versionsDir}/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}`)
     await fs.remove(`${bundledVersionsDir}/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}`)
     await fs.ensureDir(`${versionDir}/verses`)
-
-    const getOriginalLocsFromLoc = (loc, failSilently) => {
-      const originalRefs = getCorrespondingRefs({
-        baseVersion: {
-          info: versionInfo,
-          ref: getRefFromLoc(loc),
-        },
-        lookupVersionInfo: {
-          versificationModel: 'original',
-        },
-      })
-
-      if(!originalRefs) {
-        if(failSilently) return
-        console.log(loc)
-        throw new Error(`Versification error`)
-      }
-
-      return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
-    }
 
     const allVerses = []
 
@@ -644,7 +625,29 @@ const doubleSpacesRegex = /  +/g
           .filter(Boolean)
       )
 
+      const getOriginalLocsFromLoc = (loc, testVersionInfo) => {
+        const originalRefs = getCorrespondingRefs({
+          baseVersion: {
+            info: testVersionInfo || versionInfo,
+            ref: getRefFromLoc(loc),
+          },
+          lookupVersionInfo: {
+            versificationModel: 'original',
+          },
+        })
+  
+        if(!originalRefs) {
+          if(testVersionInfo) return
+          console.log(loc)
+          throw new Error(`Versification error`)
+        }
+  
+        return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
+      }
+
       if(!versionInfo.versificationModel) {
+
+        // 1. wordDividerRegex
 
         while(true) {
 
@@ -692,12 +695,37 @@ const doubleSpacesRegex = /  +/g
 
         }
 
-      // - use wordDividerRegex on Gen/Matt 1:1 and show the result, asking them to confirm this works
-      //   - if not...
-      //     - tell them the standard regex
-      //     - ask for an alternative, or else give them an option to cancel
-      // - determine versification model
-      // - determine skips unlikely originals value + exceptions
+        // 2. versificationModel + skipsUnlikelyOriginals
+
+        spinnies.add('determine-versification-model', { text: `Determining versification model, etc` })
+        await new Promise(r => setTimeout(r, 50))  // need to make this async so the spinner works
+
+        const unlikelyOriginals = [ "40012047", "40017021", "40018011", "40023014", "41007016", "41009044", "41009046", "41011026", "41015028", "42017036", "42023017", "43005004", "44008037", "44015034", "44024007", "44028029", "45016024" ]
+        let numUnlikelyOriginalsUsed = 0
+        const versificationModels = [ 'original', 'kjv', 'lxx', 'synodal' ]
+        const numBadVersesByModel = {}
+        for(let versificationModel of versificationModels) {
+          numBadVersesByModel[versificationModel] = 0
+          for(let verses of allVerses) {
+            await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
+            verses.forEach(({ loc }) => {
+              if(!getOriginalLocsFromLoc(loc, { versificationModel })) {
+                numBadVersesByModel[versificationModel]++
+              }
+              if(unlikelyOriginals.includes(loc)) {
+                numUnlikelyOriginalsUsed++
+              }
+            })
+          }
+        }
+        versionInfo.versificationModel = versificationModels.reduce((a,b) => numBadVersesByModel[a] < numBadVersesByModel[b] ? a : b)
+        versionInfo.skipsUnlikelyOriginals = versionInfo.partialScope !== `ot` && numUnlikelyOriginalsUsed < unlikelyOriginals.length / 2
+
+        spinnies.succeed('determine-versification-model', { text: `Will use ${versionInfo.versificationModel} versification model` })
+        console.log(`✓ Setting skipsUnlikelyOriginals to ${versionInfo.skipsUnlikelyOriginals}`.green)
+
+        // 2. extraVerseMappings
+
       // - loop through all orig verses and make sure there is a counterpart; then do the same for translation verses; also, check vs skips in the translation, that they cover all in verses in the original
       //   - if not...
       //     - ask for user correction if possible
@@ -705,8 +733,6 @@ const doubleSpacesRegex = /  +/g
       //       - use inquirer-table-prompt
       //     - else indicate an error with vs ref
         // HERE
-        versionInfo.versificationModel = `kjv`
-        versionInfo.skipsUnlikelyOriginals = true
         versionInfo.extraVerseMappings = {}
       }
   
