@@ -8,6 +8,11 @@ const inquirer = require('inquirer')
 const hideCursor = `\u001B[?25l`
 const showCursor = `\u001B[?25h`
 
+let charPressed
+process.stdin.on('data', d => {
+  charPressed = d.toString()
+})
+
 const cloneObj = obj => JSON.parse(JSON.stringify(obj))
 
 const getWordRangesFromWordNums = wordNums => {
@@ -27,7 +32,7 @@ const getWordRangesFromWordNums = wordNums => {
 
 const wordsCacheByVersionIdAndLoc = {}
 
-const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) => {
+const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, progress }) => {
 
   // validate input
   let bookId
@@ -198,10 +203,6 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) =
     console.log(hideCursor)
 
     let cursorPosition = 0
-    let charPressed
-    process.stdin.on('data', d => {
-      charPressed = d.toString()
-    })
 
     await inquirer.prompt([{
       type: 'input',
@@ -351,8 +352,15 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) =
                     translationWordRangeStr = translationFullRange
                   } else if(/^[0-9]+-$/.test(translationWordRangeStr)) {
                     translationWordRangeStr += wordsByTranslationLoc[loc].length
+                  } else if(/^[0-9]+$/.test(translationWordRangeStr)) {
+                    translationWordRangeStr = `${translationWordRangeStr}-${translationWordRangeStr}`
                   }
                   loc = `${loc}:${translationWordRangeStr}`
+                }
+                if(/^[0-9]+-$/.test(originalWordRangeStr)) {
+                  originalWordRangeStr += wordsByOriginalLoc[originalLoc].length
+                } else if(/^[0-9]+$/.test(originalWordRangeStr)) {
+                  originalWordRangeStr = `${originalWordRangeStr}-${originalWordRangeStr}`
                 }
                 return {
                   originalLoc: `${originalLoc}:${originalWordRangeStr}`,
@@ -377,8 +385,11 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) =
         const thisErrorMessage = errorMessage
         errorMessage = ``
 
+        const progressBarLength = 67
+
         return [
           ``,
+          Array(parseInt(progress * progressBarLength)).fill(`—`).join('').green + Array(progressBarLength - parseInt(progress * progressBarLength)).fill(`—`).join('').gray,
           ``,
           `–––––––––––––––––––––––––`.gray,
           mappings.map(({ originalLoc, loc }, mappingIdx) => {
@@ -523,9 +534,6 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) =
             )
             const originalLocInfoStr = `${getBibleBookName(bookId)} ${originalChVsStr}, words: ${originalWordRangeStr}${isEntireOriginalStr}`+` (Original)`.gray
             let originalText = getPartialText({ words: wordsByOriginalLoc[originalLoc.split(':')[0]], ref: originalRef })
-            if(bookId <= 39) {
-              originalText = `\u2067${originalText}\u2066`
-            }
 
             let translationLocInfoStr, translationText
             if(loc) {
@@ -609,10 +617,10 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant }) =
             }
 
             return [
-              originalLocInfoStr,
-              originalText.white,
-              translationLocInfoStr,
-              translationText,
+              `\u2068`+originalLocInfoStr,
+              (bookId <= 39 ? `\u2067` : `\u2068`)+originalText.white,
+              `\u2068`+translationLocInfoStr,
+              `\u2068`+translationText,
               `–––––––––––––––––––––––––`.gray,
             ]
           }),

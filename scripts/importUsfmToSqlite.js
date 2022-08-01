@@ -5,8 +5,8 @@ const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
-        getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getUsfmBibleBookAbbr } = require("@bibletags/bibletags-ui-helper")
-const { getCorrespondingRefs, getRefFromLoc, getLocFromRef } = require('@bibletags/bibletags-versification')
+        getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
+const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
 const inquirer = require('inquirer')
@@ -18,6 +18,7 @@ const Spinnies = require('spinnies')
 const spinnies = new Spinnies()
 
 const goSyncVersions = require('./goSyncVersions')
+const confirmAndCorrectMapping = require('./utils/confirmAndCorrectMapping')
 
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
@@ -60,7 +61,7 @@ const sectionHeadingRegex = /^\\s[0-9p]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9])$/
-const poetryWithoutContentRegex = /^\\q(?:[0-9rcad]?|m[0-9]?)$/
+const poetryWithoutBiblicalContentRegex = /^\\q(?:[0-9rcd]?|m[0-9]?|a .*)$/
 const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
@@ -383,7 +384,7 @@ const doubleSpacesRegex = /  +/g
 
       versionInfo = {
         ...versionInfo,
-        vInfo,
+        ...vInfo,
         id: versionId,
       }
 
@@ -506,7 +507,7 @@ const doubleSpacesRegex = /  +/g
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
             || paragraphWithoutContentRegex.test(line)
-            || poetryWithoutContentRegex.test(line)
+            || poetryWithoutBiblicalContentRegex.test(line)
           ) {
             goesWithNextVsText.push(line)
             continue
@@ -654,7 +655,7 @@ const doubleSpacesRegex = /  +/g
           const sampleVerse = allVerses[0][0]
           const { bookId, chapter, verse } = getRefFromLoc(sampleVerse.loc)
           console.log(``)
-          console.log(`Using the ${versionInfo.wordDividerRegex ? `word divider specific to this version` : `standard word divider`}, ${getUsfmBibleBookAbbr(bookId)} ${chapter}:${verse} gets divided like this:`)
+          console.log(`Using the ${versionInfo.wordDividerRegex ? `word divider specific to this version` : `standard word divider`}, ${getBibleBookName(bookId)} ${chapter}:${verse} gets divided like this:`)
           getWordsFromUsfm(sampleVerse.usfm).forEach(word => console.log(word.gray))
           console.log(``)
           console.log(`Note: To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray)
@@ -703,22 +704,22 @@ const doubleSpacesRegex = /  +/g
         const unlikelyOriginals = [ "40012047", "40017021", "40018011", "40023014", "41007016", "41009044", "41009046", "41011026", "41015028", "42017036", "42023017", "43005004", "44008037", "44015034", "44024007", "44028029", "45016024" ]
         let numUnlikelyOriginalsUsed = 0
         const versificationModels = [ 'original', 'kjv', 'lxx', 'synodal' ]
-        const numBadVersesByModel = {}
+        const translationLocsNotMappingByModel = {}
         for(let versificationModel of versificationModels) {
-          numBadVersesByModel[versificationModel] = 0
+          translationLocsNotMappingByModel[versificationModel] = []
           for(let verses of allVerses) {
             await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
             verses.forEach(({ loc }) => {
               if(!getOriginalLocsFromLoc(loc, { versificationModel })) {
-                numBadVersesByModel[versificationModel]++
+                translationLocsNotMappingByModel[versificationModel].push(loc)
               }
-              if(unlikelyOriginals.includes(loc)) {
+              if(unlikelyOriginals.includes(loc) && versificationModel === 'kjv') {
                 numUnlikelyOriginalsUsed++
               }
             })
           }
         }
-        versionInfo.versificationModel = versificationModels.reduce((a,b) => numBadVersesByModel[a] < numBadVersesByModel[b] ? a : b)
+        versionInfo.versificationModel = versificationModels.reduce((a,b) => translationLocsNotMappingByModel[a].length < translationLocsNotMappingByModel[b].length ? a : b)
         versionInfo.skipsUnlikelyOriginals = versionInfo.partialScope !== `ot` && numUnlikelyOriginalsUsed < unlikelyOriginals.length / 2
 
         spinnies.succeed('determine-versification-model', { text: `Will use ${versionInfo.versificationModel} versification model` })
@@ -726,13 +727,85 @@ const doubleSpacesRegex = /  +/g
 
         // 2. extraVerseMappings
 
-      // - loop through all orig verses and make sure there is a counterpart; then do the same for translation verses; also, check vs skips in the translation, that they cover all in verses in the original
-      //   - if not...
-      //     - ask for user correction if possible
-      //       - use inquirer-select-line to break the verse, or tell them to hit the TAB key if it is a complex break
-      //       - use inquirer-table-prompt
-      //     - else indicate an error with vs ref
-        // HERE
+        console.log(``)
+        console.log(`Confirm and correct versification mappings...`.gray)
+        console.log(``)
+
+        let originalLocsSets = []
+
+        // find translation mappings with wordRanges and add to originalLocsSets
+        const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
+        Object.keys(translationToOriginal).map(translationLoc => {
+          if(typeof translationToOriginal[translationLoc] !== 'string' && !originalLocsSets.includes(translationLoc)) {
+            originalLocsSets.push([
+              ...new Set(
+                Object.values(translationToOriginal[translationLoc])
+                  .map(origLoc => origLoc.split(':')[0])
+              )
+            ].sort())
+          }
+        })
+
+        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them
+
+        // go through all translation verses with translationLocsNotMappingByModel[versionInfo.versificationModel]
+          // when one is not found at all
+            // if it is in the skipsUnlikelyOriginals list and skipsUnlikelyOriginals===true
+              // then add it as an exceptional non-skip
+            // else find the whole range of not-founds
+              // show user orig in range with +/- one verse, and translation +/- one verse, and ask user if the missing verse(s)
+                // (a) are not translated
+                // (b) belong together to the verse before
+                // (b) belong together to the verse after
+
+
+        // if not lxx model
+          // go through all orig verses with the vM
+            // when one is not found at all
+              // if it is in the skipsUnlikelyOriginals list
+                // then add it as an exceptional skip
+              // else find the whole range of not-founds
+                // show user orig in range with +/- one verse, and translation +/- one verse, and ask user if the missing verse(s)
+                  // (a) are not translated
+                  // (b) belong together to the verse before
+                  // (b) belong together to the verse after
+            // when contains specific words
+
+        originalLocsSets.sort()
+
+        // const checkAgainForTranslationVersesThatDoNotMap = () => {
+        //   // find any translation verses that do not map
+        //   for(let verses of allVerses) {
+        //     await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
+        //     verses.forEach(({ loc }) => {
+        //       if(!getOriginalLocsFromLoc(loc, { versificationModel })) {
+        //         translationLocsNotMappingByModel[versificationModel]++
+        //       }
+        //       if(unlikelyOriginals.includes(loc)) {
+        //         numUnlikelyOriginalsUsed++
+        //       }
+        //     })
+        //   }
+
+        //   originalLocsSets.sort()
+        // }
+
+        for(let i=0; i<originalLocsSets.length; i++) {
+          versionInfo.extraVerseMappings = await confirmAndCorrectMapping({
+            originalLocs: originalLocsSets[i],
+            versionInfo,
+            tenant: 'biblearc',
+            progress: (i+1) / originalLocsSets.length
+          })
+        }
+
+        // list all translation and original verses that do not map and ask user if he/she wants to manually check the mapping on any
+          // if yes
+            // user selects [translation] or original
+            // user types book from autocomplete
+            // user types [chapter]:[verse]
+
+        // check vs skips in the translation, that they cover all in verses in the original
         versionInfo.extraVerseMappings = {}
       }
   
