@@ -14,6 +14,30 @@ process.stdin.on('data', d => {
 })
 
 const cloneObj = obj => JSON.parse(JSON.stringify(obj))
+const equalObjsIgnoreKeyOrdering = (obj1, obj2) => {
+  const isObject = obj => (obj != null && typeof obj === 'object')
+  const props1 = Object.getOwnPropertyNames(obj1)
+  const props2 = Object.getOwnPropertyNames(obj2)
+  if(props1.length !== props2.length) return false
+  for(var i = 0; i < props1.length; i++) {
+    let val1 = obj1[props1[i]]
+    let val2 = obj2[props1[i]]
+    let isObjects = isObject(val1) && isObject(val2)
+    if((isObjects && !equalObjsIgnoreKeyOrdering(val1, val2)) || (!isObjects && val1 !== val2)) {
+      return false
+    }
+  }
+  return true
+}
+
+const wordRangeSort =(a,b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0])
+
+const getStartAndEndWordNumsFromRangeStr = (rangeStr, num) => {
+  const fullRange = `1-${num}`
+  let [ start, end ] = (rangeStr || fullRange).split('-').map(n => parseInt(n))
+  end = end || (/-$/.test(rangeStr) ? num : start)
+  return [ start, end ]
+}
 
 const getWordRangesFromWordNums = wordNums => {
   const newWordRanges = []
@@ -36,8 +60,8 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
   // validate input
   let bookId
-  for(let idx=1; idx<originalLocs.length; idx++) {
-    if(originalLocs[idx] !== getNextOriginalLoc(originalLocs[idx-1])) {
+  for(let idx=0; idx<originalLocs.length; idx++) {
+    if(idx > 0 && originalLocs[idx] !== getNextOriginalLoc(originalLocs[idx-1])) {
       throw new Error(`confirmAndCorrectMapping called with inconsecutive originalLocs`)
     }
     const thisBookId = getRefFromLoc(originalLocs[idx]).bookId
@@ -47,7 +71,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
     bookId = thisBookId
   }
 
-  let editableItemIdx, currentCallback, debugLog, errorMessage=``, typing={}
+  let editableItemIdx, currentCallback, debugLog, errorMessage=``, typing={}, locked=true
 
   const getDbAndTableName = versionId => {
     const tenantDir = `./tenants/${tenant}`
@@ -112,25 +136,151 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   const wordsByOriginalLoc = {}
   const wordsByTranslationLoc = {}
   
-  const originalLocsToShow = cloneObj(originalLocs)
+  const originalLocsToShow = []
   const newVersionInfo = cloneObj(versionInfo)
   newVersionInfo.extraVerseMappings = newVersionInfo.extraVerseMappings || {}
 
-  const addToOriginalLocsToShow = originalLoc => {
-    const bareOriginalLoc = originalLoc.split(':')[0]
-    if(!originalLocsToShow.includes(bareOriginalLoc)) {
-      originalLocsToShow.push(bareOriginalLoc)
-      originalLocsToShow.sort()
+  const makeExtraVerseMappingKeysExplicit = () => {
+    for(let key in newVersionInfo.extraVerseMappings) {
+      const numOriginalWords = getWords({ loc: key.split(':')[0], versionId: 'original' }).length
+      const [ loc, wordRangeStr=`1-${numOriginalWords}` ] = key.split(':')
+      const explicitKey = (
+        `${loc}:`
+        + (
+          wordRangeStr
+            .split(',')
+            .map(rangeStr => {
+              let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
+              return `${start}-${end}`
+            })
+            .sort(wordRangeSort)
+            .join(',')
+        )
+      )
+      if(explicitKey !== key) {
+        newVersionInfo.extraVerseMappings[explicitKey] = newVersionInfo.extraVerseMappings[key]
+        delete newVersionInfo.extraVerseMappings[key]
+      }
     }
   }
 
-  const updateExtraVerseMappings = (originalLoc, translationLoc) => {
-    if(translationLoc === undefined) {
-      delete newVersionInfo.extraVerseMappings[originalLoc]
-    } else {
-      newVersionInfo.extraVerseMappings[originalLoc] = translationLoc
+  const normalizeExtraVerseMappings = () => {
+    const normalizeMapping = ({ mapping, isOriginal }) => {
+      const numWords = getWords({ loc: mapping.split(':')[0], versionId: isOriginal ? 'original' : versionInfo.id }).length
+      let [ loc, wordRangeStr=`1-${numWords}` ] = mapping.split(':')
+      return (
+        `${loc}:`
+        + (
+          wordRangeStr
+            .split(',')
+            .sort(wordRangeSort)
+            .reduce((ranges, thisRange) => {
+              if(ranges.length === 0) return [ thisRange ]
+
+              const partsOfPreviousRange = getStartAndEndWordNumsFromRangeStr(ranges[ranges.length - 1], numWords)
+              const partsOfNewRange = getStartAndEndWordNumsFromRangeStr(thisRange, numWords)
+
+              if(partsOfPreviousRange[1] + 1 === partsOfNewRange[0]) {
+                ranges[ranges.length - 1] = `${partsOfPreviousRange[0]}-${partsOfNewRange[1]}`
+              } else {
+                ranges.push(thisRange)
+              }
+
+              return ranges
+            }, [])  
+            .map(rangeStr => {
+              let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numWords)
+              if(end === numWords) return `${start}-`
+              if(start === end) return start
+              return `${start}-${end}`
+            })
+            .join(',')
+        )
+      )
     }
-    if(translationLoc) addToOriginalLocsToShow(originalLoc)
+    for(let key in newVersionInfo.extraVerseMappings) {
+      newVersionInfo.extraVerseMappings[key] = normalizeMapping({ mapping: newVersionInfo.extraVerseMappings[key] })
+      const explicitKey = normalizeMapping({ mapping: key, isOriginal: true })
+      if(explicitKey !== key) {
+        newVersionInfo.extraVerseMappings[explicitKey] = newVersionInfo.extraVerseMappings[key]
+        delete newVersionInfo.extraVerseMappings[key]
+      }
+    }
+    newVersionInfo.extraVerseMappings = Object.keys(newVersionInfo.extraVerseMappings).sort().reduce(
+      (obj, key) => { 
+        obj[key] = newVersionInfo.extraVerseMappings[key]
+        return obj
+      }, 
+      {}
+    )
+  }
+
+  const addToOriginalLocsToShow = originalLoc => {
+    const { originalToTranslation, translationToOriginal } = getVerseMappingsByVersionInfo(newVersionInfo)
+
+    const goAddToOriginalLocsToShow = originalLocWithWordRangeStr => {
+      const bareOriginalLoc = originalLocWithWordRangeStr.split(':')[0]
+
+      if(!originalLocsToShow.includes(bareOriginalLoc)) {
+
+        originalLocsToShow.push(bareOriginalLoc)
+
+        // add this originalLoc to newVersionInfo.extraVerseMappings
+        const translationLocs = []
+
+        if(originalToTranslation[bareOriginalLoc] === null) {
+          newVersionInfo.extraVerseMappings[bareOriginalLoc] = originalToTranslation[bareOriginalLoc]
+        } else if(typeof originalToTranslation[bareOriginalLoc] === 'string') {
+          newVersionInfo.extraVerseMappings[bareOriginalLoc] = originalToTranslation[bareOriginalLoc]
+          translationLocs.push(originalToTranslation[bareOriginalLoc])
+        } else if(originalToTranslation[bareOriginalLoc]) {
+          for(let wordRangeStr in originalToTranslation[bareOriginalLoc]) {
+            newVersionInfo.extraVerseMappings[`${bareOriginalLoc}:${wordRangeStr}`] = originalToTranslation[bareOriginalLoc][wordRangeStr]
+            translationLocs.push(originalToTranslation[bareOriginalLoc][wordRangeStr])
+          }
+        }
+
+        translationLocs.forEach(translationLoc => {
+          let moreOriginalLocs = translationToOriginal[translationLoc.split(':')[0]] || []
+          if(typeof moreOriginalLocs === 'string') {
+            moreOriginalLocs = { '': moreOriginalLocs }
+          }
+          Object.values(moreOriginalLocs).forEach(goAddToOriginalLocsToShow)
+        })
+
+      }
+    }
+
+    goAddToOriginalLocsToShow(originalLoc)
+    originalLocsToShow.sort()
+    makeExtraVerseMappingKeysExplicit()
+  }
+
+  originalLocs.forEach(addToOriginalLocsToShow)
+
+  const updateExtraVerseMappings = (originalLoc, translationLoc) => {
+
+    const bareOriginalLoc = originalLoc.split(':')[0]
+    const oWords = getWords({ loc: originalLoc, versionId: 'original' })
+    const normalizedOriginalLoc = [ `1-`, `${bareOriginalLoc}:1-${oWords.length}` ].includes(originalLoc) ? bareOriginalLoc : originalLoc
+
+    delete newVersionInfo.extraVerseMappings[originalLoc]
+    delete newVersionInfo.extraVerseMappings[normalizedOriginalLoc]
+
+    if(translationLoc === null) {
+
+      newVersionInfo.extraVerseMappings[normalizedOriginalLoc] = null
+
+    } else if(translationLoc) {
+
+      const bareTranslationLoc = translationLoc.split(':')[0]
+      const tWords = getWords({ loc: translationLoc, versionId: versionInfo.id })
+      const normalizedTranslationLoc = [ `1-`, `${bareTranslationLoc}:1-${tWords.length}` ].includes(translationLoc) ? bareTranslationLoc : translationLoc
+
+      newVersionInfo.extraVerseMappings[normalizedOriginalLoc] = normalizedTranslationLoc
+      addToOriginalLocsToShow(normalizedOriginalLoc)
+
+    }
   }
 
   const defaultReportError = () => {
@@ -177,8 +327,10 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
       }
     } else {
       Object.keys(mapping[loc]).forEach(range => {
-        const [ from, to ] = range.split('-').map(n => parseInt(n))
-        remainingWordNums = remainingWordNums.filter(n => (n < (from || 1) || n > (to || Infinity)))
+        range.split(',').forEach(rangeStr => {
+          const [ from, to ] = getStartAndEndWordNumsFromRangeStr(rangeStr, words.length)
+          remainingWordNums = remainingWordNums.filter(n => (n < from || n > to))
+        })
         if(mapping[loc][range]) {
           mappedToLocs.push(mapping[loc][range].split(':')[0])
         }
@@ -204,12 +356,15 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
     let cursorPosition = 0
 
+    const message = `Match the words of the original to the ${newVersionInfo.abbr} in corresponding pairs`
     await inquirer.prompt([{
       type: 'input',
       name: `-`,
-      message: `Match the words of the original to the ${newVersionInfo.abbr} in corresponding pairs`,
+      message,
       transformer: (input, x, { isFinal }) => {
         if(isFinal) return `✓`.green
+
+        debugLog = []
 
         ///// Make edit
 
@@ -240,8 +395,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
               try {
                 getWords({ loc: newOriginalLoc, versionId: 'original' })  // validates the ref
                 if(!originalLocsToShow.includes(newOriginalLoc)) {
-                  originalLocsToShow.push(newOriginalLoc)
-                  originalLocsToShow.sort()
+                  addToOriginalLocsToShow(newOriginalLoc)
                 } else {
                   insertWithAvailableWordRanges({ loc: newOriginalLoc, isOriginal: true, otherLoc: null })
                 }
@@ -278,7 +432,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
               value: ``,
             }
           } else if(charPressed === ` `) { // spacebar
-            currentCallback('spacebar')
+            locked = !locked
           }
         }
 
@@ -313,7 +467,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           words
             .map((w, idx) => (
               ref.wordRanges.some(range => {
-                const [ from, to ] = range.split('-').map(n => parseInt(n))
+                const [ from, to ] = getStartAndEndWordNumsFromRangeStr(range, words.length)
                 return idx+1 >= from && idx+1 <= to
               })
                 ? w
@@ -324,12 +478,16 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
             .trim()
         )
 
+        const unmarkedOriginalWordsByLoc = cloneObj(wordsByOriginalLoc)
+        const unmarkedTranslationWordsByLoc = cloneObj(wordsByTranslationLoc)
+
         // get all mappings
         const { originalToTranslation } = getVerseMappingsByVersionInfo(newVersionInfo)
         const mappings = (
           originalLocsToShow
             .map(originalLoc => {
-              const originalFullRange = `1-${wordsByOriginalLoc[originalLoc].length}`
+              const numOriginalWords = wordsByOriginalLoc[originalLoc].length
+              const originalFullRange = `1-${numOriginalWords}`
               if(originalToTranslation[originalLoc] === null) {
                 return {
                   originalLoc: `${originalLoc}:${originalFullRange}`,
@@ -344,23 +502,64 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                     || getStandardMapping({ loc: originalLoc, isOriginalToTranslation: true })
                   )
               )
-              return Object.keys(originalLocToTranslation).map(originalWordRangeStr => {
+              return Object.keys(originalLocToTranslation).sort(wordRangeSort).map(originalWordRangeStr => {
                 let [ loc, translationWordRangeStr ] = (originalLocToTranslation[originalWordRangeStr] || '').split(':')
+                loc = loc || null
+
+                originalWordRangeStr = (
+                  originalWordRangeStr
+                    .split(',')
+                    .map(rangeStr => {
+                      let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
+                      return `${start}-${end}`
+                    })
+                    .sort(wordRangeSort)
+                    .join(',')
+                )
+
                 if(loc) {
-                  const translationFullRange = `1-${wordsByTranslationLoc[loc].length}`
+                  const numTranslationWords = wordsByTranslationLoc[loc].length
+                  const translationFullRange = `1-${numTranslationWords}`
+                  translationWordRangeStr = (
+                    (translationWordRangeStr || translationFullRange)
+                      .split(',')
+                      .map(rangeStr => {
+                        let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numTranslationWords)
+
+                        for(let wNum=start; wNum<=end; wNum++) {
+                          unmarkedTranslationWordsByLoc[loc][wNum-1] = null
+                        }  
+
+                        if(start > numTranslationWords) {
+                          return null
+                        } else if(end > numTranslationWords) {
+                          return `${start}-${numTranslationWords}`
+                        } else {
+                          return `${start}-${end}`
+                        }
+                      })
+                      .filter(Boolean)
+                      .sort(wordRangeSort)
+                      .join(',')
+                  )
+
                   if(!translationWordRangeStr) {
-                    translationWordRangeStr = translationFullRange
-                  } else if(/^[0-9]+-$/.test(translationWordRangeStr)) {
-                    translationWordRangeStr += wordsByTranslationLoc[loc].length
-                  } else if(/^[0-9]+$/.test(translationWordRangeStr)) {
-                    translationWordRangeStr = `${translationWordRangeStr}-${translationWordRangeStr}`
+                    delete newVersionInfo.extraVerseMappings[`${originalLoc}:${originalWordRangeStr}`]
+                    return null
                   }
+
+                  originalWordRangeStr
+                    .split(',')
+                    .forEach(rangeStr => {
+                      let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
+                      for(let wNum=start; wNum<=end; wNum++) {
+                        unmarkedOriginalWordsByLoc[originalLoc][wNum-1] = null
+                      }
+                    })
+
                   loc = `${loc}:${translationWordRangeStr}`
-                }
-                if(/^[0-9]+-$/.test(originalWordRangeStr)) {
-                  originalWordRangeStr += wordsByOriginalLoc[originalLoc].length
-                } else if(/^[0-9]+$/.test(originalWordRangeStr)) {
-                  originalWordRangeStr = `${originalWordRangeStr}-${originalWordRangeStr}`
+                  newVersionInfo.extraVerseMappings[`${originalLoc}:${originalWordRangeStr}`] = loc  // in case it has been adjusted
+
                 }
                 return {
                   originalLoc: `${originalLoc}:${originalWordRangeStr}`,
@@ -369,7 +568,11 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
               })
             })
             .flat()
+            .filter(Boolean)
         )
+
+        const unmarkedOriginalWords = Object.values(unmarkedOriginalWordsByLoc).flat().filter(Boolean)
+        const unmarkedTranslationWords = Object.values(unmarkedTranslationWordsByLoc).flat().filter(Boolean)
 
         // set up editable spots
         currentCallback = ()=>{}
@@ -385,13 +588,13 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
         const thisErrorMessage = errorMessage
         errorMessage = ``
 
-        const progressBarLength = 67
+        const progressBarLength = message.length + 2
 
         return [
           ``,
           Array(parseInt(progress * progressBarLength)).fill(`—`).join('').green + Array(progressBarLength - parseInt(progress * progressBarLength)).fill(`—`).join('').gray,
           ``,
-          `–––––––––––––––––––––––––`.gray,
+          `––––––––`.gray,
           mappings.map(({ originalLoc, loc }, mappingIdx) => {
             const numWordsInOriginal = wordsByOriginalLoc[originalLoc.split(':')[0]].length
             const numWordsInTranslation = loc ? wordsByTranslationLoc[loc.split(':')[0]].length : 0
@@ -415,7 +618,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                     wordRanges: [
                       ...ref.wordRanges,
                       wordRanges[0],
-                    ].sort((a,b) => parseInt(a.split('-')[0]) - parseInt(b.split('-')[0])),
+                    ].sort(wordRangeSort),
                   })
                   updateExtraVerseMappings(originalLoc)
                   updateExtraVerseMappings(
@@ -455,27 +658,29 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                   rangeParts[0] = Math.min(rangeParts[0], rangeParts[1])
                 }
                 newRef.wordRanges[rangeIdx] = rangeParts.join('-')
+                const newLoc = getLocFromRef(newRef)
                 if(isOriginal) {
-                  updateExtraVerseMappings(getLocFromRef(newRef), mappedLoc || loc)
+                  updateExtraVerseMappings(newLoc, mappedLoc === undefined ? loc : mappedLoc)
                 } else {
-                  updateExtraVerseMappings(mappedLoc || originalLoc, getLocFromRef(newRef))
+                  updateExtraVerseMappings(mappedLoc || originalLoc, newLoc)
                 }
-                return rangeParts
+                return { rangeParts, newLoc }
               }
 
               updateExtraVerseMappings(originalLoc)
-              const [ newFrom, newTo ] = updateRangePart({ ref, rangeIdx, partIdx })
+              const { rangeParts: [ newFrom, newTo ], newLoc } = updateRangePart({ ref, rangeIdx, partIdx })
 
               mappings.forEach((otherMapping, mIdx) => {
-                if(!otherMapping.loc) return
+                if(!isOriginal && !otherMapping.loc) return
+                if(mIdx === mappingIdx && isOriginal) {
+                  otherMapping.originalLoc = newLoc
+                }
                 const otherLoc = otherMapping[isOriginal ? `originalLoc` : `loc`]
                 const mappedLoc = otherMapping[!isOriginal ? `originalLoc` : `loc`]
-                if(
-                  mIdx !== mappingIdx
-                  && otherLoc.split(':')[0] === (isOriginal ? originalLoc : loc).split(':')[0]
-                ) {
+                if(otherLoc.split(':')[0] === (isOriginal ? originalLoc : loc).split(':')[0]) {
                   const { wordRanges, ...otherRefParts } = getRefFromLoc(otherLoc)
                   wordRanges.some((range, rIdx) => {
+                    if(mIdx === mappingIdx && rangeIdx === rIdx) return
                     let [ from, to ] = range.split('-').map(n => parseInt(n))
 
                     const removeRange = () => {
@@ -509,6 +714,16 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                           changeAmt: fromChange || toChange,
                         })
                       }
+                      return true
+                    } else if(locked && (from - newTo === 2 || newFrom - to === 2)) {
+                      updateExtraVerseMappings(otherMapping.originalLoc)
+                      updateRangePart({
+                        ref: getRefFromLoc(otherLoc),
+                        rangeIdx: rIdx,
+                        partIdx: from - newTo === 2 ? 0 : 1,
+                        mappedLoc,
+                        changeAmt: from - newTo === 2 ? -1 : 1,
+                      })
                       return true
                     }
                   })
@@ -617,11 +832,11 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
             }
 
             return [
-              `\u2068`+originalLocInfoStr,
-              (bookId <= 39 ? `\u2067` : `\u2068`)+originalText.white,
-              `\u2068`+translationLocInfoStr,
-              `\u2068`+translationText,
-              `–––––––––––––––––––––––––`.gray,
+              originalLocInfoStr,
+              bookId <= 39 ? `׳`.black + originalText.white : originalText.white,
+              translationLocInfoStr,
+              translationText,
+              `––––––––`.gray,
             ]
           }),
           ...(
@@ -632,7 +847,25 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
               ]
               : []
           ),
-          thisErrorMessage.brightRed,
+          (thisErrorMessage ? [ ``, thisErrorMessage.brightRed ] : []),
+          (
+            (unmarkedOriginalWords.length + unmarkedTranslationWords.length === 0)
+              ? []
+              : [
+                ``,
+                ...(
+                  unmarkedOriginalWords.length > 0
+                    ? [`Words marked as untranslated: `.cyan+unmarkedOriginalWords.join(` `)]
+                    : [``]
+                ),
+                ...(
+                  unmarkedTranslationWords.length > 0
+                    ? [`Words marked as NOT translated from the original: `.magenta+unmarkedTranslationWords.join(` `)]
+                    : [``]
+                ),
+                `*** In most all circumstances, you should fix this and match all words ***`.gray,
+              ]
+          ),
           ``,
           `Use `.gray+`TAB`.white+` to change the selection`.gray,
           `Use `.gray+`↑`.white+` and `.gray+`↓`.white+` to adjust a word number`.gray,
@@ -641,14 +874,37 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           `Use `.gray+`,`.white+` to add another word range and `.gray+`DELETE`.white+` to remove one`.gray,
           // `Use `.gray+`ESC`.white+` to reset the pairs`.gray,
           ``,
+          (locked ? `  LOCKED  `.bgYellow : ` UNLOCKED `.bgGray)+` Use `.gray+`SPACEBAR`.white+` to lock/unlock adjacent words`.gray,
+          ``,
           `Press `.gray+`ENTER`.white+` when everything is paired correctly`.gray,
-          ...(debugLog ? [ ``, `DEBUG: ${debugLog}`.red ] : []),
+          ...(debugLog.map(line => `DEBUG: ${JSON.stringify(line)}`.red)),
         ].flat(2).join(`\n`)
       }
     }])
 
     console.log(showCursor)
-    return newVersionInfo.extraVerseMappings
+
+    normalizeExtraVerseMappings()
+
+    // see if anything really changed
+
+    const oldVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(versionInfo)
+    delete oldVerseMappingsByVersionInfo.createdAt
+
+    for(let key in newVersionInfo.extraVerseMappings) {
+      if(/^[0-9]{8}$/.test(key) && key === newVersionInfo.extraVerseMappings[key] && !oldVerseMappingsByVersionInfo[key]) {
+        delete newVersionInfo.extraVerseMappings[key]
+      }
+    }
+
+    const newVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(newVersionInfo)
+    delete newVerseMappingsByVersionInfo.createdAt
+
+    return (
+      equalObjsIgnoreKeyOrdering(oldVerseMappingsByVersionInfo, newVerseMappingsByVersionInfo)
+        ? versionInfo.extraVerseMappings
+        : newVersionInfo.extraVerseMappings
+    )
 
   } catch(err) {
     console.log(showCursor)
