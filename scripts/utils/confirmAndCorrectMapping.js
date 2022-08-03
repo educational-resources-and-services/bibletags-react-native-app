@@ -73,6 +73,9 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
   let editableItemIdx, currentCallback, debugLog, errorMessage=``, typing={}, locked=true
 
+  const oldVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(versionInfo)
+  delete oldVerseMappingsByVersionInfo.createdAt
+
   const getDbAndTableName = versionId => {
     const tenantDir = `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
@@ -141,22 +144,27 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   newVersionInfo.extraVerseMappings = newVersionInfo.extraVerseMappings || {}
 
   const makeExtraVerseMappingKeysExplicit = () => {
-    for(let key in newVersionInfo.extraVerseMappings) {
-      const numOriginalWords = getWords({ loc: key.split(':')[0], versionId: 'original' }).length
-      const [ loc, wordRangeStr=`1-${numOriginalWords}` ] = key.split(':')
-      const explicitKey = (
+    const makeMappingExplicit = ({ mapping, isOriginal }) => {
+      if(!mapping) return mapping  // as it may legitimately be null
+      const numWords = getWords({ loc: mapping.split(':')[0], versionId: isOriginal ? 'original' : versionInfo.id }).length
+      let [ loc, wordRangeStr=`1-${numWords}` ] = mapping.split(':')
+      return (
         `${loc}:`
         + (
           wordRangeStr
             .split(',')
+            .sort(wordRangeSort)
             .map(rangeStr => {
-              let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
+              let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numWords)
               return `${start}-${end}`
             })
-            .sort(wordRangeSort)
             .join(',')
         )
       )
+    }
+    for(let key in newVersionInfo.extraVerseMappings) {
+      newVersionInfo.extraVerseMappings[key] = makeMappingExplicit({ mapping: newVersionInfo.extraVerseMappings[key] })
+      const explicitKey = makeMappingExplicit({ mapping: key, isOriginal: true })
       if(explicitKey !== key) {
         newVersionInfo.extraVerseMappings[explicitKey] = newVersionInfo.extraVerseMappings[key]
         delete newVersionInfo.extraVerseMappings[key]
@@ -164,10 +172,13 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
     }
   }
 
-  const normalizeExtraVerseMappings = () => {
+  const getNormalizedExtraVerseMappings = extraVerseMappings => {
+    extraVerseMappings = cloneObj(extraVerseMappings)
     const normalizeMapping = ({ mapping, isOriginal }) => {
+      if(!mapping) return mapping  // as it may legitimately be null
       const numWords = getWords({ loc: mapping.split(':')[0], versionId: isOriginal ? 'original' : versionInfo.id }).length
       let [ loc, wordRangeStr=`1-${numWords}` ] = mapping.split(':')
+      if(wordRangeStr === `1-${numWords}`) return loc
       return (
         `${loc}:`
         + (
@@ -198,21 +209,38 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
         )
       )
     }
-    for(let key in newVersionInfo.extraVerseMappings) {
-      newVersionInfo.extraVerseMappings[key] = normalizeMapping({ mapping: newVersionInfo.extraVerseMappings[key] })
+    for(let key in extraVerseMappings) {
+      extraVerseMappings[key] = normalizeMapping({ mapping: extraVerseMappings[key] })
       const explicitKey = normalizeMapping({ mapping: key, isOriginal: true })
       if(explicitKey !== key) {
-        newVersionInfo.extraVerseMappings[explicitKey] = newVersionInfo.extraVerseMappings[key]
-        delete newVersionInfo.extraVerseMappings[key]
+        extraVerseMappings[explicitKey] = extraVerseMappings[key]
+        delete extraVerseMappings[key]
       }
     }
-    newVersionInfo.extraVerseMappings = Object.keys(newVersionInfo.extraVerseMappings).sort().reduce(
+
+    // sort the keys
+    extraVerseMappings = Object.keys(extraVerseMappings).sort().reduce(
       (obj, key) => { 
-        obj[key] = newVersionInfo.extraVerseMappings[key]
+        obj[key] = extraVerseMappings[key]
         return obj
       }, 
       {}
     )
+
+    // get rid of unnecessary mappings
+    for(let key in extraVerseMappings) {
+      if(/^[0-9]{8}$/.test(key) && key === extraVerseMappings[key] && !oldVerseMappingsByVersionInfo.originalToTranslation[key]) {
+        delete extraVerseMappings[key]
+      }
+    }
+
+    return extraVerseMappings
+  }
+
+  const hasChange = newVerInfo => {
+    const newVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(newVerInfo)
+    delete newVerseMappingsByVersionInfo.createdAt
+    return !equalObjsIgnoreKeyOrdering(oldVerseMappingsByVersionInfo, newVerseMappingsByVersionInfo)
   }
 
   const addToOriginalLocsToShow = originalLoc => {
@@ -262,23 +290,19 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
     const bareOriginalLoc = originalLoc.split(':')[0]
     const oWords = getWords({ loc: originalLoc, versionId: 'original' })
-    const normalizedOriginalLoc = [ `1-`, `${bareOriginalLoc}:1-${oWords.length}` ].includes(originalLoc) ? bareOriginalLoc : originalLoc
+    const explicitOriginalLoc = [ `${bareOriginalLoc}:1-`, bareOriginalLoc ].includes(originalLoc) ? `${bareOriginalLoc}:1-${oWords.length}` : originalLoc
 
-    delete newVersionInfo.extraVerseMappings[originalLoc]
-    delete newVersionInfo.extraVerseMappings[normalizedOriginalLoc]
+    delete newVersionInfo.extraVerseMappings[explicitOriginalLoc]
 
     if(translationLoc === null) {
 
-      newVersionInfo.extraVerseMappings[normalizedOriginalLoc] = null
+      newVersionInfo.extraVerseMappings[explicitOriginalLoc] = null
 
     } else if(translationLoc) {
 
-      const bareTranslationLoc = translationLoc.split(':')[0]
-      const tWords = getWords({ loc: translationLoc, versionId: versionInfo.id })
-      const normalizedTranslationLoc = [ `1-`, `${bareTranslationLoc}:1-${tWords.length}` ].includes(translationLoc) ? bareTranslationLoc : translationLoc
-
-      newVersionInfo.extraVerseMappings[normalizedOriginalLoc] = normalizedTranslationLoc
-      addToOriginalLocsToShow(normalizedOriginalLoc)
+      newVersionInfo.extraVerseMappings[explicitOriginalLoc] = translationLoc
+      makeExtraVerseMappingKeysExplicit()
+      addToOriginalLocsToShow(bareOriginalLoc)
 
     }
   }
@@ -354,7 +378,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   try {
     console.log(hideCursor)
 
-    let cursorPosition = 0
+    let cursorPosition = 4
 
     const message = `Match the words of the original to the ${newVersionInfo.abbr} in corresponding pairs`
     await inquirer.prompt([{
@@ -589,11 +613,13 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
         errorMessage = ``
 
         const progressBarLength = message.length + 2
+        const containsChange = hasChange({ ...newVersionInfo, extraVerseMappings: getNormalizedExtraVerseMappings(newVersionInfo.extraVerseMappings) })
 
         return [
           ``,
           Array(parseInt(progress * progressBarLength)).fill(`—`).join('').green + Array(progressBarLength - parseInt(progress * progressBarLength)).fill(`—`).join('').gray,
           ``,
+          `STATUS: `.gray+(containsChange ? `CONTAINS CHANGES`.green : `UNCHANGED`.white),
           `––––––––`.gray,
           mappings.map(({ originalLoc, loc }, mappingIdx) => {
             const numWordsInOriginal = wordsByOriginalLoc[originalLoc.split(':')[0]].length
@@ -687,7 +713,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                       wordRanges.splice(rIdx, 1)
                       if(wordRanges.length === 0) {
                         if(!isOriginal) {
-                          updateExtraVerseMappings(mappedLoc.split(':')[0], null)
+                          updateExtraVerseMappings(mappedLoc, null)
                         }
                       } else {
                         const newOtherLoc = getLocFromRef({ ...otherRefParts, wordRanges })
@@ -856,12 +882,12 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                 ...(
                   unmarkedOriginalWords.length > 0
                     ? [`Words marked as untranslated: `.cyan+unmarkedOriginalWords.join(` `)]
-                    : [``]
+                    : []
                 ),
                 ...(
                   unmarkedTranslationWords.length > 0
                     ? [`Words marked as NOT translated from the original: `.magenta+unmarkedTranslationWords.join(` `)]
-                    : [``]
+                    : []
                 ),
                 `*** In most all circumstances, you should fix this and match all words ***`.gray,
               ]
@@ -884,26 +910,12 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
     console.log(showCursor)
 
-    normalizeExtraVerseMappings()
-
-    // see if anything really changed
-
-    const oldVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(versionInfo)
-    delete oldVerseMappingsByVersionInfo.createdAt
-
-    for(let key in newVersionInfo.extraVerseMappings) {
-      if(/^[0-9]{8}$/.test(key) && key === newVersionInfo.extraVerseMappings[key] && !oldVerseMappingsByVersionInfo[key]) {
-        delete newVersionInfo.extraVerseMappings[key]
-      }
-    }
-
-    const newVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(newVersionInfo)
-    delete newVerseMappingsByVersionInfo.createdAt
+    newVersionInfo.extraVerseMappings = getNormalizedExtraVerseMappings(newVersionInfo.extraVerseMappings)
 
     return (
-      equalObjsIgnoreKeyOrdering(oldVerseMappingsByVersionInfo, newVerseMappingsByVersionInfo)
-        ? versionInfo.extraVerseMappings
-        : newVersionInfo.extraVerseMappings
+      hasChange(newVersionInfo)
+        ? newVersionInfo.extraVerseMappings
+        : versionInfo.extraVerseMappings
     )
 
   } catch(err) {
