@@ -76,7 +76,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   const oldVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(versionInfo)
   delete oldVerseMappingsByVersionInfo.createdAt
 
-  const getDbAndTableName = versionId => {
+  const getDbAndTableName = (versionId, bookId) => {
     const tenantDir = `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
     const versionDir = `${versionsDir}/${versionId}`
@@ -96,12 +96,12 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
     if(!wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`]) {
 
-      const { db, tableName } = getDbAndTableName(versionId)
+      const { bookId, chapter, verse } = ref || getRefFromLoc(loc)
+      const { db, tableName } = getDbAndTableName(versionId, bookId)
       const select = db.prepare(`SELECT * FROM ${tableName} WHERE loc = ?`)
       const { usfm } = select.get(loc) || {}
       
       if(!usfm) {
-        const { chapter, verse } = ref || getRefFromLoc(loc)
         if(failGracefully) return []
         throw new Error(`Invalid verse: ${getBibleBookName(bookId)} ${chapter}:${verse} (${versionId})`)
       }
@@ -127,13 +127,13 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   }
 
   const getPreviousTranslationLoc = loc => {
-    const { db, tableName } = getDbAndTableName(versionInfo.id)
+    const { db, tableName } = getDbAndTableName(versionInfo.id, getRefFromLoc(loc).bookId)
     const select = db.prepare(`SELECT * FROM ${tableName} WHERE loc < ? ORDER BY loc DESC LIMIT 1`)
     return (select.get(loc) || {}).loc
   }
 
   const getNextTranslationLoc = loc => {
-    const { db, tableName } = getDbAndTableName(versionInfo.id)
+    const { db, tableName } = getDbAndTableName(versionInfo.id, getRefFromLoc(loc).bookId)
     const select = db.prepare(`SELECT * FROM ${tableName} WHERE loc > ? ORDER BY loc LIMIT 1`)
     return (select.get(loc) || {}).loc
   }

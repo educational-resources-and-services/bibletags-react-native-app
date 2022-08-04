@@ -6,7 +6,7 @@ const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
         getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
-const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo } = require('@bibletags/bibletags-versification')
+const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo, getNextOriginalLoc, getPreviousOriginalLoc } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
 const inquirer = require('inquirer')
@@ -397,6 +397,7 @@ const doubleSpacesRegex = /  +/g
       }
 
       versionInfo = {
+        extraVerseMappings: {},
         ...versionInfo,
         ...vInfo,
         id: versionId,
@@ -759,65 +760,85 @@ const doubleSpacesRegex = /  +/g
         console.log(``)
         console.log(`Confirm and correct versification mappings...`.gray)
 
-        let originalLocsSets = []
-        // const changedOriginalLocs = []
+        let originalLocsToCheck = []
 
-        // find translation mappings with wordRanges and add to originalLocsSets
+        // find translation mappings with wordRanges and add to originalLocsToCheck
         const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
         Object.keys(translationToOriginal).map(translationLoc => {
-          if(typeof translationToOriginal[translationLoc] !== 'string' && !originalLocsSets.includes(translationLoc)) {
-            originalLocsSets.push([
-              ...new Set(
-                Object.values(translationToOriginal[translationLoc])
-                  .map(origLoc => origLoc.split(':')[0])
-              )
-            ].sort())
+          if(typeof translationToOriginal[translationLoc] !== 'string') {
+            originalLocsToCheck.push(
+              ...Object.values(translationToOriginal[translationLoc]).map(origLoc => origLoc.split(':')[0])
+            )
           }
         })
 
-        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them
+        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
+        for(let verses of allVerses) {
+          verses.forEach(({ loc }) => {
+            if(!getOriginalLocsFromLoc(loc, versionInfo)) {
+              if(unlikelyOriginals.includes(loc) && versionInfo.skipsUnlikelyOriginals) {
+                versionInfo.extraVerseMappings[loc] = loc
+              } else {
+                const { bookId } = getRefFromLoc(loc)
+                const verses = allVerses[bookId - 1]
+                const verseIndex = verses.findIndex(v => v.loc === loc)
+                if(verseIndex != null) {
+                  for(let i=verseIndex-1; i>=0; i--) {
+                    const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
+                    if(originalLocs) {
+                      originalLocsToCheck.push(...originalLocs)
+                      break
+                    }
+                  }
+                  for(let i=verseIndex+1; i<verses.length; i++) {
+                    const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
+                    if(originalLocs) {
+                      originalLocsToCheck.push(...originalLocs)
+                      break
+                    }
+                  }
+                }
+              }
+            }
+          })
+        }
 
-        // go through all translation verses with translationLocsNotMappingByModel[versionInfo.versificationModel]
-          // when one is not found at all
-            // if it is in the skipsUnlikelyOriginals list and skipsUnlikelyOriginals===true
-              // then add it as an exceptional non-skip
-            // else find the whole range of not-founds
-              // show user orig in range with +/- one verse, and translation +/- one verse, and ask user if the missing verse(s)
-                // (a) are not translated
-                // (b) belong together to the verse before
-                // (b) belong together to the verse after
+        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
+        if(versionInfo.versificationModel !== `lxx`) {
+          originalLoc = `01001000`
+          while(originalLoc = getNextOriginalLoc(originalLoc)) {
+            const { bookId } = getRefFromLoc(originalLoc)
+            if(versionInfo.partialScope === `nt` && bookId < 40) continue
+            if(versionInfo.partialScope === `ot` && bookId > 39) continue
 
+            if(!getCorrespondingRefs({
+              baseVersion: {
+                info: {
+                  versificationModel: 'original',
+                },
+                ref: getRefFromLoc(originalLoc),
+              },
+              lookupVersionInfo: versionInfo,
+            })) {
 
-        // if not lxx model
-          // go through all orig verses with the vM
-            // when one is not found at all
-              // if it is in the skipsUnlikelyOriginals list
-                // then add it as an exceptional skip
-              // else find the whole range of not-founds
-                // show user orig in range with +/- one verse, and translation +/- one verse, and ask user if the missing verse(s)
-                  // (a) are not translated
-                  // (b) belong together to the verse before
-                  // (b) belong together to the verse after
-            // when contains specific words
+              if(unlikelyOriginals.includes(originalLoc) && !versionInfo.skipsUnlikelyOriginals) {
+                versionInfo.extraVerseMappings[originalLoc] = null
+              } else {
+                originalLocsToCheck.push(originalLoc)
+              }
 
-        originalLocsSets.sort()
+            }
+          }
+        }
 
-        // const checkAgainForTranslationVersesThatDoNotMap = () => {
-        //   // find any translation verses that do not map
-        //   for(let verses of allVerses) {
-        //     await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
-        //     verses.forEach(({ loc }) => {
-        //       if(!getOriginalLocsFromLoc(loc, { versificationModel })) {
-        //         translationLocsNotMappingByModel[versificationModel]++
-        //       }
-        //       if(unlikelyOriginals.includes(loc)) {
-        //         numUnlikelyOriginalsUsed++
-        //       }
-        //     })
-        //   }
-
-        //   originalLocsSets.sort()
-        // }
+        const originalLocsSets = []
+        ;[ ...new Set(originalLocsToCheck) ].sort().forEach(originalLoc => {
+          if((originalLocsSets.slice(-1)[0] || []).slice(-1)[0] === getPreviousOriginalLoc(originalLoc)) {
+            originalLocsSets.slice(-1)[0].push(originalLoc)
+          } else {
+            originalLocsSets.push([ originalLoc ])
+          }
+        })
 
         for(let i=0; i<originalLocsSets.length; i++) {
           versionInfo.extraVerseMappings = await confirmAndCorrectMapping({
@@ -834,30 +855,10 @@ const doubleSpacesRegex = /  +/g
             process.stdout.moveCursor(0,-1)
             process.stdout.clearLine()
           }
-          // if(versionInfo.extraVerseMappings !== newExtra) {
-          //   for(let key in newExtra) {
-          //     const bareOriginalLoc = key.split(':')[0]
-          //     if(
-          //       newExtra[key] !== (versionInfo.extraVerseMappings || {})[key]
-          //       && !changedOriginalLocs.includes(bareOriginalLoc)
-          //     ) {
-          //       changedOriginalLocs.push(bareOriginalLoc)
-          //     }
-          //   }
-          //   versionInfo.extraVerseMappings = newExtra
-          // }
         }
 
         console.log('versionInfo.extraVerseMappings', versionInfo.extraVerseMappings)
 
-        // list all translation and original verses that do not map and ask user if he/she wants to manually check the mapping on any
-          // if yes
-            // user selects [translation] or original
-            // user types book from autocomplete
-            // user types [chapter]:[verse]
-
-        // check vs skips in the translation, that they cover all in verses in the original
-        // versionInfo.extraVerseMappings = {}
       }
   
       process.exit()
