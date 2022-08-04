@@ -700,7 +700,11 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
               if(arrowDirection === 'delete') {
                 const ref = isOriginal ? originalRef : translationRef
                 if((ref.wordRanges || []).length < 2) {
-                  errorMessage = `You can only use DELETE when there are more than one word ranges in a list`
+                  if(isOriginal) {
+                    errorMessage = `You cannot DELETE a lone original language word range`
+                  } else {
+                    updateExtraVerseMappings(originalLoc, null)
+                  }
                 } else {
                   ref.wordRanges.splice(rangeIdx, 1)
                   const newLoc = getLocFromRef(ref)
