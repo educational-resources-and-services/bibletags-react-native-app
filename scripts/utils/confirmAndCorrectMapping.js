@@ -90,6 +90,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
     loc,
     ref,
     versionId,
+    failGracefully,
   }) => {
     loc = (loc || getLocFromRef(ref)).split(':')[0]
 
@@ -101,6 +102,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
       
       if(!usfm) {
         const { chapter, verse } = ref || getRefFromLoc(loc)
+        if(failGracefully) return []
         throw new Error(`Invalid verse: ${getBibleBookName(bookId)} ${chapter}:${verse} (${versionId})`)
       }
 
@@ -324,7 +326,23 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
       const { originalToTranslation, translationToOriginal } = getVerseMappingsByVersionInfo(newVersionInfo)
       mapping = isOriginal ? originalToTranslation : translationToOriginal
     }
-    if(mapping[loc] === null) {
+    if(
+      mapping[loc] === null
+      || (
+        !isOriginal
+        && (
+          !getCorrespondingRefs({
+            baseVersion: {
+              info: newVersionInfo,
+              ref: getRefFromLoc(loc),
+            },
+            lookupVersionInfo: {
+              versificationModel: 'original',
+            },
+          })
+        )
+      )
+    ) {
       // nothing to do, since we will take all the words for the insert
     } else if(typeof mapping[loc] === 'string' || !mapping[loc]) {
       const showing = originalLocsToShow.includes((isOriginal ? loc : (mapping[loc] || loc)).split(':')[0])
@@ -567,21 +585,45 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                       .join(',')
                   )
 
-                  if(!translationWordRangeStr) {
-                    delete newVersionInfo.extraVerseMappings[`${originalLoc}:${originalWordRangeStr}`]
-                    return null
+                  const markOrigWords = () => {
+                    originalWordRangeStr
+                      .split(',')
+                      .forEach(rangeStr => {
+                        let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
+                        for(let wNum=start; wNum<=end; wNum++) {
+                          unmarkedOriginalWordsByLoc[originalLoc][wNum-1] = null
+                        }
+                      })
                   }
 
-                  originalWordRangeStr
-                    .split(',')
-                    .forEach(rangeStr => {
-                      let [ start, end ] = getStartAndEndWordNumsFromRangeStr(rangeStr, numOriginalWords)
-                      for(let wNum=start; wNum<=end; wNum++) {
-                        unmarkedOriginalWordsByLoc[originalLoc][wNum-1] = null
-                      }
-                    })
+                  if(translationWordRangeStr) {
+                    markOrigWords()
+                    loc = `${loc}:${translationWordRangeStr}`
+                  } else {
+                    // see if there is a translation loc that corresponds to the original, that isn't mapped at present
+                    const words = getWords({ loc: originalLoc, versionId: versionInfo.id, failGracefully: true })
+                    if(
+                      words.length > 0
+                      && (
+                        !getCorrespondingRefs({
+                          baseVersion: {
+                            info: newVersionInfo,
+                            ref: getRefFromLoc(originalLoc),
+                          },
+                          lookupVersionInfo: {
+                            versificationModel: 'original',
+                          },
+                        })
+                      )
+                    ) {
+                      markOrigWords()
+                      loc = `${originalLoc}:1-${words.length}`
+                      wordsByTranslationLoc[originalLoc] = words
+                    } else {
+                      loc = null
+                    }
+                  }
 
-                  loc = `${loc}:${translationWordRangeStr}`
                   newVersionInfo.extraVerseMappings[`${originalLoc}:${originalWordRangeStr}`] = loc  // in case it has been adjusted
 
                 }
