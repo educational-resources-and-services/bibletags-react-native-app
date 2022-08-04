@@ -74,6 +74,20 @@ const doubleSpacesRegex = /  +/g
 
 ;(async () => {
 
+  // NOTE: Leave this comment for easy testing when I hit a bug
+  // console.log(
+  //   await confirmAndCorrectMapping({
+  //     originalLocs: ['58012022'],
+  //     versionInfo: {
+  //       id: 'sdf',
+  //       versificationModel: 'kjv',
+  //     },
+  //     tenant: 'biblearc',
+  //     progress: 0
+  //   })
+  // )
+  // process.exit()
+
   let hasChange
   const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey, numRows }) => {
 
@@ -732,6 +746,7 @@ const doubleSpacesRegex = /  +/g
         console.log(``)
 
         let originalLocsSets = []
+        // const changedOriginalLocs = []
 
         // find translation mappings with wordRanges and add to originalLocsSets
         const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
@@ -797,7 +812,29 @@ const doubleSpacesRegex = /  +/g
             tenant: 'biblearc',
             progress: (i+1) / originalLocsSets.length
           })
+          if(i !== originalLocsSets.length-1) {
+            process.stdout.moveCursor(0,-1)
+            process.stdout.clearLine()
+            process.stdout.moveCursor(0,-1)
+            process.stdout.clearLine()
+            process.stdout.moveCursor(0,-1)
+            process.stdout.clearLine()
+          }
+          // if(versionInfo.extraVerseMappings !== newExtra) {
+          //   for(let key in newExtra) {
+          //     const bareOriginalLoc = key.split(':')[0]
+          //     if(
+          //       newExtra[key] !== (versionInfo.extraVerseMappings || {})[key]
+          //       && !changedOriginalLocs.includes(bareOriginalLoc)
+          //     ) {
+          //       changedOriginalLocs.push(bareOriginalLoc)
+          //     }
+          //   }
+          //   versionInfo.extraVerseMappings = newExtra
+          // }
         }
+
+        console.log('versionInfo.extraVerseMappings', versionInfo.extraVerseMappings)
 
         // list all translation and original verses that do not map and ask user if he/she wants to manually check the mapping on any
           // if yes
@@ -806,9 +843,11 @@ const doubleSpacesRegex = /  +/g
             // user types [chapter]:[verse]
 
         // check vs skips in the translation, that they cover all in verses in the original
-        versionInfo.extraVerseMappings = {}
+        // versionInfo.extraVerseMappings = {}
       }
   
+      process.exit()
+
       console.log(``)
       process.stdout.write(`Creating search database...`)
 
