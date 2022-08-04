@@ -376,7 +376,7 @@ const doubleSpacesRegex = /  +/g
         {
           type: 'list',
           name: `bundled`,
-          message: `Do you want to bundle this version within the initial app download? (You should do so for 1-3 versions.)`,
+          message: `Do you want to bundle this version within the initial app download?`.white+` You should do so for 1-3 versions.`.gray,
           choices: [
             {
               name: `Yes`,
@@ -404,20 +404,22 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    console.log(removeIndent(`
-      NOTE:
-        (1) This will create or update the following database files
-            ${tenantDir}/versions/${versionId}/*
-            ${versionInfo.bundled ? `${bundledVersionDir}/verses/*` : ``}
-        (2) This will modify the following files
-            ${tenantDir}/versions.js
-            ${versionInfo.bundled ? `${bundledVersionDir}/requires.js` : ``}
-    `).gray)
-
     const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmCreateUpdateVersesDBFiles`,
-      message: `Continue with the import?`,
+      message: [
+        `Continue with the import?`,
+        ``,
+        `  NOTE:`.gray,
+        `   (1) This will create or update the following database files`.gray,
+        `       ${tenantDir}/versions/${versionId}/*`.gray,
+        (versionInfo.bundled ? `       ${bundledVersionDir}/verses/*` : null).gray,
+        `   (2) This will modify the following files`.gray,
+        `       ${tenantDir}/versions.js`.gray,
+        (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js` : null).gray,
+        ``,
+        ``,
+      ].filter(l => l !== null).join(`\n`),
       choices: [
         {
           name: `Yes`,
@@ -595,6 +597,8 @@ const doubleSpacesRegex = /  +/g
 
     }
 
+    console.log(``)
+
     if(!requires[0]) {
       versionInfo.partialScope = `nt`
     } else if(!requires[40]) {
@@ -668,17 +672,26 @@ const doubleSpacesRegex = /  +/g
 
           const sampleVerse = allVerses[0][0]
           const { bookId, chapter, verse } = getRefFromLoc(sampleVerse.loc)
-          console.log(``)
-          console.log(`Using the ${versionInfo.wordDividerRegex ? `word divider specific to this version` : `standard word divider`}, ${getBibleBookName(bookId)} ${chapter}:${verse} gets divided like this:`)
-          getWordsFromUsfm(sampleVerse.usfm).forEach(word => console.log(word.gray))
-          console.log(``)
-          console.log(`Note: To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray)
-          console.log(``)
-
+          const wordDividerText = versionInfo.wordDividerRegex ? `word divider specified for this version` : `standard word divider`
           const { correctlySplitsIntoWords } = (await inquirer.prompt([{
             type: 'list',
             name: `correctlySplitsIntoWords`,
-            message: `Has the standard word divider correctly split this verse into individual words?`,
+            message: [
+              `Does the ${wordDividerText} correctly split this verse into individual words?`,
+              (!versionInfo.wordDividerRegex ? [] : [
+                ``,
+                `  ${versionInfo.wordDividerRegex}`.magenta,
+              ]),
+              ``,
+              `  To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray,
+              `  Using the ${wordDividerText}, ${getBibleBookName(bookId)} ${chapter}:${verse} gets divided like this:`.gray,
+              getWordsFromUsfm(sampleVerse.usfm).map(word => `    ${word}`.white),
+              ``,
+              `  Is that right?`.gray,
+              ``,
+              ``,
+            ].flat().filter(l => l !== null).join(`\n`),
+      
             choices: [
               {
                 name: `Yes`,
@@ -693,9 +706,9 @@ const doubleSpacesRegex = /  +/g
           if(correctlySplitsIntoWords) break
 
           console.log(``)
-          console.log(`You will need to provide a Regular Expression for word dividers. As a reference, the standard Regular Expression is as follows:`)
+          console.log(`You will need to provide a Regular Expression for word dividers. As a reference, a simplified version of the standard Regular Expression is as follows:`)
           console.log(``)
-          console.log(defaultWordDividerRegex.gray)
+          console.log(`(?:[\\0-\\/:-@\\[-\`\\{-\\xA9\\xAB-\\xB4\\xB6-\\xB9\\xBB-\\xBF\\xD7\\xF7\\u02C2-\\u02C5])`.gray)
           console.log(``)
           const { wordDividerRegex } = (await inquirer.prompt([{
             type: 'input',
@@ -709,6 +722,8 @@ const doubleSpacesRegex = /  +/g
           }
 
         }
+
+        console.log(``)
 
         // 2. versificationModel + skipsUnlikelyOriginals
 
@@ -743,7 +758,6 @@ const doubleSpacesRegex = /  +/g
 
         console.log(``)
         console.log(`Confirm and correct versification mappings...`.gray)
-        console.log(``)
 
         let originalLocsSets = []
         // const changedOriginalLocs = []
