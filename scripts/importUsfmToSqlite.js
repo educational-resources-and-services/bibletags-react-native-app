@@ -4,9 +4,11 @@ const readline = require('readline')
 const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
-const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
+const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber,
+        normalizeSearchStr, getBibleBookNames,
         getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getLanguageInfo, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
-const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo, getNextOriginalLoc, getPreviousOriginalLoc } = require('@bibletags/bibletags-versification')
+const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo,
+        isValidRefInOriginal, getNextOriginalLoc, getPreviousOriginalLoc } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
 const inquirer = require('inquirer')
@@ -24,6 +26,13 @@ passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
+
+const clearLines = num => {
+  for(let i=0; i<num; i++) {
+    process.stdout.moveCursor(0,-1)
+    process.stdout.clearLine()
+  }
+}
 
 const readLines = ({ input }) => {
   const output = new stream.PassThrough({ objectMode: true })
@@ -378,7 +387,7 @@ const doubleSpacesRegex = /  +/g
         type: 'input',
         name: `copyright`,
         when: () => editVersionInfo || !versionInfo.copyright,
-        message: `Copyright text (\\n = newline)`,
+        message: `Copyright text`+`  \\n = newline`.gray,
         default: versionInfo.copyright ? versionInfo.copyright.replace(/\n/g, '\\n') : undefined,
         validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
       },
@@ -799,8 +808,19 @@ const doubleSpacesRegex = /  +/g
 
         console.log(``)
         console.log(`Confirm and correct versification mappings...`.gray)
+        console.log(``)
 
         let originalLocsToCheck = []
+
+        const confirmAndCorrect = async params => {
+          versionInfo.extraVerseMappings = await confirmAndCorrectMapping({
+            versionInfo,
+            tenant,
+            progress: 1,
+            ...params,
+          })
+          clearLines(3)
+        }
 
         if(Object.values(versionInfo.extraVerseMappings).length === 0) {
           // find translation mappings with wordRanges and add to originalLocsToCheck
@@ -814,94 +834,181 @@ const doubleSpacesRegex = /  +/g
           })
         }
 
-        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
-        for(let verses of allVerses) {
-          verses.forEach(({ loc }) => {
-            if(!getOriginalLocsFromLoc(loc, versionInfo)) {
-              if(unlikelyOriginals.includes(loc) && versionInfo.skipsUnlikelyOriginals) {
-                versionInfo.extraVerseMappings[loc] = loc
-              } else {
-                const { bookId } = getRefFromLoc(loc)
-                const verses = allVerses[bookId - 1]
-                const verseIndex = verses.findIndex(v => v.loc === loc)
-                if(verseIndex != null) {
-                  for(let i=verseIndex-1; i>=0; i--) {
-                    const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
-                    if(originalLocs) {
-                      originalLocsToCheck.push(...originalLocs)
-                      break
+        while(true) {
+
+          spinnies.add('checking-verse-mappings', { text: `Checking verse mappings` })
+          await new Promise(r => setTimeout(r, 50))  // need to make this async so the spinner works
+
+          // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
+          for(let verses of allVerses) {
+            await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
+            verses.forEach(({ loc }) => {
+              if(!getOriginalLocsFromLoc(loc, versionInfo)) {
+                if(unlikelyOriginals.includes(loc) && versionInfo.skipsUnlikelyOriginals) {
+                  versionInfo.extraVerseMappings[loc] = loc
+                } else {
+                  const { bookId } = getRefFromLoc(loc)
+                  const verses = allVerses[bookId - 1]
+                  const verseIndex = verses.findIndex(v => v.loc === loc)
+                  if(verseIndex != null) {
+                    for(let i=verseIndex-1; i>=0; i--) {
+                      const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
+                      if(originalLocs) {
+                        originalLocsToCheck.push(...originalLocs)
+                        break
+                      }
                     }
-                  }
-                  for(let i=verseIndex+1; i<verses.length; i++) {
-                    const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
-                    if(originalLocs) {
-                      originalLocsToCheck.push(...originalLocs)
-                      break
+                    for(let i=verseIndex+1; i<verses.length; i++) {
+                      const originalLocs = getOriginalLocsFromLoc(verses[i].loc, versionInfo)
+                      if(originalLocs) {
+                        originalLocsToCheck.push(...originalLocs)
+                        break
+                      }
                     }
                   }
                 }
               }
-            }
-          })
-        }
+            })
+          }
 
-        // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
-        if(versionInfo.versificationModel !== `lxx`) {
-          originalLoc = `01001000`
-          while(originalLoc = getNextOriginalLoc(originalLoc)) {
-            const { bookId } = getRefFromLoc(originalLoc)
-            if(versionInfo.partialScope === `nt` && bookId < 40) continue
-            if(versionInfo.partialScope === `ot` && bookId > 39) continue
+          // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
+          if(versionInfo.versificationModel !== `lxx`) {
+            originalLoc = `01001000`
+            while(originalLoc = getNextOriginalLoc(originalLoc)) {
+              await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
+              const { bookId } = getRefFromLoc(originalLoc)
+              if(versionInfo.partialScope === `nt` && bookId < 40) continue
+              if(versionInfo.partialScope === `ot` && bookId > 39) continue
 
-            if(!getCorrespondingRefs({
-              baseVersion: {
-                info: {
-                  versificationModel: 'original',
+              if(!getCorrespondingRefs({
+                baseVersion: {
+                  info: {
+                    versificationModel: 'original',
+                  },
+                  ref: getRefFromLoc(originalLoc),
                 },
-                ref: getRefFromLoc(originalLoc),
-              },
-              lookupVersionInfo: versionInfo,
-            })) {
+                lookupVersionInfo: versionInfo,
+              })) {
 
-              if(unlikelyOriginals.includes(originalLoc) && !versionInfo.skipsUnlikelyOriginals) {
-                versionInfo.extraVerseMappings[originalLoc] = null
+                if(unlikelyOriginals.includes(originalLoc) && !versionInfo.skipsUnlikelyOriginals) {
+                  versionInfo.extraVerseMappings[originalLoc] = null
+                } else {
+                  originalLocsToCheck.push(originalLoc)
+                }
+
+              }
+            }
+          }
+
+          spinnies.succeed('checking-verse-mappings', { text: originalLocsToCheck.length === 0 ? `All translation verses are mapped to the original` : `` })
+
+          if(originalLocsToCheck.length === 0) {
+
+            let errorToPrint
+            while(true) {
+
+              const extraVerseMappingsLocs = [ ...new Set(Object.keys(versionInfo.extraVerseMappings).map(originalLoc => (versionInfo.extraVerseMappings[originalLoc] || originalLoc).split(':')[0])) ]
+
+              console.log(``)
+              console.log(`  Versification mappings specific to the ${versionInfo.abbr}: `.gray)
+              console.log(
+                `    ` +
+                extraVerseMappingsLocs
+                  .sort()
+                  .map(loc => {
+                    const { bookId, chapter, verse } = getRefFromLoc(loc)
+                    return `${getBibleBookName(bookId)} ${chapter}:${verse}`
+                  })
+                  .join('\n    ')
+                  .white
+              )
+              console.log(``)
+              
+              if(errorToPrint) {
+                console.log(errorToPrint.red)
+                console.log(``)
+                errorToPrint = null
+                extraVerseMappingsLocs.push(null, null)
+              }
+
+              const { book, chapterVerse } = (await inquirer.prompt([
+                {
+                  type: 'list',
+                  name: `confirmEditOthers`,
+                  message: `Do you want to modify versification mappings for other verses?`,
+                  choices: [
+                    {
+                      name: `Yes`,
+                      value: true,
+                    },
+                    {
+                      name: `No`,
+                      value: false,
+                    },
+                  ],
+                  default: false,
+                },
+                {
+                  type: 'search-list',
+                  name: `book`,
+                  when: ({ confirmEditOthers }) => confirmEditOthers,
+                  message: `Choose the book of the Bible`,
+                  choices: getBibleBookNames().slice(1),
+                  pageSize: 5,
+                },
+                {
+                  type: 'input',
+                  name: `chapterVerse`,
+                  when: ({ confirmEditOthers }) => confirmEditOthers,
+                  message: `Enter the chapter and verse of the original (e.g. 3:14)`,
+                  transformer: (input, { book }, { isFinal }) => `${book} ${input}`,
+                }
+              ]))
+
+              clearLines(1)
+
+              if(!book) break
+
+              clearLines(extraVerseMappingsLocs.length + 5)
+
+              const [ chapter, verse ] = chapterVerse.split(':').map(n => parseInt(n))
+              const originalRef = { bookId: getBibleBookNames().indexOf(book), chapter, verse }
+              if(isValidRefInOriginal(originalRef)) {
+                await confirmAndCorrect({
+                  originalLocs: [ getLocFromRef(originalRef) ],
+                })
               } else {
-                originalLocsToCheck.push(originalLoc)
+                errorToPrint = `${book} ${chapterVerse} is an invalid passage reference in the original.`
               }
 
             }
-          }
-        }
 
-        // group originalLocs into sets
-        const originalLocsSets = []
-        ;[ ...new Set(originalLocsToCheck) ].sort().forEach(originalLoc => {
-          if((originalLocsSets.slice(-1)[0] || []).slice(-1)[0] === getPreviousOriginalLoc(originalLoc)) {
-            originalLocsSets.slice(-1)[0].push(originalLoc)
-          } else {
-            originalLocsSets.push([ originalLoc ])
+            break
           }
-        })
 
-        for(let i=0; i<originalLocsSets.length; i++) {
-          versionInfo.extraVerseMappings = await confirmAndCorrectMapping({
-            originalLocs: originalLocsSets[i],
-            versionInfo,
-            tenant: 'biblearc',
-            progress: (i+1) / originalLocsSets.length
+          clearLines(1)
+
+          // group originalLocs into sets
+          const originalLocsSets = []
+          ;[ ...new Set(originalLocsToCheck) ].sort().forEach(originalLoc => {
+            if((originalLocsSets.slice(-1)[0] || []).slice(-1)[0] === getPreviousOriginalLoc(originalLoc)) {
+              originalLocsSets.slice(-1)[0].push(originalLoc)
+            } else {
+              originalLocsSets.push([ originalLoc ])
+            }
           })
-          if(i !== originalLocsSets.length-1) {
-            process.stdout.moveCursor(0,-1)
-            process.stdout.clearLine()
-            process.stdout.moveCursor(0,-1)
-            process.stdout.clearLine()
-            process.stdout.moveCursor(0,-1)
-            process.stdout.clearLine()
+
+          for(let i=0; i<originalLocsSets.length; i++) {
+            await confirmAndCorrect({
+              originalLocs: originalLocsSets[i],
+              progress: (i+1) / originalLocsSets.length
+            })
           }
+
+          originalLocsToCheck = []
+
         }
 
-        // HERE: check that there are no invalid verses and run confirmAndCorrectMapping again if need be
-        // HERE: list out extraVerseMappings refs
         // HERE: Give option to edit specific refs
 
       }
@@ -1054,7 +1161,7 @@ const doubleSpacesRegex = /  +/g
     const { confirmSyncVersionToDev } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmSyncVersionToDev`,
-      message: `Set this version up for testing locally? (Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.)`,
+      message: `Set this version up for testing locally?`+`  Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
       choices: [
         {
           name: `Yes`,
