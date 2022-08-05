@@ -5,7 +5,7 @@ const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber, normalizeSearchStr,
-        getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
+        getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getLanguageInfo, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo, getNextOriginalLoc, getPreviousOriginalLoc } = require('@bibletags/bibletags-versification')
 const { exec } = require('child_process')
 require('colors')
@@ -303,44 +303,86 @@ const doubleSpacesRegex = /  +/g
     const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
 
     const scopeMapsById = {}
-    let versionsFile
+    let versionsFile, editVersionInfo=false
     try {
 
       versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
       const matches = (
         versionsFile
-          .replace(/copyright\s*:\s*removeIndentAndBlankStartEndLines\(`(?:[^`]|\\n)+`\)\s*,?/g, '')  // get rid of removeIndentAndBlankStartEndLines
+          .replace(/removeIndentAndBlankStartEndLines/g, '')  // get rid of removeIndentAndBlankStartEndLines
           .replace(/files\s*:.*/g, '')  // get rid of files: requires
-          .replace(/\/\/.*|\/\*(?:.|\n)*?\*\//g, '')  // get rid of comments
           .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
       )
       versionInfo = eval(`(${matches[0]})`)
+      if(versionInfo.copyright) {
+        versionInfo.copyright = (
+          versionInfo.copyright
+            .replace(/\n +/g, '\n')
+            .replace(/^\n|\n$/g, '')
+        )
+      }
+
+      editVersionInfo = (await inquirer.prompt([{
+        type: 'list',
+        name: `editVersionInfo`,
+        message: `Version found in \`tenants/${tenant}/version.js\`. Do you want to edit it?`,
+        choices: [
+          {
+            name: `Yes, edit version info`,
+            value: true,
+          },
+          {
+            name: `No, use existing version info`,
+            value: false,
+          },
+        ],
+        default: false,
+      }])).editVersionInfo
 
     } catch(err) {
+
       // version doesn't exist in versions.js
 
-      let { addToVersionsJs, ...vInfo } = (await inquirer.prompt([
-        {
-          type: 'list',
-          name: `addToVersionsJs`,
-          message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
-          choices: [
-            {
-              name: `Yes`,
-              value: true,
-            },
-            {
-              name: `No (i.e. cancel import)`,
-              value: false,
-            },
-          ],
-        },
+      const { addToVersionsJs } = await inquirer.prompt([{
+        type: 'list',
+        name: `addToVersionsJs`,
+        message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No (i.e. cancel import)`,
+            value: false,
+          },
+        ],
+      }])
+
+      if(!addToVersionsJs) {
+        console.log(``)
+        process.exit()
+      }
+
+      editVersionInfo = true
+
+    }
+
+    if(editVersionInfo) {
+
+      const getLanguageChoice = ({ englishName, nativeName, iso6393 }) => ({
+        name: englishName === nativeName ? englishName : `${nativeName} (${englishName})`,
+        value: iso6393,
+      })
+      const defaultLanguage = getLanguageInfo(versionInfo.languageId)
+      const defaultLanguageChoiceArray = defaultLanguage.englishName ? [ getLanguageChoice(defaultLanguage) ] : []
+
+      const vInfo = await inquirer.prompt([
         {
           type: 'input',
           name: `name`,
           message: `Version name`,
           default: versionInfo.name,
-          when: ({ addToVersionsJs }) => addToVersionsJs,
           validate: n => n.trim() !== `` || `You must specify a name.`,
         },
         {
@@ -348,29 +390,28 @@ const doubleSpacesRegex = /  +/g
           name: `abbr`,
           message: `Version abbreviation`,
           default: versionId.toUpperCase(),
-          when: ({ addToVersionsJs }) => addToVersionsJs,
           validate: a => !/ /.test(a) && a.length <= 10 || `Cannot be more than 10 characters long or include a space`,
         },
         {
           type: 'search-list',
           name: `languageId`,
           message: `Language`,
-          default: versionInfo.languageId,
-          when: ({ addToVersionsJs }) => addToVersionsJs,
-          choices: (
-            getAllLanguages()
-              .map(({ englishName, nativeName, iso6393 }) => ({
-                name: englishName === nativeName ? englishName : `${nativeName} (${englishName})`,
-                value: iso6393,
-              }))
-          ),
-          pageSize: 10,
+          choices: [
+            ...defaultLanguageChoiceArray,
+            ...(
+              getAllLanguages()
+                .sort((a,b) => a.nativeName < b.nativeName ? -1 : 1)
+                .filter(({ iso6393 }) => iso6393 !== versionInfo.languageId)
+                .map(getLanguageChoice)
+            ),
+          ],
+          pageSize: 11,
         },
         {
           type: 'input',
           name: `copyright`,
-          message: `Copyright text`,
-          when: ({ addToVersionsJs }) => addToVersionsJs,
+          message: `Copyright text (\\n = newline)`,
+          default: versionInfo.copyright ? versionInfo.copyright.replace(/\n/g, '\\n') : undefined,
           validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
         },
         {
@@ -387,14 +428,9 @@ const doubleSpacesRegex = /  +/g
               value: false,
             },
           ],
-          when: ({ addToVersionsJs }) => addToVersionsJs,
+          default: !!versionInfo.bundled,
         },
-      ]))
-
-      if(!addToVersionsJs) {
-        console.log(``)
-        process.exit()
-      }
+      ])
 
       versionInfo = {
         extraVerseMappings: {},
@@ -414,10 +450,10 @@ const doubleSpacesRegex = /  +/g
         `  NOTE:`.gray,
         `   (1) This will create or update the following database files`.gray,
         `       ${tenantDir}/versions/${versionId}/*`.gray,
-        (versionInfo.bundled ? `       ${bundledVersionDir}/verses/*` : null).gray,
+        (versionInfo.bundled ? `       ${bundledVersionDir}/verses/*`.gray : null),
         `   (2) This will modify the following files`.gray,
         `       ${tenantDir}/versions.js`.gray,
-        (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js` : null).gray,
+        (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js`.gray : null),
         ``,
         ``,
       ].filter(l => l !== null).join(`\n`),
@@ -665,7 +701,7 @@ const doubleSpacesRegex = /  +/g
         return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
       }
 
-      if(!versionInfo.versificationModel) {
+      if(!versionInfo.versificationModel || editVersionInfo) {
 
         // 1. wordDividerRegex
 
@@ -755,22 +791,24 @@ const doubleSpacesRegex = /  +/g
         spinnies.succeed('determine-versification-model', { text: `Will use ${versionInfo.versificationModel} versification model` })
         console.log(`✓ Setting skipsUnlikelyOriginals to ${versionInfo.skipsUnlikelyOriginals}`.green)
 
-        // 2. extraVerseMappings
+        // 3. extraVerseMappings
 
         console.log(``)
         console.log(`Confirm and correct versification mappings...`.gray)
 
         let originalLocsToCheck = []
 
-        // find translation mappings with wordRanges and add to originalLocsToCheck
-        const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
-        Object.keys(translationToOriginal).map(translationLoc => {
-          if(typeof translationToOriginal[translationLoc] !== 'string') {
-            originalLocsToCheck.push(
-              ...Object.values(translationToOriginal[translationLoc]).map(origLoc => origLoc.split(':')[0])
-            )
-          }
-        })
+        if(Object.values(versionInfo.extraVerseMappings).length === 0) {
+          // find translation mappings with wordRanges and add to originalLocsToCheck
+          const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
+          Object.keys(translationToOriginal).map(translationLoc => {
+            if(typeof translationToOriginal[translationLoc] !== 'string') {
+              originalLocsToCheck.push(
+                ...Object.values(translationToOriginal[translationLoc]).map(origLoc => origLoc.split(':')[0])
+              )
+            }
+          })
+        }
 
         // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
         for(let verses of allVerses) {
@@ -831,6 +869,7 @@ const doubleSpacesRegex = /  +/g
           }
         }
 
+        // group originalLocs into sets
         const originalLocsSets = []
         ;[ ...new Set(originalLocsToCheck) ].sort().forEach(originalLoc => {
           if((originalLocsSets.slice(-1)[0] || []).slice(-1)[0] === getPreviousOriginalLoc(originalLoc)) {
@@ -857,12 +896,12 @@ const doubleSpacesRegex = /  +/g
           }
         }
 
-        console.log('versionInfo.extraVerseMappings', versionInfo.extraVerseMappings)
+        // HERE: check that there are no invalid verses and run confirmAndCorrectMapping again if need be
+        // HERE: list out extraVerseMappings refs
+        // HERE: Give option to edit specific refs
 
       }
   
-      process.exit()
-
       console.log(``)
       process.stdout.write(`Creating search database...`)
 
@@ -1008,6 +1047,8 @@ const doubleSpacesRegex = /  +/g
       await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
       console.log(``)
       console.log(`Updated ${tenantDir}/versions.js`)
+
+      // HERE: submit version to bible tags data
 
     }
 
