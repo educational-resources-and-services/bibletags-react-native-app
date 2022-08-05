@@ -266,6 +266,7 @@ const doubleSpacesRegex = /  +/g
     const appJsonUri = `${tenantDir}/app.json`
     const appJson = await fs.readJson(appJsonUri)
     const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
+    const versionInfoRegex = new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`)
 
     const scopeMapsById = {}
     let versionsFile, editVersionInfo=false
@@ -276,7 +277,7 @@ const doubleSpacesRegex = /  +/g
         versionsFile
           .replace(/removeIndentAndBlankStartEndLines/g, '')  // get rid of removeIndentAndBlankStartEndLines
           .replace(/files\s*:.*/g, '')  // get rid of files: requires
-          .match(new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`))
+          .match(versionInfoRegex)
       )
       versionInfo = eval(`(${matches[0]})`)
       if(versionInfo.copyright) {
@@ -333,109 +334,109 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    let encryptEveryXChunks
+    const getLanguageChoice = ({ englishName, nativeName, iso6393 }) => ({
+      name: englishName === nativeName ? englishName : `${nativeName} (${englishName})`,
+      value: iso6393,
+    })
+    const defaultLanguage = getLanguageInfo(versionInfo.languageId)
+    const defaultLanguageChoiceArray = defaultLanguage.englishName ? [ getLanguageChoice(defaultLanguage) ] : []
 
-    if(editVersionInfo) {
+    let { encryptEveryXChunks, ...vInfo } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: `name`,
+        when: () => editVersionInfo || !versionInfo.name,
+        message: `Version name`,
+        default: versionInfo.name,
+        validate: n => n.trim() !== `` || `You must specify a name.`,
+      },
+      {
+        type: 'input',
+        name: `abbr`,
+        when: () => editVersionInfo || !versionInfo.abbr,
+        message: `Version abbreviation`,
+        default: versionId.toUpperCase(),
+        validate: a => !/ /.test(a) && a.length <= 10 || `Cannot be more than 10 characters long or include a space`,
+      },
+      {
+        type: 'search-list',
+        name: `languageId`,
+        when: () => editVersionInfo || !versionInfo.languageId,
+        message: `Language`,
+        choices: [
+          ...defaultLanguageChoiceArray,
+          ...(
+            getAllLanguages()
+              .sort((a,b) => a.nativeName < b.nativeName ? -1 : 1)
+              .filter(({ iso6393 }) => iso6393 !== versionInfo.languageId)
+              .map(getLanguageChoice)
+          ),
+        ],
+        pageSize: 11,
+      },
+      {
+        type: 'input',
+        name: `copyright`,
+        when: () => editVersionInfo || !versionInfo.copyright,
+        message: `Copyright text (\\n = newline)`,
+        default: versionInfo.copyright ? versionInfo.copyright.replace(/\n/g, '\\n') : undefined,
+        validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
+      },
+      {
+        type: 'list',
+        name: `bundled`,
+        when: () => editVersionInfo || versionInfo.bundled === undefined,
+        message: `Do you want to bundle this version within the initial app download?`.white+` You should do so for 1-3 versions.`.gray,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No`,
+            value: false,
+          },
+        ],
+        default: !!versionInfo.bundled,
+      },
+      {
+        type: 'list',
+        name: `encrypted`,
+        when: () => editVersionInfo || versionInfo.encrypted === undefined,
+        message: `Would you like to encrypt the version files that will be delivered to user’s devices from the cloud?`,
+        default: false,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No (recommended)`,
+            value: false,
+          },
+        ],
+        default: !!versionInfo.encrypted,
+      },
+      {
+        type: 'input',
+        name: `encryptEveryXChunks`,
+        when: ({ encrypt }) => encrypt,
+        message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
+        default: 20,
+        validate: e => (parseInt(e, 10) >= 1 && parseInt(e, 10) <= 100) || `Must be a number between 1 and 100`,
+      },
+    ])
 
-      const getLanguageChoice = ({ englishName, nativeName, iso6393 }) => ({
-        name: englishName === nativeName ? englishName : `${nativeName} (${englishName})`,
-        value: iso6393,
-      })
-      const defaultLanguage = getLanguageInfo(versionInfo.languageId)
-      const defaultLanguageChoiceArray = defaultLanguage.englishName ? [ getLanguageChoice(defaultLanguage) ] : []
+    if(encryptEveryXChunks) {
+      encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
+    }
 
-      const vInfo = await inquirer.prompt([
-        {
-          type: 'input',
-          name: `name`,
-          message: `Version name`,
-          default: versionInfo.name,
-          validate: n => n.trim() !== `` || `You must specify a name.`,
-        },
-        {
-          type: 'input',
-          name: `abbr`,
-          message: `Version abbreviation`,
-          default: versionId.toUpperCase(),
-          validate: a => !/ /.test(a) && a.length <= 10 || `Cannot be more than 10 characters long or include a space`,
-        },
-        {
-          type: 'search-list',
-          name: `languageId`,
-          message: `Language`,
-          choices: [
-            ...defaultLanguageChoiceArray,
-            ...(
-              getAllLanguages()
-                .sort((a,b) => a.nativeName < b.nativeName ? -1 : 1)
-                .filter(({ iso6393 }) => iso6393 !== versionInfo.languageId)
-                .map(getLanguageChoice)
-            ),
-          ],
-          pageSize: 11,
-        },
-        {
-          type: 'input',
-          name: `copyright`,
-          message: `Copyright text (\\n = newline)`,
-          default: versionInfo.copyright ? versionInfo.copyright.replace(/\n/g, '\\n') : undefined,
-          validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
-        },
-        {
-          type: 'list',
-          name: `bundled`,
-          message: `Do you want to bundle this version within the initial app download?`.white+` You should do so for 1-3 versions.`.gray,
-          choices: [
-            {
-              name: `Yes`,
-              value: true,
-            },
-            {
-              name: `No`,
-              value: false,
-            },
-          ],
-          default: !!versionInfo.bundled,
-        },
-        {
-          type: 'list',
-          name: `encrypted`,
-          message: `Would you like to encrypt the version files that will be delivered to user’s devices from the cloud?`,
-          default: false,
-          choices: [
-            {
-              name: `Yes`,
-              value: true,
-            },
-            {
-              name: `No (recommended)`,
-              value: false,
-            },
-          ],
-          default: !!versionInfo.encrypted,
-        },
-        {
-          type: 'input',
-          name: `encryptEveryXChunks`,
-          message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
-          default: 20,
-          when: ({ encrypt }) => encrypt,
-          validate: e => (parseInt(e, 10) >= 1 && parseInt(e, 10) <= 100) || `Must be a number between 1 and 100`,
-        },
-      ])
-
-      if(vInfo.encryptEveryXChunks) {
-        encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
-      }
-      delete vInfo.encryptEveryXChunks
-
-      versionInfo = {
-        extraVerseMappings: {},
-        ...versionInfo,
-        ...vInfo,
-        id: versionId,
-      }
-
+    versionInfo = {
+      [`${versionId}RevisionNum`]: 1,
+      extraVerseMappings: {},
+      ...versionInfo,
+      ...vInfo,
+      id: versionId,
     }
 
     const versionsDir = `${tenantDir}/versions`
@@ -991,69 +992,41 @@ const doubleSpacesRegex = /  +/g
 
     }
 
-    if(!hasChange) {
-      console.log(``)
-      const { confirmUpdateVersionsJs } = (await inquirer.prompt([{
-        type: 'list',
-        name: `confirmUpdateVersionsJs`,
-        message: `There were no changes since the last import. Update \`${tenantDir}/versions.js\` anyway?`,
-        default: false,
-        choices: [
-          {
-            name: `Yes`,
-            value: true,
-          },
-          {
-            name: `No`,
-            value: false,
-          },
-        ],
-      }]))
-      hasChange = confirmUpdateVersionsJs
+    // update versions.js
+    let newVersionsFile = versionsFile
+    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
+    const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
+
+    if(versionInfo.bundled) {
+      versionInfo.files = `${versionId}Requires`
+      if(!newVersionsFile.includes(newImportLine)) {
+        newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
+      }
+    } else {
+      if(newVersionsFile.includes(newImportLine)) {
+        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
+      }
     }
 
+    // update revision number if there was a change
     if(hasChange) {
-
-      // update versions.js
-      let newVersionsFile = versionsFile
-      newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
-      const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
-      const newFilesLine = `    files: ${versionId}Requires,`
-
-      if(versionInfo.bundled) {
-        if(!newVersionsFile.includes(newImportLine)) {
-          newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
-        }
-        if(!newVersionsFile.includes(newFilesLine)) {
-          newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n)`), `$1${newFilesLine}\n`)
-        }
-      } else {
-        if(newVersionsFile.includes(newImportLine)) {
-          newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
-        }
-        if(newVersionsFile.includes(newFilesLine)) {
-          newVersionsFile = newVersionsFile.replace(new RegExp(`\\n[\\t ]*files: ${versionId}Requires,[\\t ]*`), ``)
-        }
-      }
-
-      const versionRevisionNumRegexp = new RegExp(`(\\n[\\t ]*(?:${versionId}RevisionNum|"${versionId}RevisionNum"|'${versionId}RevisionNum')[\\t ]*:[\\t ]*)[0-9]+([\\t ]*,[\\t ]*\\n)`)
-      if(versionRevisionNumRegexp.test(newVersionsFile)) {
-        newVersionsFile = newVersionsFile.replace(versionRevisionNumRegexp, `$1${versionInfo[`${versionId}RevisionNum`] + 1}$2`)
-      } else {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    ${versionId}RevisionNum: 1,\n`)
-      }
-      if(encryptEveryXChunks && !versionInfo.encrypted) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:files|"files"|'files')[\\t ]*:[\\t ]*${versionId}Requires[\\t ]*,[\\t ]*\\n)`), `$1    encrypted: true,\n`)
-      } else if(!encryptEveryXChunks && versionInfo.encrypted) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(`(\\n[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*(?:(?:[^{}\\n]|{[^}]*})*\\n)*?)[\\t ]*encrypted[\\t ]*:[\\t ]*true[\\t ]*,[\\t ]*\\n`), `$1`)
-      }
-      await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
-      console.log(``)
-      console.log(`Updated ${tenantDir}/versions.js`)
-
-      // HERE: submit version to bible tags data
-
+      versionInfo[`${versionId}RevisionNum`]++
     }
+
+    // swap in new versionInfo
+    newVersionsFile = (
+      newVersionsFile
+        .replace(versionInfoRegex, JSON.stringify(versionInfo, null, '  ').replace(/\n/g, '\n  '))
+        .replace(/"([^"]+Requires)"/g, '$1')
+        .replace(/\n    "([^"]+)"/g, '\n    $1')
+        .replace(/copyright: "(.*)",?/g, `copyright: removeIndentAndBlankStartEndLines(\`\n      ${versionInfo.copyright.replace(/`/g, '\\`').replace(/(?:\\n|\n)/g, '\n      ')}\n    \`),`)
+    )
+
+    await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
+    console.log(``)
+    console.log(`Updated ${tenantDir}/versions.js`)
+
+    // HERE: submit version to bible tags data
 
     // update tenant and sync them to dev
     if(versionId !== 'original') {
