@@ -257,42 +257,7 @@ const doubleSpacesRegex = /  +/g
     }
     let versionInfo = existingVersions.find(({ id }) => id === versionId) || {}
 
-    let { encryptEveryXChunks } = (await inquirer.prompt([
-      {
-        type: 'list',
-        name: `encrypt`,
-        message: `Would you like to encrypt the version files that will be delivered to user’s devices from the cloud?`,
-        default: false,
-        choices: [
-          {
-            name: `Yes`,
-            value: true,
-          },
-          {
-            name: `No (recommended)`,
-            value: false,
-          },
-        ],
-      },
-      {
-        type: 'input',
-        name: `encryptEveryXChunks`,
-        message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
-        default: 20,
-        when: ({ encrypt }) => encrypt,
-        validate: e => (parseInt(e, 10) >= 1 && parseInt(e, 10) <= 100) || `Must be a number between 1 and 100`,
-      },
-    ]))
-    if(encryptEveryXChunks) {
-      encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
-    }
-
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
-    const versionsDir = `${tenantDir}/versions`
-    const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${versionId}-encrypted` : versionId
-    const versionDir = `${versionsDir}/${versionWithEncryptedIfRelevant}`
-    const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
-    const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
     if(!await fs.pathExists(tenantDir)) {
       throw new Error(`Invalid tenant.`)
@@ -368,6 +333,8 @@ const doubleSpacesRegex = /  +/g
 
     }
 
+    let encryptEveryXChunks
+
     if(editVersionInfo) {
 
       const getLanguageChoice = ({ englishName, nativeName, iso6393 }) => ({
@@ -430,7 +397,37 @@ const doubleSpacesRegex = /  +/g
           ],
           default: !!versionInfo.bundled,
         },
+        {
+          type: 'list',
+          name: `encrypted`,
+          message: `Would you like to encrypt the version files that will be delivered to user’s devices from the cloud?`,
+          default: false,
+          choices: [
+            {
+              name: `Yes`,
+              value: true,
+            },
+            {
+              name: `No (recommended)`,
+              value: false,
+            },
+          ],
+          default: !!versionInfo.encrypted,
+        },
+        {
+          type: 'input',
+          name: `encryptEveryXChunks`,
+          message: `One in every how many chunks would like you to encrypt? (Choosing 1 will completely encrypt the files, but also comes with a significant performance hit when the text is first loaded.)`,
+          default: 20,
+          when: ({ encrypt }) => encrypt,
+          validate: e => (parseInt(e, 10) >= 1 && parseInt(e, 10) <= 100) || `Must be a number between 1 and 100`,
+        },
       ])
+
+      if(vInfo.encryptEveryXChunks) {
+        encryptEveryXChunks = parseInt(encryptEveryXChunks, 10)
+      }
+      delete vInfo.encryptEveryXChunks
 
       versionInfo = {
         extraVerseMappings: {},
@@ -440,6 +437,12 @@ const doubleSpacesRegex = /  +/g
       }
 
     }
+
+    const versionsDir = `${tenantDir}/versions`
+    const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${versionId}-encrypted` : versionId
+    const versionDir = `${versionsDir}/${versionWithEncryptedIfRelevant}`
+    const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
+    const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
     const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
       type: 'list',
