@@ -16,6 +16,7 @@ process.stdin.on('data', d => {
 const cloneObj = obj => JSON.parse(JSON.stringify(obj))
 const equalObjsIgnoreKeyOrdering = (obj1, obj2) => {
   const isObject = obj => (obj != null && typeof obj === 'object')
+  if(!isObject(obj1) || !isObject(obj2)) return obj1 === obj2
   const props1 = Object.getOwnPropertyNames(obj1)
   const props2 = Object.getOwnPropertyNames(obj2)
   if(props1.length !== props2.length) return false
@@ -972,4 +973,5 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
 
 }
 
+confirmAndCorrectMapping.equalObjsIgnoreKeyOrdering = equalObjsIgnoreKeyOrdering
 module.exports = confirmAndCorrectMapping

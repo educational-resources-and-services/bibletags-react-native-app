@@ -21,6 +21,7 @@ const spinnies = new Spinnies()
 
 const goSyncVersions = require('./goSyncVersions')
 const confirmAndCorrectMapping = require('./utils/confirmAndCorrectMapping')
+const equalObjsIgnoreKeyOrdering = confirmAndCorrectMapping.equalObjsIgnoreKeyOrdering
 
 const graphqlUrl = `https://data.bibletags.org/graphql`
 // const graphqlUrl = `https://data.staging.bibletags.org/graphql`
@@ -29,7 +30,6 @@ passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
 
 const cloneObj = obj => JSON.parse(JSON.stringify(obj))
-const equalObj = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2)
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
@@ -306,22 +306,22 @@ const doubleSpacesRegex = /  +/g
         )
       }
 
-      editVersionInfo = (await inquirer.prompt([{
+      editVersionInfo = !(await inquirer.prompt([{
         type: 'list',
-        name: `editVersionInfo`,
-        message: `Version found in \`tenants/${tenant}/version.js\`. Do you want to edit it?`,
+        name: `useVersionInfo`,
+        message: `Version found in \`tenants/${tenant}/version.js\`. Use that info?`,
         choices: [
           {
-            name: `Yes, edit version info`,
+            name: `Yes, use existing version info`,
             value: true,
           },
           {
-            name: `No, use existing version info`,
+            name: `No, edit version info`,
             value: false,
           },
         ],
-        default: false,
-      }])).editVersionInfo
+        default: true,
+      }])).useVersionInfo
 
     } catch(err) {
 
@@ -450,6 +450,7 @@ const doubleSpacesRegex = /  +/g
     }
 
     versionInfo = {
+      wordDividerRegex: null,
       [`${versionId}RevisionNum`]: 1,
       ...versionInfo,
       ...vInfo,
@@ -663,7 +664,7 @@ const doubleSpacesRegex = /  +/g
     } else if(!requires[40]) {
       versionInfo.partialScope = `ot`
     } else {
-      delete versionInfo.partialScope
+      versionInfo.partialScope = null
     }
 
     if(versionInfo.partialScope === `nt`) requires.splice(0, 39)
@@ -777,7 +778,7 @@ const doubleSpacesRegex = /  +/g
           if(wordDividerRegex) {
             versionInfo.wordDividerRegex = wordDividerRegex
           } else {
-            delete versionInfo.wordDividerRegex
+            versionInfo.wordDividerRegex = null
           }
 
         }
@@ -855,6 +856,7 @@ const doubleSpacesRegex = /  +/g
                 value: false,
               },
             ],
+            default: false,
           }]))
           confirmFullRecheckOfMappings = answers.confirmFullRecheckOfMappings
 
@@ -1186,7 +1188,7 @@ const doubleSpacesRegex = /  +/g
       "extraVerseMappings",
     ]
 
-    if(serverVersionInfoKeys.some(key => !equalObj(existingVersionInfo[key], versionInfo[key]))) {
+    if(serverVersionInfoKeys.some(key => !equalObjsIgnoreKeyOrdering(existingVersionInfo[key], versionInfo[key]))) {
 
       console.log(``)
       spinnies.add('submit-version', { text: `Submitting version info to ${graphqlUrl}` })
@@ -1273,6 +1275,29 @@ const doubleSpacesRegex = /  +/g
           (4) Synced \`${versionsDir}\` to the cloud for use in dev
           ${confirmSyncVersionToDev ? `(5) Submitted word hashes for ${versionId} to the dev db for bibletags-data` : ``}
       `).green)
+
+      // the following section is custom import help code for Biblearc
+      if(tenant === 'biblearc') {
+        const biblearcVersionInfoKeys = [
+          "id",
+          "abbr",
+          "name",
+          "wordDividerRegex",
+          "copyright",
+          "versificationModel",
+          "skipsUnlikelyOriginals",
+          "extraVerseMappings",
+          // hebrewOrdering,
+          "partialScope",
+          "languageId",
+        ]
+        const biblearcVersionInfo = {}
+        biblearcVersionInfoKeys.forEach(key => {
+          biblearcVersionInfo[key] = versionInfo[key]
+        })
+        console.log(`cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force`)
+        console.log(``)
+      }
 
     }
 
