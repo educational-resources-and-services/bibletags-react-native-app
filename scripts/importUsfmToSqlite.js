@@ -22,8 +22,14 @@ const spinnies = new Spinnies()
 const goSyncVersions = require('./goSyncVersions')
 const confirmAndCorrectMapping = require('./utils/confirmAndCorrectMapping')
 
+const graphqlUrl = `https://data.bibletags.org/graphql`
+// const graphqlUrl = `https://data.staging.bibletags.org/graphql`
+
 passOverI18n(i18n)
 passOverI18nNumber(i18nNumber)
+
+const cloneObj = obj => JSON.parse(JSON.stringify(obj))
+const equalObj = (obj1, obj2) => JSON.stringify(obj1) === JSON.stringify(obj2)
 
 const ENCRYPT_CHUNK_SIZE = 11 * 1000  // ~ 11 kb chunks (was fastest)
 
@@ -185,7 +191,7 @@ const doubleSpacesRegex = /  +/g
     let existingVersions
     try {
       const response = await request(
-        `https://data.bibletags.org/graphql`,
+        graphqlUrl,
         gql`
           query {
             versions {
@@ -265,6 +271,7 @@ const doubleSpacesRegex = /  +/g
       versionId = versionStr.match(/\(ID: ([a-z0-9]{2,9})\)$/)[1]
     }
     let versionInfo = existingVersions.find(({ id }) => id === versionId) || {}
+    const existingVersionInfo = cloneObj(versionInfo)
 
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
 
@@ -387,7 +394,7 @@ const doubleSpacesRegex = /  +/g
         type: 'input',
         name: `copyright`,
         when: () => editVersionInfo || !versionInfo.copyright,
-        message: `Copyright text`+`  \\n = newline`.gray,
+        message: `Copyright text`+` \\n = newline`.gray,
         default: versionInfo.copyright ? versionInfo.copyright.replace(/\n/g, '\\n') : undefined,
         validate: t => t.trim() !== `` || `You must include copyright information. If this version is public domain, then indicate that.`,
       },
@@ -442,11 +449,11 @@ const doubleSpacesRegex = /  +/g
 
     versionInfo = {
       [`${versionId}RevisionNum`]: 1,
-      extraVerseMappings: {},
       ...versionInfo,
       ...vInfo,
       id: versionId,
     }
+    versionInfo.extraVerseMappings = versionInfo.extraVerseMappings || {}
 
     const versionsDir = `${tenantDir}/versions`
     const versionWithEncryptedIfRelevant = encryptEveryXChunks ? `${versionId}-encrypted` : versionId
@@ -782,15 +789,15 @@ const doubleSpacesRegex = /  +/g
 
         const unlikelyOriginals = [ "40012047", "40017021", "40018011", "40023014", "41007016", "41009044", "41009046", "41011026", "41015028", "42017036", "42023017", "43005004", "44008037", "44015034", "44024007", "44028029", "45016024" ]
         let numUnlikelyOriginalsUsed = 0
-        const versificationModels = [ 'original', 'kjv', 'lxx', 'synodal' ]
-        const translationLocsNotMappingByModel = {}
+        const versificationModels = [ 'original', 'kjv', 'synodal', 'lxx' ]
+        const numTranslationLocsNotMappingByModel = {}
         for(let versificationModel of versificationModels) {
-          translationLocsNotMappingByModel[versificationModel] = []
+          numTranslationLocsNotMappingByModel[versificationModel] = 0
           for(let verses of allVerses) {
             await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
             verses.forEach(({ loc }) => {
               if(!getOriginalLocsFromLoc(loc, { versificationModel })) {
-                translationLocsNotMappingByModel[versificationModel].push(loc)
+                numTranslationLocsNotMappingByModel[versificationModel]++
               }
               if(unlikelyOriginals.includes(loc) && versificationModel === 'kjv') {
                 numUnlikelyOriginalsUsed++
@@ -798,7 +805,15 @@ const doubleSpacesRegex = /  +/g
             })
           }
         }
-        versionInfo.versificationModel = versificationModels.reduce((a,b) => translationLocsNotMappingByModel[a].length < translationLocsNotMappingByModel[b].length ? a : b)
+        versionInfo.versificationModel = (
+          (
+            // strongly prefer the kjv if it is NT only
+            versionInfo.partialScope === `nt`
+            && numTranslationLocsNotMappingByModel.kjv < Math.min(...Object.values(numTranslationLocsNotMappingByModel)) + 5
+          )
+            ? `kjv`
+            : versificationModels.reduce((a,b) => numTranslationLocsNotMappingByModel[b] < numTranslationLocsNotMappingByModel[a] ? b : a)
+        )
         versionInfo.skipsUnlikelyOriginals = versionInfo.partialScope !== `ot` && numUnlikelyOriginalsUsed < unlikelyOriginals.length / 2
 
         spinnies.succeed('determine-versification-model', { text: `Will use ${versionInfo.versificationModel} versification model` })
@@ -847,8 +862,6 @@ const doubleSpacesRegex = /  +/g
                 if(unlikelyOriginals.includes(loc) && versionInfo.skipsUnlikelyOriginals) {
                   versionInfo.extraVerseMappings[loc] = loc
                 } else {
-                  const { bookId } = getRefFromLoc(loc)
-                  const verses = allVerses[bookId - 1]
                   const verseIndex = verses.findIndex(v => v.loc === loc)
                   if(verseIndex != null) {
                     for(let i=verseIndex-1; i>=0; i--) {
@@ -1009,8 +1022,6 @@ const doubleSpacesRegex = /  +/g
 
         }
 
-        // HERE: Give option to edit specific refs
-
       }
   
       console.log(``)
@@ -1120,10 +1131,14 @@ const doubleSpacesRegex = /  +/g
       versionInfo[`${versionId}RevisionNum`]++
     }
 
-    // swap in new versionInfo
+    // swap in or insert new versionInfo
+    const insertStr = JSON.stringify(versionInfo, null, '  ').replace(/\n/g, '\n  ')
     newVersionsFile = (
-      newVersionsFile
-        .replace(versionInfoRegex, JSON.stringify(versionInfo, null, '  ').replace(/\n/g, '\n  '))
+      (
+        versionInfoRegex.test(newVersionsFile)
+          ? newVersionsFile.replace(versionInfoRegex, insertStr)
+          : newVersionsFile.replace(/(\]\s*export default bibleVersions)/, `  ${insertStr},\n$1`)
+      )
         .replace(/"([^"]+Requires)"/g, '$1')
         .replace(/\n    "([^"]+)"/g, '\n    $1')
         .replace(/copyright: "(.*)",?/g, `copyright: removeIndentAndBlankStartEndLines(\`\n      ${versionInfo.copyright.replace(/`/g, '\\`').replace(/(?:\\n|\n)/g, '\n      ')}\n    \`),`)
@@ -1133,7 +1148,51 @@ const doubleSpacesRegex = /  +/g
     console.log(``)
     console.log(`Updated ${tenantDir}/versions.js`)
 
-    // HERE: submit version to bible tags data
+    // submit version to bible tags data, if changed
+    const serverVersionInfoKeys = [
+      "id",
+      "name",
+      "languageId",
+      "wordDividerRegex",
+      "partialScope",
+      "versificationModel",
+      "skipsUnlikelyOriginals",
+      "extraVerseMappings",
+    ]
+
+    if(serverVersionInfoKeys.some(key => !equalObj(existingVersionInfo[key], versionInfo[key]))) {
+
+      console.log(``)
+      spinnies.add('submit-version', { text: `Submitting version info to ${graphqlUrl}` })
+
+      try {
+        await request(
+          graphqlUrl,
+          gql`
+            mutation {
+              addVersion(
+                input: {
+                  ${serverVersionInfoKeys.map(key => {
+                    let value = JSON.stringify(versionInfo[key] === undefined ? null : versionInfo[key])
+                    if(key === 'extraVerseMappings') {
+                      return `extraVerseMappingsStr: ${JSON.stringify(value)}`
+                    } else {
+                      return `${key}: ${value}`
+                    }
+                  })}
+                }
+              ) {
+                id
+              }
+            }
+          `,
+        )
+        spinnies.succeed('submit-version', { text: `Submitted version info to ${graphqlUrl}` })
+      } catch(err) {
+        spinnies.fail('submit-version', { text: `Could not submit version info to ${graphqlUrl}.` })
+      }
+
+    }
 
     // update tenant and sync them to dev
     if(versionId !== 'original') {
@@ -1161,7 +1220,7 @@ const doubleSpacesRegex = /  +/g
     const { confirmSyncVersionToDev } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmSyncVersionToDev`,
-      message: `Set this version up for testing locally?`+`  Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
+      message: `Set this version up for testing locally?`+` Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
       choices: [
         {
           name: `Yes`,
