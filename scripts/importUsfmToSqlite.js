@@ -92,10 +92,12 @@ const doubleSpacesRegex = /  +/g
   // NOTE: Leave this comment for easy testing when I hit a bug
   // console.log(
   //   await confirmAndCorrectMapping({
-  //     originalLocs: ['58012022'],
+  //     originalLocs: ['44002010', '44002011'],
   //     versionInfo: {
-  //       id: 'sdf',
+  //       id: 'esv',
   //       versificationModel: 'kjv',
+  //       skipsUnlikelyOriginals: true,
+  //       extraVerseMappings: {"42007018:1-9":"42007018:1-12","11022043:1-12":"11022043:1-27","11022044:1-9":"11022043:28-47","13012004:1-6":"13012004:1-15","13012005:1-5":"13012004:16-21","19018001:1-20":"19018000:1-43","19051001:1-3":"19051000:1-7","19051002:1-8":"19051000:8-21","19052001:1-3":"19052000:1-7","19052002:1-12":"19052000:8-23","19054001:1-4":"19054000:1-10","19054002:1-8":"19054000:11-23","19060001:1-6":"19060000:1-13","19060002:1-15":"19060000:14-40","40017014:1-10":"40017014:1-17","40017015:1-23":"40017015:1-27","40020004:1-16":"40020004:1-19","40020005:1-12":"40020005:1-18","41012014:1-39":"41012014:1-53","41012015:1-16":"41012015:1-24","42001073:1-11":"42001073:1-12","42001074:1-7":"42001074:1-15","42007019:1-12":"42007019:8-27","42022066:1-20":"42022066:1-26","44002010:1-17":"44002010:1-16","44002011:1-17":"44002011:1-20","44003019:1-10":"44003019:1-12","04025019:1-3":"04026001:1-3","04026001:1-10":"04026001:4-17","09020042:1-22":"09020042:1-38","09021001:1-5":"09020042:39-49","19018002:1-1":"19018000:44-45","19018002:2-4":"19018001:1-7","42007018:10-18":"42007019:1-7","42022067:1-1":"42022066:27-29","42022067:2-17":"42022067:1-20","44003020:4-16":"44003020:1-23","44003020:1-3":null},
   //     },
   //     tenant: 'biblearc',
   //     progress: 0
@@ -837,7 +839,31 @@ const doubleSpacesRegex = /  +/g
           clearLines(3)
         }
 
-        if(Object.values(versionInfo.extraVerseMappings).length === 0) {
+        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0
+        if(!confirmFullRecheckOfMappings) {
+          const answers = (await inquirer.prompt([{
+            type: 'list',
+            name: `confirmFullRecheckOfMappings`,
+            message: `Do you want to rerun a thorough versification mappings check?`,
+            choices: [
+              {
+                name: `Yes`,
+                value: true,
+              },
+              {
+                name: `No`,
+                value: false,
+              },
+            ],
+          }]))
+          confirmFullRecheckOfMappings = answers.confirmFullRecheckOfMappings
+
+          if(confirmFullRecheckOfMappings) {
+            originalLocsToCheck.push(...Object.keys(versionInfo.extraVerseMappings).map(origLoc => origLoc.split(':')[0]))
+          }
+        }
+
+        if(confirmFullRecheckOfMappings) {
           // find translation mappings with wordRanges and add to originalLocsToCheck
           const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
           Object.keys(translationToOriginal).map(translationLoc => {

@@ -271,6 +271,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
         }
 
         translationLocs.forEach(translationLoc => {
+          if(!translationLoc) return
           let moreOriginalLocs = translationToOriginal[translationLoc.split(':')[0]] || []
           if(typeof moreOriginalLocs === 'string') {
             moreOriginalLocs = { '': moreOriginalLocs }
