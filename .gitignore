@@ -15,3 +15,4 @@ npm-debug.*
 /src/utils/translations/current.json
 /custom-mapping.json
 /.env
+/.temp

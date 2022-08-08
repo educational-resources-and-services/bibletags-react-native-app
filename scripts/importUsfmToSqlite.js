@@ -275,6 +275,9 @@ const doubleSpacesRegex = /  +/g
     let versionInfo = existingVersions.find(({ id }) => id === versionId) || {}
     const existingVersionInfo = cloneObj(versionInfo)
 
+    const tempFilePath = `./.temp/extraVerseMappingsInProgress-${versionId}.json`
+    await fs.ensureDir(tempFilePath.split('/').slice(0,-1).join('/'))
+
     const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
 
     if(!await fs.pathExists(tenantDir)) {
@@ -837,10 +840,35 @@ const doubleSpacesRegex = /  +/g
             progress: 1,
             ...params,
           })
+          await fs.writeFile(tempFilePath, JSON.stringify(versionInfo.extraVerseMappings))
           clearLines(3)
         }
 
         let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0
+
+        try {
+          const prevExtraVerseMappings = JSON.parse(await fs.readFile(tempFilePath, { encoding: 'utf8' }))
+          const { confirmUsePrevExtraVerseMappings } = (await inquirer.prompt([{
+            type: 'list',
+            name: `confirmUsePrevExtraVerseMappings`,
+            message: `This script was previously run on this version and left unfinished. Use those in-progress verse mappings?`,
+            choices: [
+              {
+                name: `Yes`,
+                value: true,
+              },
+              {
+                name: `No`,
+                value: false,
+              },
+            ],
+          }]))
+          if(confirmUsePrevExtraVerseMappings) {
+            versionInfo.extraVerseMappings = prevExtraVerseMappings
+            confirmFullRecheckOfMappings = true
+          }
+        } catch(err) {}
+
         if(!confirmFullRecheckOfMappings) {
           const answers = (await inquirer.prompt([{
             type: 'list',
@@ -1173,6 +1201,7 @@ const doubleSpacesRegex = /  +/g
     )
 
     await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
+    await fs.remove(tempFilePath)
     console.log(``)
     console.log(`Updated ${tenantDir}/versions.js`)
 
