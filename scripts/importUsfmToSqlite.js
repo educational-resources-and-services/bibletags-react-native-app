@@ -897,7 +897,13 @@ const doubleSpacesRegex = /  +/g
           // find translation mappings with wordRanges and add to originalLocsToCheck
           const { translationToOriginal } = getVerseMappingsByVersionInfo(versionInfo)
           Object.keys(translationToOriginal).map(translationLoc => {
-            if(typeof translationToOriginal[translationLoc] !== 'string') {
+            if(
+              (
+                !(versionInfo.partialScope === `ot` && getRefFromLoc(translationLoc).bookId > 39)
+                && !(versionInfo.partialScope === `nt` && getRefFromLoc(translationLoc).bookId < 40)
+              )
+              && typeof translationToOriginal[translationLoc] !== 'string'
+            ) {
               originalLocsToCheck.push(
                 ...Object.values(translationToOriginal[translationLoc]).map(origLoc => origLoc.split(':')[0])
               )
