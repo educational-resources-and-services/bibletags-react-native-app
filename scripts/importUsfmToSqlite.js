@@ -1341,6 +1341,8 @@ const doubleSpacesRegex = /  +/g
     console.log(``)
     console.log(`ERROR: ${err.message}`.bgRed.brightWhite)
     console.log(``)
+    console.log(err)
+    console.log(``)
 
   }
 

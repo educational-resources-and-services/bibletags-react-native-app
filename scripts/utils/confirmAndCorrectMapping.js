@@ -116,20 +116,30 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           ? splitVerseIntoWords({ usfm, isOriginal: true }).map(({ text }) => text)
           : splitVerseIntoWords({ usfm, ...versionInfo }).map(({ text }) => text)
       )
-    }
 
-    if(versionInfo.languageId !== 'eng' && versionId !== 'original') {
-      wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`].forEach(translationWord => {
-        googleTranslatedWords[translationWord] = googleTranslatedWords[translationWord] || null
-      })
-      const wordsToTranslate = Object.keys(googleTranslatedWords).filter(translationWord => !googleTranslatedWords[translationWord])
-      if(wordsToTranslate.length > 0) {
-        translate.translate(wordsToTranslate, 'en').then(translations => {
-          wordsToTranslate.forEach((translationWord, idx) => {
-            googleTranslatedWords[translationWord] = translations[0][idx]
-          })
+      if(versionInfo.languageId !== 'eng' && versionId !== 'original') {
+        const newWordsToTranslate = []
+        wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`].forEach(translationWord => {
+          if(googleTranslatedWords[translationWord] === undefined) {
+            googleTranslatedWords[translationWord] = null  // indicates that it should be fetched
+            newWordsToTranslate.push(translationWord)
+          }
         })
+        if(newWordsToTranslate.length > 0) {
+          const segmentSize = 10
+          for(let i=0; i<newWordsToTranslate.length; i+=segmentSize) {
+            const wordsToTranslateSegment = newWordsToTranslate.slice(i, i + segmentSize)
+            translate.translate(wordsToTranslateSegment, 'en')
+              .then(translations => {
+                wordsToTranslateSegment.forEach((translationWord, idx) => {
+                  googleTranslatedWords[translationWord] = translations[0][idx]
+                })
+              })
+              .catch(err => {})
+          }
+        }
       }
+
     }
 
     return wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`]
