@@ -177,7 +177,8 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   const makeExtraVerseMappingKeysExplicit = () => {
     const makeMappingExplicit = ({ mapping, isOriginal }) => {
       if(!mapping) return mapping  // as it may legitimately be null
-      const numWords = getWords({ loc: mapping.split(':')[0], versionId: isOriginal ? 'original' : versionInfo.id }).length
+      const numWords = getWords({ loc: mapping.split(':')[0], versionId: isOriginal ? 'original' : versionInfo.id, failGracefully: !isOriginal }).length
+      if(numWords === 0) return null
       let [ loc, wordRangeStr=`1-${numWords}` ] = mapping.split(':')
       return (
         `${loc}:`
