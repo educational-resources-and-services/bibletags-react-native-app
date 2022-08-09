@@ -54,6 +54,7 @@
     "@eva-design/eva": "^2.1.1",
     "@expo/vector-icons": "^10.2.1",
     "@expo/webpack-config": "~0.16.2",
+    "@google-cloud/translate": "^7.0.0",
     "@react-native-async-storage/async-storage": "~1.15.0",
     "@react-native-community/hooks": "^2.8.1",
     "@react-native-community/netinfo": "7.1.3",

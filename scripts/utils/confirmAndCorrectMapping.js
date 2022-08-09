@@ -4,9 +4,13 @@ const { getCorrespondingRefs, getRefFromLoc, getNextOriginalLoc, getLocFromRef,
         getVerseMappingsByVersionInfo } = require('@bibletags/bibletags-versification')
 require('colors')
 const inquirer = require('inquirer')
+const { Translate } = require('@google-cloud/translate').v2
+const translate = new Translate({ projectId: 'bible-tags' })
 
 const hideCursor = `\u001B[?25l`
 const showCursor = `\u001B[?25h`
+
+const googleTranslatedWords = {}
 
 let charPressed
 process.stdin.on('data', d => {
@@ -72,7 +76,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
     bookId = thisBookId
   }
 
-  let editableItemIdx, currentCallback, debugLog, errorMessage=``, typing={}, locked=true
+  let editableItemIdx, currentCallback, debugLog, errorMessage=``, typing={}, locked=true, showTranslation=false
 
   const oldVerseMappingsByVersionInfo = getVerseMappingsByVersionInfo(versionInfo)
   delete oldVerseMappingsByVersionInfo.createdAt
@@ -112,6 +116,20 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           ? splitVerseIntoWords({ usfm, isOriginal: true }).map(({ text }) => text)
           : splitVerseIntoWords({ usfm, ...versionInfo }).map(({ text }) => text)
       )
+    }
+
+    if(versionInfo.languageId !== 'eng' && versionId !== 'original') {
+      wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`].forEach(translationWord => {
+        googleTranslatedWords[translationWord] = googleTranslatedWords[translationWord] || null
+      })
+      const wordsToTranslate = Object.keys(googleTranslatedWords).filter(translationWord => !googleTranslatedWords[translationWord])
+      if(wordsToTranslate.length > 0) {
+        translate.translate(wordsToTranslate, 'en').then(translations => {
+          wordsToTranslate.forEach((translationWord, idx) => {
+            googleTranslatedWords[translationWord] = translations[0][idx]
+          })
+        })
+      }
     }
 
     return wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`]
@@ -477,6 +495,8 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
             }
           } else if(charPressed === ` `) { // spacebar
             locked = !locked
+          } else if(charPressed === `t`) {
+            showTranslation = !showTranslation
           }
         }
 
@@ -857,8 +877,27 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
                   .join(``)
               )
               translationLocInfoStr = `${getBibleBookName(bookId)} ${translationChVsStr}, words: ${translationWordRangeStr}${isEntireTranslationStr}`+` (${newVersionInfo.abbr})`.gray
-              translationText = getPartialText({ words: wordsByTranslationLoc[loc.split(':')[0]], ref: translationRef }).white
+              translationText = getPartialText({ words: wordsByTranslationLoc[loc.split(':')[0]], ref: translationRef })
 
+              if(showTranslation) {
+                translationText = (
+                  translationText
+                    .split(' ')
+                    .map(translationWord => (
+                      googleTranslatedWords[translationWord]
+                        ? [
+                          translationWord.white,
+                          `[${googleTranslatedWords[translationWord]}]`.magenta,
+                        ].join('')
+                        : translationWord.white
+                    ))
+                    .flat()
+                    .join(' ')
+                )
+              } else {
+                translationText = translationText.white
+              }
+      
             } else {
 
               if(cursorPosition === editableItemIdx) {
@@ -949,6 +988,9 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           // `Use `.gray+`ESC`.white+` to reset the pairs`.gray,
           ``,
           (locked ? `  LOCKED  `.bgYellow : ` UNLOCKED `.bgGray)+` Use `.gray+`SPACEBAR`.white+` to lock/unlock adjacent words`.gray,
+          ...(versionInfo.languageId === 'eng' ? [] : [
+            (showTranslation ? `  TRANSLATE ON  `.bgMagenta : `  TRANSLATE OFF `.bgGray)+` Use `.gray+`T`.white+` to turn English translation (from Google) on and off`.gray,
+          ]),
           ``,
           `Press `.gray+`ENTER`.white+` when everything is paired correctly`.gray,
           ...(debugLog.map(line => `DEBUG: ${JSON.stringify(line)}`.red)),
