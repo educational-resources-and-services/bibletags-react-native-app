@@ -9,9 +9,10 @@ const styles = StyleSheet.create({
   book: {
     paddingRight: 15,
     paddingLeft: 15,
+    height: 40,
+    justifyContent: 'center',
   },
   bookText: {
-    lineHeight: 40,
     textAlign: 'left',
   },
 })
@@ -49,6 +50,8 @@ const ChooserBook = ({
           labelThemedStyle,
           labelStyle,
         ]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
       >
         {getBibleBookName(bookId)}
       </Text>

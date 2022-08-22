@@ -277,7 +277,10 @@ const Search = ({
                 key={idx}
                 style={styles.tab}
                 title={
-                  <Text>
+                  <Text
+                    adjustsFontSizeToFit
+                    numberOfLines={1}
+                  >
                     <Text style={styles.tabText}>
                       {title}
                     </Text>

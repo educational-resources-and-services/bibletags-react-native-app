@@ -8,10 +8,11 @@ import { memo } from '../../utils/toolbox'
 const styles = StyleSheet.create({
   chapter: {
     width: 42,
+    height: 42,
     borderRadius: 21,
+    justifyContent: 'center',
   },
   chapterText: {
-    lineHeight: 42,
     textAlign: 'center',
   },
 })
@@ -49,6 +50,8 @@ const ChooserChapter = ({
           labelThemedStyle,
           labelStyle,
         ]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
       >
         {i18nNumber({ num: chapter, type: 'formal' })}
       </Text>

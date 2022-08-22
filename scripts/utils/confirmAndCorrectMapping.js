@@ -129,7 +129,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
           const segmentSize = 10
           for(let i=0; i<newWordsToTranslate.length; i+=segmentSize) {
             const wordsToTranslateSegment = newWordsToTranslate.slice(i, i + segmentSize)
-            translate.translate(wordsToTranslateSegment, 'en')
+            translate.translate(wordsToTranslateSegment, { to: 'en', from: 'fr' })
               .then(translations => {
                 wordsToTranslateSegment.forEach((translationWord, idx) => {
                   googleTranslatedWords[translationWord] = translations[0][idx]

@@ -17,10 +17,11 @@ const styles = StyleSheet.create({
     paddingRight: 18,
   },
   versionText: {
-    lineHeight: 40,
   },
   versionTextContainer: {
     flexDirection: 'row',
+    height: 40,
+    alignItems: 'center',
   },
   closeIcon: {
     fontSize: 15,

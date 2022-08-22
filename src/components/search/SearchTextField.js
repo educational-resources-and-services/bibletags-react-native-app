@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
   formattedInputText: {
     color: 'black',
     // flex: 1,
-    lineHeight: readHeaderHeight - 12,
-    paddingVertical: 6,
+    alignSelf: 'center',
+    // paddingVertical: 6,
     paddingHorizontal: 16,
     fontSize,
   },

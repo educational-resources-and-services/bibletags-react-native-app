@@ -23,7 +23,6 @@ const isAndroidRTL = I18nManager.isRTL && Platform.OS === 'android'
 
 const passageAndVersion = {
   [isAndroidRTL ? `paddingLeft` : `paddingRight`]: 7,
-  lineHeight: readHeaderHeight,
 }
 
 const styles = StyleSheet.create({
@@ -68,6 +67,7 @@ const styles = StyleSheet.create({
   middle: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
   },
   passageAndVersion: {
     ...passageAndVersion,
@@ -88,7 +88,6 @@ const styles = StyleSheet.create({
   },
   dropdownIcon: {
     height: 18,
-    lineHeight: readHeaderHeight,
   },
   leftIcon: {
     paddingRight: 8,
@@ -190,7 +189,11 @@ const ReadHeader = React.memo(({
             onPressIn={showPassageChooser}
           >
             <View style={styles.middle}>
-              <Text style={styles.passageAndVersion}>
+              <Text
+                style={styles.passageAndVersion}
+                adjustsFontSizeToFit
+                numberOfLines={1}
+              >
                 <Text style={styles.passage}>
                   {passageStr}
                 </Text>
@@ -245,7 +248,11 @@ const ReadHeader = React.memo(({
             onPress={clearSelectedInfo}
           />
           <View style={styles.middle}>
-            <Text style={styles.whitePassageAndVersion}>
+            <Text
+              style={styles.whitePassageAndVersion}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+            >
               <Text style={styles.passage}>
                 {passageStr}
               </Text>

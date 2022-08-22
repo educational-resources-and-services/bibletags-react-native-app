@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
     ],
     width: 60,
     height: 25,
+    justifyContent: 'center',
   },
   bookmarkText: {
-    lineHeight: 25,
     textAlign: I18nManager.isRTL ? 'left' : 'right',
     fontSize: 12,
   },
@@ -143,6 +143,7 @@ const RecentBookmark = ({
       <View style={styles.bookmarkTextContainer}>
         <Text
           numberOfLines={1}
+          adjustsFontSizeToFit
           style={[
             styles.bookmarkText,
             labelStyle,

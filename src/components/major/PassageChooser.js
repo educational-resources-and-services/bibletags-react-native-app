@@ -29,6 +29,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: isIPhoneX ? 26 : 0,
   },
+  bookList: {
+    maxWidth: '45%',
+  },
   refChooser: {
     zIndex: 1,
     flexDirection: 'row',
@@ -411,6 +414,7 @@ const PassageChooser = ({
       >
         <View
           style={[
+            styles.bookList,
             bookListThemedStyle,
             bookListStyle,
           ]}
