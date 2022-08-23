@@ -34,7 +34,7 @@ const useBibleVersions = ({
     [ restrictToTestamentBookId, restrictToTestamentSearchText ],
   )
 
-  const versionIds = useMemo(
+  const versionIds = useEqualObjsMemo(
     () => (
       myBibleVersions
         .map(({ id }) => id)
@@ -43,27 +43,27 @@ const useBibleVersions = ({
     [ myBibleVersions ],
   )
 
-  const downloadingVersionIds = useMemo(
+  const downloadingVersionIds = useEqualObjsMemo(
     () => (
       myBibleVersions
         .filter(({ downloaded }) => !downloaded)
         .map(({ id }) => id)
         .filter(id => getVersion(id).id)
     ),
-    [ versionIds ],
+    [ myBibleVersions ],
   )
 
-  const searchDownloadingVersionIds = useMemo(
+  const searchDownloadingVersionIds = useEqualObjsMemo(
     () => (
       myBibleVersions
         .filter(({ downloaded, searchDownloaded }) => downloaded && !searchDownloaded)
         .map(({ id }) => id)
         .filter(id => getVersion(id).id)
     ),
-    [ versionIds ],
+    [ myBibleVersions ],
   )
 
-  const downloadedVersionIds = useMemo(
+  const downloadedVersionIds = useEqualObjsMemo(
     () => (
       myBibleVersions
         .filter(({ downloaded }) => downloaded)
@@ -80,10 +80,10 @@ const useBibleVersions = ({
           )
         })
     ),
-    [ versionIds, restrictToTestament ],
+    [ myBibleVersions, restrictToTestament ],
   )
 
-  const downloadedNonOriginalVersionIds = useMemo(
+  const downloadedNonOriginalVersionIds = useEqualObjsMemo(
     () => (
       downloadedVersionIds
         .filter(id => id !== 'original')
@@ -91,7 +91,7 @@ const useBibleVersions = ({
     [ downloadedVersionIds ],
   )
 
-  const downloadedPrimaryVersionIds = useMemo(
+  const downloadedPrimaryVersionIds = useEqualObjsMemo(
     () => (
       downloadedVersionIds
         .filter(id => getVersion(id).myVersionsRestriction !== 'secondary-only')
@@ -99,7 +99,7 @@ const useBibleVersions = ({
     [ downloadedVersionIds ],
   )
 
-  const downloadedSecondaryVersionIds = useMemo(
+  const downloadedSecondaryVersionIds = useEqualObjsMemo(
     () => (
       downloadedVersionIds
         .filter(id => (
@@ -113,7 +113,7 @@ const useBibleVersions = ({
     [ downloadedVersionIds, downloadedPrimaryVersionIds ],
   )
 
-  const primaryVersionIds = useMemo(
+  const primaryVersionIds = useEqualObjsMemo(
     () => (
       versionIds
         .filter(id => getVersion(id).myVersionsRestriction !== 'secondary-only')
@@ -121,7 +121,7 @@ const useBibleVersions = ({
     [ versionIds ],
   )
 
-  const secondaryVersionIds = useMemo(
+  const secondaryVersionIds = useEqualObjsMemo(
     () => (
       versionIds
         .filter(id => (
@@ -135,7 +135,7 @@ const useBibleVersions = ({
     [ versionIds, downloadedPrimaryVersionIds ],
   )
 
-  const unusedVersionIds = useMemo(
+  const unusedVersionIds = useEqualObjsMemo(
     () => (
       bibleVersions
         .map(({ id }) => id)
@@ -144,7 +144,7 @@ const useBibleVersions = ({
     [ versionIds ],
   )
 
-  const requiredVersionIds = useMemo(
+  const requiredVersionIds = useEqualObjsMemo(
     () => (
       bibleVersions
         .filter(({ required }) => required)
