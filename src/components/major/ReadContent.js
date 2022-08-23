@@ -44,6 +44,7 @@ const ReadContent = React.memo(({
   const getRef = useInstanceValue(ref)
   const lastSetRef = useRef(ref)
   const prevVersionId = usePrevious(versionId)
+  const verseTapInProgressRef = useRef(false)
 
   useEffect(
     () => {
@@ -181,6 +182,9 @@ const ReadContent = React.memo(({
   const onVerseTap = useCallback(
     ({ selectedSection, selectedVerse, selectedVerseUsfm, selectedTextContent, selectedInfo, pageX, pageY }={}) => {
 
+      verseTapInProgressRef.current = true
+      requestAnimationFrame(() => { verseTapInProgressRef.current = false })
+
       const currentSelectedData = getSelectedData()
 
       if(
@@ -240,6 +244,15 @@ const ReadContent = React.memo(({
     [ versionId, parallelVersionId, passage, selectedData, height, onVerseTap, width, initialScrollExecuted, setIsRendered, currentIsRendered ],
   )
 
+  const onTouchEnd = useCallback(
+    () => {
+      if(!verseTapInProgressRef.current) {
+        onVerseTap()
+      }
+    },
+    [ onVerseTap ],
+  )
+
   useEffect(
     () => {
       if(downloadedPrimaryVersionIds.length === 0) return
@@ -290,6 +303,7 @@ const ReadContent = React.memo(({
         onScroll={onScroll}
         onViewableItemsChanged={onViewableItemsChanged}
         onLayout={initialScrollExecuted ? onLayout : onLayoutAndSetInitialScrollIndex}
+        onTouchEnd={onTouchEnd}
         ref={containerRef}
       />
     </>
