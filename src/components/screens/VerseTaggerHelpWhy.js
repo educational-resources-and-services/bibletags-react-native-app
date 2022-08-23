@@ -35,22 +35,22 @@ const styles = StyleSheet.create({
     paddingBottom: '55%',
     resizeMode: 'cover',
   },
-  visionHeading: {
+  visionContainer: {
     position: 'absolute',
-    paddingVertical: 15,
+  },
+  visionHeading: {
+    paddingTop: 15,
+    paddingBottom: 10,
     paddingHorizontal: 20,
     color: 'white',
     fontSize: 20,
     fontWeight: '200',
+    maxHeight: 65,
   },
   vision: {
-    position: 'absolute',
-    top: 30,
-    paddingVertical: 15,
     paddingHorizontal: 20,
     color: 'white',
     fontSize: 16,
-    lineHeight: 23,
   },
   heading: {
     fontWeight: '700',
@@ -109,12 +109,22 @@ const VerseTaggerHelpWhy = ({
           style={styles.image}
         />
         <View style={styles.imageShade} />
-        <Text style={styles.visionHeading}>
-          {i18n("Our Vision")}
-        </Text>
-        <Text style={styles.vision}>
-          {i18n("It is our goal to see every Christian worldwide with free access to the Bible, tagged to the original Hebrew, Aramaic, and Greek, with parsing and lexical information—all in their own language.")}
-        </Text>
+        <View style={styles.visionContainer}>
+          <Text
+            style={styles.visionHeading}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+          >
+            {i18n("Our Vision")}
+          </Text>
+          <Text
+            style={styles.vision}
+            adjustsFontSizeToFit
+            numberOfLines={5}
+          >
+            {i18n("It is our goal to see every Christian worldwide with free access to the Bible, tagged to the original Hebrew, Aramaic, and Greek, with parsing and lexical information—all in their own language.")}
+          </Text>
+        </View>
       </View>
       <Text style={styles.p}>
         {i18n("By connecting words between the original languages and a translation (what we call “tagging”), you help us achieve this aim.")}

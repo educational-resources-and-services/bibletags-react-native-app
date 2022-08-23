@@ -46,6 +46,10 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     flexDirection: 'row',
   },
+  passageRef: {
+    flexShrink: 1,
+    alignSelf: 'center',
+  },
   line: {
     flex: 1,
     alignSelf: 'center',
@@ -156,10 +160,16 @@ const BibleSearchResultsTranslationRow = ({
 
       <View style={styles.passageRefContainer}>
 
-        <PassageRef
-          fromLoc={originalLoc}
-          style={labelThemedStyle}
-        />
+        <Text
+          style={styles.passageRef}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+        >
+          <PassageRef
+            fromLoc={originalLoc}
+            style={labelThemedStyle}
+          />
+        </Text>
 
         <View style={styles.passageToVersionAbbrsSpacer} />
 

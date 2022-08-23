@@ -96,6 +96,8 @@ const ChooserVersion = ({
             labelThemedStyle,
             labelStyle,
           ]}
+          adjustsFontSizeToFit
+          numberOfLines={1}
         >
           {getVersionInfo(versionId).abbr}
         </Text>

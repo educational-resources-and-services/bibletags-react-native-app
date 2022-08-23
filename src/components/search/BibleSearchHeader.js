@@ -7,26 +7,33 @@ import { memo } from '../../utils/toolbox'
 
 import BibleSearchPlusVersionsMenu from './BibleSearchPlusVersionsMenu'
 
+const paddingVertical = 7
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingBottom: 1,  // to match the divider
+    alignItems: 'center',
+    paddingTop: paddingVertical,
+    paddingBottom: paddingVertical + 1,  // +1 to match the divider
   },
   versionsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 15,
+    flexShrink: 1,
   },
   versions: {
     fontSize: 12,
-    lineHeight: 26,
     fontWeight: '500',
+    flexShrink: 1,
+    alignSelf: 'center',
   },
   hits: {
     fontSize: 12,
-    lineHeight: 26,
     paddingHorizontal: 15,
     fontWeight: '300',
+    flexShrink: 1,
+    alignSelf: 'center',
   },
 })
 
@@ -60,7 +67,11 @@ const BibleSearchHeader = ({
       ]}
     >
 
-      <Text style={styles.hits}>
+      <Text
+        style={styles.hits}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
         {
           hitsByBookId
             ? (
@@ -82,7 +93,11 @@ const BibleSearchHeader = ({
 
       {isOrigLanguageSearch &&
         <View style={styles.versionsContainer}>
-          <Text style={styles.versions}>
+          <Text
+            style={styles.versions}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
             Heb+Grk
           </Text>
           <BibleSearchPlusVersionsMenu

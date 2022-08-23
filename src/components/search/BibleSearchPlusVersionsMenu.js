@@ -17,28 +17,19 @@ const styles = StyleSheet.create({
   },
   checkbox: {
     padding: 5,
-  
-    // .MuiSvgIcon-root {
-    //   height: 16px;
-    //   height: 16px;
-    // }
   },
   plusVersions: {
-    // display: inline-block;
-    paddingBottom: 6,
-    alignSelf: 'flex-end',
+    alignSelf: 'center',
     marginLeft: 5,
     // color: ${({ theme }) => theme.palette.grey[600]};
+    flexShrink: 1,
   },
   plusVersion: {
-    // display: inline-block;
-    fontSize: 10,
-    lineHeight: 13,
+    fontSize: 11,
     fontWeight: '300',
     marginLeft: 3,
   },
   plus: {
-    // color: ${({ theme }) => theme.palette.grey[400]};
   },
 })
 
@@ -83,14 +74,23 @@ const BibleSearchPlusVersionsMenu = ({
         onPress={openModal}
       >
         {includeVersionIds.length === 0 &&
-          <Text style={styles.plusVersion}>
+          <Text
+            style={styles.plusVersion}
+            numberOfLines={1}
+            adjustsFontSizeToFit    
+          >
             <Text style={styles.plus}>{i18n("+", "combination character")}</Text>
             {i18n("Add translation")}
           </Text>
         }
 
         {includeVersionIds.map(versionId => (
-          <Text style={styles.plusVersion} key={versionId}>
+          <Text
+            key={versionId}
+            style={styles.plusVersion}
+            numberOfLines={1}
+            adjustsFontSizeToFit    
+          >
             <Text style={styles.plus}>{i18n("+", "combination character")}</Text>
             {(getVersionInfo(versionId) || {}).abbr}
           </Text>

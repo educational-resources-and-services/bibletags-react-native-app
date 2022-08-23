@@ -100,7 +100,7 @@ const Dialog = ({
         styles.modal,
         {
           maxWidth: Math.min(parseInt(width * .9, 10), 500),
-          maxHeight: parseInt(height * .8, 10),
+          maxHeight: parseInt(height * .7, 10),
           minWidth: 240,
         },
       ]}

@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
   createdByContainer: {
     paddingTop: 40,
     paddingBottom: 10,
+    paddingHorizontal: 20,
   },
   createdBy: {
     textAlign: 'center',
@@ -61,6 +62,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 10,
     paddingBottom: 20,
+    paddingHorizontal: 20,
   },
   divider: {
     marginVertical: 10,
@@ -187,6 +189,8 @@ const Drawer = ({
                   baseThemedStyle,
                   style,
                 ]}
+                numberOfLines={1}
+                adjustsFontSizeToFit
               >
                 {i18n("Powered by Bible Tags")}
               </Text>
@@ -197,6 +201,8 @@ const Drawer = ({
                     labelThemedStyle,
                     labelStyle,
                   ]}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
                 >
                   {i18n("Open source Bible apps")}
                 </Text>
@@ -235,6 +241,8 @@ const Drawer = ({
             styles.subversion,
             subversionThemedStyle,
           ]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
         >
           Updated PUSH_DATE_STRING
         </Text>

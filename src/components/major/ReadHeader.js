@@ -23,6 +23,7 @@ const isAndroidRTL = I18nManager.isRTL && Platform.OS === 'android'
 
 const passageAndVersion = {
   [isAndroidRTL ? `paddingLeft` : `paddingRight`]: 7,
+  fontSize: 14,
 }
 
 const styles = StyleSheet.create({
@@ -68,6 +69,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 15,
   },
   passageAndVersion: {
     ...passageAndVersion,
@@ -78,13 +80,11 @@ const styles = StyleSheet.create({
   },
   passage: {
     textAlign: 'left',
-    fontSize: 14,
     fontWeight: '500',
   },
   version: {
     textAlign: 'left',
     writingDirection: 'ltr',
-    fontSize: 11,
   },
   dropdownIcon: {
     height: 18,
@@ -146,7 +146,6 @@ const ReadHeader = React.memo(({
   ]
     .filter(val => val)
     .join(i18n(", ", "list separator"))
-    .toUpperCase()
 
   const passageStr = useMemo(
     () => (

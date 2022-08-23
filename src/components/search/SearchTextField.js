@@ -26,11 +26,11 @@ const styles = StyleSheet.create({
   },
   formattedInputText: {
     color: 'black',
-    // flex: 1,
     alignSelf: 'center',
-    // paddingVertical: 6,
     paddingHorizontal: 16,
     fontSize,
+    lineHeight: fontSize,
+    top: 2,
   },
   invisibleFormattedInputText: {
     opacity: 0,

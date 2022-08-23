@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   },
   chapterText: {
     textAlign: 'center',
+    paddingHorizontal: 5,
   },
 })
 

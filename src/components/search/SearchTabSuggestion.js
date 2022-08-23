@@ -69,7 +69,11 @@ const SearchTabSuggestion = ({
       style={styles.row}
       onPress={onPress}
     >
-      <Text>
+      <Text
+        style={styles.suggestion}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+      >
         {formattedValue}
       </Text>
     </TouchableOpacity>

@@ -91,6 +91,8 @@ const NotYetTagged = ({
             styles.tapLine,
             labelThemedStyle,
           ]}
+          numberOfLines={3}
+          adjustsFontSizeToFit
         >
           {!confirmedTags && !unconfirmedTags && i18n("Tap a {{language}} word to see its parsing and definition.", { language })}
           {(confirmedTags || unconfirmedTags) && i18n("Tap a word in the translation or original to see its parsing and definition.")}

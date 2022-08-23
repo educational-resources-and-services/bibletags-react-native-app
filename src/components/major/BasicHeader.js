@@ -9,7 +9,7 @@ import HeaderIconButton from "../basic/HeaderIconButton"
 const styles = StyleSheet.create({
   title: {
     fontSize: 15,
-    lineHeight: 50,
+    alignSelf: 'center',
     flex: 1,
     paddingRight: 15,
     textAlign: 'left',  // needed so that it is flipped to right when rtl
@@ -35,7 +35,7 @@ const BasicHeader = React.memo(({
       <Text
         style={styles.title}
         numberOfLines={1}
-        ellipsizeMode="tail"
+        adjustsFontSizeToFit
       >
         {title}
       </Text>
