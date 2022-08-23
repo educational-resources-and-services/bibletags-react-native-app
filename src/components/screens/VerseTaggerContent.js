@@ -50,7 +50,11 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
     minHeight: 400,
-    alignSelf: 'center',
+    alignSelf: 'stretch',
+    alignItems: 'stretch',
+  },
+  touchableContentContainer: {
+    alignItems: 'center',
   },
   confirmButtonContainer: {
     paddingTop: 26,
@@ -437,7 +441,6 @@ const VerseTaggerContent = ({
       style={styles.container}
       contentContainerStyle={[
         styles.contentContainer,
-        { maxWidth: 600 * fontScale },
         baseThemedStyle,
         style,
       ]}
@@ -446,130 +449,137 @@ const VerseTaggerContent = ({
       <TouchableWithoutFeedback
         onPress={clearSelectedWordIdAndPartNumbers}
       >
-        <View style={{ paddingBottom }}>
+        <View
+          style={[
+            styles.touchableContentContainer,
+            { paddingBottom },
+          ]}
+        >
+          <View style={{ maxWidth: 600 * fontScale }}>
 
-          {viewOnly &&
-            <Text style={styles.passageAndVersion}>
-              <Text style={styles.passage}>
-                {passageStr}
-              </Text>
-              {`  `}
-              <Text
-                style={[
-                  styles.version,
-                  baseThemedStyle,
-                  style,
-                ]}
-              >
-                {versionStr}
-              </Text>
-              {`  `}
-              <StatusIcon status="confirmed" />
-            </Text>
-          }
-
-          {!viewOnly &&
-            <Text style={styles.statusContainer}>
-              <Text style={styles.currentStatus}>
-                {i18n("Current status:")}
-              </Text>
-              {i18n(" ", "word separator")}
-              <Text style={styles.status}>
-                {getStatusText(status)}
-              </Text>
-              {` `}
-              <StatusIcon status={status} />
-            </Text>
-          }
-
-          {!viewOnly && !myTagSet && status === `unconfirmed` &&
-            <Text style={styles.confirmExpl}>
-              {i18n("Note: We have not pre-tagged anything to ensure the most rigorous confirmation process.")}
-            </Text>
-          }
-
-          <TaggerVerse
-            bookId={ref.bookId}
-            pieces={originalPieces}
-            translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
-            selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
-            displaySettingsOverride={displaySettingsOverride}
-            translationLanguageId={languageId}
-            onPress={onOriginalPress}
-            onLongPress={onOriginalLongPress}
-          />
-
-          <Verse
-            passageRef={ref}
-            versionId={versionId}
-            pieces={pieces}
-            usedWordNumbers={usedWordNumbers}
-            selectedWordNumbers={selectedWordNumbers}
-            displaySettingsOverride={displaySettingsOverride}
-            style={translationThemedStyle}
-            onVerseTap={onPress}
-            selectedWordStyle={selectedWordThemedStyle}
-            unselectedWordStyle={unselectedWordThemedStyle}
-            wrapWordsInNbsp={true}
-          />
-
-          {viewOnly && !!incrementExampleIndex &&
-            <View style={styles.confirmButtonContainer}>
-              <View>
-                <Button
-                  onPress={incrementExampleIndex}
+            {viewOnly &&
+              <Text style={styles.passageAndVersion}>
+                <Text style={styles.passage}>
+                  {passageStr}
+                </Text>
+                {`  `}
+                <Text
+                  style={[
+                    styles.version,
+                    baseThemedStyle,
+                    style,
+                  ]}
                 >
-                  {i18n("View another example")}
-                </Button>
-              </View>
-            </View>
-          }
+                  {versionStr}
+                </Text>
+                {`  `}
+                <StatusIcon status="confirmed" />
+              </Text>
+            }
 
-          {!viewOnly &&
-            <>
+            {!viewOnly &&
+              <Text style={styles.statusContainer}>
+                <Text style={styles.currentStatus}>
+                  {i18n("Current status:")}
+                </Text>
+                {i18n(" ", "word separator")}
+                <Text style={styles.status}>
+                  {getStatusText(status)}
+                </Text>
+                {` `}
+                <StatusIcon status={status} />
+              </Text>
+            }
 
+            {!viewOnly && !myTagSet && status === `unconfirmed` &&
+              <Text style={styles.confirmExpl}>
+                {i18n("Note: We have not pre-tagged anything to ensure the most rigorous confirmation process.")}
+              </Text>
+            }
+
+            <TaggerVerse
+              bookId={ref.bookId}
+              pieces={originalPieces}
+              translationWordInfoByWordIdAndPartNumbers={translationWordInfoByWordIdAndPartNumbers}
+              selectedWordIdAndPartNumbers={selectedWordIdAndPartNumbers}
+              displaySettingsOverride={displaySettingsOverride}
+              translationLanguageId={languageId}
+              onPress={onOriginalPress}
+              onLongPress={onOriginalLongPress}
+            />
+
+            <Verse
+              passageRef={ref}
+              versionId={versionId}
+              pieces={pieces}
+              usedWordNumbers={usedWordNumbers}
+              selectedWordNumbers={selectedWordNumbers}
+              displaySettingsOverride={displaySettingsOverride}
+              style={translationThemedStyle}
+              onVerseTap={onPress}
+              selectedWordStyle={selectedWordThemedStyle}
+              unselectedWordStyle={unselectedWordThemedStyle}
+              wrapWordsInNbsp={true}
+            />
+
+            {viewOnly && !!incrementExampleIndex &&
               <View style={styles.confirmButtonContainer}>
-                <ConfirmTagSubmissionButton
-                  alignmentType={alignmentType}
-                  getUsedWordNumbers={getUsedWordNumbers}
-                  getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
-                  originalPieces={originalPieces}
-                  pieces={pieces}
-                  passage={passage}
-                  wordsHash={wordsHash}
-                  tagNextOrAnotherVerse={tagNextOrAnotherVerse}
-                  selectionMethod={selectionMethod}
-                  isResubmit={!!myTagSet}
-                  refreshTagSet={refreshTagSet}
-                />
+                <View>
+                  <Button
+                    onPress={incrementExampleIndex}
+                  >
+                    {i18n("View another example")}
+                  </Button>
+                </View>
               </View>
+            }
 
-              <View style={styles.extraButtonContainer}>
+            {!viewOnly &&
+              <>
 
-                {!!tagNextOrAnotherVerse &&
-                  <View>
-                    <Button
-                      onPress={tagNextOrAnotherVerse}
-                      appearance='ghost'
-                    >
-                      {selectionMethod === `next-verse` ? i18n("Skip and tag the next verse") : i18n("Skip and tag another verse")}
-                    </Button>
-                  </View>
-                }
+                <View style={styles.confirmButtonContainer}>
+                  <ConfirmTagSubmissionButton
+                    alignmentType={alignmentType}
+                    getUsedWordNumbers={getUsedWordNumbers}
+                    getTranslationWordInfoByWordIdAndPartNumbers={getTranslationWordInfoByWordIdAndPartNumbers}
+                    originalPieces={originalPieces}
+                    pieces={pieces}
+                    passage={passage}
+                    wordsHash={wordsHash}
+                    tagNextOrAnotherVerse={tagNextOrAnotherVerse}
+                    selectionMethod={selectionMethod}
+                    isResubmit={!!myTagSet}
+                    refreshTagSet={refreshTagSet}
+                  />
+                </View>
 
-                <Button
-                  onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
-                  appearance='ghost'
-                  status='basic'
-                >
-                  {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
-                </Button>
+                <View style={styles.extraButtonContainer}>
 
-              </View>
+                  {!!tagNextOrAnotherVerse &&
+                    <View>
+                      <Button
+                        onPress={tagNextOrAnotherVerse}
+                        appearance='ghost'
+                      >
+                        {selectionMethod === `next-verse` ? i18n("Skip and tag the next verse") : i18n("Skip and tag another verse")}
+                      </Button>
+                    </View>
+                  }
 
-            </>
-          }
+                  <Button
+                    onPress={showUndo ? undoClear : clearTranslationWordInfoByWordIdAndPartNumbers}
+                    appearance='ghost'
+                    status='basic'
+                  >
+                    {showUndo ? i18n("Undo clear") : i18n("Clear tags")}
+                  </Button>
 
+                </View>
+
+              </>
+            }
+
+          </View>
         </View>
       </TouchableWithoutFeedback>
 
