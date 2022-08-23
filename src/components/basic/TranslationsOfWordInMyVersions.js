@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'center',
+    paddingRight: 15,
   },
   translation: {
   },
@@ -66,9 +67,10 @@ const styles = StyleSheet.create({
   },
   iconButtonContainer: {
     position: 'absolute',
-    top: -4,
-    right: -8,
-    padding: 4,
+    top: -2,
+    right: -10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   iconButton: {
     height: 16,

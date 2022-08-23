@@ -45,8 +45,10 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: 10,
+    right: 6,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
   },
   search: {
     height: 18,
