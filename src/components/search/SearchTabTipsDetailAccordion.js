@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native"
+import { useWindowDimensions } from 'react-native'
 
 import { memo } from '../../utils/toolbox'
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -8,8 +9,6 @@ import Icon from "../basic/Icon"
 const iconSize = 11
 
 const expandIcon = {
-  width: iconSize,
-  height: iconSize,
   marginHorizontal: 10,
   top: 2,
   opacity: .7,
@@ -57,15 +56,19 @@ const SearchTabTipsDetailAccordion = ({
 
   const { labelThemedStyle, iconThemedStyle } = useThemedStyleSets(themedStyle)
 
+  const { fontScale } = useWindowDimensions()
+
   return (
     <View style={styles.accordion}>
       <TouchableOpacity
+        key={expanded ? `expanded` : ``}
         style={styles.summaryContainer}
         onPress={onPress}
       >
         <Icon
           style={[
             expanded ? styles.expandIcon : styles.contractIcon,
+            { width: fontScale * iconSize, height: fontScale * iconSize },
             iconThemedStyle,
           ]}
           name="md-close"
