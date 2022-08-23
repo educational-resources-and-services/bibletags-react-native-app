@@ -187,6 +187,7 @@ const TaggerVerse = ({
                     translationWordsThemedStyle,
                     (isSelected ? selectedTranslationWordThemedStyle : null),
                   ]}
+                  adjustsFontSizeToFit
                 >
                   {key && translationWordInfoByWordIdAndPartNumbers[key].map(({ word }) => word).join(standardWordDivider)}
                 </Text>
