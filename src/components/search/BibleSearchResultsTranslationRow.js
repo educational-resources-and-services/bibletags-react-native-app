@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { StyleSheet, View, Text } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   rowPlaceholder: {
-    // height: ${({ $height }) => $height}px;
+    height: 50,
   },
 })
 
@@ -69,7 +69,7 @@ const BibleSearchResultsTranslationRow = ({
   index,
   bookId,
   placeholderHeight,
-  // setPlaceholderHeight,
+  setPlaceholderHeight,
   goSetPopperInfo,
 
   eva: { style: themedStyle={} },
@@ -126,36 +126,23 @@ const BibleSearchResultsTranslationRow = ({
     pieces = versesPieces
   }
 
-  // const [ ref, { width, height } ] = useMeasure()
-  // const [ heightWithPieces, setHeightWithPieces ] = useState()
-
-  // useEffect(
-  //   () => {
-  //     if(pieces && height) setHeightWithPieces(height)
-  //   },
-  //   [ pieces, height ],
-  // )
-
-  // useEffect(
-  //   () => {
-  //     if(index === 0 && heightWithPieces) {
-  //       setPlaceholderHeight(heightWithPieces)
-  //     }
-  //   },
-  //   [ index, setPlaceholderHeight, heightWithPieces ],
-  // )
+  const onLayout = useCallback(({ nativeEvent: { layout: { height } } }) => setPlaceholderHeight({ index, height }), [ index ])
 
   if(!bibleSearchResult) {
     return (
-      <View style={styles.rowPlaceholder} $height={placeholderHeight} />
+      <View
+        style={[
+          styles.rowPlaceholder,
+          placeholderHeight ? { height: placeholderHeight } : null,
+        ]}
+      />
     )
   }
 
   return (
     <View
       style={styles.container}
-      // ref={ref}
-      // $height={!pieces && heightWithPieces}
+      onLayout={onLayout}
     >
 
       <View style={styles.passageRefContainer}>

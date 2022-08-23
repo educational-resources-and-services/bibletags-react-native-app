@@ -54,9 +54,8 @@ const BibleSearchResults = ({
     endIndex: 0,
   })
 
-  // const [ placeholderHeight, setPlaceholderHeight ] = useState(80)
-
   const flatListRef = useRef()
+  const placeholderHeightsRef = useRef([])
 
   const Row = isOrigLanguageSearch ? BibleSearchResultsOriginalRow : BibleSearchResultsTranslationRow
 
@@ -68,6 +67,13 @@ const BibleSearchResults = ({
   const data = useMemo(
     () => Array(totalRows).fill().map((x, idx) => idx),
     [ totalRows ],
+  )
+
+  const setPlaceholderHeight = useCallback(
+    ({ index, height }) => {
+      placeholderHeightsRef.current[index] = height
+    },
+    [],
   )
 
   const getBookIdFromIndex = useCallback(
@@ -103,13 +109,12 @@ const BibleSearchResults = ({
           searchText={searchText}
           index={index}
           bookId={getBookIdFromIndex(index)}
-          // placeholderHeight={placeholderHeight}
-          // setPlaceholderHeight={setPlaceholderHeight}
+          placeholderHeight={placeholderHeightsRef.current[index]}
+          setPlaceholderHeight={setPlaceholderHeight}
         />
       )
     },
-    // [ Row, searchText, getBookIdFromIndex, placeholderHeight ],
-    [ Row, searchText, getBookIdFromIndex ],
+    [ Row, searchText, getBookIdFromIndex, setPlaceholderHeight ],
   )
 
   const ListHeaderComponent = useCallback(() => <View style={styles.headerSpacer} />, [])
