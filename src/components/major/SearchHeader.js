@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   searchContainerTablet: {
-    minWidth: 320,
+    minWidth: 350,
     flexDirection: 'row',
     flexShrink: 1,
     zIndex: 1,

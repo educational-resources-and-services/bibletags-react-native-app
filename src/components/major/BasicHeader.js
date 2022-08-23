@@ -8,11 +8,12 @@ import HeaderIconButton from "../basic/HeaderIconButton"
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 15,
+    fontSize: 17,
     alignSelf: 'center',
     flex: 1,
     paddingRight: 15,
     textAlign: 'left',  // needed so that it is flipped to right when rtl
+    maxHeight: 30,
   },
 })
 

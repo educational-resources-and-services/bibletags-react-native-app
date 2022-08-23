@@ -2,6 +2,7 @@ import React, { useCallback } from "react"
 import { StyleSheet, ScrollView, View, Text, Image, Linking } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button } from "@ui-kitten/components"
+import { useWindowDimensions } from 'react-native'
 
 import { memo, sentry } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -19,7 +20,6 @@ const styles = StyleSheet.create({
     paddingBottom: 400,
     paddingHorizontal: 20,
     width: '100%',
-    maxWidth: 600,
     alignSelf: 'center',
   },
   imageContainer: {
@@ -81,6 +81,7 @@ const VerseTaggerHelpWhy = ({
 }) => {
 
   const { labelThemedStyle } = useThemedStyleSets(themedStyle)
+  const { fontScale } = useWindowDimensions()
   const { historyPush } = useRouterState()
 
   const goToNextHelpIndex = useCallback(() => setHelpIndex(1), [ setHelpIndex ])
@@ -100,7 +101,10 @@ const VerseTaggerHelpWhy = ({
   return (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.body}
+      contentContainerStyle={[
+        styles.body,
+        { maxWidth: 600 * fontScale },
+      ]}
     >
 
       <View style={styles.imageContainer}>

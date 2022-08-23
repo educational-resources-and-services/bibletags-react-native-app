@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react"
 import { StyleSheet, ScrollView, View, Text } from "react-native"
 import { i18n } from "inline-i18n"
 import { Button, CheckBox } from "@ui-kitten/components"
+import { useWindowDimensions } from 'react-native'
 
 import { memo } from "../../utils/toolbox"
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
@@ -14,7 +15,6 @@ const styles = StyleSheet.create({
     paddingBottom: 400,
     paddingHorizontal: 20,
     width: '100%',
-    maxWidth: 600,
     alignSelf: 'center',
   },
   checkBoxContainer: {
@@ -86,13 +86,17 @@ const VerseTaggerHelpRules = ({
 }) => {
 
   const { labelThemedStyle } = useThemedStyleSets(themedStyle)
+  const { fontScale } = useWindowDimensions()
 
   const goToNextHelpIndex = useCallback(() => setHelpIndex(3), [ setHelpIndex ])
 
   return (
     <ScrollView
       style={styles.scrollView}
-      contentContainerStyle={styles.body}
+      contentContainerStyle={[
+        styles.body,
+        { maxWidth: 600 * fontScale },
+      ]}
     >
 
 

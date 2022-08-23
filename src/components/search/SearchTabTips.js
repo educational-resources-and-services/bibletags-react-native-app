@@ -3,6 +3,7 @@ import { StyleSheet, View, Text } from "react-native"
 import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
 import { i18nReact } from 'inline-i18n/build/i18nReact'
+import { useWindowDimensions } from 'react-native'
 
 import { memo } from '../../utils/toolbox'
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
@@ -17,7 +18,6 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingBottom: 400,
     fontSize: 13,
-    width: 400,
     maxWidth: '100%',
     alignSelf: 'center',
   },
@@ -122,6 +122,8 @@ const SearchTabTips = ({
     finalNoteThemedStyle={},
   ] = altThemedStyleSets
 
+  const { fontScale } = useWindowDimensions()
+
   const [ searchBibleWordExpanded, toggleSearchBibleWordExpanded ] = useToggle(false)
   const goToggleSearchBibleWordExpanded = useCallback(() => toggleSearchBibleWordExpanded(), [ toggleSearchBibleWordExpanded ])
 
@@ -134,7 +136,10 @@ const SearchTabTips = ({
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.contentContainer}
+      contentContainerStyle={[
+        styles.contentContainer,
+        { width: 400 * fontScale }
+      ]}
     >
 
       <View style={styles.tip}>

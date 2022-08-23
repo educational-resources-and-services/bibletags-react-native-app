@@ -23,7 +23,7 @@ const isAndroidRTL = I18nManager.isRTL && Platform.OS === 'android'
 
 const passageAndVersion = {
   [isAndroidRTL ? `paddingLeft` : `paddingRight`]: 7,
-  fontSize: 14,
+  fontSize: 16,
 }
 
 const styles = StyleSheet.create({
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   headerTablet: {
     left: 'auto',
     right: 'auto',
-    width: 320,
+    width: 350,
     alignSelf: 'center',
   },
   closeIcon: {
@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
   version: {
     textAlign: 'left',
     writingDirection: 'ltr',
+    fontSize: 13,
   },
   dropdownIcon: {
     height: 18,
@@ -190,8 +191,9 @@ const ReadHeader = React.memo(({
             <View style={styles.middle}>
               <Text
                 style={styles.passageAndVersion}
-                adjustsFontSizeToFit
+                allowFontScaling={false}
                 numberOfLines={1}
+                ellipsizeMode="tail"
               >
                 <Text style={styles.passage}>
                   {passageStr}
@@ -249,8 +251,9 @@ const ReadHeader = React.memo(({
           <View style={styles.middle}>
             <Text
               style={styles.whitePassageAndVersion}
-              adjustsFontSizeToFit
+              allowFontScaling={false}
               numberOfLines={1}
+              ellipsizeMode="tail"
             >
               <Text style={styles.passage}>
                 {passageStr}

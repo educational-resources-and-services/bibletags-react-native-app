@@ -7,6 +7,7 @@ import { getPiecesFromUSFM, blockUsfmMarkers, tagInList, adjustPiecesForSpecialH
          removeCantillation, getCopyVerseText, getColorWithOpacity } from "@bibletags/bibletags-ui-helper"
 import usePrevious from "react-use/lib/usePrevious"
 import { useDimensions } from "@react-native-community/hooks"
+import { useWindowDimensions } from 'react-native'
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import { executeSql, getVersionInfo, isIPhoneX, equalObjs, getNormalizedTag,
@@ -204,6 +205,8 @@ const ReadText = ({
     ...tagThemedStyles
 
   ] = altThemedStyleSets
+
+  const { fontScale } = useWindowDimensions()
 
   const [ state, setState ] = useState({})
   const { pieces, languageId, isOriginal } = state
@@ -737,7 +740,7 @@ const ReadText = ({
     )
   }
 
-  const width = Math.min(950 + (displaySettings.textSize - 1) * 600, windowWidth)
+  const width = Math.min((950 + (displaySettings.textSize - 1) * 600) * fontScale, windowWidth)
 
   return (
     <FlatList

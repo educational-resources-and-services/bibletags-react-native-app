@@ -7,6 +7,7 @@ import { i18n } from "inline-i18n"
 import { getCorrespondingRefs, getLocFromRef, getRefFromLoc } from "@bibletags/bibletags-versification"
 import { Button } from "@ui-kitten/components"
 import { useDimensions } from "@react-native-community/hooks"
+import { useWindowDimensions } from 'react-native'
 
 import { getVersionInfo, memo, getOriginalVersionInfo, getToolbarHeight,
          executeSql, toggleArrayValue, cloneObj, readHeaderMarginTop,
@@ -48,7 +49,6 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 20,
-    maxWidth: 600,
     minHeight: 400,
     alignSelf: 'center',
   },
@@ -116,6 +116,7 @@ const VerseTaggerContent = ({
   const inProgressKey = JSON.stringify({ ref, versionId })
   const alignmentType = "without-suggestion"  // TODO (if I ever present existing tagSets to new taggers of that verse; other options: affirmation, correction)
 
+  const { fontScale } = useWindowDimensions()
   const { height: windowHeight } = useDimensions().window
   const paddingBottom = windowHeight - readHeaderMarginTop - getToolbarHeight() - 200
 
@@ -436,6 +437,7 @@ const VerseTaggerContent = ({
       style={styles.container}
       contentContainerStyle={[
         styles.contentContainer,
+        { maxWidth: 600 * fontScale },
         baseThemedStyle,
         style,
       ]}

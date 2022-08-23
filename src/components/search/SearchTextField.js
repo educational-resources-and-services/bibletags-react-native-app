@@ -6,7 +6,7 @@ import { memo, readHeaderHeight } from '../../utils/toolbox'
 import useFormattedSearchValue from '../../hooks/useFormattedSearchValue'
 import useThemedStyleSets from '../../hooks/useThemedStyleSets'
 
-const fontSize = 14
+const fontSize = 16
 
 const styles = StyleSheet.create({
   container: {
@@ -79,6 +79,7 @@ const SearchTextField = ({
           styles.formattedInputText,
           styles.invisibleFormattedInputText,
         ]}
+        allowFontScaling={false}
       >
         {/* This is to have SearchTextFieldContainer automatically widen properly */}
         {formattedValue}
@@ -91,11 +92,15 @@ const SearchTextField = ({
         ref={inputContainerRef}
       >
 
-        <Text style={styles.formattedInputText}>
+        <Text
+          style={styles.formattedInputText}
+          allowFontScaling={false}
+        >
           {formattedValue}
         </Text>
 
         <Input
+          allowFontScaling={false}
           style={styles.input}
           value={value}
           textStyle={styles.inputText}

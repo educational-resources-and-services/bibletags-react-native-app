@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
 import { i18n } from "inline-i18n"
 import { StyleSheet, View, Text } from "react-native"
+import { useWindowDimensions } from 'react-native'
 
 import { setAsyncStorage, getAsyncStorage } from "../utils/toolbox"
 import useRouterState from "./useRouterState"
@@ -28,7 +29,6 @@ const styles = StyleSheet.create({
     shadowRadius: 15,
     backgroundColor: "white",
     padding: 15,
-    maxWidth: 400,
     alignSelf: 'center',
   },
   heading: {
@@ -46,6 +46,8 @@ const useTaggingInstructions = ({ defaultOrigLangForExamples }) => {
 
   const [ haveSeenTaggingInstructions, setHaveSeenTaggingInstructions ] = useState(true)
   const { historyPush } = useRouterState()
+
+  const { fontScale } = useWindowDimensions()
 
   useEffectAsync(
     async () => {
@@ -75,7 +77,12 @@ const useTaggingInstructions = ({ defaultOrigLangForExamples }) => {
         ? (
           <View style={styles.cover}>
             <View style={styles.spacer1} />
-            <View style={styles.textContainer}>
+            <View
+              style={[
+                styles.textContainer,
+                { maxWidth: 400 * fontScale },
+              ]}
+            >
               <Text style={styles.heading}>
                 {i18n("We thank God for your desire to help!")}
               </Text>
