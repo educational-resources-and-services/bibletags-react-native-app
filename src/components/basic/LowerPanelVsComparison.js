@@ -6,6 +6,7 @@ import { BottomNavigation, BottomNavigationTab } from '@ui-kitten/components';
 import { getCorrespondingRefs, getLocFromRef } from "@bibletags/bibletags-versification"
 import { getWordsHash } from "@bibletags/bibletags-ui-helper"
 import { i18n } from "inline-i18n"
+import { useDimensions } from "@react-native-community/hooks"
 
 import useBibleVersions from "../../hooks/useBibleVersions"
 import useVersePieces from "../../hooks/useVersePieces"
@@ -46,6 +47,9 @@ const styles = StyleSheet.create({
   coverAndSpin: {
     bottom: 60,
   },
+  tab: {
+    paddingHorizontal: 5,
+  },
 })
 
 const displaySettingsOverride = {
@@ -79,6 +83,9 @@ const LowerPanelVsComparison = ({
   const { downloadedVersionIds, versionsCurrentlyDownloading } = useBibleVersions({ myBibleVersions, restrictToTestamentBookId: passage.ref.bookId })
   const scrollRef = useRef()
 
+  const { width } = useDimensions().window
+  const maxVersionIdsAccordingToDeviceWidth = parseInt(width / 60, 10)
+
   const selectedVersionId = (
     selectedSection === 'primary'
       ? passage.versionId
@@ -86,8 +93,12 @@ const LowerPanelVsComparison = ({
   )
 
   const versionIdsToShow = useMemo(
-    () => downloadedVersionIds.filter(id => ![ passage.versionId, passage.parallelVersionId ].includes(id)),
-    [ downloadedVersionIds, passage.versionId, passage.parallelVersionId ],
+    () => (
+      downloadedVersionIds
+        .filter(id => ![ passage.versionId, passage.parallelVersionId ].includes(id))
+        .slice(0, maxVersionIdsAccordingToDeviceWidth)
+    ),
+    [ downloadedVersionIds, passage.versionId, passage.parallelVersionId, maxVersionIdsAccordingToDeviceWidth ],
   )
   const effectiveIndex = index < versionIdsToShow.length ? index : 0
 
@@ -328,7 +339,15 @@ const LowerPanelVsComparison = ({
           {versionIdsToShow.map(id => (
             <BottomNavigationTab
               key={id}
-              title={getVersionInfo(id).abbr}
+              style={styles.tab}
+              title={
+                <Text
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                >
+                  {getVersionInfo(id).abbr}
+                </Text>
+              }
             />
           ))}
         </BottomNavigation>
