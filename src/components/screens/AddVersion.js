@@ -92,7 +92,7 @@ const AddVersion = ({
       key={versionId}
       versionId={versionId}
       onPress={() => {
-        if(getVersionIds().length > 5) {
+        if(getVersionIds().length > 20) {
           Alert.alert(
             i18n("Downloaded Bible Limit Reached"),
             i18n("You may not download more than 20 versions. Remove one or more downloaded versions in order to add others."),
