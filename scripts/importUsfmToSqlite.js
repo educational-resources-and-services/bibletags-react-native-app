@@ -67,8 +67,8 @@ const removeIndent = str => {
 }
 
 // See the Search component for some of the same variables
-const bookIdRegex = /^\\id ([A-Z1-3]{3}) .*$/
-const irrelevantLinesRegex = /^\\(?:usfm|ide|h|toc[0-9]*)(?: .*)?$/
+const bookIdRegex = /^\\id ([A-Z1-3]{3})(?: .*)?$/
+const irrelevantLinesRegex = /^\\(?:usfm|ide|sts|rem|h|toca?[0-9]*)(?: .*)?$/
 const majorTitleRegex = /^\\mte?[0-9]? .*$/
 const majorSectionRegex = /^\\ms[0-9]? .*$/
 const referenceRegex = /^\\[ms]?r .*$/
@@ -158,12 +158,18 @@ const doubleSpacesRegex = /  +/g
         .filter(path => !/^\./.test(path))
         .map(path => path.split('/').pop())
     )
-    const { tenant } = await inquirer.prompt([{
-      type: 'list',
-      name: `tenant`,
-      message: `Select the app`,
-      choices: tenantChoices,
-    }])
+
+    let tenant
+    if(tenantChoices.includes(folders[0])) {
+      tenant = folders.splice(0,1)[0]
+    } else {
+      tenant = (await inquirer.prompt([{
+        type: 'list',
+        name: `tenant`,
+        message: `Select the app`,
+        choices: tenantChoices,
+      }])).tenant
+    }
 
     if(folders.length === 0) {
       folders.push(
@@ -215,14 +221,32 @@ const doubleSpacesRegex = /  +/g
       spinnies.fail('get-versions', { text: 'Could not fetch existing versions from data.bibletags.org.' })
     }
 
+    const validateNewVersionId = vId => (
+      (!/^[a-z0-9]{2,9}$/.test(vId) && `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`)
+      || ((existingVersions || []).some(({ id }) => id === vId) && `That version id is already in use`)
+      || true
+    )
+
+    // look for biblearc-download-info.json; if found, go through the rest without interaction
+    let infoFromJsonFile = {}
+    try {
+      infoFromJsonFile = JSON.parse(fs.readFileSync(`${folders[0]}/../../biblearc-download-info.json`, { encoding: 'utf8' }))
+    } catch (err) {}
+    if(infoFromJsonFile.versionId) {
+      const errorMessage = validateNewVersionId(infoFromJsonFile.versionId)
+      if(typeof errorMessage === 'string') {
+        throw new Error(errorMessage)
+      }
+    }
+
     const defaultVersionId = folders[0].split('/').reverse().map(dirName => dirName.toLowerCase()).filter(dirName => /^[a-z0-9]{2,9}$/.test(dirName))[0]
     const noneFoundMessage = `None found. CREATE A NEW VERSION`
-    let { versionStr, versionId } = (await inquirer.prompt([
+    let { versionStr, versionId=infoFromJsonFile.versionId } = (await inquirer.prompt([
       {
         type: 'autocomplete',
         name: 'versionStr',
         message: 'Version',
-        when: () => !!existingVersions,
+        when: () => !!existingVersions && !infoFromJsonFile.versionId,
         source: async (answersSoFar, input) => {
           const lowerCaseInput = (input || "").toLowerCase()
           const options = []
@@ -260,20 +284,32 @@ const doubleSpacesRegex = /  +/g
         type: `input`,
         name: `versionId`,
         message: `Enter a new version id`,
+        when: () => !infoFromJsonFile,
         default: defaultVersionId,
         when: ({ versionStr }) => !existingVersions || versionStr === noneFoundMessage,
-        validate: v => (
-          (!/^[a-z0-9]{2,9}$/.test(v) && `Invalid version id (must use only a-z or 0-9, and be 2-9 characters long)`)
-          || ((existingVersions || []).some(({ id }) => id === v) && `That version id is already in use`)
-          || true
-        ),
+        validate: validateNewVersionId,
       },
     ]))
     if(!versionId) {
       versionId = versionStr.match(/\(ID: ([a-z0-9]{2,9})\)$/)[1]
     }
-    let versionInfo = existingVersions.find(({ id }) => id === versionId) || {}
-    const existingVersionInfo = cloneObj(versionInfo)
+    const existingVersionInfo = existingVersions.find(({ id }) => id === versionId) || {}
+    let versionInfo = {
+      ...cloneObj(existingVersionInfo),
+      ...(
+        infoFromJsonFile.versionId
+          ? {
+            name: infoFromJsonFile.name,
+            abbr: infoFromJsonFile.abbr,
+            languageId: infoFromJsonFile.languageId,
+            partialScope: infoFromJsonFile.partialScope,
+            copyright: infoFromJsonFile.copyright,
+            bundled: false,
+            encrypted: false,
+          }
+          : {}
+      ),
+    }
 
     const tempFilePath = `./.temp/extraVerseMappingsInProgress-${versionId}.json`
     await fs.ensureDir(tempFilePath.split('/').slice(0,-1).join('/'))
@@ -300,7 +336,10 @@ const doubleSpacesRegex = /  +/g
           .replace(/files\s*:.*/g, '')  // get rid of files: requires
           .match(versionInfoRegex)
       )
-      versionInfo = eval(`(${matches[0]})`)
+      versionInfo = {
+        ...versionInfo,
+        ...eval(`(${matches[0]})`),
+      }
       if(versionInfo.copyright) {
         versionInfo.copyright = (
           versionInfo.copyright
@@ -309,49 +348,53 @@ const doubleSpacesRegex = /  +/g
         )
       }
 
-      editVersionInfo = !(await inquirer.prompt([{
-        type: 'list',
-        name: `useVersionInfo`,
-        message: `Version found in \`tenants/${tenant}/version.js\`. Use that info?`,
-        choices: [
-          {
-            name: `Yes, use existing version info`,
-            value: true,
-          },
-          {
-            name: `No, edit version info`,
-            value: false,
-          },
-        ],
-        default: true,
-      }])).useVersionInfo
+      if(!infoFromJsonFile.versionId) {
+        editVersionInfo = !(await inquirer.prompt([{
+          type: 'list',
+          name: `useVersionInfo`,
+          message: `Version found in \`tenants/${tenant}/version.js\`. Use that info?`,
+          choices: [
+            {
+              name: `Yes, use existing version info`,
+              value: true,
+            },
+            {
+              name: `No, edit version info`,
+              value: false,
+            },
+          ],
+          default: true,
+        }])).useVersionInfo
+      }
 
     } catch(err) {
 
       // version doesn't exist in versions.js
 
-      const { addToVersionsJs } = await inquirer.prompt([{
-        type: 'list',
-        name: `addToVersionsJs`,
-        message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
-        choices: [
-          {
-            name: `Yes`,
-            value: true,
-          },
-          {
-            name: `No (i.e. cancel import)`,
-            value: false,
-          },
-        ],
-      }])
+      if(!infoFromJsonFile.versionId) {
+        const { addToVersionsJs } = await inquirer.prompt([{
+          type: 'list',
+          name: `addToVersionsJs`,
+          message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
+          choices: [
+            {
+              name: `Yes`,
+              value: true,
+            },
+            {
+              name: `No (i.e. cancel import)`,
+              value: false,
+            },
+          ],
+        }])
+  
+        if(!addToVersionsJs) {
+          console.log(``)
+          process.exit()
+        }
 
-      if(!addToVersionsJs) {
-        console.log(``)
-        process.exit()
+        editVersionInfo = true
       }
-
-      editVersionInfo = true
 
     }
 
@@ -362,7 +405,7 @@ const doubleSpacesRegex = /  +/g
     const defaultLanguage = getLanguageInfo(versionInfo.languageId)
     const defaultLanguageChoiceArray = defaultLanguage.englishName ? [ getLanguageChoice(defaultLanguage) ] : []
 
-    let { encryptEveryXChunks, ...vInfo } = await inquirer.prompt([
+    let { encryptEveryXChunks=false, ...vInfo } = await inquirer.prompt([
       {
         type: 'input',
         name: `name`,
@@ -467,36 +510,38 @@ const doubleSpacesRegex = /  +/g
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
     const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
-    const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
-      type: 'list',
-      name: `confirmCreateUpdateVersesDBFiles`,
-      message: [
-        `Continue with the import?`,
-        ``,
-        `  NOTE:`.gray,
-        `   (1) This will create or update the following database files`.gray,
-        `       ${tenantDir}/versions/${versionId}/*`.gray,
-        (versionInfo.bundled ? `       ${bundledVersionDir}/verses/*`.gray : null),
-        `   (2) This will modify the following files`.gray,
-        `       ${tenantDir}/versions.js`.gray,
-        (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js`.gray : null),
-        ``,
-        ``,
-      ].filter(l => l !== null).join(`\n`),
-      choices: [
-        {
-          name: `Yes`,
-          value: true,
-        },
-        {
-          name: `No (i.e. cancel import)`,
-          value: false,
-        },
-      ],
-    }]))
-    if(!confirmCreateUpdateVersesDBFiles) {
-      console.log(``)
-      process.exit()
+    if(!infoFromJsonFile.versionId) {
+      const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
+        type: 'list',
+        name: `confirmCreateUpdateVersesDBFiles`,
+        message: [
+          `Continue with the import?`,
+          ``,
+          `  NOTE:`.gray,
+          `   (1) This will create or update the following database files`.gray,
+          `       ${tenantDir}/versions/${versionId}/*`.gray,
+          (versionInfo.bundled ? `       ${bundledVersionDir}/verses/*`.gray : null),
+          `   (2) This will modify the following files`.gray,
+          `       ${tenantDir}/versions.js`.gray,
+          (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js`.gray : null),
+          ``,
+          ``,
+        ].filter(l => l !== null).join(`\n`),
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No (i.e. cancel import)`,
+            value: false,
+          },
+        ],
+      }]))
+      if(!confirmCreateUpdateVersesDBFiles) {
+        console.log(``)
+        process.exit()
+      }
     }
 
     console.log(``)
@@ -519,7 +564,7 @@ const doubleSpacesRegex = /  +/g
         if(!file.match(/\.u?sfm$/i)) continue
 
         const input = fs.createReadStream(`${folder}/${file}`)
-        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath
+        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip
         const verses = []
         let goesWithNextVsText = []
 
@@ -536,12 +581,20 @@ const doubleSpacesRegex = /  +/g
 
           if(!bookId) {
 
-            while(!line.match(bookIdRegex)) continue
-            
+            if(!line.match(bookIdRegex)) continue
+
             const bookAbbr = line.replace(bookIdRegex, '$1')
             bookId = getBookIdFromUsfmBibleBookAbbr(bookAbbr)
-      
-            if(bookId < 1) break
+
+            if(
+              bookId < 1
+              || bookId > 66
+              || (bookId > 39 && versionInfo.partialScope === `ot`)
+              || (bookId < 40 && versionInfo.partialScope === `nt`)
+            ) {
+              skip = true
+              break
+            }
 
             dbFilePath = `${versionDir}/verses/${bookId}.db`
             dbInFormationFilePath = `${versionsDir}/temp/${bookId}-inFormation.db`
@@ -625,6 +678,8 @@ const doubleSpacesRegex = /  +/g
           goesWithNextVsText = []
 
         }
+
+        if(skip) continue
 
         verses.forEach(verse => {
           verse.usfm = verse.usfm.join("\n")
@@ -731,59 +786,68 @@ const doubleSpacesRegex = /  +/g
 
         // 1. wordDividerRegex
 
-        while(true) {
+        const sampleVerse = allVerses[0][0]
 
-          const sampleVerse = allVerses[0][0]
-          const { bookId, chapter, verse } = getRefFromLoc(sampleVerse.loc)
-          const wordDividerText = versionInfo.wordDividerRegex ? `word divider specified for this version` : `standard word divider`
-          const { correctlySplitsIntoWords } = (await inquirer.prompt([{
-            type: 'list',
-            name: `correctlySplitsIntoWords`,
-            message: [
-              `Does the ${wordDividerText} correctly split this verse into individual words?`,
-              (!versionInfo.wordDividerRegex ? [] : [
-                ``,
-                `  ${versionInfo.wordDividerRegex}`.magenta,
-              ]),
-              ``,
-              `  To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray,
-              `  Using the ${wordDividerText}, ${getBibleBookName(bookId)} ${chapter}:${verse} gets divided like this:`.gray,
-              getWordsFromUsfm(sampleVerse.usfm).map(word => `    ${word}`.white),
-              ``,
-              `  Is that right?`.gray,
-              ``,
-              ``,
-            ].flat().filter(l => l !== null).join(`\n`),
-      
-            choices: [
-              {
-                name: `Yes`,
-                value: true,
-              },
-              {
-                name: `No`,
-                value: false,
-              },
-            ],
-          }]))
-          if(correctlySplitsIntoWords) break
+        if(infoFromJsonFile.versionId) {
 
-          console.log(``)
-          console.log(`You will need to provide a Regular Expression for word dividers. As a reference, a simplified version of the standard Regular Expression is as follows:`)
-          console.log(``)
-          console.log(`(?:[\\0-\\/:-@\\[-\`\\{-\\xA9\\xAB-\\xB4\\xB6-\\xB9\\xBB-\\xBF\\xD7\\xF7\\u02C2-\\u02C5])`.gray)
-          console.log(``)
-          const { wordDividerRegex } = (await inquirer.prompt([{
-            type: 'input',
-            name: `wordDividerRegex`,
-            message: `Word divider Regular Expression (leave blank to use the default)`,
-          }]))
-          if(wordDividerRegex) {
-            versionInfo.wordDividerRegex = wordDividerRegex
-          } else {
-            versionInfo.wordDividerRegex = null
+          if(getWordsFromUsfm(sampleVerse.usfm).length < 5) {
+            throw new Error(`wordDividerRegex does not appear to be correct.`)
           }
 
+        } else {
+          while(true) {
+
+            const { bookId, chapter, verse } = getRefFromLoc(sampleVerse.loc)
+            const wordDividerText = versionInfo.wordDividerRegex ? `word divider specified for this version` : `standard word divider`
+            const { correctlySplitsIntoWords } = (await inquirer.prompt([{
+              type: 'list',
+              name: `correctlySplitsIntoWords`,
+              message: [
+                `Does the ${wordDividerText} correctly split this verse into individual words?`,
+                (!versionInfo.wordDividerRegex ? [] : [
+                  ``,
+                  `  ${versionInfo.wordDividerRegex}`.magenta,
+                ]),
+                ``,
+                `  To enable Bible search functionality, the app must correctly divide up a verse into words.`.gray,
+                `  Using the ${wordDividerText}, ${getBibleBookName(bookId)} ${chapter}:${verse} gets divided like this:`.gray,
+                getWordsFromUsfm(sampleVerse.usfm).map(word => `    ${word}`.white),
+                ``,
+                `  Is that right?`.gray,
+                ``,
+                ``,
+              ].flat().filter(l => l !== null).join(`\n`),
+        
+              choices: [
+                {
+                  name: `Yes`,
+                  value: true,
+                },
+                {
+                  name: `No`,
+                  value: false,
+                },
+              ],
+            }]))
+            if(correctlySplitsIntoWords) break
+
+            console.log(``)
+            console.log(`You will need to provide a Regular Expression for word dividers. As a reference, a simplified version of the standard Regular Expression is as follows:`)
+            console.log(``)
+            console.log(`(?:[\\0-\\/:-@\\[-\`\\{-\\xA9\\xAB-\\xB4\\xB6-\\xB9\\xBB-\\xBF\\xD7\\xF7\\u02C2-\\u02C5])`.gray)
+            console.log(``)
+            const { wordDividerRegex } = (await inquirer.prompt([{
+              type: 'input',
+              name: `wordDividerRegex`,
+              message: `Word divider Regular Expression (leave blank to use the default)`,
+            }]))
+            if(wordDividerRegex) {
+              versionInfo.wordDividerRegex = wordDividerRegex
+            } else {
+              versionInfo.wordDividerRegex = null
+            }
+
+          }
         }
 
         console.log(``)
@@ -844,7 +908,7 @@ const doubleSpacesRegex = /  +/g
           clearLines(3)
         }
 
-        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0
+        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0 && !infoFromJsonFile.versionId
 
         try {
           const prevExtraVerseMappings = JSON.parse(await fs.readFile(tempFilePath, { encoding: 'utf8' }))
@@ -869,7 +933,7 @@ const doubleSpacesRegex = /  +/g
           }
         } catch(err) {}
 
-        if(!confirmFullRecheckOfMappings) {
+        if(!confirmFullRecheckOfMappings && !infoFromJsonFile.versionId) {
           const answers = (await inquirer.prompt([{
             type: 'list',
             name: `confirmFullRecheckOfMappings`,
@@ -1005,6 +1069,8 @@ const doubleSpacesRegex = /  +/g
                 errorToPrint = null
                 extraVerseMappingsLocs.push(null, null)
               }
+
+              if(infoFromJsonFile.versionId) break
 
               const { book, chapterVerse } = (await inquirer.prompt([
                 {
@@ -1280,10 +1346,11 @@ const doubleSpacesRegex = /  +/g
       })
     }
 
-    const { confirmSyncVersionToDev } = (await inquirer.prompt([{
+    const { confirmSyncVersionToDev=false } = (await inquirer.prompt([{
       type: 'list',
       name: `confirmSyncVersionToDev`,
       message: `Set this version up for testing locally?`+` Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
+      when: () => !infoFromJsonFile.versionId,
       choices: [
         {
           name: `Yes`,
@@ -1330,8 +1397,41 @@ const doubleSpacesRegex = /  +/g
         biblearcVersionInfoKeys.forEach(key => {
           biblearcVersionInfo[key] = versionInfo[key]
         })
-        console.log(`cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force`)
-        console.log(``)
+
+        const { confirmBiblearcImport=true } = (await inquirer.prompt([{
+          type: 'list',
+          name: `confirmBiblearcImport`,
+          message: `Import to Biblearc?`,
+          when: () => !infoFromJsonFile.versionId,
+          choices: [
+            {
+              name: `Yes`,
+              value: true,
+            },
+            {
+              name: `No`,
+              value: false,
+            },
+          ],
+        }]))
+        if(confirmBiblearcImport) {
+          console.log(``)
+          const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force && cd -`
+          console.log(`Running the following:\n\n${biblearcCommand}\n`)
+          await new Promise((resolve, reject) => {
+            exec(
+              biblearcCommand,
+              (error, stdout, stderr) => {
+                if(error !== null || stderr) {
+                  reject()
+                } else if(stdout) {
+                  console.log(stdout)
+                  if(stdout.includes(`(4) Open`)) resolve()
+                }
+              }
+            )
+          })
+        }
       }
 
     }
