@@ -436,7 +436,8 @@ const mapping = {
       component: 'VersionItem',
       parameters: {
         backgroundColor: "background-basic-color-1",
-        alt1TintColor: "color-warning-500",  // offlineIconThemedStyle
+        alt1Color: "color-basic-600",  // languageThemedStyle
+        alt2TintColor: "color-warning-500",  // offlineIconThemedStyle
       },
     },
     {

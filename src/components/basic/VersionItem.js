@@ -3,6 +3,7 @@ import { StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Platform,
 import { Tooltip, OverflowMenu, MenuItem } from "@ui-kitten/components"
 import useToggle from "react-use/lib/useToggle"
 import { i18n } from "inline-i18n"
+import { getLanguageInfo } from "@bibletags/bibletags-ui-helper"
 
 import useThemedStyleSets from "../../hooks/useThemedStyleSets"
 import useNetwork from "../../hooks/useNetwork"
@@ -24,6 +25,12 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: '300',
     fontSize: 13,
+  },
+  language: {
+    textAlign: 'left',
+    flex: 1,
+    fontSize: 13,
+    writingDirection: 'ltr',
   },
   offlineIcon: {
     height: 20,
@@ -49,6 +56,7 @@ const styles = StyleSheet.create({
     marginLeft: 0,
     paddingHorizontal: 20,
     paddingVertical: 10,
+    alignItems: 'center',
   },
   active: {
     shadowOffset: { width: 2, height: 2 },
@@ -73,6 +81,7 @@ const VersionItem = ({
   style,
   labelStyle,
   nameStyle,
+  languageStyle,
   iconStyle,
   offlineIconStyle,
   downloadedIconStyle,
@@ -85,13 +94,29 @@ const VersionItem = ({
   const { baseThemedStyle, labelThemedStyle, iconThemedStyle, altThemedStyleSets } = useThemedStyleSets(themedStyle)
   const [
     nameThemedStyle={},
+    languageThemedStyle={},
     offlineIconThemedStyle={},
     downloadedIconThemedStyle={},
   ] = altThemedStyleSets
 
   const { online } = useNetwork()
 
-  const { name, abbr } = getVersionInfo(versionId)
+  const { name, abbr, languageId } = getVersionInfo(versionId)
+  const languages = []
+  languageId.split('+').forEach(lId => {
+    const { englishName, nativeName } = getLanguageInfo(lId)
+    languages.push(
+      englishName === nativeName
+        ? nativeName
+        : (
+          i18n("{{language}} ({{language_english_name}})", {
+            language: nativeName,
+            language_english_name: englishName,
+          })
+        )
+    )
+  })
+  const language = languages.filter(Boolean).join(i18n(", ", "list separator"))
 
   const [ menuOpen, toggleMenuOpen ] = useToggle()
   const [ showTooltipOffline, toggleShowTooltipOffline ] = useToggle()
@@ -244,6 +269,13 @@ const VersionItem = ({
           nameStyle,
         ]}>
           {name}
+        </Text>
+        <Text style={[
+          styles.language,
+          languageThemedStyle,
+          languageStyle,
+        ]}>
+          {language}
         </Text>
       </View>
       {downloading && !online &&

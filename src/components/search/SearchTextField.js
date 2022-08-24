@@ -107,7 +107,8 @@ const SearchTextField = ({
           returnKeyType="search"
           autoCapitalize="none"
           autoCompleteType="off"
-          autoCorrect
+          autoCorrect={false}
+          spellcheck={false}
           autoFocus
           importantForAutofill="no"
           enablesReturnKeyAutomatically

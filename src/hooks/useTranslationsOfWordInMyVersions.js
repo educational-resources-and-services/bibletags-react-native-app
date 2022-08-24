@@ -350,7 +350,11 @@ const useTranslationsOfWordInMyVersions = ({
 
 export default useTranslationsOfWordInMyVersions
 
+// 1. Find and fix: "TODO: This will not necessarily be correct if there are 2+ verses in the original; needs a fix"
+// 2. Have orig verse taps first do a compare, like translations do
+// 3. Put useTranslationsOfWordInMyVersions() in the places that prelude use of TranslationsOfWordInMyVersions
+
 // TODO: uses
   // orig - word tap
   // translation - vsnum tap - word tap
-  // two translations in parallel - word tap
+  // tagging - word tap
