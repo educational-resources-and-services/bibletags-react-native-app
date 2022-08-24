@@ -56,7 +56,7 @@ const Versions = ({
 
   const { historyPush } = useRouterState()
 
-  const { versionIds, requiredVersionIds, unusedVersionIds, getVersionStatus, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
+  const { versionIds, requiredVersionIds, getVersionStatus, getParallelIsAvailable } = useBibleVersions({ myBibleVersions })
 
   const renderItem = ({ data: versionId, active }) => {
     const { download, downloaded } = getVersionStatus(versionId)
@@ -128,10 +128,10 @@ const Versions = ({
         key="add"
         name={"md-add"}
         onPress={() => historyPush("/Read/Versions/AddVersion")}
-        uiStatus={(reordering || unusedVersionIds.length === 0) ? `disabled` : `unselected`}
+        uiStatus={reordering ? `disabled` : `unselected`}
       />,
     ],
-    [ reordering, unusedVersionIds ],
+    [ reordering ],
   )
 
   const onReleaseRow = useCallback(

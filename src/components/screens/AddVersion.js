@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { StyleSheet, Text } from "react-native"
+import { StyleSheet, Text, Alert } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
 import { List, Input } from "@ui-kitten/components"
@@ -16,6 +16,7 @@ import VersionItem from "../basic/VersionItem"
 
 import { addBibleVersion } from "../../redux/actions"
 import useEqualObjsMemo from "../../hooks/useEqualObjsMemo"
+import useInstanceValue from "../../hooks/useInstanceValue"
 
 const styles = StyleSheet.create({
   list: {
@@ -30,6 +31,12 @@ const styles = StyleSheet.create({
   input: {
     marginTop: 15,
     marginHorizontal: 15,
+  },
+  noneLeft: {
+    padding: 50,
+    fontSize: 18,
+    textAlign: 'center',
+    opacity: .5,
   },
 })
 
@@ -46,7 +53,8 @@ const AddVersion = ({
 
   const { baseThemedStyle, labelThemedStyle } = useThemedStyleSets(themedStyle)
 
-  const { unusedVersionIds } = useBibleVersions({ myBibleVersions })
+  const { unusedVersionIds, versionIds } = useBibleVersions({ myBibleVersions })
+  const getVersionIds = useInstanceValue(versionIds)
 
   const [ message, setMessage ] = useState(i18n("Tap to add"))
   const [ filterValue, setFilterValue ] = useState(``)
@@ -84,15 +92,22 @@ const AddVersion = ({
       key={versionId}
       versionId={versionId}
       onPress={() => {
-        addBibleVersion({
-          id: versionId,
-          download: true,
-        })
-        setMessage(
-          i18n("Added {{version}} to download queue", {
-            version: getVersionInfo(versionId).abbr
+        if(getVersionIds().length > 5) {
+          Alert.alert(
+            i18n("Downloaded Bible Limit Reached"),
+            i18n("You may not download more than 20 versions. Remove one or more downloaded versions in order to add others."),
+          )
+        } else {
+          addBibleVersion({
+            id: versionId,
+            download: true,
           })
-        )
+          setMessage(
+            i18n("Added {{version}} to download queue", {
+              version: getVersionInfo(versionId).abbr
+            })
+          )
+        }
       }}
     />
   )
@@ -111,26 +126,35 @@ const AddVersion = ({
       >
         {message}
       </Text>
-      <Input
-        style={styles.input}
-        placeholder={i18n("Filter by name, language, or abbreviation")}
-        value={filterValue}
-        onChangeText={setFilterValue}
-        allowFontScaling={false}
-        autoCompleteType="off"
-        autoCorrect={false}
-        importantForAutofill="no"
-        spellcheck={false}
-      />
-      <List
-        style={[
-          styles.list,
-          baseThemedStyle,
-          style,
-        ]}
-        data={filteredUnusedVersionIds}
-        renderItem={renderItem}
-      />
+      {unusedVersionIds.length === 0 &&
+        <Text style={styles.noneLeft}>
+          {i18n("You have already downloaded all available versions.")}
+        </Text>
+      }
+      {unusedVersionIds.length > 0 &&
+        <>
+          <Input
+            style={styles.input}
+            placeholder={i18n("Filter by name, language, or abbreviation")}
+            value={filterValue}
+            onChangeText={setFilterValue}
+            allowFontScaling={false}
+            autoCompleteType="off"
+            autoCorrect={false}
+            importantForAutofill="no"
+            spellcheck={false}
+          />
+          <List
+            style={[
+              styles.list,
+              baseThemedStyle,
+              style,
+            ]}
+            data={filteredUnusedVersionIds}
+            renderItem={renderItem}
+          />
+        </>
+      }
     </SafeLayout>
   )
 
