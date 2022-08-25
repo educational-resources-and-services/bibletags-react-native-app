@@ -69,6 +69,7 @@ const removeIndent = str => {
 // See the Search component for some of the same variables
 const bookIdRegex = /^\\id ([A-Z1-3]{3})(?: .*)?$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|sts|rem|h|toca?[0-9]*)(?: .*)?$/
+const introductionLinesRegex = /^\\(?:imt[0-9]*|is[0-9]*|ipi?|imi?|ipq|imq|ipr|iq[0-9]*|ib|ili[0-9]*|iot|io[0-9]*|iex|imte[0-9]*|ie)(?: .*)?$/
 const majorTitleRegex = /^\\mte?[0-9]? .*$/
 const majorSectionRegex = /^\\ms[0-9]? .*$/
 const referenceRegex = /^\\[ms]?r .*$/
@@ -311,6 +312,26 @@ const doubleSpacesRegex = /  +/g
       ),
     }
 
+    const getWordsFromUsfm = usfm => (
+      normalizeSearchStr({
+        str: (
+          usfm
+            .replace(wordRegex, '$1')
+            .replace(extraBiblicalRegex, '')
+            .replace(footnoteRegex, '')
+            .replace(crossRefRegex, '')
+            .replace(allTagsRegex, '')
+            .replace(wordPartDividerRegex, '')
+            .replace(new RegExp(versionInfo.wordDividerRegex || defaultWordDividerRegex, 'g'), ' ')
+            .replace(newlinesRegex, ' ')
+            .replace(doubleSpacesRegex, ' ')
+            .trim()
+        )
+      })
+        .split(' ')
+        .filter(Boolean)
+    )
+    
     const tempFilePath = `./.temp/extraVerseMappingsInProgress-${versionId}.json`
     await fs.ensureDir(tempFilePath.split('/').slice(0,-1).join('/'))
 
@@ -565,7 +586,7 @@ const doubleSpacesRegex = /  +/g
 
         const input = fs.createReadStream(`${folder}/${file}`)
         let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip
-        const verses = []
+        let verses = []
         let goesWithNextVsText = []
 
         for await (let line of readLines({ input })) {
@@ -614,7 +635,13 @@ const doubleSpacesRegex = /  +/g
             const insert = db.prepare(`INSERT INTO ${tableName} (loc, usfm) VALUES (@loc, @usfm)`)
 
             insertMany = db.transaction((verses) => {
-              for(const verse of verses) insert.run(verse)
+              for(const verse of verses) {
+                try {
+                  insert.run(verse)
+                } catch(err) {
+                  throw new Error(`${err.message} - ${JSON.stringify(verse)}`)
+                }
+              }
             })
 
             process.stdout.write(`Importing ${bookAbbr}...`)
@@ -624,6 +651,7 @@ const doubleSpacesRegex = /  +/g
 
           if(line === '') continue
           if(irrelevantLinesRegex.test(line)) continue
+          if(introductionLinesRegex.test(line)) continue  // presently, we do not handle introductions
 
           // get chapter
           if(chapterRegex.test(line)) {
@@ -685,6 +713,15 @@ const doubleSpacesRegex = /  +/g
           verse.usfm = verse.usfm.join("\n")
         })
 
+        // get rid of verses without content
+        verses = verses.filter(({ usfm }, idx) => {
+          if(getWordsFromUsfm(usfm).length === 0) {  // this is before wordDividerRegex is confirmed, but it shouldn't matter since we are just making sure it has ANY words
+            verses[idx+1].usfm = usfm.replace(/\\[dv](?= |\n|$)/g, '') + verses[idx+1].usfm
+            return false
+          }
+          return true
+        })
+
         // console.log(verses.slice(0,5))
         insertMany(verses)
         allVerses.push(verses)
@@ -741,26 +778,6 @@ const doubleSpacesRegex = /  +/g
     } else {
 
       allVerses.sort((a,b) => a[0].loc < b[0].loc ? -1 : 1)
-
-      const getWordsFromUsfm = usfm => (
-        normalizeSearchStr({
-          str: (
-            usfm
-              .replace(wordRegex, '$1')
-              .replace(extraBiblicalRegex, '')
-              .replace(footnoteRegex, '')
-              .replace(crossRefRegex, '')
-              .replace(allTagsRegex, '')
-              .replace(wordPartDividerRegex, '')
-              .replace(new RegExp(versionInfo.wordDividerRegex || defaultWordDividerRegex, 'g'), ' ')
-              .replace(newlinesRegex, ' ')
-              .replace(doubleSpacesRegex, ' ')
-              .trim()
-          )
-        })
-          .split(' ')
-          .filter(Boolean)
-      )
 
       const getOriginalLocsFromLoc = (loc, testVersionInfo) => {
         const originalRefs = getCorrespondingRefs({
