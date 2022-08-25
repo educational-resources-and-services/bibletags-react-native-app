@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { StyleSheet, View } from "react-native"
 import { bindActionCreators } from "redux"
 import { connect } from "react-redux"
@@ -44,8 +44,8 @@ const BibleSearchResultsOriginalRow = ({
   searchText,
   index,
   bookId,
-  // placeholderHeight,
-  // setPlaceholderHeight,
+  placeholderHeight,
+  setPlaceholderHeight,
 
   eva: { style: themedStyle={} },
 
@@ -56,17 +56,6 @@ const BibleSearchResultsOriginalRow = ({
 
   const { bibleSearchResult } = useBibleSearchResults({ searchText, myBibleVersions, index })
   const { originalLoc, versionResults=[] } = bibleSearchResult || {}
-
-  // const [ ref, { width, height } ] = useMeasure()
-
-  // useEffect(
-  //   () => {
-  //     if(index === 0 && height) {
-  //       setPlaceholderHeight(height)
-  //     }
-  //   },
-  //   [ setPlaceholderHeight, height, index ],
-  // )
 
   const origWordIdOfHits = useMemo(
     () => {
@@ -85,11 +74,15 @@ const BibleSearchResultsOriginalRow = ({
     [ versionResults, searchText ],
   )
 
+  const onLayout = useCallback(({ nativeEvent: { layout: { height } } }) => setPlaceholderHeight({ index, height }), [ index ])
+
   if(!bibleSearchResult) {
     return (
       <View
-        style={styles.rowPlaceholder}
-        // $height={placeholderHeight}
+        style={[
+          styles.rowPlaceholder,
+          placeholderHeight ? { height: placeholderHeight } : null,
+        ]}
       />
     )
   }
@@ -97,7 +90,7 @@ const BibleSearchResultsOriginalRow = ({
   return (
     <View
       style={styles.container}
-      // ref={ref}
+      onLayout={onLayout}
     >
 
       <View style={styles.passageRefContainer}>
