@@ -68,20 +68,21 @@ const removeIndent = str => {
 
 // See the Search component for some of the same variables
 const bookIdRegex = /^\\id ([A-Z1-3]{3})(?: .*)?$/
-const irrelevantLinesRegex = /^\\(?:usfm|ide|sts|rem|h|toca?[0-9]*)(?: .*)?$/
+const irrelevantLinesRegex = /^\\(?:usfm|ide|sts|rem|h|toca?[0-9]*|cl)(?: .*)?$/
 const introductionLinesRegex = /^\\(?:imt[0-9]*|is[0-9]*|ipi?|imi?|ipq|imq|ipr|iq[0-9]*|ib|ili[0-9]*|iot|io[0-9]*|iex|imte[0-9]*|ie)(?: .*)?$/
 const majorTitleRegex = /^\\mte?[0-9]? .*$/
 const majorSectionRegex = /^\\ms[0-9]? .*$/
 const referenceRegex = /^\\[ms]?r .*$/
 const sectionHeadingRegex = /^\\s[0-9p]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
+const chapterDescRegex = /^\\cd .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9])$/
 const poetryWithoutBiblicalContentRegex = /^\\q(?:[0-9rcd]?|m[0-9]?|a .*)$/
 const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
-const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]? .*$|^\\(?:[ms]?r|sp) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
+const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]? .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
@@ -666,6 +667,7 @@ const doubleSpacesRegex = /  +/g
             || sectionHeadingRegex.test(line)
             || chapterRegex.test(line)
             || chapterCharacterRegex.test(line)
+            || chapterDescRegex.test(line)
             || paragraphWithoutContentRegex.test(line)
             || poetryWithoutBiblicalContentRegex.test(line)
           ) {
