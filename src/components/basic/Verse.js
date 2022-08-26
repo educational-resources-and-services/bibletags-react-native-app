@@ -109,7 +109,7 @@ const Verse = ({
       const previousTextContent = textContent
       textContent += text || ``
 
-      if(tag === 'zFootnoteType' && content) {
+      if([ 'fk', 'zFootnoteType' ].includes(tag) && content) {
         content = `${idx > 0 ? `\n` : ``}${content}\n`
       }
 
@@ -208,7 +208,6 @@ const Verse = ({
               })
               : (text || `${content || ``}${nextChar || ``}`)
             }
-            {[ 'fk' ].includes(tag) ? `\n` : ``}
           </VerseText>
         )
       }

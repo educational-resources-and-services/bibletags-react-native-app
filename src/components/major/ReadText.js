@@ -516,7 +516,7 @@ const ReadText = ({
               (
                 !selectedTagInfo
                 && equalObjs(selectedInfo, piece)
-                && ![ "xt", "f", "fe", "fk", "zApparatusJson" ].includes(tag)
+                && ![ "xt", "f", "fe", "fk", "zApparatusJson", "zFootnoteType" ].includes(tag)
               )
               || selectedTranslationWordColor
             ) {
@@ -557,7 +557,7 @@ const ReadText = ({
 
           if(
             selectedVerse !== null
-            && [ "peh", "samech", "selah", "x", "xt", "f", "fe", "fk", "zApparatusJson" ].includes(tag)
+            && [ "peh", "samech", "selah", "x", "xt", "f", "fe", "fk", "zApparatusJson", "zFootnoteType" ].includes(tag)
             && !equalObjs(selectedInfo, piece)
             && (
               vs !== selectedVerse

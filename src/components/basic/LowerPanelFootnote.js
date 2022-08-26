@@ -101,6 +101,18 @@ const LowerPanelFootnote = ({
       const scriptureRefs = {}
       let selectedAttr
 
+      const totalPiecesByType = { xt: 0, other: 0 }
+      const findNumCharsInPiecesPerType = pcs => {
+        pcs.forEach(({ tag, children, text, content }) => {
+          if(children) {
+            findNumCharsInPiecesPerType(children)
+          }
+          if([ "fk", "zFootnoteType" ].includes(tag)) return  // these don't count
+          totalPiecesByType[tag === `xt` ? `xt` : `other`] += (text || content || ``).length
+        })
+      }
+      findNumCharsInPiecesPerType(pieces)
+
       pieces
         .filter(({ tag, attrib }) => (tag === 'xt' && attrib))
         .forEach(({ attrib }) => {
@@ -109,7 +121,9 @@ const LowerPanelFootnote = ({
         })
 
       setScriptureRefs(scriptureRefs)
-      setSelectedAttr(selectedAttr)
+      if(totalPiecesByType.xt > totalPiecesByType.other) {
+        setSelectedAttr(selectedAttr)
+      }
     },
     [ pieces ],
   )
@@ -119,7 +133,9 @@ const LowerPanelFootnote = ({
       const { attrib, tag } = selectedInfo || {}
       if(tag === 'xt' && attrib) {
         setSelectedAttr(attrib)
-        verseScrollRef.current.scrollTo({ y: 0, animated: false })
+        if(verseScrollRef.current) {
+          verseScrollRef.current.scrollTo({ y: 0, animated: false })
+        }
       }
     },
     [],

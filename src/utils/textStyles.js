@@ -69,6 +69,9 @@ const textStyles = StyleSheet.create({
   qa: { // hebrew letters for acrostics
     textTransform: "uppercase",
   },
+  zFootnoteType: {  // similar to footnote keyword
+    textTransform: "uppercase",
+  },
 
 })
 
@@ -87,7 +90,7 @@ const fontSizeStyleFactors = {
   '[small-cap]': .75,
   fk: .65,
   qa: .75,
-  zFootnoteType: .8,
+  zFootnoteType: .65,
 }
 
 const boldStyles = [
