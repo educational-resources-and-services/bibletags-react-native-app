@@ -1037,16 +1037,31 @@ const doubleSpacesRegex = /  +/g
             hasJsonInfoFile
             && versionInfo.versificationModel === `kjv`
             && Object.values(versionInfo.extraVerseMappings).length === 0
-            && equalObjsIgnoreKeyOrdering(originalLocsToCheck, [ '64001014', '64001015', '66012017', '66012018', '66013001' ])
           ) {
-            versionInfo.extraVerseMappings = {
-              "64001014": "64001014",
-              "64001015": "64001015",
-              "66012018": "66012018",
-              "66013001": "66013001"
+            if(equalObjsIgnoreKeyOrdering(originalLocsToCheck, [ '64001014', '64001015', '66012017', '66012018', '66013001' ])) {
+              versionInfo.extraVerseMappings = {
+                "64001014": "64001014",
+                "64001015": "64001015",
+                "66012018": "66012018",
+                "66013001": "66013001"
+              }
+              originalLocsToCheck = []
+              continue
+            } else if(equalObjsIgnoreKeyOrdering(originalLocsToCheck, [ '64001014', '64001015' ])) {
+              versionInfo.extraVerseMappings = {
+                "64001014": "64001014",
+                "64001015": "64001015",
+              }
+              originalLocsToCheck = []
+              continue
+            } else if(equalObjsIgnoreKeyOrdering(originalLocsToCheck, [ '66012017', '66012018', '66013001' ])) {
+              versionInfo.extraVerseMappings = {
+                "66012018": "66012018",
+                "66013001": "66013001"
+              }
+              originalLocsToCheck = []
+              continue
             }
-            originalLocsToCheck = []
-            continue
           }
 
           // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
