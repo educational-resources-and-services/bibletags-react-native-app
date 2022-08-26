@@ -718,7 +718,7 @@ const doubleSpacesRegex = /  +/g
         // get rid of verses without content
         verses = verses.filter(({ usfm }, idx) => {
           if(getWordsFromUsfm(usfm).length === 0) {  // this is before wordDividerRegex is confirmed, but it shouldn't matter since we are just making sure it has ANY words
-            verses[idx+1].usfm = usfm.replace(/\\[dv](?= |\n|$)/g, '') + verses[idx+1].usfm
+            verses[idx+1].usfm = usfm.replace(/\\(?:d|v [0-9]+)(?= |\n|$)/g, '') + verses[idx+1].usfm
             return false
           }
           return true
