@@ -65,6 +65,13 @@ const LowerPanelFootnote = ({
         wordDividerRegex,
       })
 
+      // change the tag for xt when it does not have attrib
+      pieces.forEach(piece => {
+        if(piece.tag === `xt` && !piece.attrib) {
+          piece.tag = `xt-noref`
+        }
+      })
+
       // TEMP - I need a solution for original language notes to be translatable
       pieces.forEach(piece => {
         if(piece.content === 'Q ') {
