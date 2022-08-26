@@ -587,7 +587,7 @@ const doubleSpacesRegex = /  +/g
         if(!file.match(/\.u?sfm$/i)) continue
 
         const input = fs.createReadStream(`${folder}/${file}`)
-        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip
+        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip, lastVerseInLastChapter
         let verses = []
         let goesWithNextVsText = []
 
@@ -601,6 +601,16 @@ const doubleSpacesRegex = /  +/g
               return `\\v ${v1} \\vp ${v1}${dash}${v2}\\vp*${final}`
             }
           })
+
+          // fix common misuse of \d in Psalm 119
+          if(
+            bookId === 19
+            && chapter === '119'
+            && lastVerseInLastChapter === 29 // make sure we are really in Ps 119, given syno versification
+            && psalmTitleRegex.test(line)
+          ) {  
+            line = line.replace(/^\\d( )?/, '\\qa$1')
+          }
 
           if(!bookId) {
 
@@ -657,6 +667,7 @@ const doubleSpacesRegex = /  +/g
 
           // get chapter
           if(chapterRegex.test(line)) {
+            lastVerseInLastChapter = getRefFromLoc((verses[verses.length - 1] || {}).loc || `01001001`).verse
             chapter = line.replace(chapterRegex, '$1')
           }
 
