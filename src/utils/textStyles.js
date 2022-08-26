@@ -87,6 +87,7 @@ const fontSizeStyleFactors = {
   '[small-cap]': .75,
   fk: .65,
   qa: .75,
+  zFootnoteType: .8,
 }
 
 const boldStyles = [
@@ -179,7 +180,7 @@ export const adjustChildrenAndGetStyles = ({
     }
   }
 
-  const tagThemedStyleKeys = [ 'mt', 'mte', 'ms', 'mr', 's', 's2', 's3', 'sr', 'r', 'rq', 'sp', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa', 'zApparatusJson' ]
+  const tagThemedStyleKeys = [ 'mt', 'mte', 'ms', 'mr', 's', 's2', 's3', 'sr', 'r', 'rq', 'sp', 'peh', 'samech', 'selah', 'x', 'xt', 'xt:selected', 'f', 'fe', 'fk', 's3', 'qa', 'zApparatusJson', 'zFootnoteType' ]
 
   const verseTextStyles = StyleSheet.flatten([
     wrapInView && isRTLText({ languageId, bookId }) && textStyles.rtl,

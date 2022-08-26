@@ -109,6 +109,10 @@ const Verse = ({
       const previousTextContent = textContent
       textContent += text || ``
 
+      if(tag === 'zFootnoteType' && content) {
+        content = `${idx > 0 ? `\n` : ``}${content}\n`
+      }
+
       const { verseTextStyles, adjustedChildren, adjustedText } = adjustChildrenAndGetStyles({
         bookId,
         tag,

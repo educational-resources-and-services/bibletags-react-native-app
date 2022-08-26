@@ -129,6 +129,7 @@ const readTextAndVerseParameters = {
   alt29Color: "color-warning-600", // s3
   alt30Color: "color-basic-500", // qa
   alt31Color: "color-info-500", // zApparatusJson
+  alt32Color: "color-basic-600", // zFootnoteType
 }
 
 const mapping = {
