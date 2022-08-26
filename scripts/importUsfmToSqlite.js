@@ -234,7 +234,8 @@ const doubleSpacesRegex = /  +/g
     try {
       infoFromJsonFile = JSON.parse(fs.readFileSync(`${folders[0]}/../../biblearc-download-info.json`, { encoding: 'utf8' }))
     } catch (err) {}
-    if(infoFromJsonFile.versionId) {
+    const hasJsonInfoFile = !!infoFromJsonFile.versionId
+    if(hasJsonInfoFile) {
       const errorMessage = validateNewVersionId(infoFromJsonFile.versionId)
       if(typeof errorMessage === 'string') {
         throw new Error(errorMessage)
@@ -248,7 +249,7 @@ const doubleSpacesRegex = /  +/g
         type: 'autocomplete',
         name: 'versionStr',
         message: 'Version',
-        when: () => !!existingVersions && !infoFromJsonFile.versionId,
+        when: () => !!existingVersions && !hasJsonInfoFile,
         source: async (answersSoFar, input) => {
           const lowerCaseInput = (input || "").toLowerCase()
           const options = []
@@ -299,7 +300,7 @@ const doubleSpacesRegex = /  +/g
     let versionInfo = {
       ...cloneObj(existingVersionInfo),
       ...(
-        infoFromJsonFile.versionId
+        hasJsonInfoFile
           ? {
             name: infoFromJsonFile.name,
             abbr: infoFromJsonFile.abbr,
@@ -370,7 +371,7 @@ const doubleSpacesRegex = /  +/g
         )
       }
 
-      if(!infoFromJsonFile.versionId) {
+      if(!hasJsonInfoFile) {
         editVersionInfo = !(await inquirer.prompt([{
           type: 'list',
           name: `useVersionInfo`,
@@ -393,7 +394,7 @@ const doubleSpacesRegex = /  +/g
 
       // version doesn't exist in versions.js
 
-      if(!infoFromJsonFile.versionId) {
+      if(!hasJsonInfoFile) {
         const { addToVersionsJs } = await inquirer.prompt([{
           type: 'list',
           name: `addToVersionsJs`,
@@ -532,7 +533,7 @@ const doubleSpacesRegex = /  +/g
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
     const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
-    if(!infoFromJsonFile.versionId) {
+    if(!hasJsonInfoFile) {
       const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
         type: 'list',
         name: `confirmCreateUpdateVersesDBFiles`,
@@ -807,7 +808,7 @@ const doubleSpacesRegex = /  +/g
 
         const sampleVerse = allVerses[0][0]
 
-        if(infoFromJsonFile.versionId) {
+        if(hasJsonInfoFile) {
 
           if(getWordsFromUsfm(sampleVerse.usfm).length < 5) {
             throw new Error(`wordDividerRegex does not appear to be correct.`)
@@ -927,7 +928,7 @@ const doubleSpacesRegex = /  +/g
           clearLines(3)
         }
 
-        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0 && !infoFromJsonFile.versionId
+        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0 && !hasJsonInfoFile
 
         try {
           const prevExtraVerseMappings = JSON.parse(await fs.readFile(tempFilePath, { encoding: 'utf8' }))
@@ -952,7 +953,7 @@ const doubleSpacesRegex = /  +/g
           }
         } catch(err) {}
 
-        if(!confirmFullRecheckOfMappings && !infoFromJsonFile.versionId) {
+        if(!confirmFullRecheckOfMappings && !hasJsonInfoFile) {
           const answers = (await inquirer.prompt([{
             type: 'list',
             name: `confirmFullRecheckOfMappings`,
@@ -1029,6 +1030,25 @@ const doubleSpacesRegex = /  +/g
             })
           }
 
+          // TODO: for !hasJsonInfoFile, add any non-consecutive verses to originalLocsToCheck (except for those in skipsUnlikelyOriginals)
+
+          // automatically handle a common versification correction
+          if(
+            hasJsonInfoFile
+            && versionInfo.versificationModel === `kjv`
+            && Object.values(versionInfo.extraVerseMappings).length === 0
+            && equalObjsIgnoreKeyOrdering(originalLocsToCheck, [ '64001014', '64001015', '66012017', '66012018', '66013001' ])
+          ) {
+            versionInfo.extraVerseMappings = {
+              "64001014": "64001014",
+              "64001015": "64001015",
+              "66012018": "66012018",
+              "66013001": "66013001"
+            }
+            originalLocsToCheck = []
+            continue
+          }
+
           // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
           if(versionInfo.versificationModel !== `lxx`) {
             originalLoc = `01001000`
@@ -1089,7 +1109,7 @@ const doubleSpacesRegex = /  +/g
                 extraVerseMappingsLocs.push(null, null)
               }
 
-              if(infoFromJsonFile.versionId) break
+              if(hasJsonInfoFile) break
 
               const { book, chapterVerse } = (await inquirer.prompt([
                 {
@@ -1369,7 +1389,7 @@ const doubleSpacesRegex = /  +/g
       type: 'list',
       name: `confirmSyncVersionToDev`,
       message: `Set this version up for testing locally?`+` Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
-      when: () => !infoFromJsonFile.versionId,
+      when: () => !hasJsonInfoFile,
       choices: [
         {
           name: `Yes`,
@@ -1421,7 +1441,7 @@ const doubleSpacesRegex = /  +/g
           type: 'list',
           name: `confirmBiblearcImport`,
           message: `Import to Biblearc?`,
-          when: () => !infoFromJsonFile.versionId,
+          when: () => !hasJsonInfoFile,
           choices: [
             {
               name: `Yes`,
