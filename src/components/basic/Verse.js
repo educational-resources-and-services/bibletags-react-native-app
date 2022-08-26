@@ -94,7 +94,7 @@ const Verse = ({
     return pieces.map((piece, idx) => {
       let { type, tag, text, content, nextChar, children, attrib, wordNumberInVerse, isHit } = piece
       tag = getNormalizedTag(tag)
-      const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
+      const doSmallCaps = [ 'nd', 'sc', 'fk' ].includes(tag) || doSmallCaps
       const isSelectedRef = selectedAttr && attrib === selectedAttr
 
       if(!children && !text && !content) return null
@@ -109,7 +109,7 @@ const Verse = ({
       const previousTextContent = textContent
       textContent += text || ``
 
-      if([ 'fk', 'zFootnoteType' ].includes(tag) && content) {
+      if([ 'zFootnoteType' ].includes(tag) && content) {
         content = `${idx > 0 ? `\n` : ``}${content}\n`
       }
 

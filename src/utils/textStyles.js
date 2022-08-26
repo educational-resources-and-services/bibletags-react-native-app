@@ -88,7 +88,6 @@ const fontSizeStyleFactors = {
   rq: .75,
   sp: .75,
   '[small-cap]': .75,
-  fk: .65,
   qa: .75,
   zFootnoteType: .65,
 }

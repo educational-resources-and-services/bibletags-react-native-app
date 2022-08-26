@@ -407,7 +407,7 @@ const ReadText = ({
         return simplifiedPieces.map((piece, idx) => {
           let { type, tag, text, content, children, verse, apparatusJson } = piece
           tag = getNormalizedTag(tag)
-          const doSmallCaps = [ 'nd', 'sc' ].includes(tag) || doSmallCaps
+          const doSmallCaps = [ 'nd', 'sc', 'fk' ].includes(tag) || doSmallCaps
 
           if([ "b" ].includes(tag)) {
             text = ' '
@@ -484,7 +484,7 @@ const ReadText = ({
           const hasFocussedVerseChild = focussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === focussedVerse)
           const hadFocussedVerseChild = previousFocussedVerse !== undefined && (adjustedChildren || []).some(child => child.verse === previousFocussedVerse)
 
-          const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
+          const hasSmallCapsChild = kids => (kids || []).some(kid => [ 'nd', 'sc', 'fk' ].includes(kid.tag) || hasSmallCapsChild(kid.children))
 
           let keyForAndroid
 

@@ -60,7 +60,7 @@ const LowerPanelFootnote = ({
   const pieces = useMemo(
     () => {
       const pieces = getPiecesFromUSFM({
-        usfm: content.replace(/^. /, isCf ? `\\fk ${i18n("Cross references")} \\ft ` : ``),
+        usfm: content.replace(/^. /, isCf ? `\\zFootnoteType ${i18n("Cross references")} \\ft ` : ``),
         inlineMarkersOnly: true,  // this should become false to allow for \fp
         wordDividerRegex,
       })
@@ -107,7 +107,7 @@ const LowerPanelFootnote = ({
           if(children) {
             findNumCharsInPiecesPerType(children)
           }
-          if([ "fk", "zFootnoteType" ].includes(tag)) return  // these don't count
+          if([ "zFootnoteType" ].includes(tag)) return  // these don't count
           totalPiecesByType[tag === `xt` ? `xt` : `other`] += (text || content || ``).length
         })
       }
