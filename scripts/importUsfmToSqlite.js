@@ -581,7 +581,7 @@ const doubleSpacesRegex = /  +/g
             .replace(/\r/g, '')
 
             // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
-            .replace(/\\v ([0-9]+)(b?)([-–־\u200f\u200e]+)([0-9]+)(a?)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, b, dash, v2, a, vp, final) => {
+            .replace(/\\v ([0-9]+)(b?)([-–־,\u200f\u200e]+)([0-9]+)(a?)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, b, dash, v2, a, vp, final) => {
               if(vp) {
                 return `\\v ${v1}${vp}${final}`
               } else {
