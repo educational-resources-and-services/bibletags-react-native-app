@@ -577,17 +577,24 @@ const doubleSpacesRegex = /  +/g
 
         const lines = (
           (await fs.promises.readFile(`${folder}/${file}`, { encoding: 'utf8' }))
+
             .replace(/\r/g, '')
+
             // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
-            .replace(/\\v ([0-9]+)([-–־\u200f\u200e]+)([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
+            .replace(/\\v ([0-9]+)(b?)([-–־\u200f\u200e]+)([0-9]+)(a?)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, b, dash, v2, a, vp, final) => {
               if(vp) {
                 return `\\v ${v1}${vp}${final}`
               } else {
-                return `\\v ${v1} \\vp ${v1}${dash}${v2}\\vp*${final}`
+                return `\\v ${v1} \\vp ${v1}${b}${dash}${v2}${a}\\vp*${final}`
               }
             })
+
             // handle bracketed [\\v #] coming in the middle of a line
             .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
+
+            // handle two \d tags for one psalm
+            .replace(/(^|\n)\\d( .*|)\n\\d( |\n|$)/g, '$1\\d$2\n\\qd$3')
+
             .split('\n')
         )
 
@@ -1072,6 +1079,11 @@ const doubleSpacesRegex = /  +/g
               continue
             }
           }
+
+if(originalLocsToCheck.length > 0) {
+  console.log(`REDO: ${versionId}`)
+  process.exit()
+}
 
           // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
           if(versionInfo.versificationModel !== `lxx`) {
