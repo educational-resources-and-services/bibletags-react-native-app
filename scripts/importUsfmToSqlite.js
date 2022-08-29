@@ -587,7 +587,7 @@ const doubleSpacesRegex = /  +/g
               }
             })
             // handle bracketed [\\v #] coming in the middle of a line
-            .replace(/\[(\\v [0-9]+)/g, '[\n$1')
+            .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
             .split('\n')
         )
 
