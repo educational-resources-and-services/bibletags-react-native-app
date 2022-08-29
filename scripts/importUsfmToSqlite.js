@@ -68,7 +68,7 @@ const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\add .*?\\add\*| \\f .*?\\f\*| \\fe .*?\\fe\*| \\x .*?\\x\*)*$/
 const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f .*?\\f\*| \\fe .*?\\fe\*| \\x .*?\\x\*)*$/
 const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]*|lf|lim[0-9]*)$/
-const psalmTitleRegex = /^\\d(?: .*)?$/
+const psalmTitleRegex = /^\\d( .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
 const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?|^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*) \\add [^\\]+\\add\*$)/gm
@@ -592,13 +592,10 @@ const doubleSpacesRegex = /  +/g
             // handle bracketed [\\v #] coming in the middle of a line
             .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
 
-            // handle two \d tags for one psalm
-            .replace(/(^|\n)\\d( .*|)\n\\d( |\n|$)/g, '$1\\d$2\n\\qd$3')
-
             .split('\n')
         )
 
-        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip, lastVerseInLastChapter
+        let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip, lastVerseInLastChapter, atStartOfChapter
         let verses = []
         let goesWithNextVsText = []
 
@@ -613,7 +610,12 @@ const doubleSpacesRegex = /  +/g
             && lastVerseInLastChapter === 29 // make sure we are really in Ps 119, given syno versification
             && psalmTitleRegex.test(line)
           ) {  
-            line = line.replace(/^\\d( )?/, '\\qa$1')
+            line = line.replace(psalmTitleRegex, '\\qa$1')
+          }
+
+          // fix when there is a second \d or a \d somewhere other than the beginning of a psalm
+          if(psalmTitleRegex.test(line) && (!atStartOfChapter || bookId !== 19)) {
+            line = line.replace(psalmTitleRegex, '\\qd$1')
           }
 
           if(!bookId) {
@@ -673,6 +675,7 @@ const doubleSpacesRegex = /  +/g
           if(chapterRegex.test(line)) {
             lastVerseInLastChapter = getRefFromLoc((verses[verses.length - 1] || {}).loc || `01001001`).verse
             chapter = line.replace(chapterRegex, '$1')
+            atStartOfChapter = true
           }
 
           // get tags which connect to verse text to follow
@@ -694,6 +697,8 @@ const doubleSpacesRegex = /  +/g
 
           // get verse
           if(verseRegex.test(line) || psalmTitleRegex.test(line)) {
+
+            atStartOfChapter = false
 
             let verse
 
