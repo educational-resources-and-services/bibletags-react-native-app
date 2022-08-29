@@ -594,8 +594,8 @@ const doubleSpacesRegex = /  +/g
 
         for await (let line of readLines({ input })) {
 
-          // fix common invalid USFM where a verse range is presented (e.g. `\v 1-2`)
-          line = line.replace(/\\v ([0-9]+)([-–־])([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
+          // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
+          line = line.replace(/\\v ([0-9]+)([-–־\u200f\u200e]+)([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
             if(vp) {
               return `\\v ${v1}${vp}${final}`
             } else {
