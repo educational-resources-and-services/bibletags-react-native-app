@@ -79,6 +79,7 @@ const chapterDescRegex = /^\\cd .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]|mi|nb|ph[0-9])(?: \\add [^\\]+\\add\*)?$/
 const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]?|qa .*|b)$/
+const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]?|lf|lim[0-9]?)$/
 const psalmTitleRegex = /^\\d(?: .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
@@ -682,6 +683,7 @@ const doubleSpacesRegex = /  +/g
             || chapterDescRegex.test(line)
             || paragraphWithoutContentRegex.test(line)
             || poetryWithoutBiblicalContentRegex.test(line)
+            || listItemWithoutBiblicalContentRegex.test(line)
           ) {
             goesWithNextVsText.push(line)
             continue
