@@ -40,18 +40,6 @@ const clearLines = num => {
   }
 }
 
-const readLines = ({ input }) => {
-  const output = new stream.PassThrough({ objectMode: true })
-  const rl = readline.createInterface({ input })
-  rl.on("line", line => { 
-    output.write(line)
-  })
-  rl.on("close", () => {
-    output.push(null)
-  })
-  return output
-}
-
 const sliceStr = ({ str, sliceSize }) => {
   const slices = []
   for(let i=0, length=str.length; i<length; i+=sliceSize) {
@@ -587,21 +575,29 @@ const doubleSpacesRegex = /  +/g
       for(let file of files) {
         if(!file.match(/\.u?sfm$/i)) continue
 
-        const input = fs.createReadStream(`${folder}/${file}`)
+        const lines = (
+          (await fs.promises.readFile(`${folder}/${file}`, { encoding: 'utf8' }))
+            .replace(/\r/g, '')
+            // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
+            .replace(/\\v ([0-9]+)([-–־\u200f\u200e]+)([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
+              if(vp) {
+                return `\\v ${v1}${vp}${final}`
+              } else {
+                return `\\v ${v1} \\vp ${v1}${dash}${v2}\\vp*${final}`
+              }
+            })
+            // handle bracketed [\\v #] coming in the middle of a line
+            .replace(/\[(\\v [0-9]+)/g, '[\n$1')
+            .split('\n')
+        )
+
         let bookId, chapter, insertMany, dbFilePath, dbInFormationFilePath, skip, lastVerseInLastChapter
         let verses = []
         let goesWithNextVsText = []
 
-        for await (let line of readLines({ input })) {
+        for(let line of lines) {
 
-          // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
-          line = line.replace(/\\v ([0-9]+)([-–־\u200f\u200e]+)([0-9]+)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, dash, v2, vp, final) => {
-            if(vp) {
-              return `\\v ${v1}${vp}${final}`
-            } else {
-              return `\\v ${v1} \\vp ${v1}${dash}${v2}\\vp*${final}`
-            }
-          })
+          if(/.\\[vc] /.test(line)) throw new Error(`\\v or \\c in the middle of a line: ${line}`)
 
           // fix common misuse of \d in Psalm 119
           if(
