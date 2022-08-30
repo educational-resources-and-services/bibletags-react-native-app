@@ -58,6 +58,7 @@ const removeIndent = str => {
 const bookIdRegex = /^\\id ([A-Z1-3]{3})(?: .*)?$/
 const irrelevantLinesRegex = /^\\(?:usfm|ide|sts|rem|h|toca?[0-9]*|cl)(?: .*)?$/
 const introductionLinesRegex = /^\\(?:imt[0-9]*|is[0-9]*|ipi?|imi?|ipq|imq|ipr|iq[0-9]*|ib|ili[0-9]*|iot|io[0-9]*|iex|imte[0-9]*|ie|iop)(?: .*)?$/
+const tablesRegex = /^\\(?:tr|th[0-9]*|thr[0-9]*|tc[0-9]*|tcr[0-9]*)(?: .*)?$/
 const majorTitleRegex = /^\\mte?[0-9]* .*$/
 const majorSectionRegex = /^\\ms[0-9]* .*$/
 const referenceRegex = /^\\[ms]?r .*$/
@@ -65,13 +66,13 @@ const sectionHeadingRegex = /^\\s[0-9p]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterDescRegex = /^\\cd .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
-const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\add .*?\\add\*| \\f .*?\\f\*| \\fe .*?\\fe\*| \\x .*?\\x\*)*$/
-const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f .*?\\f\*| \\fe .*?\\fe\*| \\x .*?\\x\*)*$/
+const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\add (?:[^\\]|\\(?!add\*))*\\add\*| \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
+const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
 const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]*|lf|lim[0-9]*)$/
 const psalmTitleRegex = /^\\d( .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
-const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?|^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*) \\add [^\\]+\\add\*$)/gm
+const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?|^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*) \\add (?:[^\\]|\\(?!add\*))*\\add\*$)/gm
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
@@ -669,7 +670,8 @@ const doubleSpacesRegex = /  +/g
 
           if(line === '') continue
           if(irrelevantLinesRegex.test(line)) continue
-          if(introductionLinesRegex.test(line)) continue  // presently, we do not handle introductions
+          if(introductionLinesRegex.test(line)) continue  // presently, we do not handle introductions (if we decide to, then they need to be uncommented in bibletags-ui-helper)
+          if(tablesRegex.test(line)) continue  // presently, we do not handle tables (if we decide to, then they need to be uncommented in bibletags-ui-helper)
 
           // get chapter
           if(chapterRegex.test(line)) {
@@ -1086,11 +1088,6 @@ const doubleSpacesRegex = /  +/g
               continue
             }
           }
-
-if(originalLocsToCheck.length > 0) {
-  console.log(`REDO: ${versionId}`)
-  process.exit()
-}
 
           // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
           if(versionInfo.versificationModel !== `lxx`) {
