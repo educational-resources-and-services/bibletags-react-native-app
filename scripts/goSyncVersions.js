@@ -44,11 +44,14 @@ const goSyncVersions = async ({ stage, skipSubmitWordHashes }) => {
         await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
       }
 
+      const submitWordHashSetsFailingVersionIds = []
+
       for(let upload of uploads) {
         const { id, path } = upload
         const [ x1, embeddingAppId, stage, x2, versionId, x3, fileName ] = id.split('/')
 
         if(versionId === 'original') continue
+        if(submitWordHashSetsFailingVersionIds.includes(versionId)) continue
 
         const bookId = parseInt(fileName.split('.')[0], 10)
         const uri = (
@@ -102,7 +105,10 @@ const goSyncVersions = async ({ stage, skipSubmitWordHashes }) => {
               try {
                 await request(uri, composedQuery)  // and try again
               } catch(err) {
-                throw new Error(err.message.slice(0,200))
+                if(!submitWordHashSetsFailingVersionIds.includes(versionId)) {
+                  submitWordHashSetsFailingVersionIds.push(versionId)
+                }
+                console.log(`    *** FAILED ***`)
               }
             }
 
@@ -110,6 +116,16 @@ const goSyncVersions = async ({ stage, skipSubmitWordHashes }) => {
 
         }
 
+      }
+
+      if(submitWordHashSetsFailingVersionIds.length > 0) {
+        console.log(``)
+        console.log(`!! THE FOLLOWING VERSION IDS FAILED TO SUBMIT WORD HASH SETS !!`)
+        console.log(``)
+        console.log(submitWordHashSetsFailingVersionIds.map(versionId => `  - ${versionId}`).join('\n'))
+        console.log(``)
+        console.log(`** Check Cloud Watch logs for why **`)
+        console.log(``)
       }
 
       if(stage === 'dev') {
