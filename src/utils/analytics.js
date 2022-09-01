@@ -6,7 +6,7 @@ const {
   AMPLITUDE_API_KEY,
 } = Constants.manifest.extra
 
-const on = !!(!__DEV__ && AMPLITUDE_API_KEY && !isBeta())
+const on = !!(!__DEV__ && AMPLITUDE_API_KEY && AMPLITUDE_API_KEY !== "[AMPLITUDE_KEY]" && !isBeta())
 let initialized = false
 
 const initializeIfNeedBe = async () => {
