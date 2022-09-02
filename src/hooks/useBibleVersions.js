@@ -138,6 +138,7 @@ const useBibleVersions = ({
   const unusedVersionIds = useEqualObjsMemo(
     () => (
       bibleVersions
+        .sort((a,b) => a.abbr < b.abbr ? -1 : 1)
         .map(({ id }) => id)
         .filter(id => !versionIds.includes(id))
     ),
@@ -147,6 +148,7 @@ const useBibleVersions = ({
   const requiredVersionIds = useEqualObjsMemo(
     () => (
       bibleVersions
+        .sort((a,b) => a.abbr < b.abbr ? -1 : 1)
         .filter(({ required }) => required)
         .map(({ id }) => id)
     ),
