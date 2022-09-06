@@ -30,7 +30,7 @@ An open source app template built in React Native with [Expo](https://expo.dev/)
 
 ### Installation
 
-_For programmers looking to set up a local development environment, you must first install `bibletags-data` (backend) found [here](https://github.com/educational-resources-and-services/bibletags-data)._
+_For programmers looking to set up a local development environment, first install `bibletags-data` found [here](https://github.com/educational-resources-and-services/bibletags-data). Then use `cd ..` to return to the same base directory before following these install instructions._
 
 ```bash
 git clone https://github.com/educational-resources-and-services/bibletags-react-native-app
