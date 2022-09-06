@@ -80,6 +80,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, silent }
     }
 
     const submitWordHashSetsFailingVersionIds = []
+    const addedVersions = []
 
     for(let upload of uploads) {
       const { id, path } = upload
@@ -88,7 +89,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, silent }
       if(versionId === 'original') continue
       if(submitWordHashSetsFailingVersionIds.includes(versionId)) continue
 
-      if(stage === 'dev') {
+      if(stage === 'dev' && !addedVersions.includes(versionId)) {
         const versionInfo = getVersionInfo({ tenantDir, versionId })
         if(versionInfo) {
           await request(
@@ -112,6 +113,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, silent }
               }
             `,
           )
+          addedVersions.push(versionId)
         }
       }
 
