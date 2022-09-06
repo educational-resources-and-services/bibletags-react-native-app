@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     backgroundColor: 'white',
+    paddingTop: 10,
   },
   createdByContainer: {
     paddingTop: 40,

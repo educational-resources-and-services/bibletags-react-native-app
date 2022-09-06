@@ -61,7 +61,7 @@ const getWordRangesFromWordNums = wordNums => {
 
 const wordsCacheByVersionIdAndLoc = {}
 
-const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, progress }) => {
+const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenantDir, progress }) => {
 
   // validate input
   let bookId
@@ -82,7 +82,6 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenant, pro
   delete oldVerseMappingsByVersionInfo.createdAt
 
   const getDbAndTableName = (versionId, bookId) => {
-    const tenantDir = `./tenants/${tenant}`
     const versionsDir = `${tenantDir}/versions`
     const versionDir = `${versionsDir}/${versionId}`
     const dbFilePath = `${versionDir}/verses/${bookId}.db`

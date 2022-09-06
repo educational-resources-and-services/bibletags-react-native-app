@@ -26,13 +26,11 @@ For more information on this project, see the [Bible Tags website](https://bible
 
 An open source app template built in React Native with [Expo](https://expo.dev/).
 
-## Development
+## Publishing a Bible Tags app / Development
 
-### Installation of bibletags-data (backend)
+### Installation
 
-Follow the instructions found [here](https://github.com/educational-resources-and-services/bibletags-data).
-
-### Installation of bibletags-react-native-app
+_For programmers looking to set up a local development environment, you must first install `bibletags-data` (backend) found [here](https://github.com/educational-resources-and-services/bibletags-data)._
 
 ```bash
 git clone https://github.com/educational-resources-and-services/bibletags-react-native-app
@@ -41,7 +39,20 @@ npm install
 npm run setup
 ```
 
-### Running
+Optionally report errors to [Sentry](https://sentry.io) and/or analytics data to [Amplitude](https://amplitude.com) by appropriately replacing the following strings in `./app.json`:
+- `[SENTRY_ORGANIZATION]`
+- `[SENTRY_PROJECT]`
+- `[SENTRY_AUTH_TOKEN]`
+- `[SENTRY_DSN]`
+- `[AMPLITUDE_KEY]`
+
+### Testing a Bible Tags for Publishing
+
+```bash
+npm start
+```
+
+### Running for Development
 
 ```bash
 npm run dev
@@ -74,7 +85,7 @@ See also [the translation process readme for i18n](https://github.com/educationa
 ### Adding Bible Versions
 
 ```bash
-npm run usfm-to-sqlite
+npm run import-bible
 ```
 
 ## Initial Deployment To The App Stores

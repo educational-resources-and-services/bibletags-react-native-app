@@ -1,7 +1,5 @@
 const Database = require('better-sqlite3')
 const fs = require('fs-extra')
-const readline = require('readline')
-const stream = require('stream')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber,
@@ -20,6 +18,8 @@ const Spinnies = require('spinnies')
 const spinnies = new Spinnies()
 
 const goSyncVersions = require('./goSyncVersions')
+const { getVersionInfo, setVersionInfo } = require('./utils/fileTools')
+const serverVersionInfoKeys = require('./utils/serverVersionInfoKeys')
 const confirmAndCorrectMapping = require('./utils/confirmAndCorrectMapping')
 const equalObjsIgnoreKeyOrdering = confirmAndCorrectMapping.equalObjsIgnoreKeyOrdering
 
@@ -144,23 +144,31 @@ const doubleSpacesRegex = /  +/g
 
     let folders = process.argv.slice(2)
     const requires = Array(66).fill()
-
-    const tenantChoices = (
-      (await fs.readdir('./tenants'))
-        .filter(path => !/^\./.test(path))
-        .map(path => path.split('/').pop())
-    )
-
     let tenant
-    if(tenantChoices.includes(folders[0])) {
-      tenant = folders.splice(0,1)[0]
-    } else {
-      tenant = (await inquirer.prompt([{
-        type: 'list',
-        name: `tenant`,
-        message: `Select the app`,
-        choices: tenantChoices,
-      }])).tenant
+
+    if(!(await fs.pathExists('./tenants'))) {
+      tenant = '.'
+    }
+
+    if(!tenant) {
+
+      const tenantChoices = (
+        (await fs.readdir('./tenants'))
+          .filter(path => !/^\./.test(path))
+          .map(path => path.split('/').pop())
+      )
+
+      if([ ...tenantChoices, `defaultTenant` ].includes(folders[0])) {
+        tenant = folders.splice(0,1)[0]
+      } else {
+        tenant = (await inquirer.prompt([{
+          type: 'list',
+          name: `tenant`,
+          message: `Select the app`,
+          choices: tenantChoices,
+        }])).tenant
+      }
+
     }
 
     if(folders.length === 0) {
@@ -277,7 +285,6 @@ const doubleSpacesRegex = /  +/g
         type: `input`,
         name: `versionId`,
         message: `Enter a new version id`,
-        when: () => !infoFromJsonFile,
         default: defaultVersionId,
         when: ({ versionStr }) => !existingVersions || versionStr === noneFoundMessage,
         validate: validateNewVersionId,
@@ -327,7 +334,7 @@ const doubleSpacesRegex = /  +/g
     const tempFilePath = `./.temp/extraVerseMappingsInProgress-${versionId}.json`
     await fs.ensureDir(tempFilePath.split('/').slice(0,-1).join('/'))
 
-    const tenantDir = tenant === 'defaultTenant' ? `./${tenant}` : `./tenants/${tenant}`
+    const tenantDir = tenant === `.` ? `.` : `./tenants/${tenant}`
 
     if(!await fs.pathExists(tenantDir)) {
       throw new Error(`Invalid tenant.`)
@@ -336,36 +343,21 @@ const doubleSpacesRegex = /  +/g
     const appJsonUri = `${tenantDir}/app.json`
     const appJson = await fs.readJson(appJsonUri)
     const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
-    const versionInfoRegex = new RegExp(`{(?:(?:[^{}\\n]|{[^}]*})*\\n)*?[\\t ]*(?:id|"id"|'id')[\\t ]*:[\\t ]*(?:"${versionId}"|'${versionId}')[\\t ]*,[\\t ]*\\n(?:(?:[^{}\\n]|{[^}]*})*\\n)*(?:[^{}\\n]|{[^}]*})*}`)
 
     const scopeMapsById = {}
-    let versionsFile, editVersionInfo=false
+    let editVersionInfo=false
     try {
 
-      versionsFile = fs.readFileSync(`${tenantDir}/versions.js`, { encoding: 'utf8' })
-      const matches = (
-        versionsFile
-          .replace(/removeIndentAndBlankStartEndLines/g, '')  // get rid of removeIndentAndBlankStartEndLines
-          .replace(/files\s*:.*/g, '')  // get rid of files: requires
-          .match(versionInfoRegex)
-      )
       versionInfo = {
         ...versionInfo,
-        ...eval(`(${matches[0]})`),
-      }
-      if(versionInfo.copyright) {
-        versionInfo.copyright = (
-          versionInfo.copyright
-            .replace(/\n +/g, '\n')
-            .replace(/^\n|\n$/g, '')
-        )
+        ...getVersionInfo({ tenantDir, versionId }),
       }
 
       if(!hasJsonInfoFile) {
         editVersionInfo = !(await inquirer.prompt([{
           type: 'list',
           name: `useVersionInfo`,
-          message: `Version found in \`tenants/${tenant}/version.js\`. Use that info?`,
+          message: `Version found in \`${tenantDir}/version.js\`. Use that info?`,
           choices: [
             {
               name: `Yes, use existing version info`,
@@ -388,7 +380,7 @@ const doubleSpacesRegex = /  +/g
         const { addToVersionsJs } = await inquirer.prompt([{
           type: 'list',
           name: `addToVersionsJs`,
-          message: `This version is missing from \`tenants/${tenant}/version.js\`. Add it?`,
+          message: `This version is missing from \`${tenantDir}/version.js\`. Add it?`,
           choices: [
             {
               name: `Yes`,
@@ -945,7 +937,7 @@ const doubleSpacesRegex = /  +/g
         const confirmAndCorrect = async params => {
           versionInfo.extraVerseMappings = await confirmAndCorrectMapping({
             versionInfo,
-            tenant,
+            tenantDir,
             progress: 1,
             ...params,
           })
@@ -1318,56 +1310,13 @@ const doubleSpacesRegex = /  +/g
     }
 
     // update versions.js
-    let newVersionsFile = versionsFile
-    newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${!encryptEveryXChunks ? `${versionId}-encrypted` : versionId}/requires'.*\\n`), ``)
-    const newImportLine = `import ${versionId}Requires from './assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'`
-
-    if(versionInfo.bundled) {
-      versionInfo.files = `${versionId}Requires`
-      if(!newVersionsFile.includes(newImportLine)) {
-        newVersionsFile = newVersionsFile.replace(/((?:^|\n)[^\/].*\n)/, `$1${newImportLine}\n`)
-      }
-    } else {
-      if(newVersionsFile.includes(newImportLine)) {
-        newVersionsFile = newVersionsFile.replace(new RegExp(` *import ${versionId}Requires from '\\./assets/bundledVersions/${versionWithEncryptedIfRelevant}/requires'.*\\n`), ``)
-      }
-    }
-
-    // update revision number if there was a change
-    if(hasChange) {
-      versionInfo[`${versionId}RevisionNum`]++
-    }
-
-    // swap in or insert new versionInfo
-    const insertStr = JSON.stringify(versionInfo, null, '  ').replace(/\n/g, '\n  ')
-    newVersionsFile = (
-      (
-        versionInfoRegex.test(newVersionsFile)
-          ? newVersionsFile.replace(versionInfoRegex, insertStr)
-          : newVersionsFile.replace(/(\]\s*export default bibleVersions)/, `  ${insertStr},\n$1`)
-      )
-        .replace(/"([^"]+Requires)"/g, '$1')
-        .replace(/\n    "([^"]+)"/g, '\n    $1')
-        .replace(/copyright: "(.*)",?/g, `copyright: removeIndentAndBlankStartEndLines(\`\n      ${versionInfo.copyright.replace(/`/g, '\\`').replace(/(?:\\n|\n)/g, '\n      ')}\n    \`),`)
-    )
-
-    await fs.writeFile(`${tenantDir}/versions.js`, newVersionsFile)
+    await setVersionInfo({ tenantDir, versionInfo, hasChange })
     await fs.remove(tempFilePath)
     console.log(``)
     console.log(`Updated ${tenantDir}/versions.js`)
+    console.log(``)
 
     // submit version to bible tags data, if changed
-    const serverVersionInfoKeys = [
-      "id",
-      "name",
-      "languageId",
-      "wordDividerRegex",
-      "partialScope",
-      "versificationModel",
-      "skipsUnlikelyOriginals",
-      "extraVerseMappings",
-    ]
-
     if(serverVersionInfoKeys.some(key => !equalObjsIgnoreKeyOrdering(existingVersionInfo[key], versionInfo[key]))) {
 
       console.log(``)
@@ -1403,7 +1352,7 @@ const doubleSpacesRegex = /  +/g
     }
 
     // update tenant and sync them to dev
-    if(versionId !== 'original') {
+    if(tenant !== '.') {
       console.log(``)
       console.log(`Rerunning \`change-tenant\`...`)
       await new Promise(resolve => exec(`find tenants/${tenant} -name ".DS_Store" -delete`, resolve))
@@ -1425,92 +1374,107 @@ const doubleSpacesRegex = /  +/g
       })
     }
 
-    const { confirmSyncVersionToDev=false } = (await inquirer.prompt([{
-      type: 'list',
-      name: `confirmSyncVersionToDev`,
-      message: `Set this version up for testing locally?`+` Includes adding this version to local DB, syncing to \`/dev\` in the cloud, and submitting word hashes locally. Requires @bibletags/bibletags-data installation.`.gray,
-      when: () => !hasJsonInfoFile,
-      choices: [
-        {
-          name: `Yes`,
-          value: true,
-        },
-        {
-          name: `No`,
-          value: false,
-        },
-      ],
-    }]))
+    const hasBackendSetup = !!(await fs.pathExists(`../bibletags-data`))
+    const { confirmSyncVersionToDev=false, confirmLocalDev=false } = (await inquirer.prompt([
+      {
+        type: 'list',
+        name: `confirmSyncVersionToDev`,
+        message: `Set this version up for testing locally?`+` Involves syncing versions to the cloud.`.gray,
+        when: () => !hasJsonInfoFile,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No`,
+            value: false,
+          },
+        ],
+      },
+      {
+        type: 'list',
+        name: `confirmLocalDev`,
+        message: `Set this version up for use in local development?`+` Includes adding this version to local DB and submitting word hashes locally.`.gray,
+        when: () => hasBackendSetup && !hasJsonInfoFile,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No`,
+            value: false,
+          },
+        ],
+      },
+    ]))
     if(confirmSyncVersionToDev) {
-      // TODO: update/insert results in local BibleTags.versions row
-      await goSyncVersions({ stage: `dev` })
+      await goSyncVersions({ stage: `dev`, tenantDir })
     }
 
-    if(versionId !== 'original') {
+    console.log(removeIndent(`
+      Successfully...
+        (1) Created sqlite db files and placed them in \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
+        (2) Updated \`${tenantDir}/versions.js\`
+        (3) Reran change-tenant (to update the state so it is ready for running \`npm run dev\`)
+        (4) Synced \`${versionsDir}\` to the cloud for use in dev
+        ${confirmSyncVersionToDev ? `(5) Submitted word hashes for ${versionId} to the dev db for bibletags-data` : ``}
+    `).green)
 
-      console.log(removeIndent(`
-        Successfully...
-          (1) Created sqlite db files and placed them in \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/verses\`` : ``}
-          (2) Updated \`${tenantDir}/versions.js\`${versionInfo.bundled ? ` and \`${bundledVersionDir}/requires.js\`` : ``}
-          (3) Reran change-tenant (to update the state so it is ready for running \`npm run dev\`)
-          (4) Synced \`${versionsDir}\` to the cloud for use in dev
-          ${confirmSyncVersionToDev ? `(5) Submitted word hashes for ${versionId} to the dev db for bibletags-data` : ``}
-      `).green)
+    // the following section is custom import help code for Biblearc
+    if(tenant === 'biblearc') {
+      const biblearcVersionInfoKeys = [
+        "id",
+        "abbr",
+        "name",
+        "wordDividerRegex",
+        "copyright",
+        "versificationModel",
+        "skipsUnlikelyOriginals",
+        "extraVerseMappings",
+        // hebrewOrdering,
+        "partialScope",
+        "languageId",
+      ]
+      const biblearcVersionInfo = {}
+      biblearcVersionInfoKeys.forEach(key => {
+        biblearcVersionInfo[key] = versionInfo[key]
+      })
 
-      // the following section is custom import help code for Biblearc
-      if(tenant === 'biblearc') {
-        const biblearcVersionInfoKeys = [
-          "id",
-          "abbr",
-          "name",
-          "wordDividerRegex",
-          "copyright",
-          "versificationModel",
-          "skipsUnlikelyOriginals",
-          "extraVerseMappings",
-          // hebrewOrdering,
-          "partialScope",
-          "languageId",
-        ]
-        const biblearcVersionInfo = {}
-        biblearcVersionInfoKeys.forEach(key => {
-          biblearcVersionInfo[key] = versionInfo[key]
-        })
-
-        const { confirmBiblearcImport=true } = (await inquirer.prompt([{
-          type: 'list',
-          name: `confirmBiblearcImport`,
-          message: `Import to Biblearc?`,
-          when: () => !hasJsonInfoFile,
-          choices: [
-            {
-              name: `Yes`,
-              value: true,
-            },
-            {
-              name: `No`,
-              value: false,
-            },
-          ],
-        }]))
-        if(confirmBiblearcImport) {
-          console.log(``)
-          const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force && cd -`
-          console.log(`Running the following:\n\n${biblearcCommand}\n`)
-          await new Promise((resolve, reject) => {
-            exec(
-              biblearcCommand,
-              (error, stdout, stderr) => {
-                if(error !== null || stderr) {
-                  reject()
-                } else if(stdout) {
-                  console.log(stdout)
-                  if(stdout.includes(`(4) Open`)) resolve()
-                }
+      const { confirmBiblearcImport=true } = (await inquirer.prompt([{
+        type: 'list',
+        name: `confirmBiblearcImport`,
+        message: `Import to Biblearc?`,
+        when: () => !hasJsonInfoFile,
+        choices: [
+          {
+            name: `Yes`,
+            value: true,
+          },
+          {
+            name: `No`,
+            value: false,
+          },
+        ],
+      }]))
+      if(confirmBiblearcImport) {
+        console.log(``)
+        const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force && cd -`
+        console.log(`Running the following:\n\n${biblearcCommand}\n`)
+        await new Promise((resolve, reject) => {
+          exec(
+            biblearcCommand,
+            (error, stdout, stderr) => {
+              if(error !== null || stderr) {
+                reject()
+              } else if(stdout) {
+                console.log(stdout)
+                if(stdout.includes(`(4) Open`)) resolve()
               }
-            )
-          })
-        }
+            }
+          )
+        })
       }
 
     }
