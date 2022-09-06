@@ -217,7 +217,8 @@ const graphqlUrl = `https://data.bibletags.org/graphql`
       console.log(`Use `.gray+`\`npm run dev\``+` to test.`.gray)
     } else {
       console.log(`Use `.gray+`\`npm start\``+` to test, `.gray+`\`npm run import-bible\``+` to add more versions, and `.gray+`\`build-ios-production\``+`/`.gray+`\`build-android-production\``+` to create builds for the app stores.`.gray)
-      console.log(`NOTE: Even while testing locally, tagging data is drawn from and submitted to the production version of Bible Tags. Therefore, please only submit valid tags when testing tagging functionality.`.gray)
+      console.log(``)
+      console.log(`NOTE: Even while testing locally, tagging data is submitted to the production version of Bible Tags. Therefore, be sure to submit valid tags if you test tagging functionality.`.yellow)
     }
     console.log(``)
 
