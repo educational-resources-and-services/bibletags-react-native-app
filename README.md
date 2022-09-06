@@ -68,7 +68,6 @@ The following files and folders allow for significant customization of the app w
 * language.js
 * menu.js
 * RouteSwitcher.js
-* versions.js
 
 ### Translating the UI
 

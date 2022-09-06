@@ -47,6 +47,10 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, silent }
   }
   console.error = consoleError
 
+  // const uploads = [
+  //   { id: "/[embeddingAppId]/production//[versionId]/verses/1.db", path: "tenants/biblearc/versions/[versionId]/verses/1.db" },
+  // ]
+
   if(!uploads) {
     spinnies.fail('syncing', { text: `Sync failed` })
     throw new Error(`Could not sync versions to the cloud.`)
