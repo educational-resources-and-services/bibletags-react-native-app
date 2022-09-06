@@ -39,14 +39,7 @@ npm install
 npm run setup
 ```
 
-Optionally report errors to [Sentry](https://sentry.io) and/or analytics data to [Amplitude](https://amplitude.com) by appropriately replacing the following strings in `./app.json`:
-- `[SENTRY_ORGANIZATION]`
-- `[SENTRY_PROJECT]`
-- `[SENTRY_AUTH_TOKEN]`
-- `[SENTRY_DSN]`
-- `[AMPLITUDE_KEY]`
-
-### Testing a Bible Tags for Publishing
+### Testing a Bible Tags App for Publishing
 
 ```bash
 npm start
@@ -56,6 +49,12 @@ npm start
 
 ```bash
 npm run dev
+```
+
+### Adding Bible Versions
+
+```bash
+npm run import-bible
 ```
 
 ### Customization
@@ -82,11 +81,14 @@ The following files and folders allow for significant customization of the app w
 
 See also [the translation process readme for i18n](https://github.com/educational-resources-and-services/inline-i18n/blob/master/TRANSLATION_PROCESS.md).
 
-### Adding Bible Versions
+### Error Reporting and Analytics
 
-```bash
-npm run import-bible
-```
+Optionally report errors to [Sentry](https://sentry.io) and/or analytics data to [Amplitude](https://amplitude.com) by appropriately replacing the following strings in `./app.json`:
+- `[SENTRY_ORGANIZATION]`
+- `[SENTRY_PROJECT]`
+- `[SENTRY_AUTH_TOKEN]`
+- `[SENTRY_DSN]`
+- `[AMPLITUDE_KEY]`
 
 ## Initial Deployment To The App Stores
 
