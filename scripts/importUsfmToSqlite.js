@@ -343,6 +343,7 @@ const doubleSpacesRegex = /  +/g
     const appJsonUri = `${tenantDir}/app.json`
     const appJson = await fs.readJson(appJsonUri)
     const encryptionKey = appJson.expo.extra.BIBLE_VERSIONS_FILE_SECRET || "None"
+    const bundledVersionIds = appJson.expo.extra.DEFAULT_BIBLE_VERSIONS || []
 
     const scopeMapsById = {}
     let editVersionInfo=false
@@ -529,6 +530,7 @@ const doubleSpacesRegex = /  +/g
           `   (2) This will modify the following files`.gray,
           `       ${tenantDir}/versions.js`.gray,
           (versionInfo.bundled ? `       ${bundledVersionDir}/requires.js`.gray : null),
+          (versionInfo.bundled ? `       ${appJsonUri}`.gray : null),
           ``,
           ``,
         ].filter(l => l !== null).join(`\n`),
@@ -1316,6 +1318,15 @@ const doubleSpacesRegex = /  +/g
     console.log(`Updated ${tenantDir}/versions.js`)
     console.log(``)
 
+    if(versionInfo.bundled && !bundledVersionIds.includes(versionId)) {
+      // update app.json
+      let appJsonContents = await fs.readFile(`${tenantDir}/app.json`, { encoding: 'utf8' })
+      appJsonContents = appJsonContents.replace(/"DEFAULT_BIBLE_VERSIONS"\s*:\s*(\[[^[\]]*\])/g, `"DEFAULT_BIBLE_VERSIONS": ${JSON.stringify([ ...bundledVersionIds, versionId ])}`)
+      await fs.writeFile(`app.json`, appJsonContents)
+      console.log(`Updated ${tenantDir}/app.json...`)
+      console.log(``)
+    }
+
     // submit version to bible tags data, if changed
     if(serverVersionInfoKeys.some(key => !equalObjsIgnoreKeyOrdering(existingVersionInfo[key], versionInfo[key]))) {
 
@@ -1396,7 +1407,7 @@ const doubleSpacesRegex = /  +/g
         type: 'list',
         name: `confirmLocalDev`,
         message: `Set this version up for use in local development?`+` Includes adding this version to local DB and submitting word hashes locally.`.gray,
-        when: () => hasBackendSetup && !hasJsonInfoFile,
+        when: ({ confirmSyncVersionToDev }) => confirmSyncVersionToDev && hasBackendSetup && !hasJsonInfoFile,
         choices: [
           {
             name: `Yes`,
