@@ -12,7 +12,7 @@ const getVersionInfo = ({ tenantDir, versionId }) => {
   const matches = (
     versionsFile
       .replace(/removeIndentAndBlankStartEndLines/g, '')  // get rid of removeIndentAndBlankStartEndLines
-      .replace(/(files\s*:\s*)([a-z0-9]{2,9}Requires)(\s*,)/g, '$1"$2"$3')  // make requires into a string so we can do eval()
+      .replace(/(files\s*:\s*)([a-z0-9]{2,9}Requires)(\s*,?)/g, '$1"$2"$3')  // make requires into a string so we can do eval()
       .match(versionInfoRegex)
   )
 
