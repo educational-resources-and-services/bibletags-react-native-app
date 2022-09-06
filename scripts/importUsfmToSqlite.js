@@ -1410,17 +1410,11 @@ const doubleSpacesRegex = /  +/g
       },
     ]))
     if(confirmSyncVersionToDev) {
-      await goSyncVersions({ stage: `dev`, tenantDir })
+      await goSyncVersions({ stage: `dev`, tenantDir, skipSubmitWordHashes: !confirmLocalDev })
     }
 
-    console.log(removeIndent(`
-      Successfully...
-        (1) Created sqlite db files and placed them in \`${versionDir}\`${versionInfo.bundled ? ` and \`${bundledVersionDir}\`` : ``}
-        (2) Updated \`${tenantDir}/versions.js\`
-        (3) Reran change-tenant (to update the state so it is ready for running \`npm run dev\`)
-        (4) Synced \`${versionsDir}\` to the cloud for use in dev
-        ${confirmSyncVersionToDev ? `(5) Submitted word hashes for ${versionId} to the dev db for bibletags-data` : ``}
-    `).green)
+    console.log(`Import complete.`.green)
+    console.log(``)
 
     // the following section is custom import help code for Biblearc
     if(tenant === 'biblearc') {
@@ -1459,7 +1453,6 @@ const doubleSpacesRegex = /  +/g
         ],
       }]))
       if(confirmBiblearcImport) {
-        console.log(``)
         const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force && cd -`
         console.log(`Running the following:\n\n${biblearcCommand}\n`)
         await new Promise((resolve, reject) => {
