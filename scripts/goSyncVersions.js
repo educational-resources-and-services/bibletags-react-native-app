@@ -76,7 +76,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, silent }
       console.log(`  ** Starting \`bibletags-data\` to be able to submit word hashes locally...`)
       await new Promise(resolve => exec(`kill -9 $(lsof -i:8082 -t) 2> /dev/null`, resolve))  // make sure it isn't already running
       exec(`cd ../bibletags-data && npm start`)
-      await new Promise(resolve => setTimeout(resolve, 1000))  // give it 1 second to start
+      await new Promise(resolve => setTimeout(resolve, 5000))  // wait a few more seconds for the graphql server to start
     }
 
     const submitWordHashSetsFailingVersionIds = []
