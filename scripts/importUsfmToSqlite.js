@@ -232,11 +232,9 @@ const doubleSpacesRegex = /  +/g
     try {
       infoFromJsonFile = JSON.parse(fs.readFileSync(`${folders[0]}/../../biblearc-download-info.json`, { encoding: 'utf8' }))
     } catch (err) {}
-    const hasJsonInfoFile = !!infoFromJsonFile.versionId
-    if(hasJsonInfoFile) {
-      const errorMessage = validateNewVersionId(infoFromJsonFile.versionId)
-      if(typeof errorMessage === 'string') {
-        throw new Error(errorMessage)
+    if(infoFromJsonFile.versionId) {
+      if(!/^[a-z0-9]{2,9}$/.test(infoFromJsonFile.versionId)) {
+        throw new Error(`biblearc-download-info.json contains invalid version id`)
       }
     }
 
@@ -247,7 +245,7 @@ const doubleSpacesRegex = /  +/g
         type: 'autocomplete',
         name: 'versionStr',
         message: 'Version',
-        when: () => !!existingVersions && !hasJsonInfoFile,
+        when: () => !!existingVersions && !infoFromJsonFile.versionId,
         source: async (answersSoFar, input) => {
           const lowerCaseInput = (input || "").toLowerCase()
           const options = []
@@ -294,10 +292,16 @@ const doubleSpacesRegex = /  +/g
       versionId = versionStr.match(/\(ID: ([a-z0-9]{2,9})\)$/)[1]
     }
     const existingVersionInfo = existingVersions.find(({ id }) => id === versionId) || {}
+    const nonInteractive = !!infoFromJsonFile.versionId && Object.values(existingVersionInfo).length === 0
+
+    if(infoFromJsonFile.versionId && !nonInteractive) {
+      console.log(`✓ `.green+`The version ID ${versionId} already exists for the version named "${existingVersionInfo.name}". `.bold+` Only continue if this is correct! `.bgRed.brightWhite)
+    }
+
     let versionInfo = {
       ...cloneObj(existingVersionInfo),
       ...(
-        hasJsonInfoFile
+        infoFromJsonFile.versionId
           ? {
             name: infoFromJsonFile.name,
             abbr: infoFromJsonFile.abbr,
@@ -354,7 +358,7 @@ const doubleSpacesRegex = /  +/g
         ...getVersionInfo({ tenantDir, versionId }),
       }
 
-      if(!hasJsonInfoFile) {
+      if(!nonInteractive) {
         editVersionInfo = !(await inquirer.prompt([{
           type: 'list',
           name: `useVersionInfo`,
@@ -377,7 +381,7 @@ const doubleSpacesRegex = /  +/g
 
       // version doesn't exist in versions.js
 
-      if(!hasJsonInfoFile) {
+      if(!nonInteractive) {
         const { addToVersionsJs } = await inquirer.prompt([{
           type: 'list',
           name: `addToVersionsJs`,
@@ -516,7 +520,7 @@ const doubleSpacesRegex = /  +/g
     const bundledVersionsDir = `${tenantDir}/assets/bundledVersions`
     const bundledVersionDir = `${bundledVersionsDir}/${versionWithEncryptedIfRelevant}`
 
-    if(!hasJsonInfoFile) {
+    if(!nonInteractive) {
       const { confirmCreateUpdateVersesDBFiles } = (await inquirer.prompt([{
         type: 'list',
         name: `confirmCreateUpdateVersesDBFiles`,
@@ -801,7 +805,7 @@ const doubleSpacesRegex = /  +/g
 
       allVerses.sort((a,b) => a[0].loc < b[0].loc ? -1 : 1)
 
-      const getOriginalLocsFromLoc = (loc, testVersionInfo) => {
+      const getOriginalLocsFromLoc = (loc, testVersionInfo, keepWordNums) => {
         const originalRefs = getCorrespondingRefs({
           baseVersion: {
             info: testVersionInfo || versionInfo,
@@ -811,14 +815,18 @@ const doubleSpacesRegex = /  +/g
             versificationModel: 'original',
           },
         })
-  
+
         if(!originalRefs) {
           if(testVersionInfo) return
-          console.log(loc)
-          throw new Error(`Versification error`)
+          throw new Error(`Versification error: ${loc}`)
         }
-  
-        return originalRefs.map(originalRef => getLocFromRef(originalRef).split(':')[0])
+
+        let originalLocs = originalRefs.map(originalRef => getLocFromRef(originalRef))
+        if(!keepWordNums) {
+          originalLocs = originalLocs.map(originalLoc => originalLoc.split(':')[0])
+        }
+
+        return originalLocs
       }
 
       if(!versionInfo.versificationModel || editVersionInfo) {
@@ -827,7 +835,7 @@ const doubleSpacesRegex = /  +/g
 
         const sampleVerse = allVerses[0][0]
 
-        if(hasJsonInfoFile) {
+        if(nonInteractive) {
 
           if(getWordsFromUsfm(sampleVerse.usfm).length < 5) {
             throw new Error(`wordDividerRegex does not appear to be correct.`)
@@ -947,7 +955,7 @@ const doubleSpacesRegex = /  +/g
           clearLines(3)
         }
 
-        let confirmFullRecheckOfMappings = Object.values(versionInfo.extraVerseMappings).length === 0 && !hasJsonInfoFile
+        let confirmFullRecheckOfMappings = false
 
         try {
           const prevExtraVerseMappings = JSON.parse(await fs.readFile(tempFilePath, { encoding: 'utf8' }))
@@ -972,11 +980,11 @@ const doubleSpacesRegex = /  +/g
           }
         } catch(err) {}
 
-        if(!confirmFullRecheckOfMappings && !hasJsonInfoFile) {
+        if(!confirmFullRecheckOfMappings && !nonInteractive) {
           const answers = (await inquirer.prompt([{
             type: 'list',
             name: `confirmFullRecheckOfMappings`,
-            message: `Do you want to rerun a thorough versification mappings check?`,
+            message: `Do you want to run a thorough versification mappings check?`+(Object.values(versionInfo.extraVerseMappings).length === 0 ? ` Strongly recommended`.gray : ``),
             choices: [
               {
                 name: `Yes`,
@@ -985,6 +993,10 @@ const doubleSpacesRegex = /  +/g
               {
                 name: `No`,
                 value: false,
+              },
+              {
+                name: `No – in fact, check only the bare minimum`+` Only choose if you plan to reimport later and correct verse mappings`.gray,
+                value: null,
               },
             ],
             default: false,
@@ -1049,11 +1061,9 @@ const doubleSpacesRegex = /  +/g
             })
           }
 
-          // TODO: for !hasJsonInfoFile, add any non-consecutive verses to originalLocsToCheck (except for those in skipsUnlikelyOriginals)
-
           // automatically handle a common versification correction
           if(
-            hasJsonInfoFile
+            nonInteractive
             && versionInfo.versificationModel === `kjv`
             && Object.values(versionInfo.extraVerseMappings).length === 0
           ) {
@@ -1086,13 +1096,15 @@ const doubleSpacesRegex = /  +/g
           // find exceptions to skipsUnlikelyOriginals setting and auto-correct them + add in verses that do not match
           if(versionInfo.versificationModel !== `lxx`) {
             originalLoc = `01001000`
+            let idx = 0
             while(originalLoc = getNextOriginalLoc(originalLoc)) {
-              await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
               const { bookId } = getRefFromLoc(originalLoc)
               if(versionInfo.partialScope === `nt` && bookId < 40) continue
               if(versionInfo.partialScope === `ot` && bookId > 39) continue
 
-              if(!getCorrespondingRefs({
+              if(idx++ % 100 === 0) await new Promise(r => setTimeout(r))  // need to make this async so the spinner works
+
+              const correspondingTranslationRefs = getCorrespondingRefs({
                 baseVersion: {
                   info: {
                     versificationModel: 'original',
@@ -1100,15 +1112,42 @@ const doubleSpacesRegex = /  +/g
                   ref: getRefFromLoc(originalLoc),
                 },
                 lookupVersionInfo: versionInfo,
-              })) {
+              })
+
+              if(!correspondingTranslationRefs) {
 
                 if(unlikelyOriginals.includes(originalLoc) && !versionInfo.skipsUnlikelyOriginals) {
                   versionInfo.extraVerseMappings[originalLoc] = null
-                } else {
-                  originalLocsToCheck.push(originalLoc)
+                }
+
+              } else {
+
+                // check that each translation verse exists
+                correspondingTranslationRefs.forEach(translationRef => {
+                  const { bookId } = translationRef
+                  const translationLoc = getLocFromRef(translationRef).split(':')[0]
+                  const verse = allVerses[versionInfo.partialScope === `nt` ? (bookId-40) : (bookId-1)].find(({ loc }) => loc === translationLoc)
+                  translationRef.existsInOriginal = !!verse
+                })
+
+                if(!correspondingTranslationRefs.every(({ existsInOriginal }) => existsInOriginal)) {
+                  const firstValidTranslationRef = correspondingTranslationRefs.find(({ existsInOriginal }) => existsInOriginal)
+                  Object.keys(versionInfo.extraVerseMappings).forEach(origLoc => {
+                    if(origLoc.split(':')[0] === originalLoc) {
+                      delete versionInfo.extraVerseMappings[origLoc]
+                    }
+                  })
+                  versionInfo.extraVerseMappings[originalLoc] = firstValidTranslationRef ? getLocFromRef(firstValidTranslationRef) : null
+                  if(!nonInteractive && confirmFullRecheckOfMappings !== null) {
+                    // Typically, this is due to a verse range translation (e.g. \v 1-2 verse here.) which is only tagged as the first verse in the range.
+                    // Thus, include the previous verse and current verse in the check
+                    originalLocsToCheck.push(getPreviousOriginalLoc(originalLoc))
+                    originalLocsToCheck.push(originalLoc)
+                  }
                 }
 
               }
+
             }
           }
 
@@ -1143,13 +1182,13 @@ const doubleSpacesRegex = /  +/g
                 extraVerseMappingsLocs.push(null, null)
               }
 
-              if(hasJsonInfoFile) break
+              if(nonInteractive) break
 
               const { book, chapterVerse } = (await inquirer.prompt([
                 {
                   type: 'list',
                   name: `confirmEditOthers`,
-                  message: `Do you want to modify versification mappings for other verses?`,
+                  message: `Do you want to modify versification mappings for these or other verses?`,
                   choices: [
                     {
                       name: `Yes`,
@@ -1205,7 +1244,11 @@ const doubleSpacesRegex = /  +/g
           // group originalLocs into sets
           const originalLocsSets = []
           ;[ ...new Set(originalLocsToCheck) ].sort().forEach(originalLoc => {
-            if((originalLocsSets.slice(-1)[0] || []).slice(-1)[0] === getPreviousOriginalLoc(originalLoc)) {
+            const lastAddedOriginalLoc = (originalLocsSets.slice(-1)[0] || []).slice(-1)[0] || ``
+            if(
+              getRefFromLoc(lastAddedOriginalLoc).bookId === getRefFromLoc(originalLoc).bookId
+              && lastAddedOriginalLoc === getPreviousOriginalLoc(originalLoc)
+            ) {
               originalLocsSets.slice(-1)[0].push(originalLoc)
             } else {
               originalLocsSets.push([ originalLoc ])
@@ -1386,12 +1429,12 @@ const doubleSpacesRegex = /  +/g
     }
 
     const hasBackendSetup = !!(await fs.pathExists(`../bibletags-data`))
-    const { confirmSyncVersionToDev=false, confirmLocalDev=false } = (await inquirer.prompt([
+    const { confirmSyncVersionToDev=nonInteractive, confirmLocalDev=nonInteractive } = (await inquirer.prompt([
       {
         type: 'list',
         name: `confirmSyncVersionToDev`,
         message: `Set this version up for testing locally?`+` Involves syncing versions to the cloud.`.gray,
-        when: () => !hasJsonInfoFile,
+        when: () => !nonInteractive,
         choices: [
           {
             name: `Yes`,
@@ -1407,7 +1450,7 @@ const doubleSpacesRegex = /  +/g
         type: 'list',
         name: `confirmLocalDev`,
         message: `Set this version up for use in local development?`+` Includes adding this version to local DB and submitting word hashes locally.`.gray,
-        when: ({ confirmSyncVersionToDev }) => confirmSyncVersionToDev && hasBackendSetup && !hasJsonInfoFile,
+        when: ({ confirmSyncVersionToDev }) => confirmSyncVersionToDev && hasBackendSetup && !nonInteractive,
         choices: [
           {
             name: `Yes`,
@@ -1421,7 +1464,7 @@ const doubleSpacesRegex = /  +/g
       },
     ]))
     if(confirmSyncVersionToDev) {
-      await goSyncVersions({ stage: `dev`, tenantDir, skipSubmitWordHashes: !confirmLocalDev })
+      await goSyncVersions({ stage: `dev`, tenantDir, skipSubmitWordHashes: !confirmLocalDev, versionIdsToForceSubmitWordHashes: [ versionId ] })
     }
 
     console.log(`Import complete.`.green)
@@ -1451,7 +1494,7 @@ const doubleSpacesRegex = /  +/g
         type: 'list',
         name: `confirmBiblearcImport`,
         message: `Import to Biblearc?`,
-        when: () => !hasJsonInfoFile,
+        when: () => !nonInteractive,
         choices: [
           {
             name: `Yes`,

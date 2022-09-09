@@ -208,7 +208,7 @@ const graphqlUrl = `https://data.bibletags.org/graphql`
 
     // sync versions
     const skipSubmitWordHashes = !(await fs.pathExists(`../bibletags-data`))
-    await goSyncVersions({ stage: `dev`, tenantDir: `.`, skipSubmitWordHashes, silent: true })
+    await goSyncVersions({ stage: `dev`, tenantDir: `.`, skipSubmitWordHashes, silent: true, versionIdsToForceSubmitWordHashes: versionIds })
 
     console.log(``)
     console.log(`Basic setup complete.`.green.bold)
