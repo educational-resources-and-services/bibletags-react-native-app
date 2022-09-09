@@ -21,7 +21,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, versionI
   require('dotenv').config()
 
   const s3Dir = `s3://cdn.bibletags.org/tenants/${process.env.EMBEDDING_APP_ID}/${stage}/versions`
-  let syncDir = `${tenantDir}/versions`
+  let syncDir = `${tenantDir}/versions`.replace(/^\.\//, '')
 
   console.log(``)
   spinnies.add('syncing', { text: `Syncing ${syncDir} to ${s3Dir}`+` This takes several minutes`.gray })
