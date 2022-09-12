@@ -906,7 +906,7 @@ const doubleSpacesRegex = /  +/g
             console.log(``)
             console.log(`You will need to provide a Regular Expression for word dividers. As a reference, a simplified version of the standard Regular Expression is as follows:`)
             console.log(``)
-            console.log(`(?:[\\0-\\/:-@\\[-\`\\{-\\xA9\\xAB-\\xB4\\xB6-\\xB9\\xBB-\\xBF\\xD7\\xF7\\u02C2-\\u02C5])`.gray)
+            console.log(`(?:[\\0-\\/:-@\\[-\`\\x7B-\\xA9\\xAB-\\xB4\\xB6-\\xB9\\xBB-\\xBF\\xD7\\xF7\\u02C2-\\u02C5])`.gray)
             console.log(``)
             const { wordDividerRegex } = (await inquirer.prompt([{
               type: 'input',
@@ -914,7 +914,7 @@ const doubleSpacesRegex = /  +/g
               message: `Word divider Regular Expression (leave blank to use the default)`,
             }]))
             if(wordDividerRegex) {
-              versionInfo.wordDividerRegex = wordDividerRegex
+              versionInfo.wordDividerRegex = wordDividerRegex.replace(/\\{/g, '\\x7B')
             } else {
               versionInfo.wordDividerRegex = null
             }
