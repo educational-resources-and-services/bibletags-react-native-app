@@ -202,7 +202,7 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, versionI
                 if(!submitWordHashSetsFailingVersionIds.includes(versionId)) {
                   submitWordHashSetsFailingVersionIds.push(versionId)
                   console.log(``)
-                  console.log(`    *** FAILED ***`)
+                  console.log(`    *** FAILED *** (${err.message.slice(0, 200)})`)
                 }
               }
             }
