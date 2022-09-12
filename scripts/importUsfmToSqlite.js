@@ -588,6 +588,28 @@ const doubleSpacesRegex = /  +/g
               }
             })
 
+            // fix common semi-invalid USFM where a verse portion is presented (e.g. `\v 1a`)
+            .replace(/\\v ([0-9]+)([a-z])( \\vp .*?\\vp\*)?( |$)/g, (match, verse, letter, vp, final) => {
+              vp = vp || ` \\vp ${verse}${letter}\\vp*`
+              if(letter === `a`) {
+                return `\n\\v ${verse}${vp}${final}`
+              } else {
+                return `${vp}${final}`
+              }
+            })
+
+            // fix bad combo of last two instances of semi-invalid USFM
+              // e.g. `\\v 15a [words, etc]\n\\v 15b-16`
+              //       turned into `\\v 15 \\vp 15a\\vp* [words, etc]\n\\v 15 \\vp 15b-16\\vp*` by above
+              //       but should be `\\v 15 \\vp 15a\\vp* [words, etc]\n\\v 16 \\vp 15b-16\\vp*`
+            .replace(/\\v ([0-9]+)( \\vp [^\\]+\\vp\* (?:[^\\]|\\(?!v ))+)\\v ([0-9]+)( \\vp [^\\]+\\vp\*)/g, (match, v1, vpAndContent1, v2, vp2) => {
+              if(v1 === v2) {
+                return `\\v ${v1}${vpAndContent1}\\v ${parseInt(v2, 10) + 1}${vp2}`
+              } else {
+                return match
+              }
+            })
+
             // handle bracketed [\\v #] coming in the middle of a line
             .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
 
