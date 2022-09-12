@@ -66,13 +66,14 @@ const sectionHeadingRegex = /^\\s[0-9p]? .*$/
 const chapterCharacterRegex = /^\\cp .*$/
 const chapterDescRegex = /^\\cd .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
-const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\add (?:[^\\]|\\(?!add\*))*\\add\*| \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
+const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
+const misuseOfAddRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?:[ \n]+\\add (?:[^\\]|\\(?!add\*))*\\add\*)+$/
 const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
 const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]*|lf|lim[0-9]*)$/
 const psalmTitleRegex = /^\\d( .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
-const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?|^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*) \\add (?:[^\\]|\\(?!add\*))*\\add\*$)/gm
+const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
 const allTagsRegex = /\\[a-z0-9]+ ?/g
@@ -717,6 +718,8 @@ const doubleSpacesRegex = /  +/g
             continue
           }
 
+          if(misuseOfAddRegex.test(line)) throw new Error(`Misuse of \\add tag for non-Bible content: ${line}`)
+
           // get verse
           if(verseRegex.test(line) || psalmTitleRegex.test(line)) {
 
@@ -742,7 +745,7 @@ const doubleSpacesRegex = /  +/g
             continue
           }
 
-          if(verses.length === 0) throw new Error(`File contains unknown marker or scripture content prior to first verse: ${line}.`)
+          if(verses.length === 0) throw new Error(`File contains unknown marker or scripture content prior to first verse: ${line}`)
 
           verses[verses.length - 1].usfm = [
             ...verses[verses.length - 1].usfm,
