@@ -614,6 +614,9 @@ const doubleSpacesRegex = /  +/g
             // fix when there is a blank \d before a verse
             .replace(/\\d[ \n]\\v/g, '\\qd\n\\v')
 
+            // we do not currently support \w tags in translations (THIS COULD CHANGE)
+            .replace(/\\w ((?:[^\\]|\\(?!w\*))+)\\w\*/g, '$1')
+
             // handle bracketed [\\v #] coming in the middle of a line
             .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
 
