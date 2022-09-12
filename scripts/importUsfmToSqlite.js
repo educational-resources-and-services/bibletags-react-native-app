@@ -67,7 +67,7 @@ const chapterCharacterRegex = /^\\cp .*$/
 const chapterDescRegex = /^\\cd .*$/
 const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
-const misuseOfAddRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?:[ \n]+\\add (?:[^\\]|\\(?!add\*))*\\add\*)+$/
+const probableMisuseOfAddRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?:[ \n]+\\add (?:[^\\]|\\(?!add\*))*\\add\*)+$/
 const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
 const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]*|lf|lim[0-9]*)$/
 const psalmTitleRegex = /^\\d( .*)?$/
@@ -98,7 +98,7 @@ const doubleSpacesRegex = /  +/g
   // )
   // process.exit()
 
-  let hasChange
+  let hasChange, numProbableMisusesOfAdd = 0
   const replaceIfUpdated = async ({ path, tempPath, options, encryptionKey, numRows }) => {
 
     const decrypt = encryptedContent => (
@@ -724,7 +724,7 @@ const doubleSpacesRegex = /  +/g
             continue
           }
 
-          if(misuseOfAddRegex.test(line)) throw new Error(`Misuse of \\add tag for non-Bible content: ${line}`)
+          if(probableMisuseOfAddRegex.test(line) && numProbableMisusesOfAdd++ > 20) throw new Error(`Misuse of \\add tag for non-Bible content: ${line}`)
 
           // get verse
           if(verseRegex.test(line) || psalmTitleRegex.test(line)) {
