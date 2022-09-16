@@ -124,9 +124,9 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, versionI
     for(let versionId in wordHashesToSubmitByVersionId) {
 
       if(stage === 'dev') {
-        console.log(`  > run addVersion(${versionId}) to ${graphqlUrl}`)
         const versionInfo = getVersionInfo({ tenantDir, versionId })
         if(versionInfo) {
+          console.log(`  > run addVersion(${versionId}) to ${graphqlUrl}`)
           await request(
             graphqlUrl,
             gql`
