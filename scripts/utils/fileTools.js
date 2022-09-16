@@ -70,7 +70,7 @@ const updateVersionsFile = ({ versionsFile, versionInfo, hasChange }) => {
     (
       versionInfoRegex.test(newVersionsFile)
         ? newVersionsFile.replace(versionInfoRegex, insertStr)
-        : newVersionsFile.replace(/(\]\s*export default bibleVersions)/, `  ${insertStr},\n$1`)
+        : newVersionsFile.replace(/(\]\s*export default bibleVersions)/, `  ${insertStr}$1`)
     )
       .replace(/"([^"]+Requires)"/g, '$1')
       .replace(/\n    "([^"]+)"/g, '\n    $1')
