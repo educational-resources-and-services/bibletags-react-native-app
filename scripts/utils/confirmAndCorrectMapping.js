@@ -1,5 +1,5 @@
 const Database = require('better-sqlite3')
-const { getBibleBookName, splitVerseIntoWords } = require("@bibletags/bibletags-ui-helper")
+const { getBibleBookName, splitVerseIntoWords, getLanguageInfo } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getNextOriginalLoc, getLocFromRef,
         getVerseMappingsByVersionInfo } = require('@bibletags/bibletags-versification')
 require('colors')
@@ -63,6 +63,8 @@ const wordsCacheByVersionIdAndLoc = {}
 
 const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenantDir, progress }) => {
 
+  const languageCodeTwoDigit = getLanguageInfo(versionInfo.languageId).iso6391 || versionInfo.id
+
   // validate input
   let bookId
   for(let idx=0; idx<originalLocs.length; idx++) {
@@ -97,7 +99,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenantDir, 
     failGracefully,
   }) => {
     loc = (loc || getLocFromRef(ref)).split(':')[0]
-
+    
     if(!wordsCacheByVersionIdAndLoc[`${versionId} ${loc}`]) {
 
       const { bookId, chapter, verse } = ref || getRefFromLoc(loc)
@@ -128,7 +130,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenantDir, 
           const segmentSize = 10
           for(let i=0; i<newWordsToTranslate.length; i+=segmentSize) {
             const wordsToTranslateSegment = newWordsToTranslate.slice(i, i + segmentSize)
-            translate.translate(wordsToTranslateSegment, { to: 'en', from: 'fr' })
+            translate.translate(wordsToTranslateSegment, { to: 'en', from: languageCodeTwoDigit })
               .then(translations => {
                 wordsToTranslateSegment.forEach((translationWord, idx) => {
                   googleTranslatedWords[translationWord] = translations[0][idx]
