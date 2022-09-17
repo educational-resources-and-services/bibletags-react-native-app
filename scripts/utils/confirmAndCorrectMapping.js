@@ -260,7 +260,7 @@ const confirmAndCorrectMapping = async ({ originalLocs, versionInfo, tenantDir, 
 
     // get rid of unnecessary mappings
     for(let key in extraVerseMappings) {
-      if(/^[0-9]{8}$/.test(key) && key === extraVerseMappings[key] && !oldVerseMappingsByVersionInfo.originalToTranslation[key]) {
+      if(/^[0-9]{8}$/.test(key) && key === extraVerseMappings[key] && oldVerseMappingsByVersionInfo.originalToTranslation[key] === undefined) {
         delete extraVerseMappings[key]
       }
     }
