@@ -71,16 +71,19 @@ const goSyncVersions = async ({ stage, tenantDir, skipSubmitWordHashes, versionI
   if(!skipSubmitWordHashes && !forbidSubmitWordHashes) {
 
     const wordHashesToSubmitByVersionId = {}
-    for(let upload of uploads) {
-      const idPieces = upload.id.split('/')
-      const versionId = idPieces[4]
-      const bookId = parseInt((idPieces[6] || ``).split('.')[0], 10)
 
-      if(!bookId) continue
+    if(stage !== `dev`) {
+      for(let upload of uploads) {
+        const idPieces = upload.id.split('/')
+        const versionId = idPieces[4]
+        const bookId = parseInt((idPieces[6] || ``).split('.')[0], 10)
 
-      wordHashesToSubmitByVersionId[versionId] = wordHashesToSubmitByVersionId[versionId] || []
-      if(!wordHashesToSubmitByVersionId[versionId].includes(bookId)) {
-        wordHashesToSubmitByVersionId[versionId].push(bookId)
+        if(!bookId) continue
+
+        wordHashesToSubmitByVersionId[versionId] = wordHashesToSubmitByVersionId[versionId] || []
+        if(!wordHashesToSubmitByVersionId[versionId].includes(bookId)) {
+          wordHashesToSubmitByVersionId[versionId].push(bookId)
+        }
       }
     }
 
