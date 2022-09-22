@@ -3,7 +3,7 @@ const fs = require('fs-extra')
 const CryptoJS = require("react-native-crypto-js")
 const { i18n, i18nNumber } = require("inline-i18n")
 const { wordPartDividerRegex, defaultWordDividerRegex, passOverI18n, passOverI18nNumber,
-        normalizeSearchStr, getBibleBookNames,
+        normalizeSearchStr, getBibleBookNames, splitVerseIntoWords,
         getBookIdFromUsfmBibleBookAbbr, getAllLanguages, getLanguageInfo, getBibleBookName } = require("@bibletags/bibletags-ui-helper")
 const { getCorrespondingRefs, getRefFromLoc, getLocFromRef, getVerseMappingsByVersionInfo,
         isValidRefInOriginal, getNextOriginalLoc, getPreviousOriginalLoc } = require('@bibletags/bibletags-versification')
@@ -69,14 +69,15 @@ const chapterRegex = /^\\c ([0-9]+)$/
 const paragraphWithoutContentRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
 const probableMisuseOfAddRegex = /^\\(?:[pm]|p[ormc]|cls|pm[ocr]|pi[0-9]*|mi|nb|ph[0-9]*)(?:[ \n]+\\add (?:[^\\]|\\(?!add\*))*\\add\*)+$/
 const poetryWithoutBiblicalContentRegex = /^\\(?:q[0-9rcd]?|qm[0-9]*|qa .*|b)(?: \\f (?:[^\\]|\\(?!f\*))*\\f\*| \\fe (?:[^\\]|\\(?!fe\*))*\\fe\*| \\x (?:[^\\]|\\(?!x\*))*\\x\*)*$/
+const tableTagsWithoutBiblicalContentRegex = /^(?:\\(?:tr|(?:thr?|tcr?)(?:[0-9]+(?:-[0-9]+)?)?)(?: |$))+$/
 const listItemWithoutBiblicalContentRegex = /^\\(?:lh|li[0-9]*|lf|lim[0-9]*)$/
 const psalmTitleRegex = /^\\d( .*)?$/
 const verseRegex = /^\\v ([0-9]+)(?: .*)?$/
 const wordRegex = /\\w (?:([^\|]+?)\|.*?|.*?)\\w\*/g
-const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: \\vp [0-9]+-[0-9]+\\vp\*)? ?)/gm
+const extraBiblicalRegex = /(?:^\\(?:mte?|ms|s)[0-9]* .*$|^\\(?:[ms]?r|sp|cd|qa) .*$|\\rq .*?\\rq\*|^\\(?:cp|c) .*$|\\v [0-9]+(?: |$)|\\vp [^\\]+\\vp\*)/gm
 const crossRefRegex = /\\f .*?\\f\*|\\fe .*?\\fe\*/g
 const footnoteRegex = /\\x .*?\\x\*/g
-const allTagsRegex = /\\[a-z0-9]+ ?/g
+const allTagsRegex = /\\\+?[a-z0-9]+(?:[ *\n]|$)/g
 const newlinesRegex = /\n/g
 const doubleSpacesRegex = /  +/g
 
@@ -326,7 +327,12 @@ const doubleSpacesRegex = /  +/g
             .replace(crossRefRegex, '')
             .replace(allTagsRegex, '')
             .replace(wordPartDividerRegex, '')
+            .replace(/(\w)’(\w)/g, "$1ESCAPEDAPOSTRAPHE$2")  // escape apostraphes
+            .replace(/([0-9]),([0-9]{3}),([0-9]{3})/g, "$1ESCAPEDCOMMA$2ESCAPEDCOMMA$3")
+            .replace(/([0-9]),([0-9]{3})/g, "$1ESCAPEDCOMMA$2")
             .replace(new RegExp(versionInfo.wordDividerRegex || defaultWordDividerRegex, 'g'), ' ')
+            .replace(/ESCAPEDAPOSTRAPHE/g, "’")  // unescape apostraphes
+            .replace(/ESCAPEDCOMMA/g, ",")
             .replace(newlinesRegex, ' ')
             .replace(doubleSpacesRegex, ' ')
             .trim()
@@ -581,29 +587,29 @@ const doubleSpacesRegex = /  +/g
             .replace(/\r/g, '')
 
             // fix common semi-invalid USFM where a verse range is presented (e.g. `\v 1-2`)
-            .replace(/\\v ([0-9]+)(b?)([-–־,\u200f\u200e]+)([0-9]+)(a?)( \\vp .*?\\vp\*)?( |$)/g, (match, v1, b, dash, v2, a, vp, final) => {
-              if(vp) {
-                return `\\v ${v1}${vp}${final}`
+            .replace(/\\v ([0-9]+)(b?)([-–־,\u200f\u200e]+)([0-9]+)(a?)( \\vp [^\\]+\\vp\*| |$)/g, (match, v1, b, dash, v2, a, vpOrSpace) => {
+              if(/\\vp/.test(vpOrSpace)) {
+                return `\\v ${v1}${vpOrSpace}`
               } else {
-                return `\\v ${v1} \\vp ${v1}${b}${dash}${v2}${a}\\vp*${final}`
+                return `\\v ${v1} \\vp ${v1}${b}${dash}${v2}${a}\\vp*`
               }
             })
 
             // fix common semi-invalid USFM where a verse portion is presented (e.g. `\v 1a`)
-            .replace(/\\v ([0-9]+)([a-z])( \\vp .*?\\vp\*)?( |$)/g, (match, verse, letter, vp, final) => {
-              vp = vp || ` \\vp ${verse}${letter}\\vp*`
+            .replace(/\\v ([0-9]+)([a-z])( \\vp [^\\]+\\vp\*| |$)/g, (match, verse, letter, vpOrSpace) => {
+              const vp = /\\vp/.test(vpOrSpace) ? vpOrSpace.trim() : ` \\vp ${verse}${letter}\\vp*`
               if(letter === `a`) {
-                return `\n\\v ${verse}${vp}${final}`
+                return `\n\\v ${verse} ${vp}`
               } else {
-                return `${vp}${final}`
+                return `${vp}`
               }
             })
 
             // fix bad combo of last two instances of semi-invalid USFM
               // e.g. `\\v 15a [words, etc]\n\\v 15b-16`
-              //       turned into `\\v 15 \\vp 15a\\vp* [words, etc]\n\\v 15 \\vp 15b-16\\vp*` by above
-              //       but should be `\\v 15 \\vp 15a\\vp* [words, etc]\n\\v 16 \\vp 15b-16\\vp*`
-            .replace(/\\v ([0-9]+)( \\vp [^\\]+\\vp\* (?:[^\\]|\\(?!v ))+)\\v ([0-9]+)( \\vp [^\\]+\\vp\*)/g, (match, v1, vpAndContent1, v2, vp2) => {
+              //       turned into `\\v 15 \\vp 15a\\vp*[words, etc]\n\\v 15 \\vp 15b-16\\vp*` by above
+              //       but should be `\\v 15 \\vp 15a\\vp*[words, etc]\n\\v 16 \\vp 15b-16\\vp*`
+            .replace(/\\v ([0-9]+)( \\vp [^\\]+\\vp\*(?:[^\\]|\\(?!v ))+)\\v ([0-9]+)( \\vp [^\\]+\\vp\*)/g, (match, v1, vpAndContent1, v2, vp2) => {
               if(v1 === v2) {
                 return `\\v ${v1}${vpAndContent1}\\v ${parseInt(v2, 10) + 1}${vp2}`
               } else {
@@ -629,7 +635,7 @@ const doubleSpacesRegex = /  +/g
 
         for(let line of lines) {
 
-          if(/.\\[vc] /.test(line)) throw new Error(`\\v or \\c in the middle of a line: ${line}`)
+          if(/.\\[vcd] /.test(line)) throw new Error(`\\v or \\c or \\d in the middle of a line: ${line}`)
 
           // fix common misuse of \d in Psalm 119
           if(
@@ -718,6 +724,7 @@ const doubleSpacesRegex = /  +/g
             || chapterDescRegex.test(line)
             || paragraphWithoutContentRegex.test(line)
             || poetryWithoutBiblicalContentRegex.test(line)
+            || tableTagsWithoutBiblicalContentRegex.test(line)
             || listItemWithoutBiblicalContentRegex.test(line)
           ) {
             goesWithNextVsText.push(line)
@@ -772,7 +779,7 @@ const doubleSpacesRegex = /  +/g
         verses = verses.filter(({ usfm }, idx) => {
           if(getWordsFromUsfm(usfm).length === 0) {  // this is before wordDividerRegex is confirmed, but it shouldn't matter since we are just making sure it has ANY words
             if(verses[idx+1]) {
-              verses[idx+1].usfm = usfm.replace(/\\(?:d|v [0-9]+)(?= |\n|$)/g, '') + verses[idx+1].usfm
+              verses[idx+1].usfm = usfm.replace(/\\(?:d|v [0-9]+)(?: |\n|$)/g, '') + '\n' + verses[idx+1].usfm
             }
             return false
           }
@@ -1311,6 +1318,18 @@ const doubleSpacesRegex = /  +/g
           const originalLocs = verse.loc ? getOriginalLocsFromLoc(verse.loc) : []
           const originalLoc = `${originalLocs[0]}-${originalLocs.length > 1 ? originalLocs.slice(-1)[0] : ``}`
           // previous line purposely has a dash at the end if it is not a range; this is so that the object keys keep insert ordering
+
+          const words = splitVerseIntoWords({ usfm: verse.usfm, ...versionInfo })
+          if(newWords.length !== words.length) {
+            console.log(``)
+            console.log(verse.usfm)
+            console.log(``)
+            console.log(newWords)
+            console.log(``)
+            console.log(words)
+            console.log(``)
+            throw new Error(`Discrepenacy in number of words between getWordsFromUsfm (${newWords.length}) and splitVerseIntoWords (${words.length}) for ${verse.loc}. `)
+          }
 
           newWords.forEach(word => {
 
