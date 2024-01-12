@@ -328,9 +328,11 @@ const doubleSpacesRegex = /  +/g
             .replace(allTagsRegex, '')
             .replace(wordPartDividerRegex, '')
             .replace(/(\w)’(\w)/g, "$1ESCAPEDAPOSTRAPHE$2")  // escape apostraphes
+            .replace(/(\w)'(\w)/g, "$1ESCAPEDPSEUDOAPOSTRAPHE$2")  // escape apostraphes
             .replace(/([0-9]),([0-9]{3}),([0-9]{3})/g, "$1ESCAPEDCOMMA$2ESCAPEDCOMMA$3")
             .replace(/([0-9]),([0-9]{3})/g, "$1ESCAPEDCOMMA$2")
             .replace(new RegExp(versionInfo.wordDividerRegex || defaultWordDividerRegex, 'g'), ' ')
+            .replace(/ESCAPEDPSEUDOAPOSTRAPHE/g, "'")  // unescape apostraphes
             .replace(/ESCAPEDAPOSTRAPHE/g, "’")  // unescape apostraphes
             .replace(/ESCAPEDCOMMA/g, ",")
             .replace(newlinesRegex, ' ')
@@ -625,6 +627,10 @@ const doubleSpacesRegex = /  +/g
 
             // handle bracketed [\\v #] coming in the middle of a line
             .replace(/([[(])(\\v [0-9]+)/g, '$1\n$2')
+
+            // replace tables with poetry as tables are not presently supported
+            .replace(/\\tr (?:\\t[hc]r?[0-9]* )?/g, '\\q1 ')
+            .replace(/ ?\\t[hc]r?[0-9]* /g, ' – ')
 
             .split('\n')
         )
@@ -1557,7 +1563,7 @@ const doubleSpacesRegex = /  +/g
         ],
       }]))
       if(confirmBiblearcImport) {
-        const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo))} force && cd -`
+        const biblearcCommand = `cd ../../biblearc/biblearc-data && npm run import-usfm ${folders[0]} ${JSON.stringify(JSON.stringify(biblearcVersionInfo)).replace(/\\\\\\"/g, `\\\\\\\\\\"`)} force && cd -`
         console.log(`Running the following:\n\n${biblearcCommand}\n`)
         await new Promise((resolve, reject) => {
           exec(
