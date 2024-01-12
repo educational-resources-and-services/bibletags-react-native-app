@@ -69,7 +69,7 @@ const updateLanguageSpecificDefinitions = async ({ languageId }) => {
         statement: () => `REPLACE INTO ${tableName} (${keys.join(', ')}) VALUES ?`,
         args: [
           keys.map(key => (
-            [ 'syn', 'rel' ].includes(key)
+            [ 'syn', 'rel', 'lexEntry' ].includes(key)
               ? JSON.stringify(languageSpecificDefinition[key])
               : languageSpecificDefinition[key]
           ))

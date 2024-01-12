@@ -62,7 +62,7 @@ const useDefinition = ({
           args: [
             `${definitionId}-${languageId}`,
           ],
-          jsonKeys: [ 'syn', 'rel' ],
+          jsonKeys: [ 'syn', 'rel', 'lexEntry' ],
         },
       ])
 
