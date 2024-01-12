@@ -632,6 +632,9 @@ const doubleSpacesRegex = /  +/g
             .replace(/\\tr (?:\\t[hc]r?[0-9]* )?/g, '\\q1 ')
             .replace(/ ?\\t[hc]r?[0-9]* /g, ' – ')
 
+            // remove figuires as they are not presently supported
+            .replace(/\\fig .*?\\fig\*/g, '')
+
             .split('\n')
         )
 
